@@ -15,6 +15,9 @@
 !/plugins/AuthMe/
 /plugins/AuthMe/*
 !/plugins/AuthMe/config.yml
+!/plugins/AuthMe/messages/
+/plugins/AuthMe/messages/*
+!/plugins/AuthMe/messages/messages_hu.yml
 /combofly_map/session.lock
 /combofly_map/playerdata/
 /combofly_map/stats/

@@ -1,0 +1,181 @@
+# IceMine - AuthMe magyar szövegek
+# %nl% = új sor, %username% = a játékos neve, %displayname% = a játékos megjelenített neve
+
+registration:
+    disabled: '&cA regisztráció most ki van kapcsolva.'
+    name_taken: '&cEzzel a névvel már regisztrált valaki.'
+    register_request: '&7Regisztrálj: &b/register <jelszó> <jelszó újra>'
+    command_usage: '&cÍgy kell: &b/register <jelszó> <jelszó újra>'
+    reg_only: '&cA szerverre csak regisztrált játékosok léphetnek be.'
+    success: '&aSikeres regisztráció, jó játékot!'
+    kicked_admin_registered: 'Egy admin regisztrált téged. Lépj be újra!'
+
+password:
+    match_error: '&cA két jelszó nem egyezik.'
+    name_in_password: '&cA neved nem lehet a jelszavad, válassz másikat.'
+    unsafe_password: '&cEz a jelszó túl könnyű, válassz másikat.'
+    forbidden_characters: '&cA jelszóban nem engedélyezett karakter van. Ezeket használhatod: %valid_chars'
+    wrong_length: '&cA jelszó túl rövid vagy túl hosszú.'
+
+login:
+    command_usage: '&cÍgy kell: &b/login <jelszó>'
+    wrong_password: '&cRossz jelszó.'
+    success: '&aSikeres bejelentkezés, jó játékot!'
+    login_request: '&7Jelentkezz be: &b/login <jelszó>'
+    timeout_error: 'Lejárt az idő a bejelentkezésre. Lépj be újra!'
+
+error:
+    denied_command: '&cEhhez előbb be kell jelentkezned.'
+    denied_chat: '&cA chatet csak bejelentkezés után használhatod.'
+    unregistered_user: '&cEz a játékos nincs regisztrálva.'
+    not_logged_in: '&cNem vagy bejelentkezve.'
+    no_permission: '&cEhhez nincs jogod.'
+    unexpected_error: '&cValami hiba történt. Szólj egy adminnak!'
+    max_registration: '&cErről az IP címről már nem lehet több fiókot regisztrálni. (%reg_count/%max_acc: %reg_names)'
+    logged_in: '&cMár be vagy jelentkezve.'
+    kick_for_vip: '&bEgy VIP játékos lépett be, ezért neked most ki kellett lépned.'
+    kick_unresolved_hostname: '&cHiba történt: nem sikerült azonosítani a kapcsolatodat.'
+    tempban_max_logins: '&cTúl sokszor írtad el a jelszót, ezért egy ideig nem léphetsz be.'
+
+antibot:
+    kick_antibot: 'Most túl sokan lépnek be egyszerre. Várj pár percet, és próbáld újra!'
+    auto_enabled: '&c[AntiBot] Túl sokan léptek be egyszerre, bekapcsoltam a védelmet.'
+    auto_disabled: '&a[AntiBot] A védelem %m perc múlva kikapcsol.'
+
+unregister:
+    success: '&aTörölted a regisztrációdat.'
+    command_usage: '&cÍgy kell: &b/unregister <jelszó>'
+
+misc:
+    account_not_activated: '&cA fiókod még nincs aktiválva. Nézd meg az e-mailjeidet!'
+    password_changed: '&aMegváltoztattad a jelszavadat.'
+    logout: '&aKijelentkeztél.'
+    reload: 'A beállítások és az adatbázis újra be vannak töltve.'
+    usage_change_password: '&cÍgy kell: &b/changepassword <régi jelszó> <új jelszó>'
+    accounts_owned_self: 'Ennyi fiókod van: %count'
+    accounts_owned_other: '%name ennyi fiókkal rendelkezik: %count'
+
+session:
+    valid_session: '&aGyorsan visszajöttél, ezért automatikusan bejelentkeztél.'
+    invalid_session: '&cMegváltozott az IP címed, ezért újra be kell jelentkezned.'
+
+on_join_validation:
+    same_ip_online: 'Erről az IP címről már játszik valaki.'
+    same_nick_online: 'Ezzel a névvel már fent van valaki a szerveren.'
+    name_length: '&cA neved túl rövid vagy túl hosszú.'
+    characters_in_name: '&cA nevedben nem engedélyezett karakter van. Ezeket használhatod: %valid_chars'
+    kick_full_server: '&cA szerver tele van, próbáld újra kicsit később!'
+    country_banned: '&cA te országodból nem lehet belépni erre a szerverre.'
+    not_owner_error: 'Ez a fiók nem a tiéd. Válassz másik nevet!'
+    invalid_name_case: 'A neved így írandó: %valid. Ne %invalid néven lépj be!'
+    quick_command: 'Túl gyorsan írtál parancsot. Várj egy kicsit, és próbáld újra!'
+
+email:
+    add_email_request: '&7Adj meg egy e-mail címet a fiókodhoz: &b/email add <e-mail> <e-mail újra>'
+    usage_email_add: '&cÍgy kell: &b/email add <e-mail> <e-mail újra>'
+    usage_email_change: '&cÍgy kell: &b/email change <régi e-mail> <új e-mail>'
+    new_email_invalid: '&cAz új e-mail cím nem jó, próbáld újra.'
+    old_email_invalid: '&cA régi e-mail cím nem jó, próbáld újra.'
+    invalid: '&cEz az e-mail cím nem jó, próbáld újra.'
+    added: '&aHozzáadtad az e-mail címedet.'
+    add_not_allowed: '&cE-mail címet most nem lehet hozzáadni.'
+    request_confirmation: '&cÍrd be még egyszer az e-mail címedet a megerősítéshez.'
+    changed: '&aMegváltoztattad az e-mail címedet.'
+    change_not_allowed: '&cAz e-mail címet most nem lehet megváltoztatni.'
+    email_show: '&7A jelenlegi e-mail címed: &f%email'
+    no_email_for_account: '&7Ehhez a fiókhoz még nincs e-mail cím megadva.'
+    already_used: '&cEzt az e-mail címet már használja valaki.'
+    incomplete_settings: 'Az e-mail küldés nincs beállítva a szerveren. Szólj egy adminnak!'
+    send_failure: 'Nem sikerült elküldeni az e-mailt. Szólj egy adminnak!'
+    change_password_expired: 'Ezzel a paranccsal most már nem tudod megváltoztatni a jelszavadat.'
+    email_cooldown_error: '&cMár küldtünk egy e-mailt. A következőt ennyi idő múlva kérheted: %time'
+    confirm_code_sent: '&7Küldtünk egy kódot ide: &f%email&7. Írd be így: &b/email confirm <kód>'
+    usage_email_confirm: '&cÍgy kell: &b/email confirm <kód>'
+    confirm_wrong_code: '&cRossz a kód, próbáld újra.'
+    confirm_code_expired: '&cNincs függőben lévő megerősítés. Kezdd elölről!'
+    confirm_success: '&aMegerősítetted és elmentetted az e-mail címedet.'
+
+recovery:
+    forgot_password_hint: '&7Elfelejtetted a jelszavad? Írd be: &b/email recovery <e-mail címed>'
+    command_usage: '&cÍgy kell: &b/email recovery <e-mail>'
+    email_sent: '&aElküldtük az e-mailt a jelszó visszaállításához. Nézd meg a leveleidet!'
+    code:
+        code_sent: 'Elküldtük a visszaállító kódot az e-mail címedre.'
+        incorrect: 'Rossz a kód. Még ennyiszer próbálkozhatsz: %count'
+        tries_exceeded: 'Elfogytak a próbálkozások. Kérj új kódot: /email recovery <e-mail címed>'
+        correct: 'Jó a kód!'
+        change_password: 'Most add meg az új jelszavad: /email setpassword <új jelszó>'
+
+captcha:
+    usage_captcha: '&7A bejelentkezéshez írd be ezt: &b/captcha %captcha_code'
+    wrong_captcha: '&cRossz kód. Írd be ezt: &b/captcha %captcha_code'
+    valid_captcha: '&aJó a kód!'
+    captcha_for_registration: 'A regisztráció előtt írd be ezt: /captcha %captcha_code'
+    register_captcha_valid: '&aJó a kód! Most már regisztrálhatsz: /register'
+
+verification:
+    code_required: '&7Ehhez a parancshoz meg kell erősítened, hogy te vagy az. Küldtünk egy e-mailt, abban van a kód.'
+    command_usage: '&cÍgy kell: &b/verification <kód>'
+    incorrect_code: '&cRossz a kód. Írd be így: /verification <kód>, az e-mailben kapott kóddal.'
+    success: '&aMegerősítetted, hogy te vagy az. Most már minden parancsot használhatsz.'
+    already_verified: '&aMár megerősítetted magad, minden parancsot használhatsz.'
+    code_expired: '&7A kód lejárt. Írd be újra a parancsot, és küldünk újat.'
+    email_needed: '&7Ehhez előbb adj meg egy e-mail címet a fiókodhoz.'
+
+time:
+    second: 'másodperc'
+    seconds: 'másodperc'
+    minute: 'perc'
+    minutes: 'perc'
+    hour: 'óra'
+    hours: 'óra'
+    day: 'nap'
+    days: 'nap'
+
+two_factor:
+    code_created: '&aA titkos kódod: %code. Vagy olvasd be innen: %url'
+    confirmation_required: 'Erősítsd meg a kódot: /2fa confirm <kód>'
+    code_required: 'Add meg a kétlépcsős kódodat: /2fa code <kód>'
+    already_enabled: 'A kétlépcsős azonosítás már be van kapcsolva.'
+    enable_error_no_code: 'Nincs kétlépcsős kulcsod, vagy lejárt. Írd be: /2fa add'
+    enable_success: 'Bekapcsoltad a kétlépcsős azonosítást.'
+    enable_error_wrong_code: 'Rossz vagy lejárt kód. Írd be: /2fa add'
+    not_enabled_error: 'A kétlépcsős azonosítás nincs bekapcsolva. Írd be: /2fa add'
+    removed_success: 'Kikapcsoltad a kétlépcsős azonosítást.'
+    invalid_code: 'Rossz kód.'
+
+command:
+    player_only: '&cEzt csak játékból lehet használni.'
+    player_only_alternative: '&cEzt csak játékból lehet használni. Használd inkább ezt: %alternative'
+    failed_to_parse: '&cNem sikerült értelmezni a parancsot.'
+    unknown: '&cIsmeretlen parancs.'
+    incorrect_arguments: '&cRosszul írtad be a parancsot.'
+    did_you_mean: '&7Erre gondoltál? &b%cmd'
+    see_help: '&7Segítség: &b/%cmd'
+    detailed_help: '&7Részletes segítség: &b/%cmd'
+
+admin:
+    force_login:
+        player_offline: '&cA játékosnak fent kell lennie.'
+        forbidden: '&c%name nem jelentkeztethető be erőszakkal.'
+        success: '&a%name be van jelentkeztetve.'
+    accounts:
+        ip_not_found: '&cEz az IP nincs az adatbázisban.'
+        single_account: '&a%name csak egy fiókkal rendelkezik.'
+        no_last_ip: '&cA játékos utolsó IP címe ismeretlen.'
+    email_show: '&a%name e-mail címe: %email'
+    antibot:
+        status: '&aAz AntiBot állapota: %status'
+        override_enabled: '&aAz AntiBot kézzel bekapcsolva.'
+        override_disabled: '&aAz AntiBot kézzel kikapcsolva.'
+        invalid_mode: '&cIlyen AntiBot mód nincs.'
+    reload:
+        db_type_change: '&eAz adatbázis típusát újratöltéssel nem lehet megváltoztatni.'
+        error: '&cHiba történt az AuthMe újratöltésekor.'
+    spawn:
+        set_success: '&aBeállítottad a spawnt.'
+        set_fail: '&cNem sikerült beállítani a spawnt, próbáld újra.'
+        first_set_success: '&aBeállítottad az első belépés spawnját.'
+        first_set_fail: '&cNem sikerült beállítani az első belépés spawnját, próbáld újra.'
+        not_defined: '&cNincs beállítva spawn.'
+        first_not_defined: '&cNincs beállítva az első belépés spawnja.'
