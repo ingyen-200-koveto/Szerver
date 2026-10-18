@@ -1,31 +1,37 @@
 # IceMine lobby szerver
 
-Purpur 1.20.6, Java 21. Ebben a repóban van minden, amit az IceMine-hoz én csináltam:
+Purpur 1.20.6, Java 21.
 
-- `plugins/IceMineCore-*.jar`: lobby, játékmódok (SkyPvP, KitPvP, ComboFly, Gens), scoreboard, pénz, statisztika
-- `plugins/IceMineKingdoms-*.jar`: Kingdoms mód
-- `plugins/AuthMe/config.yml` és `plugins/AuthMe/messages/messages_hu.yml`: magyar AuthMe
-- `combofly_map/`: a ComboFly pálya
-- `server.properties`: port 25574, offline mód a Velocity miatt
-- `config/paper-global.yml`: a Velocity kapcsolat a kulccsal
-- `eula.txt`: a Minecraft EULA elfogadása
+## Mi van a repóban
+
 - `server.jar`: Purpur 1.20.6 (build 2233)
+- `eula.txt`: a Minecraft EULA elfogadása
+- `plugins/*.jar`: az IceMine pluginok (IceMineCore, IceMineKingdoms) és a külső pluginok
+  (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB)
+- `kezdo/`: amit csak egyszer kell a helyére tenni (server.properties, config/paper-global.yml,
+  AuthMe config és magyar szövegek, ComboFly pálya). Ezt az IceMineCore az első indításkor
+  magától a helyére másolja, aztán leállítja a szervert. A második indítástól minden a helyén van.
 
-Külső pluginok, amik szintén benne vannak (a `plugins` mappában):
+A repóban csak olyan fájlok vannak, amikhez a szerver futás közben nem nyúl, ezért a Git Pull
+mindig működik.
 
-- ViaVersion 5.12.1, ViaBackwards 5.12.1, ViaRewind 4.2.0
-- AuthMe 5.6.0, LuckPerms 5.5.87 (Bukkit), WorldEdit 7.3.7 (Bukkit), EssentialsX 2.22.0
-- TAB 6.2.1: a Modrinthos univerzális jarból ki vannak véve a Java 25-tel fordított részek (Fabric, Forge, NeoForge és a 26.2-es Paper modul), mert ezek miatt az 1.20.6-os szerver nem tudta betölteni. A Bukkit/Paper rész érintetlen.
+TAB 6.2.1: a Modrinthos univerzális jarból ki vannak véve a Java 25-tel fordított részek
+(Fabric, Forge, NeoForge és a 26.2-es Paper modul), mert ezek miatt az 1.20.6-os szerver nem
+tudta betölteni. A Bukkit/Paper rész érintetlen.
 
-Ami nincs benne, és külön kell feltenni:
+Nincs benne: Citizens (élő NPC-khez, olyan build kell, ami támogatja az 1.20.6-ot).
 
+## Első telepítés
 
-- Citizens (opcionális, élő NPC-khez): olyan build kell, ami támogatja az 1.20.6-ot
+1. A szerver mappája legyen üres.
+2. Git Clone: https://github.com/ingyen-200-koveto/Szerver.git
+3. Indítsd el. Pár másodperc múlva magától leáll (ez az első beállítás).
+4. Indítsd el újra.
 
-## Frissítés az SRKHost panelen
+## Frissítés
 
 1. Állítsd le a szervert.
 2. Git Pull.
 3. Indítsd el.
 
-A régi jart a pull magától törli, az újat beteszi. A configokhoz, a világokhoz és a többi pluginhoz nem nyúl.
+A repóban lévő fájlokat a szerveren ne töröld és ne írd át, különben a Git Pull hibát ad.
