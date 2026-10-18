@@ -1,0 +1,19 @@
+settings:
+    messagesLanguage: hu
+    sessions:
+        enabled: true
+        timeout: 10
+    restrictions:
+        allowedNicknameCharacters: '[a-zA-Z0-9_.]*'
+        minNicknameLength: 3
+        maxNicknameLength: 16
+        ForceSingleSession: true
+        maxRegPerIp: 3
+    registration:
+        type: PASSWORD
+        secondArg: CONFIRMATION
+    security:
+        minPasswordLength: 6
+Protection:
+    geoIpDatabase:
+        enabled: false

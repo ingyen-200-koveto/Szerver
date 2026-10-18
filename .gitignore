@@ -1,7 +1,17 @@
 /*
 !/.gitignore
 !/README.md
+!/server.properties
+!/combofly_map/
 !/plugins/
 /plugins/*
 !/plugins/IceMineCore-*.jar
 !/plugins/IceMineKingdoms-*.jar
+!/plugins/AuthMe/
+/plugins/AuthMe/*
+!/plugins/AuthMe/config.yml
+/combofly_map/session.lock
+/combofly_map/playerdata/
+/combofly_map/stats/
+/combofly_map/advancements/
+/combofly_map/uid.dat
