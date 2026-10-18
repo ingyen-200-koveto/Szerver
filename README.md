@@ -7,11 +7,12 @@ Purpur 1.20.6, Java 21. Ebben a repóban van minden, amit az IceMine-hoz én csi
 - `plugins/AuthMe/config.yml`: magyar AuthMe beállítás
 - `combofly_map/`: a ComboFly pálya
 - `server.properties`: port 25574, offline mód a Velocity miatt
+- `config/paper-global.yml`: a Velocity kapcsolat a kulccsal
+- `eula.txt`: a Minecraft EULA elfogadása
 
 Ami nincs benne, és külön kell feltenni:
 
 - `server.jar` (Purpur 1.20.6)
-- `config/paper-global.yml` a Velocity kulccsal (a repó nyilvános, ezért nem lehet itt)
 - a külső pluginok: ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, TAB, WorldEdit
 
 ## Frissítés az SRKHost panelen

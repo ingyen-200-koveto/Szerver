@@ -2,11 +2,16 @@
 !/.gitignore
 !/README.md
 !/server.properties
+!/eula.txt
+!/config/
+/config/*
+!/config/paper-global.yml
 !/combofly_map/
 !/plugins/
 /plugins/*
 !/plugins/IceMineCore-*.jar
 !/plugins/IceMineKingdoms-*.jar
+!/plugins/*.jar
 !/plugins/AuthMe/
 /plugins/AuthMe/*
 !/plugins/AuthMe/config.yml

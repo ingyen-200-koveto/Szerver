@@ -1,0 +1,5 @@
+proxies:
+  velocity:
+    enabled: true
+    online-mode: false
+    secret: 'b2UhLrbQwcNKPs44jtsTD8FJZWKzp1oc'
