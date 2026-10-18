@@ -10,10 +10,16 @@ Purpur 1.20.6, Java 21. Ebben a repóban van minden, amit az IceMine-hoz én csi
 - `config/paper-global.yml`: a Velocity kapcsolat a kulccsal
 - `eula.txt`: a Minecraft EULA elfogadása
 
+Külső pluginok, amik szintén benne vannak (a `plugins` mappában):
+
+- ViaVersion 5.12.1, ViaBackwards 5.12.1, ViaRewind 4.2.0
+- AuthMe 5.6.0, LuckPerms 5.5.87 (Bukkit), WorldEdit 7.3.7 (Bukkit), EssentialsX 2.22.0
+- TAB 6.2.1: a Modrinthos univerzális jarból ki vannak véve a Java 25-tel fordított részek (Fabric, Forge, NeoForge és a 26.2-es Paper modul), mert ezek miatt az 1.20.6-os szerver nem tudta betölteni. A Bukkit/Paper rész érintetlen.
+
 Ami nincs benne, és külön kell feltenni:
 
 - `server.jar` (Purpur 1.20.6)
-- a külső pluginok: ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, TAB, WorldEdit, EssentialsX, Citizens
+- Citizens (opcionális, élő NPC-khez): olyan build kell, ami támogatja az 1.20.6-ot
 
 ## Frissítés az SRKHost panelen
 
