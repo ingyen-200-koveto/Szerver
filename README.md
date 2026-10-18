@@ -9,6 +9,7 @@ Purpur 1.20.6, Java 21. Ebben a repóban van minden, amit az IceMine-hoz én csi
 - `server.properties`: port 25574, offline mód a Velocity miatt
 - `config/paper-global.yml`: a Velocity kapcsolat a kulccsal
 - `eula.txt`: a Minecraft EULA elfogadása
+- `server.jar`: Purpur 1.20.6 (build 2233)
 
 Külső pluginok, amik szintén benne vannak (a `plugins` mappában):
 
@@ -18,7 +19,7 @@ Külső pluginok, amik szintén benne vannak (a `plugins` mappában):
 
 Ami nincs benne, és külön kell feltenni:
 
-- `server.jar` (Purpur 1.20.6)
+
 - Citizens (opcionális, élő NPC-khez): olyan build kell, ami támogatja az 1.20.6-ot
 
 ## Frissítés az SRKHost panelen

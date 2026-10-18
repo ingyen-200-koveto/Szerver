@@ -3,6 +3,7 @@
 !/README.md
 !/server.properties
 !/eula.txt
+!/server.jar
 !/config/
 /config/*
 !/config/paper-global.yml
