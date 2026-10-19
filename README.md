@@ -7,7 +7,7 @@ Purpur 1.20.6, Java 21.
 - `server.jar`: Purpur 1.20.6 (build 2233)
 - `eula.txt`: a Minecraft EULA elfogadása
 - `plugins/*.jar`: az IceMine pluginok (IceMineCore, IceMineKingdoms) és a külső pluginok
-  (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB)
+  (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB, Citizens 2.0.35 b3500)
 - `kezdo/`: amit csak egyszer kell a helyére tenni (server.properties, config/paper-global.yml,
   AuthMe config és magyar szövegek, ComboFly pálya). Ezt az IceMineCore az első indításkor
   magától a helyére másolja, aztán leállítja a szervert. A második indítástól minden a helyén van.
@@ -19,7 +19,8 @@ TAB 6.2.1: a Modrinthos univerzális jarból ki vannak véve a Java 25-tel ford�
 (Fabric, Forge, NeoForge és a 26.2-es Paper modul), mert ezek miatt az 1.20.6-os szerver nem
 tudta betölteni. A Bukkit/Paper rész érintetlen.
 
-Nincs benne: Citizens (élő NPC-khez, olyan build kell, ami támogatja az 1.20.6-ot).
+Citizens 2.0.35 build 3500: ez a build még támogatja az 1.20.6-ot (v1_20_R4). Az újabb buildekből
+ez már kikerült, a régebbiekben még nincs benne, ezért ezt ne cseréld le.
 
 ## Első telepítés
 
