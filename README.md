@@ -22,6 +22,21 @@ tudta betölteni. A Bukkit/Paper rész érintetlen.
 Citizens 2.0.35 build 3500: ez a build még támogatja az 1.20.6-ot (v1_20_R4). Az újabb buildekből
 ez már kikerült, a régebbiekben még nincs benne, ezért ezt ne cseréld le.
 
+## Világok
+
+Ezeket az IceMineCore hozza létre és építi fel magától:
+
+- a lobby (a fő világ), `ice_kitpvp`, `ice_skypvp`, `combofly_map`, gens, `kingdoms`
+- minden játékmódnak külön lobby világ: `lobby_kitpvp`, `lobby_skypvp`, `lobby_combofly`,
+  `lobby_gens`, `lobby_kingdoms`, `lobby_bedwars` (beállítás: `plugins/IceMineCore/modelobbies.yml`)
+- `bw_jegsziget`: a Bedwars pálya, két arénával (Jegsziget 4x2 és JegszigetSolo 4x1)
+
+## Bedwars
+
+A Bedwars a Screaming BedWars 0.2.44 (Paper) pluginnal megy. Az IceMineCore megírja hozzá az
+aréna fájlokat, a magyar szövegeket és a magyar boltot (`plugins/BedWars`), és beállítja a magyar
+nyelvet. Parancsok a játékosoknak: `/bw autojoin`, `/bw join Jegsziget`, `/bw leave`, `/bw stats`.
+
 ## Első telepítés
 
 1. A szerver mappája legyen üres.
