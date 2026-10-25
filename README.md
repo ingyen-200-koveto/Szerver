@@ -29,25 +29,12 @@ Ezeket az IceMineCore hozza létre és építi fel magától:
 - a lobby (a fő világ), `ice_kitpvp`, `ice_skypvp`, `combofly_map`, gens, `kingdoms`
 - minden játékmódnak külön lobby világ: `lobby_kitpvp`, `lobby_skypvp`, `lobby_combofly`,
   `lobby_gens`, `lobby_kingdoms`, `lobby_bedwars` (beállítás: `plugins/IceMineCore/modelobbies.yml`)
-- `bw_jegsziget`: a Bedwars pálya, két arénával (Jegsziget 4x2 és JegszigetSolo 4x1)
+- `bedwars`: a Bedwars pályák (Tölgyes 4x2 és Sziklavár 4x1), az IceMineBedwars építi fel
 
 ## Bedwars
 
-A Bedwars a Screaming BedWars 0.2.44 (Paper) pluginnal megy. Az IceMineCore megírja hozzá az
-aréna fájlokat, a magyar szövegeket és a magyar boltot (`plugins/BedWars`), és beállítja a magyar
-nyelvet. Parancsok a játékosoknak: `/bw autojoin`, `/bw join Jegsziget`, `/bw leave`, `/bw stats`.
-
-## Első telepítés
-
-1. A szerver mappája legyen üres.
-2. Git Clone: https://github.com/ingyen-200-koveto/Szerver.git
-3. Indítsd el. Pár másodperc múlva magától leáll (ez az első beállítás).
-4. Indítsd el újra.
-
-## Frissítés
-
-1. Állítsd le a szervert.
-2. Git Pull.
-3. Indítsd el.
-
-A repóban lévő fájlokat a szerveren ne töröld és ne írd át, különben a Git Pull hibát ad.
+Saját plugin: `IceMineBedwars` (az IceMineCore kell hozzá). Négy csapat, vas és arany a bázison,
+gyémánt a kis szigeteken, smaragd középen, bolt és csapatfejlesztések, magyar szövegek.
+Pályák: Tölgyes (füves, fás szigetek, csapatonként 2 fő) és Sziklavár (kővár, solo).
+Parancsok: `/bw play`, `/bw join csapat`, `/bw join solo`, `/bw leave`, `/bw stats`.
+Adminnak: `/bw start`, `/bw stop`, `/bw rebuild <pálya>`, `/bw reload`.
