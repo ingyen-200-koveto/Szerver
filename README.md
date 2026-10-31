@@ -35,4 +35,4 @@ Ezeket az IceMine hozza létre és építi fel magától:
 
 - a lobby (a fő világ), `ice_kitpvp`, `ice_skypvp`, `combofly_map`, gens, `kingdoms`
 - minden játékmódnak külön lobby világ: `lobby_kitpvp`, `lobby_skypvp`, `lobby_combofly`,
-  `lobby_gens`, `lobby_kingdoms` (beállítás: `plugins/IceMine/modelobbies.yml`)
+  `lobby_gens`, `lobby_kingdoms`, `lobby_duels` (beállítás: `plugins/IceMine/modelobbies.yml`)
