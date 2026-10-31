@@ -6,10 +6,10 @@ Purpur 1.20.6, Java 21.
 
 - `server.jar`: Purpur 1.20.6 (build 2233)
 - `eula.txt`: a Minecraft EULA elfogadása
-- `plugins/*.jar`: az IceMine pluginok (IceMineCore, IceMineKingdoms) és a külső pluginok
+- `plugins/*.jar`: az IceMine plugin (`IceMine.jar`, benne minden saját rendszer és játékmód) és a külső pluginok
   (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB, Citizens 2.0.35 b3500)
 - `kezdo/`: amit csak egyszer kell a helyére tenni (server.properties, config/paper-global.yml,
-  AuthMe config és magyar szövegek, ComboFly pálya). Ezt az IceMineCore az első indításkor
+  AuthMe config és magyar szövegek, ComboFly pálya). Ezt az IceMine az első indításkor
   magától a helyére másolja, aztán leállítja a szervert. A második indítástól minden a helyén van.
 
 A repóban csak olyan fájlok vannak, amikhez a szerver futás közben nem nyúl, ezért a Git Pull
@@ -22,10 +22,17 @@ tudta betölteni. A Bukkit/Paper rész érintetlen.
 Citizens 2.0.35 build 3500: ez a build még támogatja az 1.20.6-ot (v1_20_R4). Az újabb buildekből
 ez már kikerült, a régebbiekben még nincs benne, ezért ezt ne cseréld le.
 
+## IceMine.jar
+
+Az összes saját rendszer egy pluginban van. A beállítások a `plugins/IceMine` mappában vannak
+(a Kingdoms beállítása: `plugins/IceMine/kingdoms.yml`, az adatai: `plugins/IceMine/kingdoms`).
+A régi `plugins/IceMineCore` és `plugins/IceMineKingdoms` mappát az első indításkor magától
+átköltözteti, semmi nem vész el. Admin parancs: `/icem help` (vagy `/icemine`, `/im`).
+
 ## Világok
 
-Ezeket az IceMineCore hozza létre és építi fel magától:
+Ezeket az IceMine hozza létre és építi fel magától:
 
 - a lobby (a fő világ), `ice_kitpvp`, `ice_skypvp`, `combofly_map`, gens, `kingdoms`
 - minden játékmódnak külön lobby világ: `lobby_kitpvp`, `lobby_skypvp`, `lobby_combofly`,
-  `lobby_gens`, `lobby_kingdoms` (beállítás: `plugins/IceMineCore/modelobbies.yml`)
+  `lobby_gens`, `lobby_kingdoms` (beállítás: `plugins/IceMine/modelobbies.yml`)
