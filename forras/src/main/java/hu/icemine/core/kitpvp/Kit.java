@@ -38,6 +38,7 @@ public final class Kit {
     private final ItemStack[] armor = new ItemStack[4];
     private final List<PotionEffect> effects = new ArrayList<>();
     public final List<HitEffect> onHit = new ArrayList<>();
+    private KitAbility ability;
 
     private Kit(String id, String name, Material icon, List<String> description, String permission) {
         this.id = id;
@@ -94,6 +95,7 @@ public final class Kit {
             }
             kit.onHit.add(new HitEffect(type, amplifier, ticks, chance));
         }
+        kit.ability = KitAbility.read(where + ".ability", section.getConfigurationSection("ability"), problems);
         if (kit.items.isEmpty()) {
             problems.add(where + ": nincs egy tárgy sem a kitben");
         }
@@ -183,6 +185,59 @@ public final class Kit {
             stack.setItemMeta(meta);
         }
         return stack;
+    }
+
+    /** A kit képessége, vagy null, ha nincs. */
+    public KitAbility ability() {
+        return ability;
+    }
+
+    public List<ItemStack> items() {
+        return java.util.Collections.unmodifiableList(items);
+    }
+
+    /**
+     * Egy tárgy visszaírása a kitpvp.yml tárgy formátumába (ANYAG darab varázslat:szint ... unbreakable #szín name=Név).
+     * Az /icem kit create ezzel menti el a kezedben lévő felszerelést új kitként.
+     */
+    public static String spec(ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return null;
+        }
+        StringBuilder spec = new StringBuilder(item.getType().name());
+        if (item.getAmount() > 1) {
+            spec.append(' ').append(item.getAmount());
+        }
+        org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return spec.toString();
+        }
+        for (java.util.Map.Entry<org.bukkit.enchantments.Enchantment, Integer> enchant : meta.getEnchants().entrySet()) {
+            spec.append(' ').append(enchant.getKey().getKey().getKey()).append(':').append(enchant.getValue());
+        }
+        if (meta.isUnbreakable()) {
+            spec.append(" unbreakable");
+        }
+        if (meta instanceof org.bukkit.inventory.meta.LeatherArmorMeta leather) {
+            org.bukkit.Color color = leather.getColor();
+            if (color.asRGB() != 0xA06540) {
+                spec.append(" #").append(String.format(Locale.ROOT, "%06X", color.asRGB()));
+            }
+        }
+        if (meta instanceof org.bukkit.inventory.meta.PotionMeta potion) {
+            List<PotionEffect> all = new ArrayList<>(potion.getCustomEffects());
+            if (potion.getBasePotionType() != null) {
+                all.addAll(potion.getBasePotionType().getPotionEffects());
+            }
+            for (PotionEffect effect : all) {
+                int seconds = Math.max(1, effect.getDuration() / 20);
+                spec.append(" effect=").append(effect.getType().getKey().getKey()).append(':').append(effect.getAmplifier() + 1).append(':').append(seconds);
+            }
+        }
+        if (meta.hasDisplayName()) {
+            spec.append(" name=").append(meta.getDisplayName().replace('§', '&').replace(' ', '_'));
+        }
+        return spec.toString();
     }
 
     public boolean allowed(Player player) {

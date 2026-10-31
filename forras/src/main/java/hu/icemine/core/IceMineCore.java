@@ -334,6 +334,9 @@ public final class IceMineCore extends JavaPlugin {
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, () -> {
             gens.tick();
             skypvp.tick();
+            kitpvp.tickAbilities();
+            skypvp.tickAbilities();
+            comboArena.tickAbilities();
         }, 20L, 20L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, () -> {
             holograms.tick();

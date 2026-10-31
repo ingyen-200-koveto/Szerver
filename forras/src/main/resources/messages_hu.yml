@@ -231,6 +231,11 @@ kit:
   locked: "Ez a kit még nincs meg neked."
   locked-rank: "Ezt a kitet a(z) %rank% &7rang adja. Rangok: &f/icem rank"
   unknown: "Ilyen kit nincs. Választható: &f%kits%"
+  bad-id: "A kit neve 2-20 karakter lehet: kisbetű, szám és alsóvonal (ékezet nélkül)."
+  bad-rank: "Ilyen rang nincs. Lehet: &f%ranks%"
+  create-empty: "Nincs nálad semmi. Vedd fel a kit tárgyait és a páncélt, aztán írd be újra."
+  created: "Elmentve az új kit: &f%kit% &8(rang: %rank%&8)&7. A kitpvp.yml-ben tudod finomítani (név, leírás, képesség)."
+  deleted: "Törölve: &f%kit%"
   only-safe: "Kitet csak a biztonságos zónában választhatsz."
   only-pvp: "Kitet csak a PvP módokban választhatsz (KitPvP, SkyPvP, ComboFly)."
   selected: "Kiválasztva: %kit%&7. Sok sikert!"
@@ -246,7 +251,10 @@ kit:
   lore:
     current: "&a✔ Ez van rajtad"
     click: "&b▶ Kattints a kiválasztáshoz"
+    click-rank: "&b▶ Kattints a kiválasztáshoz &8(%rank%&8)"
     locked: "&8✖ Nincs meg neked"
+    rank: "&7Ehhez rang kell: %rank%"
+    ability: "&7Képesség: %name% &8(%seconds% mp)"
 
 arena:
   item: "&b&lAréna választó"
@@ -562,3 +570,30 @@ rank:
   none: "&8nincs"
   no-luckperms: "A rangokat a LuckPerms adja, de most nem fut. Szólj egy adminnak!"
   icon-current: "&a&l» Ez vagy te «"
+
+ability:
+  lore-cooldown: "&7Újratöltés: &f%seconds% mp"
+  lore-use: "&e» Jobb klikk a használathoz"
+  used: "%name% &7használva!"
+  ready: "%name% &aújra kész!"
+  cooldown: "&7A képesség még &f%seconds% mp&7 múlva lesz kész."
+  safe-zone: "&7A biztonságos zónában nem használhatsz képességet."
+  no-target: "&7Nincs célpont előtted (%radius% blokkon belül)."
+  no-kit: "&7Ez nem a te kited képessége."
+  board-ready: "&akész"
+
+upgrade:
+  menu-title: "&3[IceMine] &8Fejlesztések"
+  item: "&b&lFejlesztések"
+  item-lore:
+    - "&7Erősebb kard és páncél, több élet,"
+    - "&7gyorsabb képesség, több pénz ölésért."
+    - "&7Minden kitre érvényes."
+  level: "&7Szint: &f%level%/%max%"
+  price: "&7Ár: &f%price%"
+  click: "&b▶ Kattints a vásárláshoz"
+  lore-max: "&a✔ Elérted a maximumot"
+  balance: "&7Egyenleged: &f%balance%"
+  bought: "Megvetted: %name% &8(%level%/%max%, -%price%&8)&7. A következő kitválasztásnál már rajtad lesz."
+  no-money: "Nincs elég pénzed! Ehhez &f%price% &7kell."
+  max: "%name% &7már a legmagasabb szinten van."

@@ -42,6 +42,8 @@ final class CoreListener implements Listener {
         core.gens().attach(player);
         core.prefixes().apply(player);
         core.ranks().apply(player);
+        // ha a szerver leállt, mialatt valakin KitPvP extra élet volt, itt visszaáll a normál 10 szívre
+        hu.icemine.core.util.Attributes.setMaxHealth(player, 20.0);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

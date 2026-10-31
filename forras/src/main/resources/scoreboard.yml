@@ -56,6 +56,7 @@ boards:
     - "&8&m                    "
     - "&7Mód: &c&lKitPvP &8(%arena%&8)"
     - "&7Kit: %kit%"
+    - "&7Képesség: &f%ability%"
     - ""
     - "&7Ölés: &a%kills% &8| &7Halál: &c%deaths%"
     - "&7K/D: &f%kd%"

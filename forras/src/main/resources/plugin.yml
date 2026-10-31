@@ -193,6 +193,9 @@ permissions:
   icemine.admin.build:
     description: Kreatív módban építhet a védett területeken
     default: op
+  icemine.admin.kit:
+    description: Új kit mentése és kit törlése (/icem kit create|delete)
+    default: op
   icemine.admin.commands:
     description: Használhatja a config.yml blocked-commands részében tiltott parancsokat (pl. /plugins)
     default: op
@@ -216,6 +219,7 @@ permissions:
       icemine.admin.rebuild: true
       icemine.admin.arena: true
       icemine.admin.build: true
+      icemine.admin.kit: true
       icemine.admin.commands: true
   icemine.kit.fagylovag:
     description: Fagylovag kit

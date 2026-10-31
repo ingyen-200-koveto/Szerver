@@ -140,9 +140,12 @@ public final class CombatTag implements Listener {
         if (!enabled || !(event.getEntity() instanceof Player)) {
             return;
         }
-        Player victim = (Player) event.getEntity();
-        Player attacker = attacker(event.getDamager());
-        if (attacker == null || attacker.equals(victim) || attacker.getWorld() != victim.getWorld() || !activeIn(victim)) {
+        tag(attacker(event.getDamager()), (Player) event.getEntity());
+    }
+
+    /** Harcba teszi mindkettőt. A sebzés nélküli támadások (pl. kit képességek: fagyasztás, behúzás) is ezt hívják. */
+    public void tag(Player attacker, Player victim) {
+        if (!enabled || attacker == null || victim == null || attacker.equals(victim) || attacker.getWorld() != victim.getWorld() || !activeIn(victim)) {
             return;
         }
         long now = System.currentTimeMillis();

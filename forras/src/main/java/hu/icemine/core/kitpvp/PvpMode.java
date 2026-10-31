@@ -72,10 +72,44 @@ public abstract class PvpMode implements ModeHandler, Listener {
     protected double voidY = 0;
     protected boolean hunger = false;
     protected boolean keepLoot = false;
+    protected final AbilityRunner abilities;
 
     protected PvpMode(IceMineCore core, String id) {
         this.core = core;
         this.id = id;
+        this.abilities = new AbilityRunner(core, this);
+    }
+
+    /** Ugrás vagy lendülés után pár másodpercig nincs esési sebzés. */
+    protected void markJumped(UUID player) {
+        jumped.put(player, System.currentTimeMillis());
+    }
+
+    /** A képesség cooldown szorzója (a KitPvP fejlesztése csökkenti). */
+    protected double cooldownMultiplier(Player player) {
+        return 1.0;
+    }
+
+    /** Az ölésért járó pénz szorzója a módon belül (a KitPvP fejlesztése növeli). A rang szorzója ezen felül jön. */
+    protected double rewardMultiplier(Player player) {
+        return 1.0;
+    }
+
+    /** A kit felvétele után fut (a KitPvP itt teszi rá a fejlesztéseket). */
+    protected void afterEquip(Player player, Kit kit) {
+    }
+
+    /** A kit menü alsó sora (a KitPvP ide teszi a fejlesztések gombot). */
+    protected void decorateKitMenu(hu.icemine.core.menu.Menu menu, Player player) {
+    }
+
+    /** Másodpercenként: szól, ha a képesség újra kész. */
+    public void tickAbilities() {
+        abilities.tick();
+    }
+
+    public long abilityCooldown(Player player) {
+        return abilities.remainingMillis(player);
     }
 
     @Override
@@ -171,6 +205,18 @@ public abstract class PvpMode implements ModeHandler, Listener {
         return kits;
     }
 
+    protected String currency() {
+        return currency;
+    }
+
+    /** A biztonságos zóna hotbarjának extra tárgyai (a KitPvP ide teszi a fejlesztéseket). */
+    protected void extraHotbar(org.bukkit.inventory.PlayerInventory inventory) {
+    }
+
+    /** A fejlesztések menü (csak a KitPvP-ben van). */
+    protected void openUpgrades(Player player) {
+    }
+
     public boolean inWorld(Player player) {
         return world != null && player.getWorld() == world;
     }
@@ -201,11 +247,38 @@ public abstract class PvpMode implements ModeHandler, Listener {
         }
         kit.equip(player);
         equipped.put(player.getUniqueId(), kit.id);
+        giveAbility(player, kit);
+        afterEquip(player, kit);
         PlayerProfile profile = core.profiles().profile(player);
         if (profile != null) {
             profile.put(id + ".kit", kit.id);
         }
         return true;
+    }
+
+    private void giveAbility(Player player, Kit kit) {
+        KitAbility ability = kit.ability();
+        if (ability == null) {
+            return;
+        }
+        ItemStack item = ability.item(kit.id, abilityLore(ability));
+        org.bukkit.inventory.PlayerInventory inventory = player.getInventory();
+        if (inventory.getItem(8) == null || inventory.getItem(8).getType().isAir()) {
+            inventory.setItem(8, item);
+        } else {
+            inventory.addItem(item);
+        }
+        long left = abilities.remainingMillis(player);
+        if (left > 0) {
+            player.setCooldown(ability.material(), (int) (left / 50L));
+        }
+    }
+
+    List<String> abilityLore(KitAbility ability) {
+        List<String> lore = new ArrayList<>(ability.description);
+        lore.add(core.messages().raw("ability.lore-cooldown").replace("%seconds%", String.valueOf(ability.cooldown)));
+        lore.add(core.messages().raw("ability.lore-use"));
+        return lore;
     }
 
     public Kit lastKit(Player player) {
@@ -242,6 +315,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
     @Override
     public void leave(Player player, boolean quitting) {
         equipped.remove(player.getUniqueId());
+        abilities.reset(player.getUniqueId());
         streaks.remove(player.getUniqueId());
         warned.remove(player.getUniqueId());
         player.getInventory().clear();
@@ -262,6 +336,8 @@ public abstract class PvpMode implements ModeHandler, Listener {
         values.put("%streak%", String.valueOf(streaks.getOrDefault(player.getUniqueId(), 0)));
         values.put("%best_streak%", String.valueOf(profile == null ? 0 : profile.stat(id + ".best_streak")));
         values.put("%combo%", String.valueOf(core.combo().current(player)));
+        long ability = abilities.remainingMillis(player);
+        values.put("%ability%", ability > 0 ? (ability + 999) / 1000 + " mp" : core.messages().raw("ability.board-ready"));
         String kit = equipped.get(player.getUniqueId());
         values.put("%kit%", kit == null || kits.get(kit) == null ? core.messages().get("kit.none") : Text.color(kits.get(kit).name));
     }
@@ -357,6 +433,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
         int lost = streaks.getOrDefault(victim.getUniqueId(), 0);
         streaks.remove(victim.getUniqueId());
         equipped.remove(victim.getUniqueId());
+        abilities.reset(victim.getUniqueId());
         if (victimProfile != null) {
             victimProfile.addStat(id + ".deaths", 1);
         }
@@ -428,6 +505,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
         if (bonus != null) {
             reward += bonus;
         }
+        reward = Math.round(reward * rewardMultiplier(killer));
         reward = core.ranks().boost(killer, reward);
         String today = LocalDate.now().toString();
         long earned = today.equals(profile.setting(id + ".reward.day", "")) ? parse(profile.setting(id + ".reward.sum", "0")) : 0;
@@ -530,6 +608,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
 
     public void backToSpawn(Player player) {
         equipped.remove(player.getUniqueId());
+        abilities.reset(player.getUniqueId());
         streaks.remove(player.getUniqueId());
         prepare(player);
     }
@@ -594,6 +673,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
             inventory.setItem(2, Items.of(org.bukkit.Material.COMPASS).name(core.messages().raw("arena.item")).lore(core.messages().list("arena.item-lore")).tag("pvp:arenas").build());
         }
         inventory.setItem(8, Items.of(org.bukkit.Material.RED_BED).name(core.messages().raw("pvp.item.lobby")).tag("pvp:lobby").build());
+        extraHotbar(inventory);
         inventory.setHeldItemSlot(0);
     }
 
@@ -620,7 +700,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
     }
 
     public void openKits(Player player) {
-        hu.icemine.core.menu.Menu menu = new hu.icemine.core.menu.Menu(id + "-kits", Math.max(3, Math.min(6, (kits.size() + 8) / 7 + 2)),
+        hu.icemine.core.menu.Menu menu = new hu.icemine.core.menu.Menu(id + "-kits", Math.max(4, Math.min(6, (kits.size() + 6) / 7 + 2)),
                 core.messages().raw("kit.menu-title"));
         menu.frame(org.bukkit.Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
         String current = equipped.get(player.getUniqueId());
@@ -633,13 +713,23 @@ public abstract class PvpMode implements ModeHandler, Listener {
                 break;
             }
             List<String> lore = new ArrayList<>(kit.description);
+            if (kit.ability() != null) {
+                lore.add("");
+                lore.add(core.messages().raw("kit.lore.ability").replace("%name%", kit.ability().name)
+                        .replace("%seconds%", String.valueOf(kit.ability().cooldown)));
+                lore.addAll(kit.ability().description);
+            }
             lore.add("");
             boolean allowed = core.ranks().canUse(player, kit);
+            hu.icemine.core.rank.Ranks.Rank need = core.ranks().requiredFor(kit.id);
             if (kit.id.equals(current)) {
                 lore.add(core.messages().raw("kit.lore.current"));
             } else if (allowed) {
-                lore.add(core.messages().raw("kit.lore.click"));
+                lore.add(core.messages().raw(need == null ? "kit.lore.click" : "kit.lore.click-rank").replace("%rank%", need == null ? "" : need.name));
             } else {
+                if (need != null) {
+                    lore.add(core.messages().raw("kit.lore.rank").replace("%rank%", need.name));
+                }
                 lore.add(core.messages().raw("kit.lore.locked"));
             }
             Items item = Items.of(allowed ? kit.icon : org.bukkit.Material.GRAY_DYE).name(kit.name).lore(lore).hideAll();
@@ -652,6 +742,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
                 selectKit(clicker, kitId);
             });
         }
+        decorateKitMenu(menu, player);
         menu.open(player);
     }
 
@@ -662,6 +753,18 @@ public abstract class PvpMode implements ModeHandler, Listener {
             return;
         }
         String tag = Items.tagOf(event.getItem());
+        if (tag != null && tag.startsWith(KitAbility.TAG)) {
+            event.setCancelled(true);
+            org.bukkit.event.block.Action action = event.getAction();
+            if (event.getHand() == org.bukkit.inventory.EquipmentSlot.HAND
+                    && (action == org.bukkit.event.block.Action.RIGHT_CLICK_AIR || action == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK)) {
+                Kit kit = kits.get(tag.substring(KitAbility.TAG.length()));
+                if (kit != null) {
+                    abilities.use(player, kit);
+                }
+            }
+            return;
+        }
         if (tag == null || !tag.startsWith("pvp:")) {
             return;
         }
@@ -682,6 +785,9 @@ public abstract class PvpMode implements ModeHandler, Listener {
             case "pvp:arenas":
                 openArenas(player);
                 break;
+            case "pvp:upgrades":
+                openUpgrades(player);
+                break;
             case "pvp:lobby":
                 core.modes().sendAndReport(player, hu.icemine.core.mode.ModeService.LOBBY);
                 break;
@@ -693,6 +799,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(org.bukkit.event.player.PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
+        abilities.reset(uuid);
         died.remove(uuid);
         warned.remove(uuid);
         jumped.remove(uuid);

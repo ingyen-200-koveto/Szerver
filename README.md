@@ -85,6 +85,37 @@ lp user Jatekosnev parent add vip
 
 A rangváltás fél percen belül életbe lép, újrabelépés nélkül is.
 
+### KitPvP
+
+15 kit, mindegyiknek saját képessége van. A képesség tárgy a hotbar utolsó helyén van, jobb klikkel
+használod, utána újratöltődik (a scoreboardon látszik, mennyi van még hátra). A biztonságos zónában nem működik.
+
+| Kit | Képesség | Rang |
+|---|---|---|
+| Harcos | Csatakiáltás (erő + gyorsaság) | ingyenes |
+| Íjász | Nyílzápor (5 nyíl egyszerre) | ingyenes |
+| Tank | Kőbőr (ellenállás) | ingyenes |
+| Orgyilkos | Árnyéklépés (láthatatlanság) | VIP |
+| Berserker | Vérszomj (Erő II) | VIP+ |
+| Vadász | Füstbomba (vakítás a közelben) | VIP+ |
+| Fagylovag | Jégvihar (lassítás a közelben) | MVP |
+| Ugró | Nagy ugrás | MVP |
+| Nindzsa | Villanás (előrelendülés) | MVP+ |
+| Piromán | Tűzgolyó | ELITE |
+| Villámmágus | Villámcsapás arra, akire nézel | ELITE |
+| Halász | Horog (magadhoz rántod, akire nézel) | LEGEND |
+| Alkimista | Gyógyfőzet (+4 szív) | LEGEND |
+| Poszeidón | Szökőár (lökéshullám) | LEGEND |
+| Jégkirály | Örök tél (erős lassítás + sebzés) | LEGEND |
+
+Fejlesztések (kristályért, minden kitre érvényes): Élesség, Védelem, Extra élet, Gyorsabb képesség,
+Kincsvadász (több pénz ölésért). A kit menü alján és a hotbaron (tapasztalat üveg) éred el.
+Beállítás: `plugins/IceMine/kitpvp.yml` -> `kits` (képesség: `ability`) és `upgrades`.
+
+Új kitet játékban is csinálhatsz: vedd fel a tárgyakat és a páncélt, aztán
+`/icem kit create <név> [rang]` (törlés: `/icem kit delete <név>`). A név, a leírás és a képesség utána
+a `kitpvp.yml`-ben finomítható.
+
 ### ComboFly lökés
 
 `plugins/IceMine/combofly.yml`: a lökés öt része külön állítható: Horizontal (`knockback-horizontal`),

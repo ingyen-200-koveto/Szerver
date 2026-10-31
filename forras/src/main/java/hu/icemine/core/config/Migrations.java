@@ -248,8 +248,27 @@ public final class Migrations {
         if (resetIfContains(files, "modes", "modes.kitpvp.description", "öt kit")) {
             notes.add("modes.yml: új KitPvP leírás");
         }
-        YamlConfiguration combo = files.get("combofly");
-        if (refresh(combo, "migrated.combo-v2", "knockback-horizontal", "knockback-vertical", "combo-scaling", "max-vertical", "max-height",
+        YamlConfiguration kitpvp = files.get("kitpvp");
+        if (kitpvp != null && kitpvp.getDefaults() != null && kitpvp.isSet("kits") && !kitpvp.getBoolean("migrated.abilities-v1", false)) {
+            ConfigurationSection defaultKits = kitpvp.getDefaults().getConfigurationSection("kits");
+            if (defaultKits != null) {
+                for (String id : defaultKits.getKeys(false)) {
+                    if (!kitpvp.isSet("kits." + id)) {
+                        copyDefault(kitpvp, "kits." + id);
+                    } else if (!kitpvp.isSet("kits." + id + ".ability") && defaultKits.isSet(id + ".ability")) {
+                        copyDefault(kitpvp, "kits." + id + ".ability");
+                    }
+                }
+            }
+            if (!kitpvp.isSet("upgrades")) {
+                copyDefault(kitpvp, "upgrades");
+            }
+            kitpvp.set("migrated.abilities-v1", true);
+            files.save("kitpvp");
+            notes.add("kitpvp.yml: kit képességek, 4 új kit (Vadász, Ugró, Villámmágus, Jégkirály) és fejlesztések");
+        }
+        YamlConfiguration combofly = files.get("combofly");
+        if (refresh(combofly, "migrated.combo-v2", "knockback-horizontal", "knockback-vertical", "combo-scaling", "max-vertical", "max-height",
                 "hit-delay-ticks", "damage-multiplier", "modes.combofly")) {
             files.save("combofly");
             notes.add("combofly.yml: kombós lökés, gyorsabb ütések (4 tick) és erősebb sebzés az arénában");

@@ -1,0 +1,62 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.3.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.3.0
+changes:
+- file: ranks
+  path: ranks.vipplus.kits
+  old:
+  - berserker
+- file: ranks
+  path: ranks.vipplus.perks
+  old:
+  - '&7Berserker kit'
+  - '&7Szívek ölés effekt'
+  - '&7Színes chat'
+  - '&720% pénz bónusz'
+- file: ranks
+  path: ranks.mvp.kits
+  old:
+  - fagylovag
+- file: ranks
+  path: ranks.mvp.perks
+  old:
+  - '&7Fagylovag kit'
+  - '&7Fagy nyomvonal'
+  - '&7Repülés a lobbyban'
+  - '&730% pénz bónusz'
+- file: ranks
+  path: ranks.elite.kits
+  old:
+  - piroman
+- file: ranks
+  path: ranks.elite.perks
+  old:
+  - '&7Piromán kit'
+  - '&7Kristály nyomvonal, tűzijáték effekt'
+  - '&750% pénz bónusz'
+- file: ranks
+  path: ranks.legend.kits
+  old:
+  - halasz
+  - alkimista
+  - poszeidon
+- file: ranks
+  path: ranks.legend.perks
+  old:
+  - '&7Halász, Alkimista és Poszeidón kit'
+  - '&7Minden kozmetika'
+  - '&775% pénz bónusz'
+- file: scoreboard
+  path: boards.kitpvp
+  old:
+  - '&8&m                    '
+  - '&7Mód: &c&lKitPvP &8(%arena%&8)'
+  - '&7Kit: %kit%'
+  - ''
+  - '&7Ölés: &a%kills% &8| &7Halál: &c%deaths%'
+  - '&7K/D: &f%kd%'
+  - '&7Sorozat: &e%streak% &8(legjobb: %best_streak%)'
+  - '&7Harc: %combat%'
+  - ''
+  - '&7Pénz: %money%'
+  - '&bplay.icemine.hu'

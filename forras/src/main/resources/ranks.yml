@@ -54,11 +54,11 @@ ranks:
     name: "&a&lVIP&6&l+"
     icon: EMERALD
     coin-multiplier: 1.2
-    kits: [berserker]
+    kits: [berserker, vadasz]
     cosmetics: [kill.szivek]
     permissions: [icemine.chat.color]
     perks:
-      - "&7Berserker kit"
+      - "&7Berserker és Vadász kit"
       - "&7Szívek ölés effekt"
       - "&7Színes chat"
       - "&720% pénz bónusz"
@@ -67,11 +67,11 @@ ranks:
     name: "&b&lMVP"
     icon: LIGHT_BLUE_DYE
     coin-multiplier: 1.3
-    kits: [fagylovag]
+    kits: [fagylovag, ugro]
     cosmetics: [trail.fagy]
     permissions: [icemine.cosmetic.fly]
     perks:
-      - "&7Fagylovag kit"
+      - "&7Fagylovag és Ugró kit"
       - "&7Fagy nyomvonal"
       - "&7Repülés a lobbyban"
       - "&730% pénz bónusz"
@@ -92,11 +92,11 @@ ranks:
     name: "&5&lELITE"
     icon: AMETHYST_SHARD
     coin-multiplier: 1.5
-    kits: [piroman]
+    kits: [piroman, villammago]
     cosmetics: [trail.kristaly, kill.tuzijatek]
     permissions: []
     perks:
-      - "&7Piromán kit"
+      - "&7Piromán és Villámmágus kit"
       - "&7Kristály nyomvonal, tűzijáték effekt"
       - "&750% pénz bónusz"
   legend:
@@ -104,11 +104,11 @@ ranks:
     name: "&6&lLEGEND"
     icon: NETHER_STAR
     coin-multiplier: 1.75
-    kits: [halasz, alkimista, poszeidon]
+    kits: [halasz, alkimista, poszeidon, jegkiraly]
     cosmetics: [trail.szikra, kill.villam, kill.robbanas]
     permissions: []
     perks:
-      - "&7Halász, Alkimista és Poszeidón kit"
+      - "&7Halász, Alkimista, Poszeidón és Jégkirály kit"
       - "&7Minden kozmetika"
       - "&775% pénz bónusz"
   youtuber:

@@ -53,9 +53,131 @@ public final class KitPvpMode extends PvpMode {
     private final Map<UUID, String> playerArena = new HashMap<>();
     private final Map<Integer, List<ItemStack>> streakItems = new HashMap<>();
     private String defaultArena = "";
+    private final KitUpgrades upgrades;
 
     public KitPvpMode(IceMineCore core) {
         super(core, "kitpvp");
+        this.upgrades = new KitUpgrades(core);
+    }
+
+    public KitUpgrades upgrades() {
+        return upgrades;
+    }
+
+    @Override
+    protected double cooldownMultiplier(Player player) {
+        return upgrades.cooldownMultiplier(player);
+    }
+
+    @Override
+    protected double rewardMultiplier(Player player) {
+        return upgrades.rewardMultiplier(player);
+    }
+
+    @Override
+    protected void afterEquip(Player player, Kit kit) {
+        upgrades.apply(player);
+    }
+
+    @Override
+    protected void extraHotbar(org.bukkit.inventory.PlayerInventory inventory) {
+        if (!upgrades.all().isEmpty()) {
+            inventory.setItem(4, Items.of(Material.EXPERIENCE_BOTTLE).name(core.messages().raw("upgrade.item"))
+                    .lore(core.messages().list("upgrade.item-lore")).tag("pvp:upgrades").build());
+        }
+    }
+
+    @Override
+    protected void openUpgrades(Player player) {
+        upgrades.open(player, () -> openKits(player));
+    }
+
+    @Override
+    protected void decorateKitMenu(Menu menu, Player player) {
+        if (upgrades.all().isEmpty()) {
+            return;
+        }
+        menu.set(menu.size() - 5, Items.of(Material.EXPERIENCE_BOTTLE).name(core.messages().raw("upgrade.item"))
+                .lore(core.messages().list("upgrade.item-lore")).build(), clicker -> upgrades.open(clicker, () -> openKits(clicker)));
+    }
+
+    /**
+     * Új kit a játékos jelenlegi felszereléséből (/icem kit create). Beírja a kitpvp.yml-be, és ha rangot is megadtak,
+     * a ranks.yml-ben ahhoz a ranghoz köti.
+     */
+    public boolean createKit(Player admin, String kitId, String rankId) {
+        YamlConfiguration config = core.configs().get("kitpvp");
+        String base = "kits." + kitId;
+        List<String> items = new ArrayList<>();
+        ItemStack[] contents = admin.getInventory().getStorageContents();
+        for (ItemStack item : contents) {
+            if (item == null || Items.tagOf(item) != null) {
+                continue;
+            }
+            String spec = Kit.spec(item);
+            if (spec != null) {
+                items.add(spec);
+            }
+        }
+        if (items.isEmpty()) {
+            core.messages().send(admin, "kit.create-empty");
+            return false;
+        }
+        ItemStack hand = admin.getInventory().getItemInMainHand();
+        config.set(base, null);
+        config.set(base + ".name", "&f&l" + Character.toUpperCase(kitId.charAt(0)) + kitId.substring(1));
+        config.set(base + ".icon", (hand == null || hand.getType().isAir() ? Material.IRON_SWORD : hand.getType()).name());
+        config.set(base + ".description", List.of("&7Egyedi kit."));
+        config.set(base + ".items", items);
+        ItemStack[] armor = admin.getInventory().getArmorContents();
+        String[] slots = {"boots", "leggings", "chestplate", "helmet"};
+        for (int i = 0; i < slots.length && i < armor.length; i++) {
+            String spec = Kit.spec(armor[i]);
+            if (spec != null) {
+                config.set(base + ".armor." + slots[i], spec);
+            }
+        }
+        core.configs().save("kitpvp");
+        if (rankId != null) {
+            YamlConfiguration ranks = core.configs().get("ranks");
+            String path = "ranks." + rankId + ".kits";
+            List<String> list = new ArrayList<>(ranks.getStringList(path));
+            if (!list.contains(kitId)) {
+                list.add(kitId);
+            }
+            ranks.set(path, list);
+            core.configs().save("ranks");
+            core.reloadConfigs("ranks");
+        }
+        core.reloadConfigs("kitpvp");
+        return true;
+    }
+
+    public boolean deleteKit(String kitId) {
+        YamlConfiguration config = core.configs().get("kitpvp");
+        if (!config.isSet("kits." + kitId)) {
+            return false;
+        }
+        config.set("kits." + kitId, null);
+        core.configs().save("kitpvp");
+        YamlConfiguration ranks = core.configs().get("ranks");
+        ConfigurationSection section = ranks.getConfigurationSection("ranks");
+        boolean changed = false;
+        if (section != null) {
+            for (String rank : section.getKeys(false)) {
+                List<String> list = new ArrayList<>(ranks.getStringList("ranks." + rank + ".kits"));
+                if (list.remove(kitId)) {
+                    ranks.set("ranks." + rank + ".kits", list);
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            core.configs().save("ranks");
+            core.reloadConfigs("ranks");
+        }
+        core.reloadConfigs("kitpvp");
+        return true;
     }
 
     public void load(YamlConfiguration config, List<String> problems) {
@@ -73,6 +195,7 @@ public final class KitPvpMode extends PvpMode {
             build(config);
         }
         loadCommon(config, "kitpvp.yml", problems);
+        upgrades.load(config.getConfigurationSection("upgrades"), currency(), problems);
         arenas.clear();
         ConfigurationSection section = config.getConfigurationSection("arenas");
         if (section != null) {
@@ -233,6 +356,7 @@ public final class KitPvpMode extends PvpMode {
 
     @Override
     protected void prepare(Player player) {
+        upgrades.clear(player);
         resetState(player, GameMode.ADVENTURE);
         giveSafeHotbar(player);
     }
@@ -250,6 +374,7 @@ public final class KitPvpMode extends PvpMode {
     @Override
     public void leave(Player player, boolean quitting) {
         super.leave(player, quitting);
+        upgrades.clear(player);
         playerArena.remove(player.getUniqueId());
     }
 
