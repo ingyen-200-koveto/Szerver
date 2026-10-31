@@ -36,3 +36,25 @@ Ezeket az IceMine hozza létre és építi fel magától:
 - a lobby (a fő világ), `ice_kitpvp`, `ice_skypvp`, `combofly_map`, gens, `kingdoms`
 - minden játékmódnak külön lobby világ: `lobby_kitpvp`, `lobby_skypvp`, `lobby_combofly`,
   `lobby_gens`, `lobby_kingdoms`, `lobby_duels` (beállítás: `plugins/IceMine/modelobbies.yml`)
+
+## Duels
+
+13 mód: Classic, NoDebuff, Boxing, Combo, ComboFly, Bridge, OP, Sumo, BuildUHC, Axe, Sword, Crystal
+és az IceMine saját kitje. Unranked és ranked sor (Elo), kihívás, visszavágó, best of 3, nézők.
+Az arénák a `duels` világban vannak, beállítás: `plugins/IceMine/duels.yml`.
+Parancsok: `/duels`, `/duel <név> [mód] [bo3]`, `/duel accept`, `/duel rematch`, `/duels spectate <név>`.
+
+## Első telepítés
+
+1. A szerver mappája legyen üres.
+2. Git Clone: https://github.com/ingyen-200-koveto/Szerver.git
+3. Indítsd el. Pár másodperc múlva magától leáll (ez az első beállítás).
+4. Indítsd el újra.
+
+## Frissítés
+
+1. Állítsd le a szervert.
+2. Git Pull.
+3. Indítsd el.
+
+A repóban lévő fájlokat a szerveren ne töröld és ne írd át, különben a Git Pull hibát ad.
