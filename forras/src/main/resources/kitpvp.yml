@@ -1,0 +1,258 @@
+# KitPvP
+# Az arénát (Jégmező: lapos, havas pálya, közepén kiemelt, védett lobbyval) az első indításkor
+# a plugin építi fel ebben a világban. A lobbyból leugrasz a pályára, visszamenni nem lehet.
+# A pálya szélén barrier fal van, hogy senki ne essen le.
+# Újraépítés: /icemine rebuild kitpvp confirm
+# Tárgy formátum: ANYAG [darab] [varázslat:szint ...] [unbreakable] [name=Név_aláhúzással]
+# Bőrpáncél színe: #RRGGBB (pl. "LEATHER_CHESTPLATE 1 #1E1E1E")
+# Bájital: effect=effekt:szint[:másodperc] (pl. "SPLASH_POTION 1 effect=instant_damage:1")
+# Effekt formátum: effekt:szint (pl. speed:1)
+# Ütéskori effekt: effekt:szint:másodperc:esély (pl. slowness:1:2:0.2 = 20% eséllyel 2 mp lassítás)
+
+world: ice_kitpvp
+built: false
+center:
+  x: 0
+  y: 100
+  z: 0
+time: 6000
+void-y: 70
+hunger: false
+# Mennyit gyógyuljon a gyilkos egy ölés után (fél szívekben)
+heal-on-kill: 6
+# KitPvP-ben a kit tárgyak sosem esnek le
+drop-loot: false
+
+default-arena: jegmezo
+arenas:
+  jegmezo:
+    name: "&b&lJégmező"
+    icon: SNOW_BLOCK
+    description:
+      - "&7Lapos, havas pálya jégtüskékkel."
+      - "&7Középen a kiemelt lobby, onnan ugrasz le."
+
+default-kit: harcos
+kits:
+  harcos:
+    name: "&f&lHarcos"
+    icon: IRON_SWORD
+    description:
+      - "&7Kiegyensúlyozott kezdő kit."
+      - "&7Vas kard, vas páncél."
+    items:
+      - "IRON_SWORD 1 sharpness:1 unbreakable"
+      - "BOW 1 unbreakable"
+      - "ARROW 16"
+      - "GOLDEN_APPLE 2"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "IRON_HELMET 1 unbreakable"
+      chestplate: "IRON_CHESTPLATE 1 unbreakable"
+      leggings: "IRON_LEGGINGS 1 unbreakable"
+      boots: "IRON_BOOTS 1 unbreakable"
+  ijasz:
+    name: "&a&lÍjász"
+    icon: BOW
+    description:
+      - "&7Távolról öl, közelről sebezhető."
+      - "&7Erős íj, könnyű páncél."
+    items:
+      - "STONE_SWORD 1 unbreakable"
+      - "BOW 1 power:2 punch:1 infinity:1 unbreakable"
+      - "ARROW 1"
+      - "GOLDEN_APPLE 1"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "CHAINMAIL_HELMET 1 unbreakable"
+      chestplate: "LEATHER_CHESTPLATE 1 protection:1 unbreakable"
+      leggings: "CHAINMAIL_LEGGINGS 1 unbreakable"
+      boots: "LEATHER_BOOTS 1 feather_falling:2 unbreakable"
+    effects:
+      - "speed:1"
+  tank:
+    name: "&7&lTank"
+    icon: IRON_CHESTPLATE
+    description:
+      - "&7Sokat kibír, de lassú."
+      - "&7Gyémánt páncél, gyenge fegyver."
+    items:
+      - "STONE_SWORD 1 sharpness:1 unbreakable"
+      - "GOLDEN_APPLE 1"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "DIAMOND_HELMET 1 unbreakable"
+      chestplate: "DIAMOND_CHESTPLATE 1 unbreakable"
+      leggings: "IRON_LEGGINGS 1 unbreakable"
+      boots: "DIAMOND_BOOTS 1 unbreakable"
+    effects:
+      - "slowness:1"
+  orgyilkos:
+    name: "&8&lOrgyilkos"
+    icon: GOLDEN_SWORD
+    description:
+      - "&7Gyors és halálos, de könnyen elesik."
+      - "&7Éles kard, gyorsaság."
+    items:
+      - "IRON_SWORD 1 sharpness:2 unbreakable"
+      - "GOLDEN_APPLE 1"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "LEATHER_HELMET 1 unbreakable"
+      chestplate: "CHAINMAIL_CHESTPLATE 1 unbreakable"
+      leggings: "LEATHER_LEGGINGS 1 unbreakable"
+      boots: "CHAINMAIL_BOOTS 1 unbreakable"
+    effects:
+      - "speed:2"
+  fagylovag:
+    name: "&b&lFagylovag"
+    icon: DIAMOND_SWORD
+    permission: icemine.kit.fagylovag
+    description:
+      - "&7A jég lovagja. Ütéseivel néha"
+      - "&7lelassítja az ellenfelét."
+    items:
+      - "DIAMOND_SWORD 1 unbreakable"
+      - "GOLDEN_APPLE 1"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "IRON_HELMET 1 unbreakable"
+      chestplate: "CHAINMAIL_CHESTPLATE 1 protection:1 unbreakable"
+      leggings: "IRON_LEGGINGS 1 unbreakable"
+      boots: "IRON_BOOTS 1 unbreakable"
+    on-hit:
+      - "slowness:1:2:0.15"
+  berserker:
+    name: "&4&lBerserker"
+    icon: IRON_AXE
+    description:
+      - "&7Lassan üt, de minden ütése fáj."
+      - "&7Éles vas balta, lánc páncél."
+    items:
+      - "IRON_AXE 1 sharpness:2 unbreakable"
+      - "GOLDEN_APPLE 1"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "LEATHER_HELMET 1 #8B1A1A unbreakable"
+      chestplate: "CHAINMAIL_CHESTPLATE 1 protection:1 unbreakable"
+      leggings: "CHAINMAIL_LEGGINGS 1 unbreakable"
+      boots: "LEATHER_BOOTS 1 #8B1A1A unbreakable"
+  nindzsa:
+    name: "&8&lNindzsa"
+    icon: ENDER_PEARL
+    description:
+      - "&7Gyors, magasra ugrik,"
+      - "&7és 3 enderpearllel menekül."
+    items:
+      - "STONE_SWORD 1 sharpness:2 unbreakable"
+      - "ENDER_PEARL 3"
+      - "GOLDEN_APPLE 1"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "LEATHER_HELMET 1 #1E1E1E protection:1 unbreakable"
+      chestplate: "LEATHER_CHESTPLATE 1 #1E1E1E protection:1 unbreakable"
+      leggings: "LEATHER_LEGGINGS 1 #1E1E1E protection:1 unbreakable"
+      boots: "LEATHER_BOOTS 1 #1E1E1E feather_falling:3 unbreakable"
+    effects:
+      - "speed:2"
+      - "jump_boost:1"
+  piroman:
+    name: "&6&lPiromán"
+    icon: BLAZE_POWDER
+    description:
+      - "&7Mindent felgyújt, amit eltalál."
+      - "&7Tűzálló, lángoló kard és íj."
+    items:
+      - "IRON_SWORD 1 fire_aspect:1 unbreakable"
+      - "BOW 1 flame:1 unbreakable"
+      - "ARROW 12"
+      - "GOLDEN_APPLE 1"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "CHAINMAIL_HELMET 1 unbreakable"
+      chestplate: "LEATHER_CHESTPLATE 1 #E06A1B fire_protection:2 unbreakable"
+      leggings: "CHAINMAIL_LEGGINGS 1 unbreakable"
+      boots: "LEATHER_BOOTS 1 #E06A1B unbreakable"
+    effects:
+      - "fire_resistance:1"
+  halasz:
+    name: "&3&lHalász"
+    icon: FISHING_ROD
+    description:
+      - "&7Horgászbottal magához húzza"
+      - "&7az ellenfelet, aztán jön a kard."
+    items:
+      - "IRON_SWORD 1 unbreakable"
+      - "FISHING_ROD 1 unbreakable"
+      - "GOLDEN_APPLE 2"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "IRON_HELMET 1 unbreakable"
+      chestplate: "CHAINMAIL_CHESTPLATE 1 unbreakable"
+      leggings: "IRON_LEGGINGS 1 unbreakable"
+      boots: "CHAINMAIL_BOOTS 1 unbreakable"
+  alkimista:
+    name: "&5&lAlkimista"
+    icon: SPLASH_POTION
+    description:
+      - "&7Sebző és gyógyító bájitalok."
+      - "&7Okosan kell bánni velük!"
+    items:
+      - "STONE_SWORD 1 sharpness:1 unbreakable"
+      - "SPLASH_POTION 1 effect=instant_damage:1 name=&cSebző_bájital"
+      - "SPLASH_POTION 1 effect=instant_damage:1 name=&cSebző_bájital"
+      - "SPLASH_POTION 1 effect=instant_damage:1 name=&cSebző_bájital"
+      - "SPLASH_POTION 1 effect=instant_health:2 name=&dGyógyító_bájital"
+      - "SPLASH_POTION 1 effect=instant_health:2 name=&dGyógyító_bájital"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "LEATHER_HELMET 1 #7A3DB8 unbreakable"
+      chestplate: "IRON_CHESTPLATE 1 unbreakable"
+      leggings: "LEATHER_LEGGINGS 1 #7A3DB8 unbreakable"
+      boots: "IRON_BOOTS 1 unbreakable"
+  poszeidon:
+    name: "&9&lPoszeidón"
+    icon: TRIDENT
+    description:
+      - "&7Szigonyt dob, ami mindig"
+      - "&7visszatér a gazdájához."
+    items:
+      - "TRIDENT 1 loyalty:3 unbreakable"
+      - "GOLDEN_APPLE 1"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "CHAINMAIL_HELMET 1 unbreakable"
+      chestplate: "IRON_CHESTPLATE 1 unbreakable"
+      leggings: "CHAINMAIL_LEGGINGS 1 unbreakable"
+      boots: "LEATHER_BOOTS 1 #2E5FD0 unbreakable"
+
+rewards:
+  currency: kristaly
+  kill: 10
+  # Sorozat bónusz (pontosan ennyi ölésnél jár)
+  streak-bonus:
+    3: 10
+    5: 25
+    10: 60
+    15: 100
+    20: 150
+  # Ugyanazért az áldozatért ennyi ideig nem jár újra pénz (farmolás ellen)
+  same-victim-cooldown-seconds: 300
+  # Azonos IP-ről érkező játékosok egymás megöléséért nem jár pénz (alt fiókok ellen)
+  same-ip-rewards: false
+  # Napi maximum, amit ebben a módban ölésből lehet keresni
+  daily-cap: 2000
+
+# Ezeknél a sorozatoknál mindenki látja a módban
+broadcast-streaks: [5, 10, 15, 20, 25, 30]
+
+# Sorozat jutalom tárgyak
+streak-items:
+  3:
+    - "GOLDEN_APPLE 1"
+  7:
+    - "GOLDEN_APPLE 2"
+
+# Ezt a plugin írja, ne töröld
+migrated:
+  flat-v1: true

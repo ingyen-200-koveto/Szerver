@@ -1,0 +1,122 @@
+# Scoreboard, tablista és chat
+# Placeholderek: %player% %rank% (LuckPerms előtag) %rank_name% (LuckPerms csoport) %money% %gens_money% %online% %max% %mode% %discord% %combat%
+#   PvP módokban: %kills% %deaths% %kd% %streak% %best_streak% %kit% (KitPvP: %arena%, SkyPvP: %refill%)
+#   ComboFly arénában még: %combo% (a mostani kombó), %combo_best% (rekord)
+#   Bárhol: %combat_time% (combat hátralévő ideje, pl. 29.4s), %pearl% (enderpearl várakozás, pl. 4.4s)
+#   Ha egy táblán ezek közül valamelyik szerepel, az a tábla másodpercenként 10-szer frissül.
+#   Gens: %generators% %slots% %plot_level% %multiplier% %production% %plot% %earned%
+#   Bárhol: %online_<mód>% %status_<mód>% %parkour_record%
+# Egy tábla legfeljebb 15 sor lehet.
+
+title: "&b&l❄ &b&lIce&f&lMine&b&l ❄"
+update-ticks: 20
+# Táblánként külön cím (ha nincs megadva, a fenti title-t használja)
+titles:
+  combofly: "&bIce&fMine &f| 2.0"
+# Ezeken a táblákon látszanak a jobb oldali piros számok
+show-numbers: [combofly]
+discord: "discord.gg/icemine"
+
+boards:
+  duels:
+    - "&8&m                    "
+    - "&7Mód: %duel_mode%"
+    - "&7Ellenfél: &f%duel_opponent%"
+    - ""
+    - "&7Állás: &e%duel_score%"
+    - "&7Ütések: &e%duel_hits%"
+    - "&7Elo: &f%duel_elo%"
+    - "&7Idő: &f%duel_time%"
+    - ""
+    - "&bplay.icemine.hu"
+  # A játékmódok saját lobbyjában (lobby_kitpvp, lobby_skypvp...). Külön is megadhatod, pl. lobby_kitpvp:
+  modelobby:
+    - "&8&m                    "
+    - "&7Játékos: &f%player%"
+    - "&7Rang: %rank%"
+    - "&7Pénz: %money%"
+    - ""
+    - "&7Hol vagy: %mode%"
+    - "&7Online: &b%online%"
+    - ""
+    - "&eLépj be a portálba!"
+    - "&bplay.icemine.hu"
+  lobby:
+    - "&8&m                    "
+    - "&7Játékos: &f%player%"
+    - "&7Rang: %rank%"
+    - "&7Pénz: %money%"
+    - ""
+    - "&7Játékmód: &bLobby"
+    - "&7Online: &b%online%"
+    - ""
+    - "&9%discord%"
+    - "&bplay.icemine.hu"
+  kitpvp:
+    - "&8&m                    "
+    - "&7Mód: &c&lKitPvP &8(%arena%&8)"
+    - "&7Kit: %kit%"
+    - ""
+    - "&7Ölés: &a%kills% &8| &7Halál: &c%deaths%"
+    - "&7K/D: &f%kd%"
+    - "&7Sorozat: &e%streak% &8(legjobb: %best_streak%)"
+    - "&7Harc: %combat%"
+    - ""
+    - "&7Pénz: %money%"
+    - "&bplay.icemine.hu"
+  skypvp:
+    - "&8&m                    "
+    - "&7Mód: &b&lSkyPvP"
+    - "&7Kit: %kit%"
+    - ""
+    - "&7Ölés: &a%kills% &8| &7Halál: &c%deaths%"
+    - "&7K/D: &f%kd%"
+    - "&7Sorozat: &e%streak% &8(legjobb: %best_streak%)"
+    - "&7Ládák: &f%refill%"
+    - ""
+    - "&7Pénz: %money%"
+    - "&bplay.icemine.hu"
+  combofly:
+    - "&7&m                         "
+    - "&fÖlések: &6%kills%"
+    - "&fHalálok: &6%deaths%"
+    - "&fCombat: &c%combat_time%"
+    - "&fEnderpearl: &e%pearl%"
+    - "&7&m                         "
+  gens:
+    - "&8&m                    "
+    - "&7Mód: &a&lGens"
+    - ""
+    - "&7Pénz: %gens_money%"
+    - "&7Generátorok: &f%generators%&7/&f%slots%"
+    - "&7Szint: &f%plot_level% &8(%multiplier%)"
+    - "&7Termelés: &f%production%&7/perc"
+    - "&7Összes bevétel: &e%earned%"
+    - ""
+    - "&7Sziget: &f%plot%"
+    - "&bplay.icemine.hu"
+  default:
+    - "&8&m                    "
+    - "&7Játékos: &f%player%"
+    - "&7Mód: %mode%"
+    - "&7Online: &b%online%"
+    - ""
+    - "&bplay.icemine.hu"
+
+# Ha a TAB plugin fent van, a tablistát (fejléc, lábléc, nevek) a TAB kezeli, ez a rész akkor nem számít.
+tablist:
+  header:
+    - ""
+    - "&b&l❄ &b&lIce&f&lMine&b&l ❄"
+    - "&7Online: &b%online%&7/&b%max% &8| &7Mód: %mode%"
+    - ""
+  footer:
+    - ""
+    - "&7Pénz: %money% &8| &7Rang: %rank%"
+    - "&9%discord% &8| &bplay.icemine.hu"
+    - ""
+
+chat:
+  enabled: true
+  # %prefix% és %suffix% = LuckPerms előtag és utótag, %name% = játékosnév, %message% = üzenet
+  format: "%prefix%%name%&8: %chatcolor%%message%"

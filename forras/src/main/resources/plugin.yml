@@ -1,0 +1,222 @@
+name: IceMine
+version: ${project.version}
+main: hu.icemine.core.IceMineCore
+api-version: '1.20'
+author: IceMine
+description: IceMine Network - lobby, SkyPvP, KitPvP, ComboFly, Gens, Kingdoms, Duels
+softdepend: [AuthMe, LuckPerms, TAB, Citizens]
+
+commands:
+  k:
+    description: Királyság parancsok
+    usage: /k help
+    aliases: [kingdom, kingdoms, kiralysag]
+  kadmin:
+    description: Kingdoms admin parancsok
+    usage: /kadmin <reload|disband|unclaim|rebuild>
+    aliases: [ka]
+  icem:
+    description: IceMine parancsok (help, stats, kit, arena, rank, setspawn, reload, admin)
+    usage: /icem help
+    aliases: [icemine, im]
+  duel:
+    description: Párbaj kihívás
+    usage: /duel <játékos> [mód] [bo3] | accept | deny | rematch
+    aliases: [parbaj]
+  duels:
+    description: Duels menü
+    usage: /duels [queue|leave|spectate|stats|top]
+  lobby:
+    description: Vissza a lobbyba
+    usage: /lobby
+    aliases: [hub, l]
+  spawn:
+    description: Vissza az adott játékmód spawnjára (lobbyban a lobby spawnra)
+    usage: /spawn
+  profil:
+    description: Profil és statisztikák
+    usage: /profil [játékos]
+    aliases: [profile, stats, stat]
+  top:
+    description: Toplisták
+    usage: /top
+    aliases: [toplista, leaderboard]
+  penz:
+    description: Egyenleg
+    usage: /penz [játékos]
+    aliases: [balance, bal, money]
+  fizet:
+    description: Pénz küldése
+    usage: /fizet <játékos> <összeg>
+    aliases: [pay, utal]
+  napi:
+    description: Napi jutalom
+    usage: /napi
+    aliases: [daily]
+  kozmetika:
+    description: Kozmetikák (nyomvonalak, ölés effektek)
+    usage: /kozmetika
+    aliases: [kozmetikak, cosmetics]
+  kapcsolat:
+    description: Kapcsolatok
+    usage: /kapcsolat
+    aliases: [kapcsolatok, contacts, discord]
+  parkour:
+    description: Lobby parkour
+    usage: /parkour [leave]
+  combofly:
+    description: ComboFly beállítások
+    usage: /combofly [toggle|stats|reload|admin]
+    aliases: [cf, combo]
+  kit:
+    description: Kit választó
+    usage: /kit
+    aliases: [kits]
+  arena:
+    description: KitPvP aréna választó
+    usage: /arena
+    aliases: [arenak, arenas]
+  gens:
+    description: Gens menü és parancsok
+    usage: /gens [home|visit|trust|untrust|sell|daily|quests|shop]
+    aliases: [gen, sziget]
+  elad:
+    description: Gens termés eladása
+    usage: /elad
+    aliases: [sell, sellall]
+
+permissions:
+  icemine.admin.duels:
+    description: Duels arénák újraépítése
+    default: op
+  icemine.kingdoms.admin:
+    default: op
+  icemine.kingdoms.bypass:
+    default: op
+  icemine.player.balance.others:
+    description: Más játékos egyenlegének megnézése
+    default: true
+  icemine.chat.color:
+    description: Színkódok használata a chatben
+    default: op
+  icemine.cosmetic.fly:
+    description: Repülés a lobbyban
+    default: op
+  icemine.cosmetic.trail.ho:
+    default: true
+  icemine.cosmetic.trail.kristaly:
+    default: op
+  icemine.cosmetic.trail.fagy:
+    default: op
+  icemine.cosmetic.trail.felho:
+    default: op
+  icemine.cosmetic.trail.szikra:
+    default: op
+  icemine.cosmetic.kill.szilank:
+    default: true
+  icemine.cosmetic.kill.villam:
+    default: op
+  icemine.cosmetic.kill.tuzijatek:
+    default: op
+  icemine.cosmetic.kill.szivek:
+    default: op
+  icemine.cosmetic.kill.lelek:
+    default: op
+  icemine.cosmetic.kill.robbanas:
+    default: op
+  icemine.cosmetic.*:
+    description: Minden kozmetika
+    default: op
+    children:
+      icemine.cosmetic.kill.szilank: true
+      icemine.cosmetic.kill.villam: true
+      icemine.cosmetic.kill.tuzijatek: true
+      icemine.cosmetic.kill.szivek: true
+      icemine.cosmetic.kill.lelek: true
+      icemine.cosmetic.kill.robbanas: true
+      icemine.cosmetic.fly: true
+      icemine.cosmetic.trail.ho: true
+      icemine.cosmetic.trail.kristaly: true
+      icemine.cosmetic.trail.fagy: true
+      icemine.cosmetic.trail.felho: true
+      icemine.cosmetic.trail.szikra: true
+  icemine.mod.stats:
+    description: Más játékosok statisztikájának lekérése
+    default: op
+  icemine.mod.combattag:
+    description: Combat tag törlése
+    default: op
+  icemine.mod.always-visible:
+    description: Akkor is látszik, ha a többiek elrejtették a játékosokat
+    default: op
+  icemine.mod.*:
+    description: Moderátori jogok
+    default: op
+    children:
+      icemine.mod.stats: true
+      icemine.mod.combattag: true
+      icemine.mod.always-visible: true
+  icemine.config.reload:
+    description: Konfigurációk újratöltése
+    default: op
+  icemine.admin.tab:
+    default: op
+  icemine.admin.info:
+    default: op
+  icemine.admin.setlobby:
+    default: op
+  icemine.admin.setspawn:
+    default: op
+  icemine.admin.setportal:
+    default: op
+  icemine.admin.currency:
+    default: op
+  icemine.admin.parkour:
+    default: op
+  icemine.admin.combofly:
+    default: op
+  icemine.admin.mode:
+    default: op
+  icemine.admin.maintenance:
+    default: op
+  icemine.admin.maintenance.bypass:
+    description: Karbantartás alatt álló módba is beléphet
+    default: op
+  icemine.admin.hologram:
+    default: op
+  icemine.admin.npc:
+    default: op
+  icemine.admin.rebuild:
+    default: op
+  icemine.admin.arena:
+    default: op
+  icemine.admin.build:
+    description: Kreatív módban építhet a védett területeken
+    default: op
+  icemine.admin.commands:
+    description: Használhatja a config.yml blocked-commands részében tiltott parancsokat (pl. /plugins)
+    default: op
+  icemine.admin.*:
+    description: Minden adminisztrátori jog
+    default: op
+    children:
+      icemine.admin.tab: true
+      icemine.admin.info: true
+      icemine.admin.setlobby: true
+      icemine.admin.setspawn: true
+      icemine.admin.setportal: true
+      icemine.admin.currency: true
+      icemine.admin.parkour: true
+      icemine.admin.combofly: true
+      icemine.admin.mode: true
+      icemine.admin.maintenance: true
+      icemine.admin.maintenance.bypass: true
+      icemine.admin.hologram: true
+      icemine.admin.npc: true
+      icemine.admin.rebuild: true
+      icemine.admin.arena: true
+      icemine.admin.build: true
+      icemine.admin.commands: true
+  icemine.kit.fagylovag:
+    description: Fagylovag kit
+    default: true

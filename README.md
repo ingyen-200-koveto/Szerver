@@ -8,6 +8,7 @@ Purpur 1.20.6, Java 21.
 - `eula.txt`: a Minecraft EULA elfogadása
 - `plugins/*.jar`: az IceMine plugin (`IceMine.jar`, benne minden saját rendszer és játékmód) és a külső pluginok
   (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB, Citizens 2.0.35 b3500)
+- `forras/`: az IceMine plugin forráskódja (a szerver nem használja)
 - `kezdo/`: amit csak egyszer kell a helyére tenni (server.properties, config/paper-global.yml,
   AuthMe config és magyar szövegek, ComboFly pálya). Ezt az IceMine az első indításkor
   magától a helyére másolja, aztán leállítja a szervert. A második indítástól minden a helyén van.
@@ -27,7 +28,74 @@ ez már kikerült, a régebbiekben még nincs benne, ezért ezt ne cseréld le.
 Az összes saját rendszer egy pluginban van. A beállítások a `plugins/IceMine` mappában vannak
 (a Kingdoms beállítása: `plugins/IceMine/kingdoms.yml`, az adatai: `plugins/IceMine/kingdoms`).
 A régi `plugins/IceMineCore` és `plugins/IceMineKingdoms` mappát az első indításkor magától
-átköltözteti, semmi nem vész el. Admin parancs: `/icem help` (vagy `/icemine`, `/im`).
+átköltözteti, semmi nem vész el.
+
+Frissítéskor a configokban csak azokat az értékeket cseréli újra, amiket nem írtál át
+(a saját módosításaid megmaradnak).
+
+### Üzenetek
+
+Minden üzenet `&b[IceMine] &7` előtaggal megy ki. Ezt egy helyen tudod átírni:
+`plugins/IceMine/messages_hu.yml`, legfelül a `prefix` sor.
+Az AuthMe és az EssentialsX üzeneteit is erre cseréli (magyarul). A régi fájljukat `.regi` néven
+elmenti. Ha ezt nem kéred: `plugins/IceMine/config.yml` -> `kulso-uzenetek: false`.
+
+### Parancsok
+
+| Parancs | Mit csinál | Alapból kié |
+|---|---|---|
+| `/icem help` | a parancsok listája (csak az látszik, amihez jogod van) | mindenki |
+| `/icem stats [játékos]` | profil és statisztikák | mindenki |
+| `/icem kit [kit]` | kit választó (KitPvP, SkyPvP, ComboFly) | mindenki |
+| `/icem arena` | KitPvP aréna választó | mindenki |
+| `/icem rank [játékos]` | rangok és amit adnak | mindenki |
+| `/icem setspawn <mód> [aréna]` | játékmód spawn ide | OP |
+| `/icem reload [fájl]` | configok újratöltése | OP |
+| `/icem admin ...` | adminisztráció (lobby, portál, pénz, hologram, NPC, újraépítés...) | OP |
+
+A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `/kit`, `/profil`...) is maradtak.
+
+### Jogok
+
+Minden parancsnak külön joga van, egy helyen: `plugins/IceMine/permissions.yml`.
+Akinek nincs joga, ezt kapja: `[IceMine] Ehhez nincs jogod!`
+
+A `/pl`, `/plugins`, `/ver`, `/version`, `/about` és a többi pluginlistát vagy verziót mutató parancs
+(LuckPerms, TAB, ViaVersion) a játékosoknak le van tiltva, és a TAB-os kiegészítésben sem látszik.
+A lista: `plugins/IceMine/config.yml` -> `blocked-commands`. Az OP-k és az `icemine.admin.commands`
+joggal rendelkezők használhatják. Az Essentials parancsait is csak az használhatja, akinek megvan hozzá
+az `essentials.<parancs>` joga.
+
+### Rangok
+
+A rang nevét, előtagját és chat színét a LuckPerms adja (ezt te írod meg). Hogy melyik rang mit kap
+az IceMine-ban (kitek, kozmetikák, pénz szorzó, egyéb jogok), azt a `plugins/IceMine/ranks.yml`-ben
+állítod. Rangok: Default, VIP, VIP+, MVP, MVP+, ELITE, LEGEND, YOUTUBER, HELPER, MODERATOR, ADMIN, OWNER.
+Mindegyik megkapja a gyengébbek jutalmait is. A KitPvP-ben 3 kit ingyenes (Harcos, Íjász, Tank), a többi rangokhoz kötött.
+
+A LuckPerms csoport neve kisbetűs, `+` jel nélkül: `default`, `vip`, `vipplus`, `mvp`, `mvpplus`, `elite`,
+`legend`, `youtuber`, `helper`, `moderator`, `admin`, `owner`. Példa (konzolba):
+
+```
+lp creategroup vip
+lp group vip parent add default
+lp group vip meta setprefix 100 "&a[VIP] "
+lp user Jatekosnev parent add vip
+```
+
+A rangváltás fél percen belül életbe lép, újrabelépés nélkül is.
+
+### ComboFly lökés
+
+`plugins/IceMine/combofly.yml`: a lökés öt része külön állítható: Horizontal (`knockback-horizontal`),
+Vertical (`knockback-vertical`), Air (`knockback-air-*`, ha az ellenfél már a levegőben van),
+Ground (`knockback-ground-*`, ha a földön áll) és Combo (`combo-scaling`, `knockback-combo-horizontal`,
+kombónként mennyit változik). Alapból felfelé dob és közel tartja az ellenfelet, így hosszú kombókat lehet csinálni.
+
+### Forráskód
+
+A plugin teljes forráskódja a `forras` mappában van (Maven projekt, Paper API, `mvn package` -> `IceMine.jar`).
+A szerver nem használja, csak megőrzésre van itt.
 
 ## Világok
 
@@ -54,7 +122,7 @@ Parancsok: `/duels`, `/duel <név> [mód] [bo3]`, `/duel accept`, `/duel rematch
 ## Frissítés
 
 1. Állítsd le a szervert.
-2. Git Pull.
+2. Git Pull. Ha hibát ad, akkor Hard Reset.
 3. Indítsd el.
 
 A repóban lévő fájlokat a szerveren ne töröld és ne írd át, különben a Git Pull hibát ad.

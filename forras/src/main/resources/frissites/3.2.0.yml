@@ -1,0 +1,421 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.2.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.2.0
+changes:
+- file: combofly
+  path: knockback-horizontal
+  old: 0.34
+- file: combofly
+  path: knockback-vertical
+  old: 0.38
+- file: combofly
+  path: max-vertical
+  old: 0.5
+- file: combofly
+  path: modes.combofly.knockback-horizontal
+  old: 0.34
+- file: combofly
+  path: modes.combofly.knockback-vertical
+  old: 0.38
+- file: config
+  path: blocked-commands
+  old:
+  - pl
+  - plugins
+  - ver
+  - version
+  - about
+  - icanhasbukkit
+  - timings
+  - spark
+  - paper
+  - purpur
+  - bukkit
+  - spigot
+  - tps
+  - mspt
+- file: contacts
+  path: book-title
+  old: '&b&lIce&f&lMine &f| &bKapcsolatok'
+- file: kingdoms
+  path: messages.prefix
+  old: '&6&lKingdoms &8» &7'
+- file: kingdoms
+  path: messages.first-join
+  old:
+  - ''
+  - ' &6&lKingdoms &8» &7Szia &f%player%&7, üdv a királyságok földjén!'
+  - ' &7Itt túlélő módban vagy. Kaptál pár alap cuccot, a többit szerezd meg.'
+  - ' &7Alapíts királyságot (&f/k create <név>&7) vagy kérj meghívást valakitől.'
+  - ' &7A város és a foglalt földek védettek, a vadonban viszont bármi megtörténhet.'
+  - ''
+- file: kingdoms
+  path: messages.no-permission
+  old: '&cEhhez nincs jogod.'
+- file: lobby
+  path: hotbar.items.selector.name
+  old: '&b&lIce&f&lMine &8» &fJátékmódok'
+- file: lobby
+  path: menus.selector.title
+  old: '&b&lIce&f&lMine &8» &fJátékmódok'
+- file: lobby
+  path: menus.profile.title
+  old: '&b&lIce&f&lMine &8» &fProfil'
+- file: lobby
+  path: menus.stats.title
+  old: '&b&lIce&f&lMine &8» &fToplisták'
+- file: lobby
+  path: menus.cosmetics.title
+  old: '&b&lIce&f&lMine &8» &fKozmetikák'
+- file: lobby
+  path: menus.settings.title
+  old: '&b&lIce&f&lMine &8» &fBeállítások'
+- file: lobby
+  path: menus.info.title
+  old: '&b&lIce&f&lMine &8» &fInformációk'
+- file: messages_hu
+  path: prefix
+  old: '&b&lIce&f&lMine &8» &7'
+- file: messages_hu
+  path: general.no-permission
+  old: '&cEhhez nincs jogod.'
+- file: messages_hu
+  path: general.unknown-command
+  old: '&cIsmeretlen parancs.'
+- file: messages_hu
+  path: general.only-players
+  old: '&cEzt csak játékból lehet használni.'
+- file: messages_hu
+  path: general.no-player
+  old: '&cNincs ilyen játékos, vagy még sosem járt itt.'
+- file: messages_hu
+  path: general.no-info
+  old: '&cErről most nincs leírás.'
+- file: messages_hu
+  path: general.load-failed
+  old: '&cNem sikerült betölteni az adataidat. Próbálj meg pár másodperc múlva újra belépni!'
+- file: messages_hu
+  path: general.first-join
+  old:
+  - ''
+  - ' &b&l❄ &b&lIce&f&lMine&b&l ❄'
+  - ' &7Szia &f%player%&7, jó, hogy itt vagy!'
+  - ' &7Kattints a platformon egy szoborra, vagy válassz az &biránytűvel&7.'
+  - ' &7Ha elakadnál, nézz rá a könyvre a hotbaron, ott vannak az elérhetőségeink.'
+  - ''
+- file: messages_hu
+  path: auth.login-first
+  old: '&cElőbb jelentkezz be: &f/login <jelszó>'
+- file: messages_hu
+  path: mode.cooldown
+  old: '&cVárj egy picit, mielőtt újra próbálod.'
+- file: messages_hu
+  path: mode.maintenance
+  old: '%mode% &cmost karbantartás alatt van, nézz vissza később!'
+- file: messages_hu
+  path: mode.closed
+  old: '%mode% &cjelenleg zárva van.'
+- file: messages_hu
+  path: mode.unavailable
+  old: '%mode% &cmost nem érhető el. Szólj egy adminnak!'
+- file: messages_hu
+  path: mode.unknown
+  old: '&cIlyen játékmód nincs.'
+- file: messages_hu
+  path: combat.blocked-command
+  old: '&cHarc közben ezt a parancsot nem használhatod. &7Még &c%seconds% mp&7.'
+- file: messages_hu
+  path: combat.blocked-teleport
+  old: '&cHarc közben nem teleportálhatsz. &7Még &c%seconds% mp&7.'
+- file: messages_hu
+  path: combat.blocked-mode
+  old: '&cHarc közben nem válthatsz játékmódot.'
+- file: messages_hu
+  path: combat.blocked-generic
+  old: '&cHarc közben ezt nem lehet.'
+- file: messages_hu
+  path: combo.help
+  old:
+  - '&3&lCOMBOFLY'
+  - ' &7Ebben a módban: %status%  &8| &7Kijelzés: %display%'
+  - ' &7Üss egymás után, és tartsd a levegőben az ellenfelet!'
+  - ' &7Saját arénája van, a lobbyban a lila szoborral jutsz oda.'
+  - ' &b/combofly toggle &8- &7kijelzés és effektek ki/be'
+  - ' &b/combofly stats &8- &7a kombó statisztikáid'
+- file: messages_hu
+  path: combo.stats
+  old:
+  - '&3&lCOMBOFLY &8» &7Statisztikáid'
+  - ' &7Legnagyobb kombó: &b%best%x'
+  - ' &7Kombók száma: &f%combos%'
+  - ' &7Ölések: &a%kills% &8| &7Halálok: &c%deaths% &8| &7K/D: &f%kd%'
+- file: messages_hu
+  path: combo.admin-info
+  old:
+  - '&3&lCOMBOFLY &8» &f%player%'
+  - ' &7Most: &b%current%x &8| &7Mód: &f%mode% &8(%active%&8)'
+  - ' &7Rekord: &b%best%x &8| &7Kombók: &f%combos%'
+- file: messages_hu
+  path: economy.pay-usage
+  old: '&cHasználat: &f/fizet <játékos> <összeg>'
+- file: messages_hu
+  path: economy.pay-disabled
+  old: '&cA pénzküldés most ki van kapcsolva.'
+- file: messages_hu
+  path: economy.pay-min
+  old: '&cLegalább &f%min% &ckristályt küldhetsz.'
+- file: messages_hu
+  path: economy.pay-cooldown
+  old: '&cNe ilyen gyorsan, várj pár másodpercet.'
+- file: messages_hu
+  path: economy.pay-self
+  old: '&cMagadnak nem küldhetsz pénzt.'
+- file: messages_hu
+  path: economy.not-enough
+  old: '&cNincs elég pénzed ehhez (&f%amount%&c).'
+- file: messages_hu
+  path: economy.invalid-amount
+  old: '&cEz nem érvényes összeg.'
+- file: messages_hu
+  path: economy.unknown-currency
+  old: '&cIlyen pénznem nincs.'
+- file: messages_hu
+  path: economy.failed
+  old: '&cNem sikerült (&f%reason%&c).'
+- file: messages_hu
+  path: daily.taken
+  old: '&cMa már megkaptad a napi jutalmat. Holnap gyere vissza!'
+- file: messages_hu
+  path: daily.disabled
+  old: '&cA napi jutalom most ki van kapcsolva.'
+- file: messages_hu
+  path: menu.unknown
+  old: '&cEz a menü nem létezik.'
+- file: messages_hu
+  path: settings.no-permission
+  old: '&cEhhez a beállításhoz magasabb rang kell.'
+- file: messages_hu
+  path: cosmetics.no-permission
+  old: '&cEz a kozmetika nincs meg neked.'
+- file: messages_hu
+  path: contacts.header
+  old: '&3&lKapcsolatok &8(kattints a megnyitáshoz)'
+- file: messages_hu
+  path: parkour.not-ready
+  old: '&cA parkour még nincs beállítva.'
+- file: messages_hu
+  path: parkour.stopped
+  old: '&cA parkour megszakadt.'
+- file: messages_hu
+  path: parkour.not-running
+  old: '&cNem futsz épp parkourt.'
+- file: messages_hu
+  path: parkour.creative
+  old: '&cKreatív módban nem indul a parkour.'
+- file: messages_hu
+  path: parkour.skipped
+  old: '&cKihagytál egy ellenőrzőpontot!'
+- file: messages_hu
+  path: parkour.missing-checkpoints
+  old: '&cMég %missing% ellenőrzőpont hiányzik, mielőtt célba érhetnél.'
+- file: messages_hu
+  path: parkour.suspicious
+  old: '&cEz az idő túl gyors volt ahhoz, hogy elfogadjuk. Próbáld újra rendesen!'
+- file: messages_hu
+  path: parkour.timeout
+  old: '&cTúl sokáig tartott, a parkour megszakadt.'
+- file: messages_hu
+  path: parkour.portal-blocked
+  old: '&cParkour közben nem léphetsz be a kapukon.'
+- file: messages_hu
+  path: pvp.safe-zone
+  old: '&cA biztonságos zónában nincs harc.'
+- file: messages_hu
+  path: pvp.no-safe-in-combat
+  old: '&cHarc közben nem mehetsz vissza a biztonságos zónába!'
+- file: messages_hu
+  path: pvp.no-pearl-safe
+  old: '&cA biztonságos zónába nem dobhatsz enderpearlt!'
+- file: messages_hu
+  path: kit.locked
+  old: '&cEz a kit még nincs meg neked.'
+- file: messages_hu
+  path: kit.only-safe
+  old: '&cKitet csak a biztonságos zónában választhatsz.'
+- file: messages_hu
+  path: kit.only-pvp
+  old: '&cKitet csak a PvP módokban választhatsz (KitPvP, SkyPvP, ComboFly).'
+- file: messages_hu
+  path: kit.menu-title
+  old: '&b&lIce&f&lMine &8» &fKitek'
+- file: messages_hu
+  path: arena.menu-title
+  old: '&b&lIce&f&lMine &8» &fArénák'
+- file: messages_hu
+  path: arena.only-safe
+  old: '&cArénát csak a biztonságos zónából válthatsz.'
+- file: messages_hu
+  path: arena.only-kitpvp
+  old: '&cArénát csak KitPvP-ben választhatsz.'
+- file: messages_hu
+  path: comboarena.no-pearl-spawn
+  old: '&cA spawn platformra nem lehet felpearlözni.'
+- file: messages_hu
+  path: skypvp.chest-locked
+  old: '&cA ládákat csak kittel, a biztonságos zónán kívül nyithatod ki.'
+- file: messages_hu
+  path: gens.first-join
+  old:
+  - ''
+  - ' &a&lGENS &8» &7Szia &f%player%&7, ez itt a te szigeted!'
+  - ' &7Kaptál pár generátort, rakd le őket a szigeteden.'
+  - ' &7Jobb klikk: termés begyűjtése &8| &7Guggolás + jobb klikk: fejlesztés'
+  - ' &7Eladás: &f/elad &8| &7Menü, küldetések, bolt: &f/gens'
+  - ''
+- file: messages_hu
+  path: gens.not-your-plot
+  old: '&cEz nem a te szigeted.'
+- file: messages_hu
+  path: gens.only-own-plot
+  old: '&cGenerátort csak a saját szigetedre rakhatsz.'
+- file: messages_hu
+  path: gens.only-in-gens
+  old: '&cEzt csak a Gensben tudod használni.'
+- file: messages_hu
+  path: gens.limit
+  old: '&cElérted a generátorlimitet (&f%slots%&c). Fejleszd a szigeted a &f/gens &cmenüben!'
+- file: messages_hu
+  path: gens.no-money
+  old: '&cNincs elég pénzed. Kell: &f%price%'
+- file: messages_hu
+  path: gens.nothing-to-sell
+  old: '&cNincs nálad semmi eladható.'
+- file: messages_hu
+  path: gens.sell-limit
+  old: '&cNem sikerült eladni, túl sok pénzed lenne.'
+- file: messages_hu
+  path: gens.daily-taken
+  old: '&cMa már elvitted a napi Gens jutalmat.'
+- file: messages_hu
+  path: gens.no-plot
+  old: '&cNeki még nincs szigete.'
+- file: messages_hu
+  path: gens.trust-limit
+  old: '&cLegfeljebb 10 embert engedhetsz be.'
+- file: messages_hu
+  path: gens.inventory-full
+  old: '&cTele van a táskád.'
+- file: messages_hu
+  path: gens.menu.title
+  old: '&a&lGENS &8» &fMenü'
+- file: messages_hu
+  path: gens.quests.title
+  old: '&a&lGENS &8» &fNapi küldetések'
+- file: messages_hu
+  path: gens.shop.title
+  old: '&a&lGENS &8» &fBolt'
+- file: messages_hu
+  path: admin.help
+  old:
+  - '&b&lIce&f&lMine &8» &fAdmin parancsok'
+  - ' &b/im reload [fájl] &8- &7configok újratöltése'
+  - ' &b/im setlobby &8- &7lobby spawn ide'
+  - ' &b/im setspawn <skypvp|kitpvp <aréna>|combofly|gens> &8- &7mód spawn ide'
+  - ' &b/im setportal <mód> [sugár] [magasság] &8- &7portál ide'
+  - ' &b/im stats <játékos> &8- &7statisztikák'
+  - ' &b/im givecurrency|takecurrency|setcurrency <játékos> <összeg> [pénznem]'
+  - ' &b/im parkour <start|checkpoint|finish|clear|fail>'
+  - ' &b/im combofly <reload|on|off>'
+  - ' &b/im mode <játékos> <mód|lobby> [-f] &8- &7játékos átküldése'
+  - ' &b/im maintenance <mód> <on|off|closed>'
+  - ' &b/im hologram <list|move <id>> &8| &b/im npc <list|move <id>>'
+  - ' &b/im rebuild <lobby|skypvp|kitpvp|combofly|gens> confirm'
+  - ' &b/im arena reset skypvp &8| &b/im combattag clear <játékos> &8| &b/im info'
+- file: messages_hu
+  path: admin.info
+  old:
+  - '&b&lIce&f&lMine &8» &fÁllapot'
+  - ' &7Verzió: &f%version% &8| &7Adatbázis: &f%database%'
+  - ' &7Online: &f%online% &8| &7Betöltött profil: &f%profiles%'
+  - ' &7Harcban: &f%tagged% &8| &7Futó kombók: &f%combos%'
+- file: messages_hu
+  path: admin.usage
+  old: '&cHasználat: &f%usage%'
+- file: messages_hu
+  path: admin.wrong-world
+  old: '&cEzt csak a megfelelő világban tudod beállítani.'
+- file: messages_hu
+  path: admin.reload-unknown
+  old: '&cIlyen config nincs. Lehet: &f%files%'
+- file: messages_hu
+  path: admin.spawn-failed
+  old: '&cNem sikerült. Jó világban vagy, és jól írtad az aréna nevét?'
+- file: messages_hu
+  path: admin.offline-set
+  old: '&cOffline játékosnak csak adni vagy elvenni lehet, beállítani nem.'
+- file: messages_hu
+  path: admin.offline-failed
+  old: '&cNem sikerült módosítani &f%player% &cegyenlegét.'
+- file: messages_hu
+  path: admin.unknown-id
+  old: '&cIlyen azonosító nincs.'
+- file: messages_hu
+  path: admin.stats-header
+  old: '&b&l%player%'
+- file: messages_hu
+  path: modelobby.not-ready
+  old: '&cEz a játékmód még nincs teljesen beállítva, nézz vissza később!'
+- file: messages_hu
+  path: duels.already-playing
+  old: '&cMár egy meccsben vagy.'
+- file: messages_hu
+  path: duels.only-lobby
+  old: '&cPárbajozni csak a lobbyból lehet.'
+- file: messages_hu
+  path: duels.unknown-mode
+  old: '&cIlyen Duels mód nincs. Nézd meg a menüt: &f/duels'
+- file: messages_hu
+  path: duels.not-in-queue
+  old: '&cNem vagy sorban.'
+- file: messages_hu
+  path: duels.self
+  old: '&cMagadat nem hívhatod ki.'
+- file: messages_hu
+  path: duels.target-busy
+  old: '&c%player% most nem tud párbajozni.'
+- file: messages_hu
+  path: duels.no-invite
+  old: '&cNincs érvényes kihívásod.'
+- file: messages_hu
+  path: duels.invite-denied
+  old: '&c%player% elutasította a kihívást.'
+- file: messages_hu
+  path: duels.no-rematch
+  old: '&cMost nincs kivel visszavágót játszani.'
+- file: messages_hu
+  path: duels.no-arena
+  old: '&cMost minden aréna foglalt, pár másodperc múlva próbáld újra.'
+- file: messages_hu
+  path: duels.not-playing
+  old: '&c%player% most nem játszik.'
+- file: messages_hu
+  path: duels.help
+  old:
+  - '&8&m                                             '
+  - ' &e&lDuels'
+  - ' &f/duels &8- &7menü, módok, ranked sor'
+  - ' &f/duel <név> [mód] [bo3] &8- &7kihívás'
+  - ' &f/duel accept &8| &f/duel deny &8- &7kihívás elfogadása'
+  - ' &f/duel rematch &8- &7visszavágó'
+  - ' &f/duels spectate <név> &8- &7nézőként'
+  - ' &f/duels leave &8- &7kilépés a sorból vagy a nézésből'
+  - '&8&m                                             '
+- file: messages_hu
+  path: duels.menu.title
+  old: '&b&lIce&f&lMine &8» &eDuels'
+- file: messages_hu
+  path: duels.menu.stats-title
+  old: '&b&lIce&f&lMine &8» &eDuels statok'
+- file: messages_hu
+  path: duels.menu.spectate-title
+  old: '&b&lIce&f&lMine &8» &eFutó meccsek'

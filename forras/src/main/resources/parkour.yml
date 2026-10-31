@@ -1,0 +1,23 @@
+# Lobby jégparkour
+# A pályát a lobby építésekor a plugin tölti ki. Kézzel is beállíthatod:
+#   /icemine parkour start | checkpoint | finish | clear | fail
+
+enabled: true
+# Ennél gyorsabb időt nem fogad el (ms) - védelem a csalás ellen
+min-time-ms: 40000
+# Ha ennyi blokkal az utolsó ellenőrzőpont alá esel, visszakerülsz rá
+fall-depth: 6
+# Ennyi perc után magától megszakad
+max-time-minutes: 15
+
+rewards:
+  currency: kristaly
+  # Első teljesítés
+  first: 500
+  # Új egyéni rekord
+  record: 100
+  # Sima teljesítés (csak ennyi óránként jár)
+  repeat: 25
+  repeat-cooldown-hours: 12
+
+course: {}

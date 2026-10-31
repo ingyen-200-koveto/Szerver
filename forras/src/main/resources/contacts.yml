@@ -1,0 +1,31 @@
+# Kapcsolati könyv
+# Csak azt írd be, ami tényleg létezik. Az üresen hagyott mezők nem jelennek meg.
+# A linkek http:// vagy https:// kezdetűek legyenek.
+
+book-title: "&b[IceMine] &3&lKapcsolatok"
+intro: "&8Itt találsz meg minket. Kattints a nevekre!"
+footer: "&8Köszönjük, hogy itt vagy!"
+hover-open: "&7Kattints a megnyitáshoz"
+hover-copy: "&7Kattints a másoláshoz"
+
+discord-url: "https://discord.gg/icemine"
+# A weboldal és az e-mail cím üres, mert nem tudom a pontos címet. Írd be a sajátodat.
+website-url: ""
+tiktok-url: ""
+youtube-url: "https://youtube.com/@icemine_1"
+instagram-url: "https://www.instagram.com/icemine_1"
+contact-email: ""
+
+label:
+  discord: "Discord"
+  website: "Weboldal"
+  tiktok: "TikTok"
+  youtube: "YouTube"
+  instagram: "Instagram"
+  email: "E-mail"
+
+# Egyéb platformok, ha kellenek:
+# extra:
+#   - name: "Facebook"
+#     url: "https://facebook.com/..."
+extra: []

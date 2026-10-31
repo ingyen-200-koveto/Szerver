@@ -1,0 +1,49 @@
+# IceMine jogosultságok
+#
+# Itt egy helyen látod az összes IceMine parancs jogát, és azt, hogy alapból ki használhatja.
+# default: true  = mindenki
+#          op    = csak OP, vagy akinek LuckPermsben megadod
+#          false = senki, csak akinek LuckPermsben megadod
+#
+# LuckPermsben ugyanezekkel a jogokkal tudod finomítani, például:
+#   lp group default permission set icemine.command.top false     (a sima játékosok nem látják a /top-ot)
+#   lp group vip permission set icemine.command.kozmetika true
+#
+# Akinek nincs joga, az ezt kapja: [IceMine] Ehhez nincs jogod!
+# A tiltott Bukkit/Paper parancsokat (/pl, /ver, /about...) a config.yml blocked-commands részében találod.
+# Módosítás után: /icem reload permissions
+
+commands:
+  icem:      {permission: icemine.command.icem, default: true}
+  lobby:     {permission: icemine.command.lobby, default: true}
+  spawn:     {permission: icemine.command.spawn, default: true}
+  profil:    {permission: icemine.command.profil, default: true}
+  top:       {permission: icemine.command.top, default: true}
+  penz:      {permission: icemine.command.penz, default: true}
+  fizet:     {permission: icemine.command.fizet, default: true}
+  napi:      {permission: icemine.command.napi, default: true}
+  kozmetika: {permission: icemine.command.kozmetika, default: true}
+  kapcsolat: {permission: icemine.command.kapcsolat, default: true}
+  parkour:   {permission: icemine.command.parkour, default: true}
+  combofly:  {permission: icemine.command.combofly, default: true}
+  kit:       {permission: icemine.command.kit, default: true}
+  arena:     {permission: icemine.command.arena, default: true}
+  gens:      {permission: icemine.command.gens, default: true}
+  elad:      {permission: icemine.command.elad, default: true}
+  duel:      {permission: icemine.command.duel, default: true}
+  duels:     {permission: icemine.command.duels, default: true}
+  k:         {permission: icemine.command.kingdoms, default: true}
+  kadmin:    {permission: icemine.kingdoms.admin, default: op}
+
+# Az /icem alparancsai
+icem:
+  help:         {permission: icemine.command.help, default: true}
+  stats:        {permission: icemine.command.stats, default: true}
+  stats-others: {permission: icemine.command.stats.others, default: true}
+  kit:          {permission: icemine.command.kit, default: true}
+  arena:        {permission: icemine.command.arena, default: true}
+  rank:         {permission: icemine.command.rank, default: true}
+  rank-others:  {permission: icemine.command.rank.others, default: true}
+  setspawn:     {permission: icemine.command.setspawn, default: op}
+  reload:       {permission: icemine.command.reload, default: op}
+  admin:        {permission: icemine.command.admin, default: op}

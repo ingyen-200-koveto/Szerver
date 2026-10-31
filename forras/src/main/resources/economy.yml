@@ -1,0 +1,38 @@
+# Pénzrendszer
+# A kristály a közös pénz (PvP, parkour, napi jutalom).
+# A Gens saját pénzt használ, hogy a farmolás ne borítsa fel a PvP módokat.
+# Ez NEM ugyanaz, mint a weboldal IceCoinja.
+
+default-currency: kristaly
+currencies:
+  kristaly:
+    name: "Kristály"
+    symbol: "❄"
+    color: "&b"
+    start: 100
+    max: 1000000000
+  gens:
+    name: "Gens érme"
+    symbol: "⛃"
+    color: "&e"
+    start: 0
+    max: 1000000000000000
+
+# Egy művelettel legfeljebb ennyit lehet mozgatni
+max-transaction: 1000000000000
+# Minden pénzmozgás bekerül az adatbázisba (im_transactions tábla)
+log-transactions: true
+
+pay:
+  enabled: true
+  currency: kristaly
+  min: 10
+  cooldown-seconds: 5
+
+daily:
+  enabled: true
+  currency: kristaly
+  amount: 150
+  # Minden egymás utáni nap után ennyivel több (legfeljebb max-streak napig nő)
+  streak-bonus: 25
+  max-streak: 7

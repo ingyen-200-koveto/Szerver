@@ -1,0 +1,41 @@
+# Combat Tag - harci állapot
+# Akit megütnek (vagy aki üt) PvP-ben, harcba kerül. Ilyenkor nem tud elmenekülni.
+# Mely módokban működik: modes.yml -> combat-tag: true
+
+enabled: true
+duration-seconds: 15
+
+bossbar:
+  enabled: true
+  # PINK, BLUE, RED, GREEN, YELLOW, PURPLE, WHITE
+  color: RED
+  # SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, SEGMENTED_20
+  style: SEGMENTED_10
+# Az action barra is kiírja (a ComboFly kijelzése elsőbbséget kap)
+actionbar: false
+
+# kill: aki harc közben kilép, meghal (a cuccai a földön maradnak, ahol ez szokás)
+# none: nem történik semmi
+logout-punishment: kill
+broadcast-logout: true
+
+# Harc közben ennél messzebbre nem lehet teleportálni (kivéve az enderpearlt)
+max-teleport-distance: 8
+# Ha valaki az űrbe esik, az utolsó támadó ennyi mp-en belül kapja meg az ölést
+kill-credit-seconds: 10
+
+# Ezek a parancsok le vannak tiltva harc közben (a teleportokat a plugin külön is figyeli)
+blocked-commands:
+  - lobby
+  - hub
+  - l
+  - spawn
+  - home
+  - homes
+  - tpa
+  - tpahere
+  - tpaccept
+  - warp
+  - back
+  - rtp
+  - wild

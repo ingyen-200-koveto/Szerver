@@ -1,0 +1,350 @@
+# IceMine lobby
+# Az első indításkor a plugin felépíti a lobbyt (falu, vár, IceMine felirat, spawn platform,
+# parkour), és ide beírja a fontos pontokat (spawn, hologramok, NPC-k, ugrólapok).
+# Ezeket utána nyugodtan átírhatod, vagy játékban áthelyezheted:
+#   /icemine setlobby, hologram move <id>, npc move <id>
+# Ha újra akarod építeni: /icemine rebuild lobby confirm
+#
+# NPC-k (npcs rész):
+#   type: statue (páncélállvány szobor, felszereléssel) vagy villager (falusi)
+#   name: a feje fölötti szöveg. Használható: %online_<mód>% %mode_name_<mód>% %status_<mód>% %online%
+#   action: mode:<mód> | menu:<menü> | command:<parancs> | message:<szöveg> | book:contacts
+#   equipment: helmet, chestplate, leggings, boots, hand. Bőrpáncélhoz szín is adható: "LEATHER_CHESTPLATE #7FD0FF"
+#   Ha a Citizens plugin fent van, minden NPC élő, játékos kinézetű NPC lesz (Citizens NPC), és a játékosok felé fordul.
+#   skin: annak a Minecraft játékosnak a neve, akinek a skinjét viselje (pl. skin: "Notch"). Üres = alap skin.
+#   citizens: a Citizens NPC száma, ezt a plugin írja be, ne írd át.
+#   A kézben lévő tárgy a hand sorból jön, a többi páncél Citizensnél nem kerül fel, hogy látszódjon a skin.
+# Ugrólapok (launchpads rész): location = a nyomólap helye, target = ahova dobja a játékost.
+
+# Üres = a szerver fő világa (a server.properties level-name értéke)
+world: ""
+built: false
+center:
+  x: 0
+  y: 100
+  z: 0
+
+# A napszak (6000 = dél, 13000 = alkonyat, 18000 = éjfél)
+time: 6000
+# Ha valaki ez alá esik, visszakerül a spawnra (vagy parkour közben az ellenőrzőpontra)
+void-y: 60
+# Belépéskor mindenki a lobbyba kerül
+join-to-lobby: true
+# Ha egy lobby tárgy vagy kit tárgy rossz helyre kerülne, a plugin elveszi
+cleanup-foreign-items: true
+
+protection:
+  # Ezekre a blokkokra lehet jobb klikkelni a lobbyban (pl. ajtók). Alapból semmire.
+  allow-interact: []
+
+hotbar:
+  enabled: true
+  items:
+    selector:
+      slot: 0
+      material: COMPASS
+      name: "&b[IceMine] &fJátékmódok"
+      lore:
+        - "&7Kattints, és válassz játékmódot!"
+      action: "menu:selector"
+    profile:
+      slot: 1
+      material: PLAYER_HEAD
+      name: "&b&lProfil"
+      lore:
+        - "&7A statisztikáid és a pénzed."
+      action: "menu:profile"
+    cosmetics:
+      slot: 3
+      material: AMETHYST_SHARD
+      name: "&d&lKozmetikák"
+      lore:
+        - "&7Nyomvonalak és ölés effektek."
+      action: "menu:cosmetics"
+    parkour:
+      slot: 5
+      material: FEATHER
+      name: "&f&lJégparkour"
+      lore:
+        - "&7Ugrás a parkour startjához."
+      action: "parkour:start"
+    contacts:
+      slot: 6
+      material: BOOK
+      name: "&b&lIce&f&lMine &f| &bKapcsolatok"
+      lore:
+        - "&7Discord, weboldal, YouTube..."
+      action: "book:contacts"
+    settings:
+      slot: 7
+      material: COMPARATOR
+      name: "&7&lBeállítások"
+      lore:
+        - "&7Játékosok elrejtése, repülés és társai."
+      action: "menu:settings"
+    info:
+      slot: 8
+      material: HEART_OF_THE_SEA
+      name: "&3&lInformációk"
+      lore:
+        - "&7Hasznos tudnivalók a szerverről."
+      action: "menu:info"
+
+# Kozmetikák: a nyomvonal minden játékmódban látszik (a parkour futás alatt nem),
+# az ölés effekt akkor jelenik meg, amikor megölsz valakit (bármelyik PvP módban).
+# Megnyitás: iránytű / hotbar, vagy bárhol: /kozmetika
+# Jog: icemine.cosmetic.trail.<id> és icemine.cosmetic.kill.<id> (LuckPerms-szel rangokhoz adhatod)
+cosmetics:
+  # Ezekben a világokban nincs nyomvonal (pl. "kingdoms")
+  disabled-worlds: []
+  trails:
+    ho:
+      name: "&fHópelyhek"
+      icon: SNOWBALL
+      particle: SNOWFLAKE
+      count: 3
+      permission: icemine.cosmetic.trail.ho
+      description:
+        - "&7Hópelyhek szállingóznak utánad."
+    kristaly:
+      name: "&bKristálypor"
+      icon: END_ROD
+      particle: END_ROD
+      count: 2
+      permission: icemine.cosmetic.trail.kristaly
+      description:
+        - "&7Csillogó kristálypor nyomvonal."
+    fagy:
+      name: "&3Fagyos szikrák"
+      icon: PRISMARINE_CRYSTALS
+      particle: ELECTRIC_SPARK
+      count: 3
+      permission: icemine.cosmetic.trail.fagy
+      description:
+        - "&7Pattogó, fagyos szikrák."
+    felho:
+      name: "&7Felhők"
+      icon: WHITE_WOOL
+      particle: CLOUD
+      count: 2
+      permission: icemine.cosmetic.trail.felho
+      description:
+        - "&7Mintha felhőkön járnál."
+    szikra:
+      name: "&eÜnnepi szikrák"
+      icon: FIREWORK_STAR
+      particle: FIREWORK
+      count: 2
+      permission: icemine.cosmetic.trail.szikra
+      description:
+        - "&7Tűzijáték szikrák minden lépésnél."
+  kill-effects:
+    szilank:
+      name: "&bJégszilánkok"
+      icon: ICE
+      particle: BLOCK
+      block: ICE
+      count: 40
+      sound: "minecraft:block.glass.break"
+      permission: icemine.cosmetic.kill.szilank
+      description:
+        - "&7Az ellenfél jégszilánkokra törik."
+    villam:
+      name: "&eVillámcsapás"
+      icon: LIGHTNING_ROD
+      lightning: true
+      permission: icemine.cosmetic.kill.villam
+      description:
+        - "&7Villám csap le oda, ahol meghalt."
+    tuzijatek:
+      name: "&dTűzijáték"
+      icon: FIREWORK_ROCKET
+      particle: FIREWORK
+      count: 60
+      sound: "minecraft:entity.firework_rocket.twinkle"
+      permission: icemine.cosmetic.kill.tuzijatek
+      description:
+        - "&7Ünnepeld meg minden öléssel!"
+    szivek:
+      name: "&cSzívek"
+      icon: RED_DYE
+      particle: HEART
+      count: 14
+      sound: "minecraft:entity.player.levelup"
+      permission: icemine.cosmetic.kill.szivek
+      description:
+        - "&7Kedvesen búcsúzol tőle."
+    lelek:
+      name: "&3Lélekláng"
+      icon: SOUL_LANTERN
+      particle: SOUL_FIRE_FLAME
+      count: 45
+      sound: "minecraft:particle.soul_escape"
+      permission: icemine.cosmetic.kill.lelek
+      description:
+        - "&7Kék lángok csapnak fel."
+    robbanas:
+      name: "&6Robbanás"
+      icon: TNT
+      particle: EXPLOSION
+      count: 3
+      sound: "minecraft:entity.generic.explode"
+      permission: icemine.cosmetic.kill.robbanas
+      description:
+        - "&7Látványos, de senkinek nem árt."
+
+menus:
+  selector:
+    title: "&3[IceMine] &8Játékmódok"
+  profile:
+    title: "&3[IceMine] &8Profil"
+  stats:
+    title: "&3[IceMine] &8Toplisták"
+    icons:
+      kitpvp: DIAMOND_SWORD
+      skypvp: FEATHER
+      streak: BLAZE_POWDER
+      gens: EMERALD
+      parkour: LEATHER_BOOTS
+      combo: PRISMARINE_SHARD
+      combokills: AMETHYST_SHARD
+  cosmetics:
+    title: "&3[IceMine] &8Kozmetikák"
+  settings:
+    title: "&3[IceMine] &8Beállítások"
+  info:
+    title: "&3[IceMine] &8Információk"
+    # action: mi történjen kattintásra (info:<szöveg> = kiírja a chatre az info-texts részből)
+    items:
+      server:
+        slot: 11
+        material: PACKED_ICE
+        name: "&b&lA szerverről"
+        lore:
+          - "&7IP: &fplay.icemine.hu"
+          - "&7Verziók: &f1.18 - 1.20.x &7(Java és Bedrock)"
+          - ""
+          - "&e» Kattints, és kiírom a chatre!"
+        action: "info:server"
+      rules:
+        slot: 13
+        material: WRITABLE_BOOK
+        name: "&e&lSzabályok"
+        lore:
+          - "&7Ne csalj, ne sértegess senkit,"
+          - "&7ne hirdess más szervert."
+          - ""
+          - "&e» Kattints a teljes listáért!"
+        action: "info:rules"
+      commands:
+        slot: 15
+        material: OAK_SIGN
+        name: "&a&lHasznos parancsok"
+        lore:
+          - "&f/lobby&7, &f/spawn&7, &f/napi&7, &f/profil"
+          - ""
+          - "&e» Kattints, és a parancsokra"
+          - "&e  a chatben is rá tudsz nyomni!"
+        action: "info:commands"
+
+# A chatre kiírt információk. A chatben a /parancsokra és a linkekre rá lehet kattintani.
+# Saját kattintható rész: [[szöveg|run:/parancs]], [[szöveg|suggest:/parancs ]], [[szöveg|url:https://...]]
+info-hover:
+  command: "&7Kattints: &f%value%"
+  link: "&7Kattints a megnyitáshoz"
+info-texts:
+  server:
+    - "&8&m                                             "
+    - " &b&lA szerverről"
+    - " &7IP: &fplay.icemine.hu"
+    - " &7Verziók: &f1.18 - 1.20.x &7(Java és Bedrock)"
+    - " &7Warez kliensről is be lehet lépni."
+    - " &7Discord: &bhttps://discord.gg/icemine"
+    - "&8&m                                             "
+  rules:
+    - "&8&m                                             "
+    - " &e&lSzabályok"
+    - " &7- Ne csalj, ne használj hackeket és makrót."
+    - " &7- Ne sértegess és ne fenyegess senkit."
+    - " &7- Ne hirdess más szervert."
+    - " &7- Harc közben ne lépj ki."
+    - " &7Ha valaki szabályt szeg, szólj a [[&b&nDiscordon|url:https://discord.gg/icemine]]&7!"
+    - "&8&m                                             "
+  commands:
+    - "&8&m                                             "
+    - " &a&lHasznos parancsok &8(kattints rájuk!)"
+    - " &f/lobby &8- &7vissza a lobbyba"
+    - " &f/spawn &8- &7a játékmód kezdőpontja"
+    - " &f/profil &8- &7a statisztikáid"
+    - " &f/penz &8| [[&f/fizet|suggest:/fizet ]] &8- &7pénz, utalás"
+    - " &f/napi &8- &7napi jutalom"
+    - " &f/kozmetika &8- &7nyomvonalak és ölés effektek"
+    - " &f/kapcsolat &8- &7elérhetőségeink"
+    - "&8&m                                             "
+  mode_kitpvp:
+    - "&8&m                                             "
+    - " &c&lKitPvP &8- &7hogyan játszd?"
+    - " &7Válassz kitet a hotbar ládájával, aztán ugorj le"
+    - " &7a kiemelt lobbyból a lapos jégmezőre."
+    - " &7Minden ölés pénzt ér, a sorozatokért extra jár."
+    - " &7Harc közben nem mehetsz vissza a védett részre."
+    - " &7Vissza a kezdőpontra: /spawn"
+    - "&8&m                                             "
+  mode_skypvp:
+    - "&8&m                                             "
+    - " &b&lSkyPvP &8- &7hogyan játszd?"
+    - " &7Lebegő jégszigeteken játszol, a ládákban cuccot találsz."
+    - " &7A ládák időnként újratöltődnek, a közép a legjobb."
+    - " &7Mindenki mindenki ellen, minden ölés pénzt ér."
+    - " &7Vissza a kezdőpontra: /spawn"
+    - "&8&m                                             "
+  mode_combofly:
+    - "&8&m                                             "
+    - " &d&lComboFly &8- &7hogyan játszd?"
+    - " &7A spawnon a kit NPC-től kapod meg a felszerelést."
+    - " &7Üsd egymás után az ellenfelet, és tartsd a levegőben:"
+    - " &7minél tovább nem ér földet, annál nagyobb a kombód."
+    - " &7A piros gyapjúval jelölt közép védett zóna,"
+    - " &7harc közben oda nem mehetsz be."
+    - " &7Beállítások: /combofly"
+    - "&8&m                                             "
+  mode_gens:
+    - "&8&m                                             "
+    - " &a&lGens &8- &7hogyan játszd?"
+    - " &7Saját szigetet kapsz, oda rakhatod a generátoraidat."
+    - " &7A generátorok tárgyakat termelnek, ezeket eladhatod: /elad"
+    - " &7A pénzből újabb és jobb generátorokat veszel."
+    - " &7Napi küldetések is vannak, nézd meg a menüt: /gens"
+    - "&8&m                                             "
+  mode_kingdoms:
+    - "&8&m                                             "
+    - " &6&lKingdoms &8- &7hogyan játszd?"
+    - " &7Túlélő világ, ahol királyságot alapíthatsz."
+    - " &7Foglalj területet, hívd meg a barátaidat,"
+    - " &7és védd meg a birodalmad a többiektől."
+    - " &7Parancsok: /k help"
+    - "&8&m                                             "
+  mode_duels:
+    - "&8&m                                             "
+    - " &e&lDuels &8- &7hogyan játszd?"
+    - " &7Nyisd meg a menüt (/duels), és válassz módot."
+    - " &7Unranked sorban bárkivel összekerülsz, a ranked"
+    - " &7sorban hozzád hasonló Elo-jú ellenfelet kapsz."
+    - " &7Barátot kihívni: /duel <név> &8(bo3: /duel <név> bo3)"
+    - " &7Nézőként: /duels spectate <név>"
+    - "&8&m                                             "
+  parkour:
+    - "&8&m                                             "
+    - " &b&lJégparkour"
+    - " &7Lépj a nyomólapra a start kapuban, és indul az óra."
+    - " &7Útközben ellenőrzőpontok vannak, ha leesel, onnan folytatod."
+    - " &7Első teljesítésért és új rekordért kristály jár!"
+    - " &7Rekord: &f%parkour_record%"
+    - "&8&m                                             "
+
+# Ezeket a plugin tölti ki az építéskor, utána szabadon módosíthatók.
+spawn: {}
+portals: {}
+holograms: {}
+npcs: {}
+launchpads: {}

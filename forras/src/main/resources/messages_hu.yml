@@ -1,0 +1,564 @@
+# IceMine üzenetek
+# Színkódok: &a, &l stb., vagy hex: &#55CCFF
+# A %valami% részeket a plugin tölti ki, ezeket hagyd benne.
+# Minden chat üzenet elé automatikusan odakerül a prefix, ezt itt egy helyen tudod átírni.
+# Ha átírsz valamit: /icem reload messages_hu
+
+prefix: "&b[IceMine] &7"
+
+general:
+  no-permission: "Ehhez nincs jogod!"
+  unknown-command: "Ilyen parancs nincs. Segítség: &f/icem help"
+  blocked-command: "Ezt a parancsot nem használhatod!"
+  only-players: "Ezt csak játékból lehet használni."
+  no-player: "Ez a játékos nem található!"
+  no-info: "Erről most nincs leírás."
+  load-failed: "Nem sikerült betölteni az adataidat. Próbálj meg pár másodperc múlva újra belépni!"
+  first-join:
+    - ""
+    - " &b[IceMine] &7Szia &f%player%&7, jó, hogy itt vagy!"
+    - " &7Kattints a platformon egy szoborra, vagy válassz az &biránytűvel&7."
+    - " &7Ha elakadnál, nézz rá a könyvre a hotbaron, ott vannak az elérhetőségeink."
+    - ""
+
+auth:
+  login-first: "Előbb jelentkezz be: &f/login <jelszó>"
+
+mode:
+  lobby-name: "&bLobby"
+  sending: "Irány: %mode%&7!"
+  cooldown: "Várj egy picit, mielőtt újra próbálod."
+  maintenance: "%mode% &7most karbantartás alatt van, nézz vissza később!"
+  closed: "%mode% &7jelenleg zárva van."
+  already-there: "&7Már itt vagy: %mode%"
+  unavailable: "%mode% &7most nem érhető el. Szólj egy adminnak!"
+  unknown: "Ilyen játékmód nincs."
+
+combat:
+  tagged: "&c&lHARCBAN VAGY! &7Ne lépj ki, és ne menekülj el! &c%seconds% mp"
+  untagged: "&aKiléptél a harcból, most már mehetsz, ahová akarsz."
+  bar: "&c&lHARCBAN VAGY! &7Ne lépj ki! &c%seconds% mp"
+  blocked-command: "Harc közben ezt a parancsot nem használhatod. &7Még &f%seconds% mp&7."
+  blocked-teleport: "Harc közben nem teleportálhatsz. &7Még &f%seconds% mp&7."
+  blocked-mode: "Harc közben nem válthatsz játékmódot."
+  blocked-generic: "Harc közben ezt nem lehet."
+  logout-broadcast: "&f%player% &charc közben lépett ki, úgyhogy meghalt."
+
+combo:
+  ended: "&7Kombó vége: &b&l%combo%x"
+  display-on: "A kombó kijelzés és az effektek &abekapcsolva&7."
+  display-off: "A kombó kijelzés és az effektek &ckikapcsolva&7."
+  status-on: "&abe"
+  status-off: "&cki"
+  reloaded: "A ComboFly beállítások újratöltve."
+  enabled: "A ComboFly &abekapcsolva&7."
+  disabled: "A ComboFly &ckikapcsolva&7."
+  admin-reset: "&f%player% &7kombó statisztikái törölve."
+  help:
+    - "&b[IceMine] &3&lComboFly"
+    - " &7Ebben a módban: %status%  &8| &7Kijelzés: %display%"
+    - " &7Üss egymás után, és tartsd a levegőben az ellenfelet!"
+    - " &7Saját arénája van, a lobbyban a lila szoborral jutsz oda."
+    - " &b/combofly toggle &8- &7kijelzés és effektek ki/be"
+    - " &b/combofly stats &8- &7a kombó statisztikáid"
+  stats:
+    - "&b[IceMine] &7ComboFly statisztikáid"
+    - " &7Legnagyobb kombó: &b%best%x"
+    - " &7Kombók száma: &f%combos%"
+    - " &7Ölések: &a%kills% &8| &7Halálok: &c%deaths% &8| &7K/D: &f%kd%"
+  admin-info:
+    - "&b[IceMine] &7ComboFly: &f%player%"
+    - " &7Most: &b%current%x &8| &7Mód: &f%mode% &8(%active%&8)"
+    - " &7Rekord: &b%best%x &8| &7Kombók: &f%combos%"
+
+economy:
+  balance-header: "&f%player% &7egyenlege:"
+  pay-usage: "Használat: &f/fizet <játékos> <összeg>"
+  pay-disabled: "A pénzküldés most ki van kapcsolva."
+  pay-min: "Legalább &f%min% &7kristályt küldhetsz."
+  pay-cooldown: "Ne ilyen gyorsan, várj pár másodpercet."
+  pay-self: "Magadnak nem küldhetsz pénzt."
+  paid: "Elküldtél &f%amount%&7-t neki: &f%player%"
+  received: "&f%player% &7küldött neked &f%amount%&7-t."
+  not-enough: "Nincs elég pénzed! Ehhez &f%amount% &7kell."
+  invalid-amount: "Ez nem érvényes összeg."
+  unknown-currency: "Ilyen pénznem nincs."
+  failed: "Nem sikerült (&f%reason%&7)."
+
+daily:
+  claimed: "Megkaptad a napi jutalmad: &f%amount% &8(%streak%. nap egymás után)"
+  taken: "Ma már megkaptad a napi jutalmat. Holnap gyere vissza!"
+  disabled: "A napi jutalom most ki van kapcsolva."
+
+menu:
+  back: "&7« Vissza"
+  unknown: "Ez a menü nem létezik."
+
+selector:
+  online: "&7Játékosok: &f%online%"
+  status:
+    open: "&a▶ Kattints a belépéshez!"
+    maintenance: "&6⚠ Karbantartás alatt"
+    closed: "&c✖ Jelenleg zárva"
+    unavailable: "&c✖ Most nem érhető el"
+  parkour:
+    name: "&f&lJégparkour"
+    lore:
+      - "&7Ugrálj végig a jégtömbökön,"
+      - "&7és döntsd meg a rekordot!"
+      - ""
+      - "&b▶ Kattints a starthoz"
+  stats:
+    name: "&e&lToplisták"
+    lore:
+      - "&7Nézd meg, kik a legjobbak"
+      - "&7az egyes játékmódokban."
+  profile:
+    name: "&b&lProfil"
+    lore:
+      - "&7A statisztikáid, pénzed"
+      - "&7és a rangod egy helyen."
+  contacts:
+    name: "&3&lKapcsolatok"
+    lore:
+      - "&7Discord, weboldal, YouTube"
+      - "&7és a többi elérhetőség."
+
+settings:
+  on: "&a● Bekapcsolva"
+  off: "&c● Kikapcsolva"
+  locked: "&8● Rang szükséges hozzá"
+  no-permission: "Ehhez a beállításhoz magasabb rang kell."
+  visibility:
+    name: "&fJátékosok elrejtése"
+    lore:
+      - "&7Ha bekapcsolod, a lobbyban"
+      - "&7nem látod a többi játékost."
+  fly:
+    name: "&fRepülés a lobbyban"
+    lore:
+      - "&7Szállj fel, és nézd meg"
+      - "&7a lobbyt felülről."
+  combo-display:
+    name: "&fKombó kijelzés"
+    lore:
+      - "&7Mutassa-e a kombóidat"
+      - "&7az action baron."
+  combo-effects:
+    name: "&fKombó effektek"
+    lore:
+      - "&7Hangok és részecskék"
+      - "&7a nagy kombóknál."
+  scoreboard:
+    name: "&fScoreboard elrejtése"
+    lore:
+      - "&7Eltünteti a jobb oldali"
+      - "&7táblázatot."
+
+cosmetics:
+  selected: "&a✔ Ezt használod (kattints a levételhez)"
+  click: "&b▶ Kattints a felvételhez"
+  locked: "&8✖ Ehhez rang kell"
+  no-permission: "Ez a kozmetika nincs meg neked."
+  enabled: "Felvetted: %name%"
+  disabled: "Levetted: %name%"
+  trails-title: "&b&lNyomvonalak"
+  trails-lore:
+    - "&7Részecskék, amik követnek, bárhol is jársz."
+    - "&7A parkour futás alatt nem látszanak."
+  kills-title: "&c&lÖlés effektek"
+  kills-lore:
+    - "&7Ez jelenik meg, amikor megölsz valakit."
+    - "&7Kiválasztáskor egyszer meg is mutatom."
+
+spawn:
+  mode: "&7Visszakerültél a %mode%&7 spawnra."
+  lobby: "&7Visszakerültél a lobby spawnra."
+
+contacts:
+  header: "&b[IceMine] &3&lKapcsolatok &8(kattints a megnyitáshoz)"
+  empty: "Még nincs beállítva elérhetőség."
+
+leaderboard:
+  line: "&b%place%. &f%player% &8- &e%value%"
+  empty: "&8%place%. -"
+  no-data: "&8Még nincs adat."
+
+board:
+  in-combat: "&c%seconds% mp"
+  no-combat: "&anincs"
+
+parkour:
+  not-ready: "A parkour még nincs beállítva."
+  go-to-start: "Lépj a nyomólapra, és indul az óra!"
+  started: "&bIndul! &7Ha leesel, a legutóbbi ellenőrzőpontra kerülsz."
+  restart: "Újrakezdheted, lépj a startra."
+  stopped: "A parkour megszakadt."
+  not-running: "Nem futsz épp parkourt."
+  creative: "Kreatív módban nem indul a parkour."
+  checkpoint: "Ellenőrzőpont &f%number%/%total% &8(%time%)"
+  skipped: "Kihagytál egy ellenőrzőpontot!"
+  missing-checkpoints: "Még %missing% ellenőrzőpont hiányzik, mielőtt célba érhetnél."
+  fell: "&7Vissza az ellenőrzőpontra..."
+  finished: "&a&lCÉLBA ÉRTÉL! &7Időd: &f%time% &8(%falls% esés)"
+  personal-best: "&eÚj egyéni rekord! &7Az előző: &f%old%"
+  reward: "Jutalom: &f%reward%"
+  server-record: "&f%player% &7új szerverrekordot futott a parkouron: &b%time%&7!"
+  suspicious: "Ez az idő túl gyors volt ahhoz, hogy elfogadjuk. Próbáld újra rendesen!"
+  timeout: "Túl sokáig tartott, a parkour megszakadt."
+  timer: "&b⏱ %time% &8| &7Ellenőrzőpont: &f%number%/%total%"
+  portal-blocked: "Parkour közben nem léphetsz be a kapukon."
+  item:
+    checkpoint: "&bVissza az ellenőrzőpontra"
+    restart: "&eÚjrakezdés"
+    leave: "&cKilépés a parkourból"
+
+pvp:
+  safe-zone: "A biztonságos zónában nincs harc."
+  no-safe-in-combat: "Harc közben nem mehetsz vissza a biztonságos zónába!"
+  no-pearl-safe: "A biztonságos zónába nem dobhatsz enderpearlt!"
+  killed: "&f%victim% &7elesett &f%killer% &7keze által &8(&c%health%❤&8)"
+  died: "&f%victim% &7meghalt."
+  streak-ended: " &8(&e%streak% &7ölésből álló sorozat vége&8)"
+  streak: "&f%player% &7már &e%streak% &7ölésnél jár! &eÁllítsa meg valaki!"
+  reward: "&a+%reward% &8| &7Sorozat: &e%streak%"
+  kill-no-reward: "&7Sorozat: &e%streak% &8(ezért most nem jár jutalom)"
+  item:
+    lobby: "&cVissza a lobbyba"
+
+kit:
+  none: "&8nincs"
+  locked: "Ez a kit még nincs meg neked."
+  locked-rank: "Ezt a kitet a(z) %rank% &7rang adja. Rangok: &f/icem rank"
+  unknown: "Ilyen kit nincs. Választható: &f%kits%"
+  only-safe: "Kitet csak a biztonságos zónában választhatsz."
+  only-pvp: "Kitet csak a PvP módokban választhatsz (KitPvP, SkyPvP, ComboFly)."
+  selected: "Kiválasztva: %kit%&7. Sok sikert!"
+  auto: "Nem választottál kitet, ezt kaptad: %kit%"
+  menu-title: "&3[IceMine] &8Kitek"
+  item:
+    menu: "&b&lKit választó"
+    menu-lore:
+      - "&7Válaszd ki, mivel harcolsz."
+    last: "&fUtolsó kit: %kit%"
+    last-lore:
+      - "&7Gyors választás, egy kattintás."
+  lore:
+    current: "&a✔ Ez van rajtad"
+    click: "&b▶ Kattints a kiválasztáshoz"
+    locked: "&8✖ Nincs meg neked"
+
+arena:
+  item: "&b&lAréna választó"
+  item-lore:
+    - "&7Válts arénát, ha unod a mostanit."
+  menu-title: "&3[IceMine] &8Arénák"
+  players: "&7Itt játszanak: &f%count%"
+  current: "&a✔ Itt vagy most"
+  click: "&b▶ Kattints az átlépéshez"
+  only-safe: "Arénát csak a biztonságos zónából válthatsz."
+  only-kitpvp: "Arénát csak KitPvP-ben választhatsz."
+  switched: "Átléptél ide: %arena%"
+
+kitpvp:
+  welcome: "Üdv a KitPvP-ben! Aréna: %arena%&7. Válassz kitet, és ugrás a harcba!"
+
+comboarena:
+  welcome: "Üdv a ComboFly arénában! Válassz kitet, irány a pálya, és tartsd a levegőben a többieket!"
+  no-pearl-spawn: "A spawn platformra nem lehet felpearlözni."
+  streak-title: "&b&l⚔ Legtöbb ölés most"
+  streak-empty: "&7Még senki nem ölt."
+
+skypvp:
+  welcome: "Üdv a SkyPvP-ben! Válassz kitet, aztán le a lépcsőn, a szigetekre!"
+  refilled: "&bA ládák újratöltődtek a szigeteken!"
+  chest-locked: "A ládákat csak kittel, a biztonságos zónán kívül nyithatod ki."
+
+gens:
+  welcome: "Üdv a Gensben! A menüt a &f/gens &7paranccsal nyitod meg."
+  first-join:
+    - ""
+    - " &b[IceMine] &7Szia &f%player%&7, ez itt a te szigeted!"
+    - " &7Kaptál pár generátort, rakd le őket a szigeteden."
+    - " &7Jobb klikk: termés begyűjtése &8| &7Guggolás + jobb klikk: fejlesztés"
+    - " &7Eladás: &f/elad &8| &7Menü, küldetések, bolt: &f/gens"
+    - ""
+  not-your-plot: "Ez nem a te szigeted."
+  only-own-plot: "Generátort csak a saját szigetedre rakhatsz."
+  only-in-gens: "Ezt csak a Gensben tudod használni."
+  limit: "Elérted a generátorlimitet (&f%slots%&7). Fejleszd a szigeted a &f/gens &7menüben!"
+  placed: "Leraktál egy &a%tier% &7generátort &8(%count%/%slots%)"
+  picked-up: "Felvetted a generátort."
+  max-tier: "&eEz már a legerősebb szint."
+  upgraded: "Fejlesztve: &a%tier% &8(-%price%&8)"
+  no-money: "Nincs elég pénzed. Kell: &f%price%"
+  nothing-to-sell: "Nincs nálad semmi eladható."
+  sell-limit: "Nem sikerült eladni, túl sok pénzed lenne."
+  sold: "Eladtál &f%amount% &7darabot, kaptál érte &f%money%&7-t."
+  bought-generator: "Vettél egy generátort &8(-%price%&8)"
+  level-up: "A szigeted &a%level%. szintű &7lett: &f%slots% &7generátorhely, &f%multiplier% &7termelés."
+  max-level: "&eA szigeted már a legmagasabb szinten van."
+  daily: "Megkaptad a napi Gens jutalmad: &f%money%"
+  daily-taken: "Ma már elvitted a napi Gens jutalmat."
+  quest-done: "&a&lKÜLDETÉS KÉSZ! &f%quest% &8(+%reward%&8)"
+  collected: "&a+%amount% &7begyűjtve &8(%stored%/%capacity%)"
+  info: "&7%tier% generátor &8| &7Tároló: &f%stored%/%capacity% &8| &7Guggolj a fejlesztéshez"
+  no-plot: "Neki még nincs szigete."
+  visiting: "Átjöttél &f%player% &7szigetére."
+  trusted: "&f%player% &7mostantól építhet a szigeteden."
+  trusted-you: "&f%player% &7beengedett a szigetére, ott építhetsz is."
+  untrusted: "&f%player% &7már nem építhet a szigeteden."
+  trust-limit: "Legfeljebb 10 embert engedhetsz be."
+  inventory-full: "Tele van a táskád."
+  item:
+    name: "&a&l%tier% generátor"
+    lore:
+      - "&7Termel: &f%drop%"
+      - "&7Érték: &f%value% &7/ db"
+      - "&7Időköz: &f%interval% mp &8| &7Tároló: &f%capacity%"
+      - ""
+      - "&8Rakd le a szigeteden!"
+  menu:
+    title: "&3[IceMine] &8Gens menü"
+    info:
+      - "&7Egyenleg: &f%money%"
+      - "&7Generátorok: &f%generators%&7/&f%slots%"
+      - "&7Termelés: &f%production% &7/ perc"
+      - "&7Sziget: &f%plot%"
+    buy:
+      name: "&a&lGenerátor vásárlása"
+      lore:
+        - "&7Kapsz egy alap generátort."
+        - ""
+        - "&7Ár: &f%price%"
+        - "&b▶ Kattints a vásárláshoz"
+    level:
+      name: "&e&lSziget fejlesztése"
+      lore:
+        - "&7Jelenlegi szint: &f%level%"
+        - "&7Generátorhelyek: &f%slots%"
+        - "&7Termelési szorzó: &f%multiplier%"
+        - ""
+      next:
+        - "&7Következő: &a%level%. szint"
+        - "&7 → &f%slots% &7hely, &f%multiplier% &7szorzó"
+        - "&7Ár: &f%price%"
+        - "&b▶ Kattints a fejlesztéshez"
+      max: "&a✔ Elérted a maximumot"
+    sell:
+      name: "&6&lMindent elad"
+      lore:
+        - "&7Eladja a táskádban lévő"
+        - "&7összes termést."
+    daily:
+      name: "&b&lNapi Gens jutalom"
+      ready:
+        - "&7Ma még nem vitted el!"
+        - "&7Jutalom: &f%money%"
+        - "&b▶ Kattints érte"
+      taken:
+        - "&7Ma már megkaptad."
+        - "&7Holnap újra jöhetsz."
+    quests:
+      name: "&d&lNapi küldetések"
+      lore:
+        - "&7Minden nap új feladatok,"
+        - "&7szép jutalmakkal."
+    shop:
+      name: "&2&lBolt"
+      lore:
+        - "&7Építőanyagok a szigetedhez."
+    home:
+      name: "&c&lHaza"
+      lore:
+        - "&7Vissza a saját szigetedre."
+    tiers:
+      name: "&f&lGenerátor szintek"
+      line: "&8%level%. &f%tier% &8- &7%value%/db, %interval% mp &8(fejlesztés: %upgrade%&8)"
+      hint:
+        - "&7Guggolj, és kattints jobb gombbal"
+        - "&7a generátorra a fejlesztéshez!"
+  quests:
+    title: "&3[IceMine] &8Napi küldetések"
+    reward: "&7Jutalom: &f%reward%"
+    done: "&a✔ Teljesítve"
+    open: "&7Még dolgozz rajta!"
+  shop:
+    title: "&3[IceMine] &8Gens bolt"
+    lore:
+      - "&7Mennyiség: &f%amount% db"
+      - "&7Ár: &f%price%"
+      - "&b▶ Kattints a vásárláshoz"
+    bought: "Megvetted: %name% &8(-%price%&8)"
+
+admin:
+  help:
+    - "&b[IceMine] &fAdmin parancsok &8(/icem admin ...)"
+    - " &b/icem admin setlobby &8- &7lobby spawn ide"
+    - " &b/icem admin setportal <mód> [sugár] [magasság] &8- &7portál ide"
+    - " &b/icem admin givecurrency|takecurrency|setcurrency <játékos> <összeg> [pénznem]"
+    - " &b/icem admin parkour <start|checkpoint|finish|clear|fail>"
+    - " &b/icem admin combofly <reload|on|off>"
+    - " &b/icem admin mode <játékos> <mód|lobby> [-f] &8- &7játékos átküldése"
+    - " &b/icem admin maintenance <mód> <on|off|closed>"
+    - " &b/icem admin hologram <list|move <id>> &8| &b/icem admin npc <list|move <id>>"
+    - " &b/icem admin rebuild <lobby|skypvp|kitpvp|combofly|gens> confirm"
+    - " &b/icem admin combattag clear <játékos> &8| &b/icem admin info"
+  info:
+    - "&b[IceMine] &fÁllapot"
+    - " &7Verzió: &f%version% &8| &7Adatbázis: &f%database%"
+    - " &7Online: &f%online% &8| &7Betöltött profil: &f%profiles%"
+    - " &7Harcban: &f%tagged% &8| &7Futó kombók: &f%combos%"
+  usage: "Használat: &f%usage%"
+  wrong-world: "Ezt csak a megfelelő világban tudod beállítani."
+  reload-unknown: "Ilyen config nincs. Lehet: &f%files%"
+  reloaded: "Újratöltve: &f%file%"
+  reloaded-problems: "&eÚjratöltve: &f%file%&e, de &f%count% &efigyelmeztetés van (a konzolban mind látszik):"
+  lobby-set: "A lobby spawn mostantól itt van."
+  spawn-set: "Beállítva: &f%mode% &7spawn."
+  spawn-failed: "Nem sikerült. Jó világban vagy, és jól írtad az aréna nevét?"
+  portal-set: "Portál beállítva ide: &f%mode%"
+  parkour-set: "Parkour pont beállítva: &f%kind%"
+  currency-done: "Kész. &f%player% &7egyenlege: %balance%"
+  offline-set: "Offline játékosnak csak adni vagy elvenni lehet, beállítani nem."
+  offline-done: "Kész, &f%player% &7egyenlege frissült."
+  offline-failed: "Nem sikerült módosítani &f%player% &7egyenlegét."
+  mode-result: "&f%player% &7átküldése: &f%result%"
+  status-set: "&f%mode% &7állapota: &f%status%"
+  unknown-id: "Ilyen azonosító nincs."
+  moved: "Áthelyezve: &f%id%"
+  list: "&7%list%"
+  rebuild-confirm: "&eBiztos? Ez újraépíti ezt: &f%target%&e. Írd mögé: &fconfirm"
+  rebuilding: "Építem: &f%target%&7, ez eltarthat pár másodpercig..."
+  rebuilt: "Kész: &f%target%"
+  arena-reset: "A SkyPvP aréna visszaállítva, a ládák újratöltve."
+  combat-cleared: "&f%player% &7kikerült a harcból."
+  stats-header: "&b[IceMine] &f&l%player% &8(%rank%&8)"
+
+modelobby:
+  welcome: "Üdv a %mode% &7lobbyban! Lépj be a portálba, ha indulnál."
+  suffix: " &7Lobby"
+  not-ready: "Ez a játékmód még nincs teljesen beállítva, nézz vissza később!"
+  item:
+    play: "&a&lJáték indítása &8» %mode%"
+    play-lore:
+      - "&7Kattints, és már indulsz is!"
+    selector: "&b&lJátékmódok"
+    selector-lore:
+      - "&7Másik játékmódot választanál?"
+    cosmetics: "&d&lKozmetikák"
+    cosmetics-lore:
+      - "&7Nyomvonalak és ölés effektek."
+    back: "&c&lVissza a lobbyba"
+    back-lore:
+      - "&7Vissza a főlobbyba."
+
+duels:
+  ranked: "&6Ranked"
+  unranked: "&7Unranked"
+  already-playing: "Már egy meccsben vagy."
+  only-lobby: "Párbajozni csak a lobbyból lehet."
+  unknown-mode: "Ilyen Duels mód nincs. Nézd meg a menüt: &f/duels"
+  queued: "Beálltál a sorba: %mode% &8(%type%&8)&7. Keresem az ellenfelet..."
+  searching: "&eEllenfelet keresek: %mode% &7- kilépés: &f/duels leave"
+  left-queue: "Kiléptél a sorból."
+  not-in-queue: "Nem vagy sorban."
+  self: "Magadat nem hívhatod ki."
+  target-busy: "%player% most nem tud párbajozni."
+  best-of: " &8(&eBo%rounds%&8)"
+  invite-sent: "Kihívtad &f%player%&7 játékost: %mode%%rounds%"
+  invite-received: "&f%player% &7kihívott: %mode%%rounds%"
+  invite-buttons: "[[&a&l[ELFOGAD]|run:/duel accept %player%]] &8| [[&c&l[ELUTASÍT]|run:/duel deny %player%]] &7(60 mp)"
+  no-invite: "Nincs érvényes kihívásod."
+  invite-denied: "%player% elutasította a kihívást."
+  denied: "Elutasítottad a kihívást."
+  no-rematch: "Most nincs kivel visszavágót játszani."
+  no-arena: "Most minden aréna foglalt, pár másodperc múlva próbáld újra."
+  found: "Ellenfél: &f%player%%elo% &8| %mode% &8(%type%&8)"
+  fight: "&c&lHARC!"
+  round-won: "&e%player% &7nyerte a kört"
+  draw-title: "&7&lDÖNTETLEN"
+  win-title: "&a&lGYŐZELEM!"
+  lose-title: "&c&lVERESÉG"
+  won-sub: "&7nyerte a meccset"
+  result: "&e%winner% &7legyőzte &f%loser%&7 játékost &8(%mode%&8, %score%)%elo%"
+  health-left: "&f%player% &7ennyi élettel nyert: &c%health% ❤"
+  rematch-button: "[[&e&l[VISSZAVÁGÓ]|run:/duel rematch]] &7- 60 másodperced van rá"
+  forfeit: "&f%player% &7kilépett, ezért feladta a meccset."
+  not-playing: "%player% most nem játszik."
+  spectating: "Nézed: &c%red% &7vs &9%blue%&7. Kilépés: &f/duels leave"
+  spectator-joined: "&8%player% &7nézi a meccset."
+  boxing-win: "&f%player% &7elérte a szükséges ütésszámot!"
+  sumo-win: "&f%player% &7lelökte az ellenfelét!"
+  bridge-death: "&f%player% &7meghalt &8(%killer%)&7, a kezdőpontján újraéled."
+  rebuilt: "Újraépítve %count% szabad aréna."
+  top-header: "&eDuels toplisták"
+  help:
+    - "&8&m                                             "
+    - " &b[IceMine] &e&lDuels"
+    - " &f/duels &8- &7menü, módok, ranked sor"
+    - " &f/duel <név> [mód] [bo3] &8- &7kihívás"
+    - " &f/duel accept &8| &f/duel deny &8- &7kihívás elfogadása"
+    - " &f/duel rematch &8- &7visszavágó"
+    - " &f/duels spectate <név> &8- &7nézőként"
+    - " &f/duels leave &8- &7kilépés a sorból vagy a nézésből"
+    - "&8&m                                             "
+  menu:
+    title: "&3[IceMine] &8Duels"
+    in-queue: "&7Sorban: &f%count%"
+    playing: "&7Játszik: &f%count%"
+    your-elo: "&7Elo: &f%elo%"
+    locked: "&8✖ Ehhez rang kell"
+    click-join: "&e» Kattints, és beállsz a sorba! &8(%type%&8)"
+    click-leave: "&c» Kattints, és kilépsz a sorból"
+    ranked-on: "&6&lRanked sor"
+    ranked-off: "&7&lUnranked sor"
+    ranked-lore:
+      - "&7Ranked: hozzád hasonló Elo-jú ellenfél,"
+      - "&7a győzelemért Elo pont jár."
+      - "&e» Kattints a váltáshoz!"
+    stats: "&b&lStatisztikáid"
+    stats-title: "&3[IceMine] &8Duels statok"
+    spectate: "&f&lMeccsek nézése"
+    spectate-lore:
+      - "&7Nézd meg, ki játszik most."
+    spectate-title: "&3[IceMine] &8Futó meccsek"
+    no-matches: "&7Most nem megy egy meccs sem."
+    leave-queue: "&c&lKilépés a sorból"
+    invite-title: "&eKihívás: &f%player%"
+    click-invite: "&e» Kattints a kihíváshoz!"
+    bo3-on: "&e&lBest of 3"
+    bo3-off: "&7&lEgy kör"
+    bo3-lore:
+      - "&7Best of 3: két nyert kör kell."
+      - "&e» Kattints a váltáshoz!"
+
+icem:
+  help-header: "&b[IceMine] &fParancsok"
+  help-line: " &b%usage% &8- &7%description%"
+  help-footer: " &8A listában csak azt látod, amihez van jogod."
+  help:
+    help: ["/icem help", "ez a lista"]
+    stats: ["/icem stats [játékos]", "profil és statisztikák"]
+    kit: ["/icem kit [kit]", "kit választó (KitPvP, SkyPvP, ComboFly)"]
+    arena: ["/icem arena", "KitPvP aréna választó"]
+    rank: ["/icem rank [játékos]", "rangok és amit adnak"]
+    setspawn: ["/icem setspawn <mód> [aréna]", "játékmód spawn ide"]
+    reload: ["/icem reload [fájl]", "configok újratöltése"]
+    admin: ["/icem admin", "adminisztrátori parancsok"]
+  unknown: "Ilyen alparancs nincs. Segítség: &f/icem help"
+
+rank:
+  menu-title: "&3[IceMine] &8Rangok"
+  yours: "&a✔ Ez a te rangod"
+  have: "&a✔ Ezt már megkaptad"
+  missing: "&8✖ Még nincs meg"
+  kits: "&7Kitek: &f%kits%"
+  multiplier: "&7Pénz szorzó: &e%multiplier%x"
+  cosmetics: "&7Kozmetikák: &f%count% db"
+  store: "&b▶ Rangot itt vehetsz: &f%url%"
+  info: "&f%player% &7rangja: %rank%"
+  your-rank: "A rangod: %rank% &8(pénz szorzó: &e%multiplier%x&8)"
+  none: "&8nincs"
+  no-luckperms: "A rangokat a LuckPerms adja, de most nem fut. Szólj egy adminnak!"
+  icon-current: "&a&l» Ez vagy te «"

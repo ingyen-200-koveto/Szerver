@@ -1,0 +1,128 @@
+# Külön lobby világ minden játékmódhoz
+# Ha valaki a főlobbyban kiválaszt egy módot (iránytű, szobor), először a mód saját lobbyjába kerül.
+# Onnan a portálba lépve, a "Játék" hologramra vagy a hotbar első tárgyára kattintva jut be a játékba.
+# A világot és a lobbyt az első indításkor a plugin építi fel, és ide beírja a pontokat.
+#
+# world: a lobby világ neve | color: a téma színe (red, light_blue, purple, lime, yellow, orange...)
+# title: a lebegő felirat (A-Z betűk) | title-split: ennyi betű lesz színes, a többi fehér (0 = mind)
+# play-command: ha meg van adva, a portál ezt a parancsot futtatja a játékos nevében (pl. Bedwars)
+# holograms: a "Játék" (play), az "Infó" és a toplisták (toplist: a config.yml toplista neve)
+#   action: mit csináljon kattintásra (play | info:<szöveg> | menu:<menü> | command:<parancs> | mode:<mód>)
+# Újraépítés: /icemine rebuild lobby_<mód> confirm | spawn áthelyezése: /icemine setspawn lobby_<mód>
+
+enabled: true
+
+lobbies:
+  kitpvp:
+    world: lobby_kitpvp
+    built: false
+    color: red
+    title: "KITPVP"
+    title-split: 3
+    center: {x: 0, y: 100, z: 0}
+    holograms:
+      play:
+        lines: ["&a&lJÁTÉK", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        action: play
+      info:
+        lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
+        action: "info:mode_kitpvp"
+      top1:
+        toplist: kitpvp
+        lines: []
+      top2:
+        toplist: streak
+        lines: []
+  skypvp:
+    world: lobby_skypvp
+    built: false
+    color: light_blue
+    title: "SKYPVP"
+    title-split: 3
+    center: {x: 0, y: 100, z: 0}
+    holograms:
+      play:
+        lines: ["&a&lJÁTÉK", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        action: play
+      info:
+        lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
+        action: "info:mode_skypvp"
+      top1:
+        toplist: skypvp
+        lines: []
+      top2:
+        toplist: streak
+        lines: []
+  combofly:
+    world: lobby_combofly
+    built: false
+    color: purple
+    title: "COMBOFLY"
+    title-split: 5
+    center: {x: 0, y: 100, z: 0}
+    holograms:
+      play:
+        lines: ["&a&lJÁTÉK", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        action: play
+      info:
+        lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
+        action: "info:mode_combofly"
+      top1:
+        toplist: combokills
+        lines: []
+      top2:
+        toplist: combo
+        lines: []
+  gens:
+    world: lobby_gens
+    built: false
+    color: lime
+    title: "GENS"
+    title-split: 0
+    center: {x: 0, y: 100, z: 0}
+    holograms:
+      play:
+        lines: ["&a&lJÁTÉK", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        action: play
+      info:
+        lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
+        action: "info:mode_gens"
+      top1:
+        toplist: gens
+        lines: []
+  kingdoms:
+    world: lobby_kingdoms
+    built: false
+    color: yellow
+    title: "KINGDOMS"
+    title-split: 0
+    center: {x: 0, y: 100, z: 0}
+    holograms:
+      play:
+        lines: ["&a&lJÁTÉK", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        action: play
+      info:
+        lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
+        action: "info:mode_kingdoms"
+  duels:
+    world: lobby_duels
+    built: false
+    color: yellow
+    title: "DUELS"
+    title-split: 0
+    center: {x: 0, y: 100, z: 0}
+    # A portál és a Játék gomb a Duels menüt nyitja meg
+    play-command: "duels"
+    holograms:
+      play:
+        lines: ["&e&lPÁRBAJ", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        action: play
+      info:
+        lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
+        action: "info:mode_duels"
+      top1:
+        toplist: duelswins
+        lines: []
+      top2:
+        toplist: duelselo
+        lines: []

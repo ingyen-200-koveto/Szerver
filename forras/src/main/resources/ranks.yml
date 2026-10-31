@@ -1,0 +1,163 @@
+# IceMine rangok
+#
+# A rang nevét, előtagját (prefix) és chat színét a LuckPerms adja, azt te írod meg ott.
+# Ebben a fájlban azt állítod be, hogy egy LuckPerms csoport mit kap az IceMine-ban:
+# kiteket, kozmetikákat, pénz szorzót és egyéb jogokat.
+#
+# group: a LuckPerms csoport neve (kisbetű, ékezet és + jel nélkül, pl. vipplus).
+#        A játékos a legmagasabb olyan rangot kapja, aminek a csoportjában benne van.
+# A sorrend számít: lefelé haladva egyre erősebb a rang, és mindegyik megkapja
+# az összes fölötte lévő (gyengébb) rang jutalmát is.
+#
+# kits:        kit azonosítók (kitpvp.yml, skypvp.yml, comboarena.yml). Amelyik kit egy rangnál
+#              szerepel, azt csak ez a rang és az erősebbek használhatják. A "default" rang kitjei ingyenesek.
+# cosmetics:   kozmetikák (lobby.yml -> cosmetics), pl. trail.kristaly, kill.villam
+# permissions: bármilyen egyéb jog, amit a rang kap (pl. icemine.cosmetic.fly = repülés a lobbyban)
+# coin-multiplier: ennyivel szorozzuk az ölésért és a napi jutalomért járó pénzt
+# perks:       ez csak a rang menüben (/icem rank) jelenik meg, leírásnak
+#
+# LuckPerms példa (egyszer kell beírni a konzolba):
+#   lp creategroup vip
+#   lp group vip parent add default
+#   lp group vip meta setprefix 100 "&a[VIP] "
+#   lp user <játékos> parent add vip
+
+# Hol lehet rangot venni (a rang menü alján jelenik meg)
+store-url: "https://discord.gg/icemine"
+
+ranks:
+  default:
+    group: default
+    name: "&7Játékos"
+    icon: GRAY_DYE
+    coin-multiplier: 1.0
+    kits: [harcos, ijasz, tank]
+    cosmetics: [trail.ho, kill.szilank]
+    permissions: []
+    perks:
+      - "&7Három ingyenes kit"
+      - "&7Hónyom és jégszilánk effekt"
+  vip:
+    group: vip
+    name: "&a&lVIP"
+    icon: LIME_DYE
+    coin-multiplier: 1.1
+    kits: [orgyilkos]
+    cosmetics: [trail.felho]
+    permissions: []
+    perks:
+      - "&7Orgyilkos kit"
+      - "&7Felhő nyomvonal"
+      - "&710% pénz bónusz"
+  vipplus:
+    group: vipplus
+    name: "&a&lVIP&6&l+"
+    icon: EMERALD
+    coin-multiplier: 1.2
+    kits: [berserker]
+    cosmetics: [kill.szivek]
+    permissions: [icemine.chat.color]
+    perks:
+      - "&7Berserker kit"
+      - "&7Szívek ölés effekt"
+      - "&7Színes chat"
+      - "&720% pénz bónusz"
+  mvp:
+    group: mvp
+    name: "&b&lMVP"
+    icon: LIGHT_BLUE_DYE
+    coin-multiplier: 1.3
+    kits: [fagylovag]
+    cosmetics: [trail.fagy]
+    permissions: [icemine.cosmetic.fly]
+    perks:
+      - "&7Fagylovag kit"
+      - "&7Fagy nyomvonal"
+      - "&7Repülés a lobbyban"
+      - "&730% pénz bónusz"
+  mvpplus:
+    group: mvpplus
+    name: "&b&lMVP&c&l+"
+    icon: DIAMOND
+    coin-multiplier: 1.4
+    kits: [nindzsa]
+    cosmetics: [kill.lelek]
+    permissions: []
+    perks:
+      - "&7Nindzsa kit"
+      - "&7Lélek ölés effekt"
+      - "&740% pénz bónusz"
+  elite:
+    group: elite
+    name: "&5&lELITE"
+    icon: AMETHYST_SHARD
+    coin-multiplier: 1.5
+    kits: [piroman]
+    cosmetics: [trail.kristaly, kill.tuzijatek]
+    permissions: []
+    perks:
+      - "&7Piromán kit"
+      - "&7Kristály nyomvonal, tűzijáték effekt"
+      - "&750% pénz bónusz"
+  legend:
+    group: legend
+    name: "&6&lLEGEND"
+    icon: NETHER_STAR
+    coin-multiplier: 1.75
+    kits: [halasz, alkimista, poszeidon]
+    cosmetics: [trail.szikra, kill.villam, kill.robbanas]
+    permissions: []
+    perks:
+      - "&7Halász, Alkimista és Poszeidón kit"
+      - "&7Minden kozmetika"
+      - "&775% pénz bónusz"
+  youtuber:
+    group: youtuber
+    name: "&c&lYOU&f&lTUBER"
+    icon: RED_DYE
+    coin-multiplier: 1.75
+    kits: []
+    cosmetics: []
+    permissions: []
+    perks:
+      - "&7Minden, amit a LEGEND kap"
+  helper:
+    group: helper
+    name: "&e&lHELPER"
+    icon: YELLOW_DYE
+    coin-multiplier: 1.75
+    kits: []
+    cosmetics: []
+    permissions: [icemine.mod.stats]
+    perks:
+      - "&7Segít az új játékosoknak"
+  moderator:
+    group: moderator
+    name: "&2&lMODERÁTOR"
+    icon: GREEN_DYE
+    coin-multiplier: 1.75
+    kits: []
+    cosmetics: []
+    permissions: [icemine.mod.*]
+    perks:
+      - "&7Moderátori jogok"
+  admin:
+    group: admin
+    name: "&c&lADMIN"
+    icon: REDSTONE
+    coin-multiplier: 2.0
+    kits: []
+    cosmetics: []
+    permissions: [icemine.admin.*, icemine.command.admin]
+    perks:
+      - "&7Adminisztrátori jogok"
+  owner:
+    group: owner
+    name: "&4&lTULAJDONOS"
+    icon: DRAGON_HEAD
+    coin-multiplier: 2.0
+    kits: []
+    cosmetics: []
+    permissions: []
+    perks:
+      - "&7A szerver tulajdonosa"

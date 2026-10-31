@@ -1,0 +1,141 @@
+# ComboFly aréna
+# Az arénát (jégbúra egy lebegő szigeten) az első indításkor a plugin építi fel.
+# Újraépítés: /icemine rebuild combofly confirm
+# Spawn áthelyezése: állj oda, és /icemine setspawn combofly
+# A lökés, a kombó idő és az effektek a combofly.yml-ben vannak.
+# Tárgy formátum: ANYAG [darab] [varázslat:szint ...] [unbreakable]
+# Effekt formátum: effekt:szint (pl. speed:1)
+#
+# Saját pálya: ha a szerver főmappájában ott van a custom-map.folder nevű világ mappa
+# (alapból combofly_map), a plugin induláskor magától átáll rá. Ilyenkor nem épít arénát,
+# csak az IceMine feliratot rakja ki a levegőbe (title rész), és a custom-map résznél
+# megadott spawnt, védett zónát és void magasságot állítja be.
+
+world: ice_combofly
+built: false
+# true = saját pálya, a plugin nem épít rá arénát (a rebuild csak a feliratot rakja le újra)
+custom: false
+# Ha false, nincs esési sebzés az arénában
+fall-damage: true
+center:
+  x: 0
+  y: 100
+  z: 0
+time: 6000
+void-y: 70
+hunger: false
+# Mennyit gyógyuljon a gyilkos egy ölés után (fél szívekben)
+heal-on-kill: 8
+# A kit tárgyak sosem esnek le
+drop-loot: false
+# Enderpearl várakozási idő másodpercben (0 = a vanilla 1 mp)
+pearl-cooldown: 15
+# 1.8-as harc: nincs ütési várakozás (lehet spam-klikkelni) és nincs söprő ütés
+old-combat: true
+
+# IceMine felirat a levegőben
+# x, y, z: a felirat alsó szélének közepe, facing: merre néz az eleje (south, north, east, west)
+# Áthelyezés: írd át, aztán /icemine rebuild combofly confirm
+title:
+  enabled: false
+  built: false
+  x: 0
+  y: 154
+  z: -72
+  facing: south
+  scale: 3
+
+custom-map:
+  folder: combofly_map
+  applied: false
+  spawn:
+    x: 0.5
+    y: 151.0
+    z: 0.5
+    yaw: 180.0
+  safe-center:
+    x: 0.5
+    y: 151.0
+    z: 0.5
+  safe-radius: 14.5
+  void-y: 40
+  # A pálya közepén lévő, piros gyapjúval körbe rakott rész is védett zóna
+  safe-areas:
+    kozep:
+      x: 0.5
+      y: 50
+      z: 0.5
+      radius: 5
+      height: 10
+
+# További védett zónák (kör alakúak). Itt nem lehet ütni, és harc közben (combat tag alatt)
+# nem lehet bemenni: aki mégis bekerül, azt a plugin kilöki, és a zóna szélét piros
+# részecskék mutatják neki. x, y, z: a kör közepe a talajon, radius: sugár, height: magasság.
+# Saját pályánál a custom-map.safe-areas értékei kerülnek ide az első induláskor.
+
+default-kit: combo
+kits:
+  combo:
+    name: "&b&lCombo"
+    icon: DIAMOND_SWORD
+    description:
+      - "&7Teljes dia szett (Védelem V, Törhetetlenség III),"
+      - "&7kard (Élesség V, Sújtás V, Törhetetlenség III),"
+      - "&764 op alma és 12 enderpearl."
+    items:
+      - "DIAMOND_SWORD 1 sharpness:5 smite:5 unbreaking:3"
+      - "ENCHANTED_GOLDEN_APPLE 64"
+      - "ENDER_PEARL 12"
+    armor:
+      helmet: "DIAMOND_HELMET 1 protection:5 unbreaking:3"
+      chestplate: "DIAMOND_CHESTPLATE 1 protection:5 unbreaking:3"
+      leggings: "DIAMOND_LEGGINGS 1 protection:5 unbreaking:3"
+      boots: "DIAMOND_BOOTS 1 protection:5 unbreaking:3"
+
+# Kit NPC a spawn platformon: jobb klikkre megkapod a kitet (csak a védett zónában, harcon kívül)
+# Ha a Citizens fent van, élő játékos NPC lesz, különben páncélállvány dia szettben.
+# skin: egy Minecraft játékos neve, akinek a skinjét viselje (Citizensnél)
+kit-npc:
+  enabled: true
+  kit: combo
+  x: -4.5
+  y: 151.0
+  z: -4.5
+  yaw: -45.0
+  skin: ""
+  name:
+    - "&b&lCOMBO KIT"
+    - "&7Jobb klikk, és megkapod a felszerelést"
+
+# Hologramok a spawn platformon
+# streaks: kinek van most a legtöbb ölése (halálig számol), top: a ComboFly toplista
+holograms:
+  streaks:
+    enabled: true
+    x: -9.5
+    y: 154.0
+    z: 0.5
+  top:
+    enabled: true
+    x: 10.5
+    y: 154.0
+    z: 0.5
+
+rewards:
+  currency: kristaly
+  kill: 8
+  # Sorozat bónusz (pontosan ennyi ölésnél jár)
+  streak-bonus:
+    3: 8
+    5: 20
+    10: 50
+    20: 120
+  # Ugyanazért az áldozatért ennyi ideig nem jár újra pénz (farmolás ellen)
+  same-victim-cooldown-seconds: 300
+  # Azonos IP-ről érkező játékosok egymás megöléséért nem jár pénz (alt fiókok ellen)
+  same-ip-rewards: false
+  # Napi maximum, amit ebben a módban ölésből lehet keresni
+  daily-cap: 1500
+
+# Ezeknél a sorozatoknál mindenki látja a módban
+broadcast-streaks: [5, 10, 15, 20, 30]

@@ -1,0 +1,293 @@
+# Duels - 1v1 PvP módok
+# A játékos a Duels lobbyban (vagy bárhol a lobbyban) választ módot: /duels
+# Kihívás: /duel <játékos> [mód] [bo3] | elfogadás: /duel accept | visszavágó: /duel rematch
+# Nézőként: /duels spectate <játékos> | kilépés a sorból vagy nézésből: /duels leave
+# Az arénákat az első indításkor a plugin építi fel ebben a világban. Újraépítés: /duels rebuild
+#
+# Mód beállítások:
+#   arena: classic | sumo | bridge | builduhc | crystal (melyik fajta arénán megy)
+#   rule: normal | boxing (ütésre megy) | sumo (le kell lökni) | bridge (gólra megy) | combofly (felfelé lökés)
+#   target: boxing-nál hány ütés kell, bridge-nél hány gól
+#   old-combat: true = 1.8-as harc (nincs ütési várakozás), false = 1.9+ harc (pajzs, balta)
+#   hit-delay: két találat közti sérthetetlenség tickben (vanilla 20, kombó 2-5)
+#   build: lehet-e építeni és bontani | hunger: éhezés | natural-regen: magától gyógyul-e
+#   ranked: lehet-e ranked sorban játszani | permission: csak ezzel a joggal választható
+#   Tárgy formátum ugyanaz, mint a KitPvP-ben (pl. "DIAMOND_SWORD 1 sharpness:3 unbreakable").
+
+world: duels
+# Ennyi perc után a meccs döntetlen
+max-minutes: 10
+
+elo:
+  # Mennyit változhat az Elo egy meccsen (minél nagyobb, annál gyorsabban mozog)
+  k-factor: 32
+
+rewards:
+  win: 10
+  ranked-win: 20
+
+arenas:
+  classic:
+    count: 6
+    themes: [forest, desert, ice, nether]
+  sumo:
+    count: 3
+    themes: [forest]
+  bridge:
+    count: 2
+    themes: [forest]
+  builduhc:
+    count: 2
+    themes: [forest]
+  crystal:
+    count: 2
+    themes: [nether]
+
+modes:
+  classic:
+    name: "&f&lClassic"
+    icon: IRON_SWORD
+    arena: classic
+    description:
+      - "&7Vas páncél, gyémánt kard, íj."
+      - "&7Az örök klasszikus."
+    items:
+      - "DIAMOND_SWORD 1 unbreakable"
+      - "BOW 1 unbreakable"
+      - "ARROW 16"
+      - "GOLDEN_APPLE 4"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "IRON_HELMET 1 unbreakable"
+      chestplate: "IRON_CHESTPLATE 1 unbreakable"
+      leggings: "IRON_LEGGINGS 1 unbreakable"
+      boots: "IRON_BOOTS 1 unbreakable"
+  nodebuff:
+    name: "&d&lNoDebuff"
+    icon: SPLASH_POTION
+    arena: classic
+    hunger: true
+    description:
+      - "&7Gyémánt szett, gyógyító bájitalok,"
+      - "&7enderpearlök. Ki bírja tovább?"
+    items:
+      - "DIAMOND_SWORD 1 sharpness:3 fire_aspect:2 unbreaking:3"
+      - "ENDER_PEARL 16"
+      - "POTION 1 effect=speed:2:90 name=&bGyorsaság"
+      - "POTION 1 effect=speed:2:90 name=&bGyorsaság"
+      - "COOKED_BEEF 64"
+      - "SPLASH_POTION 32 effect=instant_health:2 name=&dGyógyítás"
+    armor:
+      helmet: "DIAMOND_HELMET 1 protection:2 unbreaking:3"
+      chestplate: "DIAMOND_CHESTPLATE 1 protection:2 unbreaking:3"
+      leggings: "DIAMOND_LEGGINGS 1 protection:2 unbreaking:3"
+      boots: "DIAMOND_BOOTS 1 protection:2 feather_falling:4 unbreaking:3"
+  boxing:
+    name: "&e&lBoxing"
+    icon: DIAMOND_SWORD
+    arena: classic
+    rule: boxing
+    target: 100
+    hit-delay: 10
+    description:
+      - "&7Nincs sebzés, csak ütések."
+      - "&7Aki előbb üt 100-at, nyer."
+    items:
+      - "DIAMOND_SWORD 1 sharpness:1 unbreakable"
+    effects:
+      - "speed:2"
+  combo:
+    name: "&b&lCombo"
+    icon: PUFFERFISH
+    arena: classic
+    hit-delay: 3
+    description:
+      - "&7Gyors ütések, op almák."
+      - "&7Kombózd le az ellenfelet!"
+    items:
+      - "DIAMOND_SWORD 1 sharpness:2 unbreakable"
+      - "ENCHANTED_GOLDEN_APPLE 8"
+    armor:
+      helmet: "DIAMOND_HELMET 1 protection:4 unbreakable"
+      chestplate: "DIAMOND_CHESTPLATE 1 protection:4 unbreakable"
+      leggings: "DIAMOND_LEGGINGS 1 protection:4 unbreakable"
+      boots: "DIAMOND_BOOTS 1 protection:4 unbreakable"
+    effects:
+      - "speed:2"
+  combofly:
+    name: "&5&lComboFly"
+    icon: PRISMARINE_SHARD
+    arena: classic
+    rule: combofly
+    hit-delay: 4
+    description:
+      - "&7A ComboFly lökése: felfelé ütöd"
+      - "&7az ellenfelet, és a levegőben tartod."
+    items:
+      - "DIAMOND_SWORD 1 sharpness:5 unbreaking:3"
+      - "ENCHANTED_GOLDEN_APPLE 16"
+      - "ENDER_PEARL 4"
+    armor:
+      helmet: "DIAMOND_HELMET 1 protection:4 unbreaking:3"
+      chestplate: "DIAMOND_CHESTPLATE 1 protection:4 unbreaking:3"
+      leggings: "DIAMOND_LEGGINGS 1 protection:4 unbreaking:3"
+      boots: "DIAMOND_BOOTS 1 protection:4 unbreaking:3"
+  bridge:
+    name: "&9&lBridge"
+    icon: BLUE_TERRACOTTA
+    arena: bridge
+    rule: bridge
+    target: 5
+    description:
+      - "&7Építs hidat, és ugorj be"
+      - "&7az ellenfél kapujába! 5 gól kell."
+    items:
+      - "IRON_SWORD 1 unbreakable"
+      - "BOW 1 unbreakable"
+      - "ARROW 1"
+      - "DIAMOND_PICKAXE 1 efficiency:2 unbreakable"
+      - "RED_TERRACOTTA 64"
+      - "RED_TERRACOTTA 64"
+      - "GOLDEN_APPLE 8"
+    armor:
+      chestplate: "LEATHER_CHESTPLATE 1 unbreakable"
+      leggings: "LEATHER_LEGGINGS 1 unbreakable"
+      boots: "LEATHER_BOOTS 1 unbreakable"
+  op:
+    name: "&c&lOP"
+    icon: NETHERITE_SWORD
+    arena: classic
+    description:
+      - "&7Minden a legjobb: netherit,"
+      - "&7op almák, erős íj."
+    items:
+      - "NETHERITE_SWORD 1 sharpness:5 fire_aspect:2 unbreakable"
+      - "BOW 1 power:5 punch:1 flame:1 infinity:1 unbreakable"
+      - "ARROW 1"
+      - "ENCHANTED_GOLDEN_APPLE 4"
+      - "GOLDEN_APPLE 16"
+      - "ENDER_PEARL 8"
+    armor:
+      helmet: "NETHERITE_HELMET 1 protection:4 unbreakable"
+      chestplate: "NETHERITE_CHESTPLATE 1 protection:4 unbreakable"
+      leggings: "NETHERITE_LEGGINGS 1 protection:4 unbreakable"
+      boots: "NETHERITE_BOOTS 1 protection:4 unbreakable"
+  sumo:
+    name: "&a&lSumo"
+    icon: SLIME_BALL
+    arena: sumo
+    rule: sumo
+    hit-delay: 20
+    description:
+      - "&7Nincs sebzés, nincs fegyver."
+      - "&7Lökd le az ellenfelet a platformról!"
+    items:
+      - "STICK 1 name=&7Kéz"
+  builduhc:
+    name: "&6&lBuildUHC"
+    icon: LAVA_BUCKET
+    arena: builduhc
+    build: true
+    hunger: true
+    natural-regen: false
+    description:
+      - "&7Nincs magától gyógyulás, építhetsz,"
+      - "&7van láva és víz. Igazi UHC."
+    items:
+      - "DIAMOND_SWORD 1 sharpness:2"
+      - "BOW 1 power:2"
+      - "ARROW 32"
+      - "FISHING_ROD 1"
+      - "LAVA_BUCKET 1"
+      - "WATER_BUCKET 1"
+      - "GOLDEN_APPLE 6"
+      - "COBBLESTONE 64"
+      - "OAK_PLANKS 64"
+      - "DIAMOND_PICKAXE 1 efficiency:3"
+      - "DIAMOND_AXE 1 efficiency:3"
+      - "COOKED_BEEF 32"
+    armor:
+      helmet: "DIAMOND_HELMET 1 protection:2"
+      chestplate: "DIAMOND_CHESTPLATE 1 protection:2"
+      leggings: "DIAMOND_LEGGINGS 1 protection:2"
+      boots: "DIAMOND_BOOTS 1 protection:2"
+  axe:
+    name: "&7&lAxe"
+    icon: DIAMOND_AXE
+    arena: classic
+    old-combat: false
+    description:
+      - "&7Modern harc: balta és pajzs."
+      - "&7A balta kiüti a pajzsot!"
+    items:
+      - "DIAMOND_AXE 1 sharpness:1 unbreakable"
+      - "SHIELD 1 unbreakable"
+      - "GOLDEN_APPLE 4"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "DIAMOND_HELMET 1 protection:1 unbreakable"
+      chestplate: "DIAMOND_CHESTPLATE 1 protection:1 unbreakable"
+      leggings: "DIAMOND_LEGGINGS 1 protection:1 unbreakable"
+      boots: "DIAMOND_BOOTS 1 protection:1 unbreakable"
+  sword:
+    name: "&3&lSword"
+    icon: DIAMOND_SWORD
+    arena: classic
+    old-combat: false
+    description:
+      - "&7Modern harc: időzített kardütések,"
+      - "&7pajzs és söprő csapás."
+    items:
+      - "DIAMOND_SWORD 1 sharpness:2 unbreakable"
+      - "SHIELD 1 unbreakable"
+      - "GOLDEN_APPLE 4"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "DIAMOND_HELMET 1 protection:2 unbreakable"
+      chestplate: "DIAMOND_CHESTPLATE 1 protection:2 unbreakable"
+      leggings: "DIAMOND_LEGGINGS 1 protection:2 unbreakable"
+      boots: "DIAMOND_BOOTS 1 protection:2 unbreakable"
+  crystal:
+    name: "&5&lCrystal"
+    icon: END_CRYSTAL
+    arena: crystal
+    old-combat: false
+    build: true
+    description:
+      - "&7End kristályok, obszidián, totemek."
+      - "&7A leggyorsabb és legkeményebb mód."
+    items:
+      - "NETHERITE_SWORD 1 sharpness:5"
+      - "END_CRYSTAL 64"
+      - "OBSIDIAN 64"
+      - "TOTEM_OF_UNDYING 1"
+      - "TOTEM_OF_UNDYING 1"
+      - "TOTEM_OF_UNDYING 1"
+      - "ENCHANTED_GOLDEN_APPLE 8"
+      - "NETHERITE_PICKAXE 1 efficiency:5"
+      - "ENDER_PEARL 16"
+    armor:
+      helmet: "NETHERITE_HELMET 1 protection:4 unbreaking:3"
+      chestplate: "NETHERITE_CHESTPLATE 1 protection:4 unbreaking:3"
+      leggings: "NETHERITE_LEGGINGS 1 blast_protection:4 unbreaking:3"
+      boots: "NETHERITE_BOOTS 1 protection:4 feather_falling:4 unbreaking:3"
+  custom:
+    name: "&b&lIce&f&lMine"
+    icon: PACKED_ICE
+    arena: classic
+    description:
+      - "&7Az IceMine saját kitje: jégkard,"
+      - "&7gyorsaság és fagyos ütések."
+      - "&7A duels.yml-ben bármikor átírhatod."
+    items:
+      - "DIAMOND_SWORD 1 sharpness:2 knockback:1 unbreakable name=&bJégkard"
+      - "SNOWBALL 16"
+      - "GOLDEN_APPLE 6"
+      - "COOKED_BEEF 16"
+    armor:
+      helmet: "LEATHER_HELMET 1 #7FD0FF protection:3 unbreakable"
+      chestplate: "DIAMOND_CHESTPLATE 1 protection:2 unbreakable"
+      leggings: "DIAMOND_LEGGINGS 1 protection:2 unbreakable"
+      boots: "LEATHER_BOOTS 1 #7FD0FF protection:3 unbreakable"
+    effects:
+      - "speed:1"

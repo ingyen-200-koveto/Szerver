@@ -1,0 +1,233 @@
+# Gens
+# Mindenki saját szigetet kap, generátorokat rak le, a termést eladja, és fejleszt.
+# A Gens saját pénzt használ (economy.yml: gens), így a PvP nem borítja fel.
+# A generátorok csak akkor termelnek, ha a tulajdonos fent van.
+
+world: ice_gens
+hub-built: false
+time: 6000
+void-y: 60
+
+plot:
+  # A szigetek távolsága egymástól (blokk)
+  spacing: 96
+  # Ekkora területen lehet építeni a sziget közepétől
+  build-radius: 40
+  height: 100
+
+currency: gens
+generator-price: 300
+starter-generators: 2
+
+daily:
+  amount: 500
+
+# Sziget szintek: több hely és nagyobb termelés
+levels:
+  1:
+    slots: 6
+    multiplier: 1.0
+    price: 0
+  2:
+    slots: 9
+    multiplier: 1.1
+    price: 5000
+  3:
+    slots: 12
+    multiplier: 1.25
+    price: 25000
+  4:
+    slots: 16
+    multiplier: 1.4
+    price: 100000
+  5:
+    slots: 20
+    multiplier: 1.6
+    price: 400000
+  6:
+    slots: 25
+    multiplier: 1.8
+    price: 1500000
+
+# Generátor szintek
+# value: ennyit ér egy termék | interval: ennyi mp-enként termel | amount: ennyit termel egyszerre
+# capacity: ennyi fér el benne (jobb klikkel gyűjtöd be) | upgrade: ennyibe kerül a következő szint
+tiers:
+  1:
+    name: "Szén"
+    block: COAL_BLOCK
+    drop: COAL
+    value: 2
+    interval: 6
+    amount: 1
+    capacity: 64
+    upgrade: 250
+  2:
+    name: "Vas"
+    block: IRON_BLOCK
+    drop: IRON_INGOT
+    value: 5
+    interval: 6
+    amount: 1
+    capacity: 64
+    upgrade: 750
+  3:
+    name: "Arany"
+    block: GOLD_BLOCK
+    drop: GOLD_INGOT
+    value: 12
+    interval: 6
+    amount: 1
+    capacity: 96
+    upgrade: 2000
+  4:
+    name: "Lápisz"
+    block: LAPIS_BLOCK
+    drop: LAPIS_LAZULI
+    value: 25
+    interval: 6
+    amount: 1
+    capacity: 96
+    upgrade: 5000
+  5:
+    name: "Redstone"
+    block: REDSTONE_BLOCK
+    drop: REDSTONE
+    value: 45
+    interval: 6
+    amount: 1
+    capacity: 128
+    upgrade: 12000
+  6:
+    name: "Gyémánt"
+    block: DIAMOND_BLOCK
+    drop: DIAMOND
+    value: 90
+    interval: 6
+    amount: 1
+    capacity: 128
+    upgrade: 30000
+  7:
+    name: "Smaragd"
+    block: EMERALD_BLOCK
+    drop: EMERALD
+    value: 180
+    interval: 6
+    amount: 1
+    capacity: 160
+    upgrade: 75000
+  8:
+    name: "Ametiszt"
+    block: AMETHYST_BLOCK
+    drop: AMETHYST_SHARD
+    value: 350
+    interval: 6
+    amount: 1
+    capacity: 160
+    upgrade: 180000
+  9:
+    name: "Kvarc"
+    block: QUARTZ_BLOCK
+    drop: QUARTZ
+    value: 650
+    interval: 6
+    amount: 1
+    capacity: 192
+    upgrade: 400000
+  10:
+    name: "Netherit"
+    block: NETHERITE_BLOCK
+    drop: NETHERITE_SCRAP
+    value: 1200
+    interval: 6
+    amount: 1
+    capacity: 192
+    upgrade: 0
+
+# Egyéb eladható tárgyak (ANYAG: ár)
+sell-prices:
+  WHEAT: 1
+  CARROT: 1
+  POTATO: 1
+
+quests:
+  per-day: 3
+  # type: sell_items | collect_items | upgrade | earn | place_gen
+  pool:
+    elad100:
+      name: "Adj el 100 terméket"
+      type: sell_items
+      amount: 100
+      reward: 300
+    elad500:
+      name: "Adj el 500 terméket"
+      type: sell_items
+      amount: 500
+      reward: 1200
+    gyujt200:
+      name: "Gyűjts be 200 terméket"
+      type: collect_items
+      amount: 200
+      reward: 400
+    fejleszt3:
+      name: "Fejlessz 3 generátort"
+      type: upgrade
+      amount: 3
+      reward: 800
+    keres5000:
+      name: "Keress 5 000 érmét"
+      type: earn
+      amount: 5000
+      reward: 1000
+    lerak2:
+      name: "Rakj le 2 generátort"
+      type: place_gen
+      amount: 2
+      reward: 500
+
+shop:
+  ho:
+    name: "&fHó blokk"
+    material: SNOW_BLOCK
+    amount: 64
+    price: 50
+  deszka:
+    name: "&6Fenyő deszka"
+    material: SPRUCE_PLANKS
+    amount: 64
+    price: 80
+  ko:
+    name: "&7Kőtégla"
+    material: STONE_BRICKS
+    amount: 64
+    price: 120
+  jeg:
+    name: "&bTömör jég"
+    material: PACKED_ICE
+    amount: 64
+    price: 150
+  kekjeg:
+    name: "&9Kék jég"
+    material: BLUE_ICE
+    amount: 32
+    price: 200
+  uveg:
+    name: "&fÜveg"
+    material: GLASS
+    amount: 32
+    price: 100
+  lampas:
+    name: "&eLámpás"
+    material: LANTERN
+    amount: 8
+    price: 120
+  fold:
+    name: "&2Föld"
+    material: DIRT
+    amount: 64
+    price: 40
+  fenyo:
+    name: "&2Fenyő csemete"
+    material: SPRUCE_SAPLING
+    amount: 4
+    price: 60

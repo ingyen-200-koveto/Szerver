@@ -1,0 +1,84 @@
+# ComboFly - saját IceMine kombó rendszer
+# Egymás utáni találatokkal kombót építesz, az ellenfelet a levegőben tartod.
+# Alapból csak a saját arénájában működik (ice_combofly világ, beállítások: comboarena.yml).
+# A SkyPvP-ben és a KitPvP-ben sima PvP van.
+# Újratöltés: /combofly reload vagy /icem reload combofly
+
+enabled: true
+# Ezekben a módokban működik (a modes.yml-ben is be kell kapcsolni: combofly: true)
+allowed-modes: [combofly]
+
+# Ennyi ms-on belül kell jönnie a következő találatnak, különben vége a kombónak
+combo-timeout: 2500
+# A kombó számláló felső határa
+max-combo: 50
+
+# Visszalökés - a ComboFly lényege: nem hátrafelé, hanem FELFELÉ repül az ellenfél, és ütőtávban marad.
+# Ezek az alap értékek, a lenti modes résznél módonként felülírhatók.
+#
+# Horizontal (oldalirányú) és Vertical (függőleges) alap lökés:
+knockback-horizontal: 0.30
+knockback-vertical: 0.40
+# Air: szorzó, ha az ellenfél már a levegőben van. Kisebb oldallökés = nem repül el, tovább ütheted.
+knockback-air-horizontal: 0.8
+knockback-air-vertical: 1.0
+# Ground: szorzó, ha a földön áll. Az első ütés rendesen emelje fel.
+knockback-ground-horizontal: 1.0
+knockback-ground-vertical: 1.1
+# Combo: minden kombó találat után ennyivel változik a lökés.
+# Függőleges (combo-scaling): pozitív = egyre feljebb dob. Oldal: negatív = egyre közelebb marad.
+combo-scaling: 0.004
+knockback-combo-horizontal: -0.004
+# Felső határok
+max-horizontal: 0.9
+max-vertical: 0.55
+# Ennél magasabban (blokk, a talajtól) már nem lök felfelé, hogy senki ne repüljön el
+max-height: 7
+
+# Két találat közti sérthetetlenség tickben (vanilla: 20, 1.8 kombó szervereken 2-5).
+# Minél kisebb, annál gyorsabban lehet egymás után ütni. Ez a CPS kezelés is: 4 tick = legfeljebb 5 találat
+# másodpercenként, akárhány CPS-sel kattint valaki, így a makró sem ad előnyt. Csak ComboFly módokban érvényes.
+hit-delay-ticks: 4
+# Az ütések sebzésének szorzója (1.0 = vanilla). A modes résznél módonként is megadható.
+damage-multiplier: 1.0
+# Maximális ütési távolság (blokk). Ennél messzebbről jött ütés nem számít bele a kombóba.
+max-reach: 4.2
+
+# Ha az ellenfél ennyi tickig a földön van, vége a kombónak
+reset-on-ground: true
+ground-grace-ticks: 6
+
+particles-enabled: true
+sounds-enabled: true
+actionbar-enabled: true
+# Csak olyan módban működik, ahol a Combat Tag is be van kapcsolva
+combat-tag-required: true
+
+# Ettől a kombótól kezdve kiírja, ha vége lett
+end-message-from: 5
+
+# Ezeknél a számoknál hang és részecske effekt van
+milestones: [5, 10, 15, 20, 30, 40, 50]
+
+tiers:
+  ice:
+    from: 1
+    text: "&b&lICE COMBO &f» &b%combo%x"
+  frost:
+    from: 10
+    text: "&3&lFROST COMBO &f» &b%combo%x"
+  blizzard:
+    from: 20
+    text: "&b&lBLIZZARD COMBO &f» &f%combo%x"
+
+# Módonként felülírható lökés (ha később máshol is bekapcsolod)
+modes:
+  combofly:
+    knockback-horizontal: 0.30
+    knockback-vertical: 0.40
+    # Erősebb ütések az arénában (a dia szett és az op almák miatt)
+    damage-multiplier: 1.5
+
+# Ezt a plugin írja, ne töröld
+migrated:
+  combo-v2: true

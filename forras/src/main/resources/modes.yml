@@ -1,0 +1,91 @@
+# Játékmódok
+# status: open (nyitva) | maintenance (karbantartás) | closed (zárva)
+#   Karbantartás alatt csak az icemine.admin.maintenance.bypass joggal lehet belépni.
+#   Gyorsan: /icemine maintenance <mód> <on|off|closed>
+# world: a mód világa. A skypvp, kitpvp, combofly és gens világát a plugin maga hozza létre (a saját .yml fájljukban állítható).
+# server: ha egyszer külön szerverre költözik egy mód, ide írd a Velocity-ben megadott szervernevét.
+# inventory: kit (belépéskor/kilépéskor ürül) | persistent (megmarad) | external (egy másik plugin kezeli)
+# core-scoreboard: false, ha a mód saját scoreboardot használ (pl. Kingdoms)
+# combofly: true csak ott legyen, ahol a ComboFly lökés kell (alapból csak a ComboFly arénában).
+#   A többi módban sima, vanilla PvP van.
+
+# Két játékmódváltás között minimum ennyi idő (ms), hogy ne lehessen spammelni.
+send-cooldown-ms: 2000
+
+modes:
+  skypvp:
+    name: "&b&lSkyPvP"
+    icon: FEATHER
+    slot: 10
+    color: "&b"
+    status: open
+    combat-tag: true
+    combofly: false
+    description:
+      - "&7Lebegő jégszigetek, ládák,"
+      - "&7és mindenki mindenki ellen."
+      - "&7Gyűjts cuccot, és élj túl!"
+  kitpvp:
+    name: "&c&lKitPvP"
+    icon: DIAMOND_SWORD
+    slot: 12
+    color: "&c"
+    status: open
+    combat-tag: true
+    combofly: false
+    description:
+      - "&7Válassz kitet, válassz arénát,"
+      - "&7és mutasd meg, ki a legjobb!"
+      - "&7Lapos jégmező, 11 kit, sorozatjutalmak."
+  combofly:
+    name: "&d&lComboFly"
+    icon: PRISMARINE_SHARD
+    slot: 22
+    color: "&d"
+    status: open
+    combat-tag: true
+    combofly: true
+    description:
+      - "&7Külön aréna, ahol a kombó a lényeg:"
+      - "&7üsd egymás után az ellenfelet,"
+      - "&7és tartsd a levegőben!"
+  duels:
+    name: "&e&lDuels"
+    icon: GOLDEN_SWORD
+    slot: 20
+    color: "&e"
+    status: open
+    combat-tag: false
+    combofly: false
+    description:
+      - "&71v1 párbajok 13 módban: NoDebuff,"
+      - "&7Boxing, Bridge, Sumo, BuildUHC..."
+      - "&7Ranked sor Elo pontokkal!"
+  gens:
+    name: "&a&lGens"
+    icon: EMERALD
+    slot: 14
+    color: "&a"
+    status: open
+    combat-tag: false
+    combofly: false
+    inventory: persistent
+    description:
+      - "&7Saját sziget, generátorok,"
+      - "&7napi küldetések és jutalmak."
+      - "&7Termelj, fejlessz, gazdagodj!"
+  kingdoms:
+    name: "&6&lKingdoms"
+    icon: GOLDEN_HELMET
+    slot: 16
+    color: "&6"
+    status: open
+    world: kingdoms
+    combat-tag: true
+    combofly: false
+    inventory: external
+    core-scoreboard: false
+    description:
+      - "&7Túlélés, királyságok,"
+      - "&7területfoglalás és háborúk."
+      - "&7Építsd fel a saját birodalmad!"

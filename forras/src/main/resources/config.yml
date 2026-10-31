@@ -1,0 +1,84 @@
+# IceMine - alap beállítások
+# A legtöbb változtatás után elég: /icemine reload
+# Az adatbázis beállításainak módosításához viszont újraindítás kell.
+
+database:
+  # sqlite: egy fájlban tárol mindent (kisebb szerverhez ez a jó)
+  # mysql / mariadb: külön adatbázis szerver (ha később a weboldallal is össze akarod kötni)
+  type: sqlite
+  file: icemine.db
+  host: localhost
+  port: 3306
+  name: icemine
+  user: root
+  password: ""
+  ssl: false
+
+# Ennyi másodpercenként menti a pénzt, statisztikákat és a Gens adatokat.
+autosave-seconds: 60
+
+# Az admin parancsok naplózása az adatbázisba is (a konzolba mindig kiírja).
+admin-log: true
+
+# Ezeket a parancsokat a játékosok nem használhatják, és a TAB-os kiegészítésben sem látják.
+# Aki mégis beírja, ezt kapja: [IceMine] Ehhez nincs jogod!
+# Az adminok és az owner (icemine.admin.commands jog) ugyanúgy használhatják őket.
+# A "bukkit:pl" és hasonló alakokat is tiltja. Ide azok a parancsok kerültek, amik pluginlistát vagy verziót árulnak el.
+blocked-commands: [pl, plugins, ver, version, about, icanhasbukkit, timings, spark, paper, purpur, bukkit, spigot, tps, mspt,
+  lp, luckperms, lpb, perm, perms, permission, permissions, tab, btab, via, viaver, viaversion, vvbukkit, viabackwards, viarewind]
+
+# Az AuthMe és az EssentialsX üzeneteit is [IceMine] előtaggal írja ki (magyarul).
+# Az IceMine egyszer kirakja a saját üzenetfájljait a pluginok mappájába (a régit .regi néven elmenti).
+# Ha nem kéred, írd át false-ra.
+kulso-uzenetek: true
+
+# Belépési és kilépési üzenet. Ha üres, nem ír ki semmit.
+join-message: "&8[&a+&8] %prefix%%player%"
+quit-message: "&8[&c-&8] %prefix%%player%"
+
+# Toplisták (hologramok, /top menü). Percenként frissülnek.
+leaderboards:
+  size: 10
+  boards:
+    kitpvp:
+      title: "&c&l⚔ KitPvP ölések"
+      source: stat
+      key: kitpvp.kills
+    skypvp:
+      title: "&b&l☁ SkyPvP ölések"
+      source: stat
+      key: skypvp.kills
+    streak:
+      title: "&e&l⚡ Legjobb sorozat"
+      source: stat
+      key: kitpvp.best_streak
+    gens:
+      title: "&a&l⛃ Gens bevétel"
+      source: stat
+      key: gens.earned
+    parkour:
+      title: "&f&l⏱ Parkour rekordok"
+      source: stat
+      key: parkour2.best_ms
+      ascending: true
+      format: time
+    combo:
+      title: "&3&l✦ Legnagyobb kombó"
+      source: stat
+      key: combofly.best
+    duelswins:
+      title: "&e&l⚔ Duels győzelmek"
+      source: stat
+      key: duels.wins
+    duelsstreak:
+      title: "&6&l⚡ Duels győzelmi sorozat"
+      source: stat
+      key: duels.best_streak
+    duelselo:
+      title: "&b&l✦ Legjobb Elo"
+      source: stat
+      key: duels.elo_best
+    combokills:
+      title: "&d&l✦ ComboFly ölések"
+      source: stat
+      key: combofly.kills
