@@ -261,6 +261,15 @@ public final class Migrations {
             }
             notes.add("új játékmód: BedWars (Solo, Duó, 3v3v3v3, 4v4v4v4), saját lobbyval és szoborral a lobbyban");
         }
+        if (lobbies != null && lobbies.isConfigurationSection("lobbies.bedwars") && !lobbies.getBoolean("migrated.bedwars-statues-v1", false)) {
+            if (!lobbies.isSet("lobbies.bedwars.npcs")) {
+                copyDefault(lobbies, "lobbies.bedwars.npcs");
+            }
+            lobbies.set("lobbies.bedwars.built", false);
+            lobbies.set("migrated.bedwars-statues-v1", true);
+            files.save("modelobbies");
+            notes.add("modelobbies.yml: a BedWars lobbyban négy szobor van (Solo, Duó, 3v3v3v3, 4v4v4v4), a lobby most újraépül");
+        }
         if (resetIfContains(files, "modes", "modes.kitpvp.description", "öt kit")) {
             notes.add("modes.yml: új KitPvP leírás");
         }

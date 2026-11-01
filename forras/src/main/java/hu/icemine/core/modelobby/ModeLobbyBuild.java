@@ -875,7 +875,41 @@ public final class ModeLobbyBuild extends Build {
 
     // ---- BedWars: tábor ágyakkal, generátorokkal és fákkal ----
 
+    /** A BedWars lobby négy szobra (Solo, Duó, 3v3v3v3, 4v4v4v4) ívben a spawn előtt, mind a spawn felé néz. */
+    static final int[][] STATUES = {{-10, 6}, {-5, 5}, {5, 5}, {10, 6}};
+    private static final String[] STATUE_COLORS = {"red", "blue", "yellow", "lime"};
+
+    private void statues() {
+        for (int i = 0; i < STATUES.length; i++) {
+            int x = STATUES[i][0];
+            int z = STATUES[i][1];
+            String color = STATUE_COLORS[i];
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    put(x + dx, 0, z + dz, dx == 0 && dz == 0 ? color + "_concrete" : color + "_terracotta");
+                    put(x + dx, 1, z + dz, "air");
+                }
+            }
+            // két lámpa a szobor mögött (északra, a spawntól távolabb)
+            for (int side = -1; side <= 1; side += 2) {
+                put(x + side * 2, 0, z - 1, "oak_planks");
+                put(x + side * 2, 1, z - 1, "oak_fence");
+                put(x + side * 2, 2, z - 1, "lantern[hanging=false]");
+            }
+            // a mód színű ágy a szobor mögött
+            put(x, 0, z - 2, "oak_planks");
+            put(x, 0, z - 3, "oak_planks");
+            put(x, 1, z - 2, color + "_bed[part=foot,facing=north]");
+            put(x, 1, z - 3, color + "_bed[part=head,facing=north]");
+            double dx = 0.5 - (x + 0.5);
+            double dz = SPAWN_Z + 0.5 - (z + 0.5);
+            float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+            layout.point("npc:statue" + (i + 1), x + 0.5, 1, z + 0.5, yaw);
+        }
+    }
+
     private void camp() {
+        statues();
         String[] colors = {"red", "blue", "lime", "yellow"};
         int[][] pads = {{-17, -12}, {17, -12}, {-17, 10}, {17, 10}};
         for (int i = 0; i < pads.length; i++) {
@@ -914,7 +948,7 @@ public final class ModeLobbyBuild extends Build {
         }
         int[][] trees = {{-19, 0}, {20, -2}, {-11, 19}, {12, 20}, {0, 23}, {-21, -5}};
         for (int[] t : trees) {
-            if (dist(t[0], t[1]) > RADIUS - 4 || !free(t[0], t[1]) || nearAny(t[0], t[1], pads, 5, 6)) {
+            if (dist(t[0], t[1]) > RADIUS - 4 || !free(t[0], t[1]) || nearAny(t[0], t[1], pads, 5, 6) || nearAny(t[0], t[1], STATUES, 4, 5)) {
                 continue;
             }
             int height = 4 + (int) (noise(t[0], t[1], 85) * 2);
@@ -935,7 +969,7 @@ public final class ModeLobbyBuild extends Build {
         }
         for (int x = -RADIUS; x <= RADIUS; x++) {
             for (int z = -RADIUS; z <= RADIUS; z++) {
-                if (!free(x, z) || nearAny(x, z, pads, 3, 4) || nearAny(x, z, gens, 2, 2)) {
+                if (!free(x, z) || nearAny(x, z, pads, 3, 4) || nearAny(x, z, gens, 2, 2) || nearAny(x, z, STATUES, 2, 4)) {
                     continue;
                 }
                 double n = noise(x, z, 86);

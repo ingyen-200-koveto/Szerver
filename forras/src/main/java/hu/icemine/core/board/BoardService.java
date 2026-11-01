@@ -98,6 +98,9 @@ public final class BoardService implements Listener {
                         .replace("%status_" + info.id + "%", core.menus().statusText(info))
                         .replace("%mode_name_" + info.id + "%", info.name);
             }
+            if (result.contains("%bw_") && core.bedwars() != null) {
+                result = core.bedwars().global(result);
+            }
         }
         return result;
     }

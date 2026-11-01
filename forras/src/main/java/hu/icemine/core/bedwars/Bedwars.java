@@ -405,6 +405,34 @@ public final class Bedwars implements ModeHandler {
         return core.lobby().spawn(player);
     }
 
+    /**
+     * A szobrok és hologramok feliratához: %bw_players_solo% (hányan vannak a módban), %bw_waiting_solo%, %bw_playing_solo%,
+     * %bw_name_solo% és ugyanez a többi módra.
+     */
+    public String global(String text) {
+        String result = text;
+        for (BwMode mode : modes.values()) {
+            if (!result.contains("_" + mode.id + "%")) {
+                continue;
+            }
+            int waiting = 0;
+            int playing = 0;
+            for (BwArena arena : arenas(mode)) {
+                if (arena.state() == BwArena.State.PLAYING || arena.state() == BwArena.State.ENDING) {
+                    playing += arena.size();
+                } else {
+                    waiting += arena.size();
+                }
+            }
+            result = result.replace("%bw_players_" + mode.id + "%", String.valueOf(waiting + playing))
+                    .replace("%bw_waiting_" + mode.id + "%", String.valueOf(waiting))
+                    .replace("%bw_playing_" + mode.id + "%", String.valueOf(playing))
+                    .replace("%bw_name_" + mode.id + "%", mode.name)
+                    .replace("%bw_format_" + mode.id + "%", mode.format());
+        }
+        return result;
+    }
+
     // ---- statisztika, jutalom ----
 
     public void stat(UUID id, String key, long delta) {

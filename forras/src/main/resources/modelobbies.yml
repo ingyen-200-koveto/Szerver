@@ -146,7 +146,7 @@ lobbies:
     play-command: "bw"
     holograms:
       play:
-        lines: ["&6&lBEDWARS", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        lines: ["&6&lBEDWARS", "&7Kattints egy szoborra,", "&7vagy rám a menüért!"]
         action: play
       info:
         lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
@@ -157,3 +157,50 @@ lobbies:
       top2:
         toplist: bedwarsfinals
         lines: []
+    # A négy szobor: rákattintva beszállsz az adott módba (action: "bedwars:<mód>"). A helyüket a lobby építése írja be.
+    # Áthelyezés: állj oda, ahova kell, és /icem admin npc move modelobby_bedwars/solo (duo, 3v3v3v3, 4v4v4v4)
+    npcs:
+      solo:
+        spot: statue1
+        type: statue
+        name: ["&c&lSOLO", "&78 csapat, 1 fő", "&f%bw_players_solo% &7játékos", "&e» Kattints a játékhoz! «"]
+        action: "bedwars:solo"
+        equipment:
+          helmet: PLAYER_HEAD
+          chestplate: "LEATHER_CHESTPLATE #B02E26"
+          leggings: "LEATHER_LEGGINGS #B02E26"
+          boots: "LEATHER_BOOTS #B02E26"
+          hand: RED_BED
+      duo:
+        spot: statue2
+        type: statue
+        name: ["&9&lDUÓ", "&78 csapat, 2 fő", "&f%bw_players_duo% &7játékos", "&e» Kattints a játékhoz! «"]
+        action: "bedwars:duo"
+        equipment:
+          helmet: PLAYER_HEAD
+          chestplate: "LEATHER_CHESTPLATE #3C44AA"
+          leggings: "LEATHER_LEGGINGS #3C44AA"
+          boots: "LEATHER_BOOTS #3C44AA"
+          hand: BLUE_BED
+      "3v3v3v3":
+        spot: statue3
+        type: statue
+        name: ["&e&l3v3v3v3", "&74 csapat, 3 fő", "&f%bw_players_3v3v3v3% &7játékos", "&e» Kattints a játékhoz! «"]
+        action: "bedwars:3v3v3v3"
+        equipment:
+          helmet: PLAYER_HEAD
+          chestplate: "LEATHER_CHESTPLATE #FED83D"
+          leggings: "LEATHER_LEGGINGS #FED83D"
+          boots: "LEATHER_BOOTS #FED83D"
+          hand: YELLOW_BED
+      "4v4v4v4":
+        spot: statue4
+        type: statue
+        name: ["&a&l4v4v4v4", "&74 csapat, 4 fő", "&f%bw_players_4v4v4v4% &7játékos", "&e» Kattints a játékhoz! «"]
+        action: "bedwars:4v4v4v4"
+        equipment:
+          helmet: PLAYER_HEAD
+          chestplate: "LEATHER_CHESTPLATE #5EA816"
+          leggings: "LEATHER_LEGGINGS #5EA816"
+          boots: "LEATHER_BOOTS #5EA816"
+          hand: LIME_BED

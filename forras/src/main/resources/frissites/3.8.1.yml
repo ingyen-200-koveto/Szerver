@@ -1,0 +1,19 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.8.1 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.8.1
+changes:
+- file: bedwars
+  path: modes.solo.name
+  old: '&a&lSolo'
+- file: bedwars
+  path: modes.duo.name
+  old: '&b&lDuó'
+- file: bedwars
+  path: modes.4v4v4v4.name
+  old: '&c&l4v4v4v4'
+- file: modelobbies
+  path: lobbies.bedwars.holograms.play.lines
+  old:
+  - '&6&lBEDWARS'
+  - '&7Kattints rám, vagy lépj'
+  - '&7be a portálba!'

@@ -43,6 +43,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 public final class Npcs implements Listener {
 
     public static final String TAG = "icemine_npc";
+    public static final String LOBBY_GROUP = "lobby";
     private static final String[] SLOTS = {"helmet", "chestplate", "leggings", "boots", "hand"};
 
     public static final class Npc {
@@ -60,6 +61,10 @@ public final class Npcs implements Listener {
         String skin = "";
         int citizenId = -1;
         boolean external;
+        /** Melyik csoporté (lobby, vagy egy mód lobbyja), melyik config fájlban és hol van leírva. */
+        String group = LOBBY_GROUP;
+        String file = "lobby";
+        String path;
 
         Npc(String id, Location location, List<String> name, String type, String profession, Map<String, String> equipment, String action) {
             this.id = id;
@@ -75,6 +80,9 @@ public final class Npcs implements Listener {
             Npc copy = new Npc(id, to, name, type, profession, equipment, action);
             copy.skin = skin;
             copy.citizenId = citizenId;
+            copy.group = group;
+            copy.file = file;
+            copy.path = path;
             return copy;
         }
     }
@@ -93,45 +101,95 @@ public final class Npcs implements Listener {
     }
 
     public void load(YamlConfiguration config, List<String> problems) {
-        despawn();
-        npcs.clear();
+        removeGroup(LOBBY_GROUP, core.lobby().world());
         World world = core.lobby().world();
         ConfigurationSection section = config.getConfigurationSection("npcs");
         if (section == null) {
             return;
         }
         for (String id : section.getKeys(false)) {
-            Location location = Locs.read(section.getConfigurationSection(id + ".location"), world);
-            if (location == null) {
-                problems.add("lobby.yml -> npcs." + id + ": hiányzik a hely (location)");
+            Npc npc = read(id, id, section, world, "lobby.yml", "npcs", problems);
+            if (npc != null) {
+                npcs.put(id, npc);
+            }
+        }
+    }
+
+    /**
+     * Egy másik helyen (pl. egy mód lobbyjában) lévő NPC csoport betöltése és lerakása. A régi csoport eltűnik.
+     * Az azonosítójuk "csoport/név" lesz, így a /icem admin npc parancsokkal is mozgathatók.
+     */
+    public void loadGroup(String group, String file, String basePath, World world, ConfigurationSection section, List<String> problems) {
+        removeGroup(group, world);
+        if (section == null || world == null) {
+            return;
+        }
+        for (String key : section.getKeys(false)) {
+            Npc npc = read(group + "/" + key, key, section, world, file + ".yml", basePath, problems);
+            if (npc == null) {
                 continue;
             }
-            String action = section.getString(id + ".action", "");
-            if (action.isBlank()) {
-                problems.add("lobby.yml -> npcs." + id + ".action: nincs megadva, mit csináljon kattintásra");
+            npc.group = group;
+            npc.file = file;
+            npc.path = basePath + "." + key;
+            npcs.put(npc.id, npc);
+            spawn(npc);
+        }
+    }
+
+    private void removeGroup(String group, World world) {
+        List<String> gone = new ArrayList<>();
+        for (Npc npc : npcs.values()) {
+            if (npc.group.equals(group)) {
+                remove(npc);
+                gone.add(npc.id);
             }
-            String type = section.getString(id + ".type", "villager").toLowerCase(Locale.ROOT);
-            if (!type.equals("villager") && !type.equals("statue")) {
-                problems.add("lobby.yml -> npcs." + id + ".type: villager vagy statue lehet, villagert használok");
-                type = "villager";
-            }
-            Map<String, String> equipment = new LinkedHashMap<>();
-            for (String slot : SLOTS) {
-                String spec = section.getString(id + ".equipment." + slot, "");
-                if (!spec.isBlank()) {
-                    if (gear(spec) == null) {
-                        problems.add("lobby.yml -> npcs." + id + ".equipment." + slot + ": ismeretlen tárgy (" + spec + ")");
-                    } else {
-                        equipment.put(slot, spec);
-                    }
+        }
+        for (String id : gone) {
+            npcs.remove(id);
+        }
+        if (world != null) {
+            for (Entity entity : world.getEntities()) {
+                if (entity.getScoreboardTags().contains(TAG)) {
+                    entity.remove();
                 }
             }
-            Npc npc = new Npc(id, location, new ArrayList<>(section.getStringList(id + ".name")), type,
-                    section.getString(id + ".profession", "librarian").toLowerCase(Locale.ROOT), equipment, action);
-            npc.skin = section.getString(id + ".skin", "");
-            npc.citizenId = section.getInt(id + ".citizens", -1);
-            npcs.put(id, npc);
         }
+    }
+
+    private Npc read(String id, String key, ConfigurationSection section, World world, String file, String basePath, List<String> problems) {
+        String where = file + " -> " + basePath + "." + key;
+        Location location = Locs.read(section.getConfigurationSection(key + ".location"), world);
+        if (location == null) {
+            problems.add(where + ": hiányzik a hely (location)");
+            return null;
+        }
+        String action = section.getString(key + ".action", "");
+        if (action.isBlank()) {
+            problems.add(where + ".action: nincs megadva, mit csináljon kattintásra");
+        }
+        String type = section.getString(key + ".type", "villager").toLowerCase(Locale.ROOT);
+        if (!type.equals("villager") && !type.equals("statue")) {
+            problems.add(where + ".type: villager vagy statue lehet, villagert használok");
+            type = "villager";
+        }
+        Map<String, String> equipment = new LinkedHashMap<>();
+        for (String slot : SLOTS) {
+            String spec = section.getString(key + ".equipment." + slot, "");
+            if (!spec.isBlank()) {
+                if (gear(spec) == null) {
+                    problems.add(where + ".equipment." + slot + ": ismeretlen tárgy (" + spec + ")");
+                } else {
+                    equipment.put(slot, spec);
+                }
+            }
+        }
+        Npc npc = new Npc(id, location, new ArrayList<>(section.getStringList(key + ".name")), type,
+                section.getString(key + ".profession", "librarian").toLowerCase(Locale.ROOT), equipment, action);
+        npc.skin = section.getString(key + ".skin", "");
+        npc.citizenId = section.getInt(key + ".citizens", -1);
+        npc.path = basePath + "." + key;
+        return npc;
     }
 
     static ItemStack gear(String spec) {
@@ -159,10 +217,12 @@ public final class Npcs implements Listener {
     }
 
     public void move(String id, Location location) {
-        YamlConfiguration config = core.configs().get("lobby");
-        Locs.write(config, "npcs." + id + ".location", location);
-        core.configs().save("lobby");
         Npc npc = npcs.get(id);
+        String file = npc == null ? "lobby" : npc.file;
+        String path = npc == null || npc.path == null ? "npcs." + id : npc.path;
+        YamlConfiguration config = core.configs().get(file);
+        Locs.write(config, path + ".location", location);
+        core.configs().save(file);
         if (npc != null) {
             remove(npc);
             Npc moved = npc.moved(location.clone());
@@ -269,9 +329,9 @@ public final class Npcs implements Listener {
 
     private void remember(Npc npc, int id) {
         npc.citizenId = id;
-        YamlConfiguration config = core.configs().get("lobby");
-        config.set("npcs." + npc.id + ".citizens", id);
-        core.configs().save("lobby");
+        YamlConfiguration config = core.configs().get(npc.file);
+        config.set((npc.path == null ? "npcs." + npc.id : npc.path) + ".citizens", id);
+        core.configs().save(npc.file);
         if (!npc.skin.isBlank()) {
             citizens.skin(id, npc.skin);
         }

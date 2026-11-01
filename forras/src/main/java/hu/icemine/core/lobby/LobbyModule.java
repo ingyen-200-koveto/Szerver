@@ -428,6 +428,17 @@ public final class LobbyModule implements ModeHandler {
                     player.performCommand(value);
                 }
                 break;
+            case "bedwars":
+                // bedwars:solo -> beszállás a Solo módba, bedwars: (üres) -> a BedWars menü
+                if (core.bedwars() != null) {
+                    hu.icemine.core.bedwars.BwMode bwMode = value.isBlank() ? null : core.bedwars().mode(value);
+                    if (bwMode == null) {
+                        core.bedwars().menus().open(player);
+                    } else {
+                        core.bedwars().play(player, bwMode);
+                    }
+                }
+                break;
             case "message":
                 if (!value.isBlank()) {
                     core.messages().sendTagged(player, value);

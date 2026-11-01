@@ -144,8 +144,11 @@ public final class ModeLobbies implements Listener {
         }
     }
 
+    private static final String NPC_GROUP = "modelobby_";
+
     private final IceMineCore core;
     private final Map<String, ModeLobby> lobbies = new LinkedHashMap<>();
+    private final java.util.Set<String> npcGroups = new java.util.HashSet<>();
     private final Map<UUID, Long> clicked = new HashMap<>();
     private final Map<UUID, Long> entered = new HashMap<>();
     private boolean enabled = true;
@@ -228,7 +231,17 @@ public final class ModeLobbies implements Listener {
                             h.getString("action", "")));
                 }
             }
+            // szobrok (pl. a BedWars lobbyban a négy mód), a lobby NPC rendszere rakja le őket
+            String group = NPC_GROUP + mode;
+            core.npcs().loadGroup(group, FILE, "lobbies." + id + ".npcs", lobby.world, entry.getConfigurationSection("npcs"), problems);
+            npcGroups.add(group);
             fresh.put(mode, lobby);
+        }
+        for (String group : new ArrayList<>(npcGroups)) {
+            if (!fresh.containsKey(group.substring(NPC_GROUP.length()))) {
+                core.npcs().loadGroup(group, FILE, "", null, null, problems);
+                npcGroups.remove(group);
+            }
         }
         lobbies.clear();
         lobbies.putAll(fresh);
@@ -294,6 +307,15 @@ public final class ModeLobbies implements Listener {
                     continue;
                 }
                 Locs.write(config, path + ".holograms." + holo + ".location", x + point.x, y + point.y, z + point.z, 0);
+            }
+        }
+        ConfigurationSection npcs = config.getConfigurationSection(path + ".npcs");
+        if (npcs != null) {
+            for (String npc : npcs.getKeys(false)) {
+                Layout.Point point = layout.points.get("npc:" + npcs.getString(npc + ".spot", npc));
+                if (point != null) {
+                    Locs.write(config, path + ".npcs." + npc + ".location", x + point.x, y + point.y, z + point.z, point.yaw);
+                }
             }
         }
         config.set(path + ".built", true);

@@ -15,7 +15,7 @@ world: ice_bedwars
 # slot: hol legyen a /bw menüben (10-16 a középső sor), aliases: ezekkel is lehet rá hivatkozni (/bw play solo)
 modes:
   solo:
-    name: "&a&lSolo"
+    name: "&c&lSolo"
     icon: RED_BED
     slot: 10
     teams: 8
@@ -30,7 +30,7 @@ modes:
       - "&7Védd meg az ágyad, és rombold le"
       - "&7a többiekét!"
   duo:
-    name: "&b&lDuó"
+    name: "&9&lDuó"
     icon: BLUE_BED
     slot: 12
     teams: 8
@@ -58,7 +58,7 @@ modes:
       - "&74 csapat, csapatonként 3 fő."
       - "&7Nagyobb pálya, nagyobb csaták."
   "4v4v4v4":
-    name: "&c&l4v4v4v4"
+    name: "&a&l4v4v4v4"
     icon: LIME_BED
     slot: 16
     teams: 4
