@@ -1,0 +1,637 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.9.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.9.0
+changes:
+- file: gens
+  path: generator-price
+  old: 300
+- file: gens
+  path: starter-generators
+  old: 2
+- file: gens
+  path: levels.1.slots
+  old: 6
+- file: gens
+  path: levels.1.multiplier
+  old: 1.0
+- file: gens
+  path: levels.1.price
+  old: 0
+- file: gens
+  path: levels.2.slots
+  old: 9
+- file: gens
+  path: levels.2.multiplier
+  old: 1.1
+- file: gens
+  path: levels.2.price
+  old: 5000
+- file: gens
+  path: levels.3.slots
+  old: 12
+- file: gens
+  path: levels.3.multiplier
+  old: 1.25
+- file: gens
+  path: levels.3.price
+  old: 25000
+- file: gens
+  path: levels.4.slots
+  old: 16
+- file: gens
+  path: levels.4.multiplier
+  old: 1.4
+- file: gens
+  path: levels.4.price
+  old: 100000
+- file: gens
+  path: levels.5.slots
+  old: 20
+- file: gens
+  path: levels.5.multiplier
+  old: 1.6
+- file: gens
+  path: levels.5.price
+  old: 400000
+- file: gens
+  path: levels.6.slots
+  old: 25
+- file: gens
+  path: levels.6.multiplier
+  old: 1.8
+- file: gens
+  path: levels.6.price
+  old: 1500000
+- file: gens
+  path: tiers.1.name
+  old: Szén
+- file: gens
+  path: tiers.1.block
+  old: COAL_BLOCK
+- file: gens
+  path: tiers.1.drop
+  old: COAL
+- file: gens
+  path: tiers.1.value
+  old: 2
+- file: gens
+  path: tiers.1.interval
+  old: 6
+- file: gens
+  path: tiers.1.amount
+  old: 1
+- file: gens
+  path: tiers.1.capacity
+  old: 64
+- file: gens
+  path: tiers.1.upgrade
+  old: 250
+- file: gens
+  path: tiers.2.name
+  old: Vas
+- file: gens
+  path: tiers.2.block
+  old: IRON_BLOCK
+- file: gens
+  path: tiers.2.drop
+  old: IRON_INGOT
+- file: gens
+  path: tiers.2.value
+  old: 5
+- file: gens
+  path: tiers.2.interval
+  old: 6
+- file: gens
+  path: tiers.2.amount
+  old: 1
+- file: gens
+  path: tiers.2.capacity
+  old: 64
+- file: gens
+  path: tiers.2.upgrade
+  old: 750
+- file: gens
+  path: tiers.3.name
+  old: Arany
+- file: gens
+  path: tiers.3.block
+  old: GOLD_BLOCK
+- file: gens
+  path: tiers.3.drop
+  old: GOLD_INGOT
+- file: gens
+  path: tiers.3.value
+  old: 12
+- file: gens
+  path: tiers.3.interval
+  old: 6
+- file: gens
+  path: tiers.3.amount
+  old: 1
+- file: gens
+  path: tiers.3.capacity
+  old: 96
+- file: gens
+  path: tiers.3.upgrade
+  old: 2000
+- file: gens
+  path: tiers.4.name
+  old: Lápisz
+- file: gens
+  path: tiers.4.block
+  old: LAPIS_BLOCK
+- file: gens
+  path: tiers.4.drop
+  old: LAPIS_LAZULI
+- file: gens
+  path: tiers.4.value
+  old: 25
+- file: gens
+  path: tiers.4.interval
+  old: 6
+- file: gens
+  path: tiers.4.amount
+  old: 1
+- file: gens
+  path: tiers.4.capacity
+  old: 96
+- file: gens
+  path: tiers.4.upgrade
+  old: 5000
+- file: gens
+  path: tiers.5.name
+  old: Redstone
+- file: gens
+  path: tiers.5.block
+  old: REDSTONE_BLOCK
+- file: gens
+  path: tiers.5.drop
+  old: REDSTONE
+- file: gens
+  path: tiers.5.value
+  old: 45
+- file: gens
+  path: tiers.5.interval
+  old: 6
+- file: gens
+  path: tiers.5.amount
+  old: 1
+- file: gens
+  path: tiers.5.capacity
+  old: 128
+- file: gens
+  path: tiers.5.upgrade
+  old: 12000
+- file: gens
+  path: tiers.6.name
+  old: Gyémánt
+- file: gens
+  path: tiers.6.block
+  old: DIAMOND_BLOCK
+- file: gens
+  path: tiers.6.drop
+  old: DIAMOND
+- file: gens
+  path: tiers.6.value
+  old: 90
+- file: gens
+  path: tiers.6.interval
+  old: 6
+- file: gens
+  path: tiers.6.amount
+  old: 1
+- file: gens
+  path: tiers.6.capacity
+  old: 128
+- file: gens
+  path: tiers.6.upgrade
+  old: 30000
+- file: gens
+  path: tiers.7.name
+  old: Smaragd
+- file: gens
+  path: tiers.7.block
+  old: EMERALD_BLOCK
+- file: gens
+  path: tiers.7.drop
+  old: EMERALD
+- file: gens
+  path: tiers.7.value
+  old: 180
+- file: gens
+  path: tiers.7.interval
+  old: 6
+- file: gens
+  path: tiers.7.amount
+  old: 1
+- file: gens
+  path: tiers.7.capacity
+  old: 160
+- file: gens
+  path: tiers.7.upgrade
+  old: 75000
+- file: gens
+  path: tiers.8.name
+  old: Ametiszt
+- file: gens
+  path: tiers.8.block
+  old: AMETHYST_BLOCK
+- file: gens
+  path: tiers.8.drop
+  old: AMETHYST_SHARD
+- file: gens
+  path: tiers.8.value
+  old: 350
+- file: gens
+  path: tiers.8.interval
+  old: 6
+- file: gens
+  path: tiers.8.amount
+  old: 1
+- file: gens
+  path: tiers.8.capacity
+  old: 160
+- file: gens
+  path: tiers.8.upgrade
+  old: 180000
+- file: gens
+  path: tiers.9.name
+  old: Kvarc
+- file: gens
+  path: tiers.9.block
+  old: QUARTZ_BLOCK
+- file: gens
+  path: tiers.9.drop
+  old: QUARTZ
+- file: gens
+  path: tiers.9.value
+  old: 650
+- file: gens
+  path: tiers.9.interval
+  old: 6
+- file: gens
+  path: tiers.9.amount
+  old: 1
+- file: gens
+  path: tiers.9.capacity
+  old: 192
+- file: gens
+  path: tiers.9.upgrade
+  old: 400000
+- file: gens
+  path: tiers.10.name
+  old: Netherit
+- file: gens
+  path: tiers.10.block
+  old: NETHERITE_BLOCK
+- file: gens
+  path: tiers.10.drop
+  old: NETHERITE_SCRAP
+- file: gens
+  path: tiers.10.value
+  old: 1200
+- file: gens
+  path: tiers.10.interval
+  old: 6
+- file: gens
+  path: tiers.10.amount
+  old: 1
+- file: gens
+  path: tiers.10.capacity
+  old: 192
+- file: gens
+  path: tiers.10.upgrade
+  old: 0
+- file: gens
+  path: island-upgrades.tarolo.name
+  old: '&6&lNagyobb tároló'
+- file: gens
+  path: island-upgrades.tarolo.icon
+  old: CHEST
+- file: gens
+  path: island-upgrades.tarolo.per-level
+  old: 25
+- file: gens
+  path: island-upgrades.tarolo.prices
+  old:
+  - 3000
+  - 12000
+  - 40000
+  - 120000
+  - 350000
+- file: gens
+  path: island-upgrades.tarolo.description
+  old:
+  - '&7+25% hely minden generátorban szintenként.'
+  - '&7Ritkábban kell begyűjteni.'
+- file: gens
+  path: island-upgrades.sebesseg.name
+  old: '&b&lGyorsabb termelés'
+- file: gens
+  path: island-upgrades.sebesseg.description
+  old:
+  - '&7-8% termelési idő szintenként.'
+- file: gens
+  path: prestige.price
+  old: 2000000
+- file: gens
+  path: prestige.price-multiplier
+  old: 1.8
+- file: gens
+  path: rebirth.price
+  old: 100000000
+- file: gens
+  path: rebirth.extra-slots
+  old: 3
+- file: gens
+  path: sell-prices.WHEAT
+  old: 1
+- file: gens
+  path: sell-prices.CARROT
+  old: 1
+- file: gens
+  path: sell-prices.POTATO
+  old: 1
+- file: gens
+  path: quests.pool.elad100.name
+  old: Adj el 100 terméket
+- file: gens
+  path: quests.pool.elad100.type
+  old: sell_items
+- file: gens
+  path: quests.pool.elad100.amount
+  old: 100
+- file: gens
+  path: quests.pool.elad100.reward
+  old: 300
+- file: gens
+  path: quests.pool.elad500.name
+  old: Adj el 500 terméket
+- file: gens
+  path: quests.pool.elad500.reward
+  old: 1200
+- file: gens
+  path: quests.pool.gyujt200.name
+  old: Gyűjts be 200 terméket
+- file: gens
+  path: quests.pool.gyujt200.type
+  old: collect_items
+- file: gens
+  path: quests.pool.gyujt200.amount
+  old: 200
+- file: gens
+  path: quests.pool.gyujt200.reward
+  old: 400
+- file: gens
+  path: quests.pool.fejleszt3.name
+  old: Fejlessz 3 generátort
+- file: gens
+  path: quests.pool.fejleszt3.type
+  old: upgrade
+- file: gens
+  path: quests.pool.fejleszt3.amount
+  old: 3
+- file: gens
+  path: quests.pool.fejleszt3.reward
+  old: 800
+- file: gens
+  path: quests.pool.lerak2.name
+  old: Rakj le 2 generátort
+- file: gens
+  path: quests.pool.lerak2.type
+  old: place_gen
+- file: gens
+  path: quests.pool.lerak2.amount
+  old: 2
+- file: gens
+  path: quests.pool.lerak2.reward
+  old: 500
+- file: lobby
+  path: info-texts.mode_gens
+  old:
+  - '&8&m                                             '
+  - ' &a&lGens &8- &7hogyan játszd?'
+  - ' &7Saját szigetet kapsz, oda rakhatod a generátoraidat.'
+  - ' &7A generátorok tárgyakat termelnek, ezeket eladhatod: /elad'
+  - ' &7A pénzből újabb és jobb generátorokat veszel.'
+  - ' &7Napi küldetések is vannak, nézd meg a menüt: /gens'
+  - '&8&m                                             '
+- file: messages_hu
+  path: gens.welcome
+  old: Üdv a Gensben! A menüt a &f/gens &7paranccsal nyitod meg.
+- file: messages_hu
+  path: gens.first-join
+  old:
+  - ''
+  - ' &b[IceMine] &7Szia &f%player%&7, ez itt a te szigeted!'
+  - ' &7Kaptál pár generátort, rakd le őket a szigeteden.'
+  - ' &7Jobb klikk: termés begyűjtése &8| &7Guggolás + jobb klikk: fejlesztés'
+  - ' &7Eladás: &f/elad &8| &7Menü, küldetések, bolt: &f/gens'
+  - ''
+- file: messages_hu
+  path: gens.only-own-plot
+  old: Generátort csak a saját szigetedre rakhatsz.
+- file: messages_hu
+  path: gens.limit
+  old: Elérted a generátorlimitet (&f%slots%&7). Fejleszd a szigeted a &f/gens &7menüben!
+- file: messages_hu
+  path: gens.placed
+  old: Leraktál egy &a%tier% &7generátort &8(%count%/%slots%)
+- file: messages_hu
+  path: gens.picked-up
+  old: Felvetted a generátort.
+- file: messages_hu
+  path: gens.max-tier
+  old: '&eEz már a legerősebb szint.'
+- file: messages_hu
+  path: gens.upgraded
+  old: 'Fejlesztve: &a%tier% &8(-%price%&8)'
+- file: messages_hu
+  path: gens.sold
+  old: Eladtál &f%amount% &7darabot, kaptál érte &f%money%&7-t.
+- file: messages_hu
+  path: gens.bought-generator
+  old: Vettél egy generátort &8(-%price%&8)
+- file: messages_hu
+  path: gens.level-up
+  old: 'A szigeted &a%level%. szintű &7lett: &f%slots% &7generátorhely, &f%multiplier% &7termelés.'
+- file: messages_hu
+  path: gens.max-level
+  old: '&eA szigeted már a legmagasabb szinten van.'
+- file: messages_hu
+  path: gens.collected
+  old: '&a+%amount% &7begyűjtve &8(%stored%/%capacity%)'
+- file: messages_hu
+  path: gens.info
+  old: '&7%tier% generátor &8| &7Tároló: &f%stored%/%capacity% &8| &7Guggolj a fejlesztéshez'
+- file: messages_hu
+  path: gens.trusted
+  old: '&f%player% &7mostantól építhet a szigeteden.'
+- file: messages_hu
+  path: gens.trusted-you
+  old: '&f%player% &7beengedett a szigetére, ott építhetsz is.'
+- file: messages_hu
+  path: gens.untrusted
+  old: '&f%player% &7már nem építhet a szigeteden.'
+- file: messages_hu
+  path: gens.autosell.True
+  old: Automatikus eladás &abekapcsolva&7. A termés rögtön pénzzé válik.
+- file: messages_hu
+  path: gens.prestige.need-level
+  old: A prestige-hez a szigetednek &f%level%. &7szintűnek kell lennie.
+- file: messages_hu
+  path: gens.prestige.confirm
+  old: '&eBiztos? &7A generátoraid és a Gens pénzed elvesznek, a sziget 1. szintre áll vissza. Cserébe: &d%next%. prestige &7(+%bonus%% termelés). Ár: &f%price%&7. Kattints újra 10 mp-en belül!'
+- file: messages_hu
+  path: gens.prestige.done
+  old: '&d&lPRESTIGE %prestige%! &7Mostantól ennyit termelsz: &f%multiplier%'
+- file: messages_hu
+  path: gens.rebirth.confirm
+  old: '&eBiztos? &7A prestige, a fejlesztések, a generátorok és a Gens pénz is nullázódnak. Cserébe: &5%next%. rebirth &7(+%bonus%% termelés, +%slots% generátorhely). Ár: &f%price%&7. Kattints újra 10 mp-en belül!'
+- file: messages_hu
+  path: gens.rebirth.done
+  old: '&5&lREBIRTH %rebirth%! &7Mostantól ennyit termelsz: &f%multiplier%'
+- file: messages_hu
+  path: gens.members.collect
+  old: '&fGenerátorok begyűjtése'
+- file: messages_hu
+  path: gens.members.manage
+  old: '&fGenerátorok fejlesztése'
+- file: messages_hu
+  path: gens.item.name
+  old: '&a&l%tier% generátor'
+- file: messages_hu
+  path: gens.item.lore
+  old:
+  - '&7Termel: &f%drop%'
+  - '&7Érték: &f%value% &7/ db'
+  - '&7Időköz: &f%interval% mp &8| &7Tároló: &f%capacity%'
+  - ''
+  - '&8Rakd le a szigeteden!'
+- file: messages_hu
+  path: gens.menu.info
+  old:
+  - '&7Egyenleg: &f%money%'
+  - '&7Generátorok: &f%generators%&7/&f%slots%'
+  - '&7Termelés: &f%production% &7/ perc &8(%multiplier%&8)'
+  - '&7Prestige: &d%prestige% &8| &7Rebirth: &5%rebirth%'
+  - '&7Sziget: &f%plot%'
+- file: messages_hu
+  path: gens.menu.buy.name
+  old: '&a&lGenerátor vásárlása'
+- file: messages_hu
+  path: gens.menu.buy.lore
+  old:
+  - '&7Kapsz egy alap generátort.'
+  - ''
+  - '&7Ár: &f%price%'
+  - '&b▶ Kattints a vásárláshoz'
+- file: messages_hu
+  path: gens.menu.level.name
+  old: '&e&lSziget fejlesztése'
+- file: messages_hu
+  path: gens.menu.level.lore
+  old:
+  - '&7Jelenlegi szint: &f%level%'
+  - '&7Generátorhelyek: &f%slots%'
+  - '&7Termelési szorzó: &f%multiplier%'
+  - ''
+- file: messages_hu
+  path: gens.menu.level.next
+  old:
+  - '&7Következő: &a%level%. szint'
+  - '&7 → &f%slots% &7hely, &f%multiplier% &7szorzó'
+  - '&7Ár: &f%price%'
+  - '&b▶ Kattints a fejlesztéshez'
+- file: messages_hu
+  path: gens.menu.level.max
+  old: '&a✔ Elérted a maximumot'
+- file: messages_hu
+  path: gens.menu.sell.lore
+  old:
+  - '&7Eladja a táskádban lévő'
+  - '&7összes termést.'
+- file: messages_hu
+  path: gens.menu.upgrades.lore
+  old:
+  - '&7Nagyobb tároló, gyorsabb termelés,'
+  - '&7jobb ár minden eladásnál.'
+- file: messages_hu
+  path: gens.menu.autosell.lore
+  old:
+  - '&7A termés rögtön pénzzé válik,'
+  - '&7nem kell begyűjteni és eladni.'
+- file: messages_hu
+  path: gens.menu.prestige.lore
+  old:
+  - '&7Prestige: &d%prestige%&7/&d%max%'
+  - '&7Minden prestige: &a+%bonus%% &7termelés, örökre.'
+  - '&8A generátorok és a pénz elvesznek.'
+- file: messages_hu
+  path: gens.menu.prestige.need
+  old: '&8✖ Ehhez %level%. szintű sziget kell'
+- file: messages_hu
+  path: gens.menu.rebirth.lore
+  old:
+  - '&7Rebirth: &5%rebirth%'
+  - '&7Minden rebirth: &a+%bonus%% &7termelés'
+  - '&7és &a+%slots% &7generátorhely, örökre.'
+  - '&8Minden nullázódik, a prestige is.'
+- file: messages_hu
+  path: gens.menu.tiers.name
+  old: '&f&lGenerátor szintek'
+- file: messages_hu
+  path: gens.menu.tiers.line
+  old: '&8%level%. &f%tier% &8- &7%value%/db, %interval% mp &8(fejlesztés: %upgrade%&8)'
+- file: messages_hu
+  path: gens.menu.tiers.hint
+  old:
+  - '&7Guggolj, és kattints jobb gombbal'
+  - '&7a generátorra a fejlesztéshez!'
+- file: messages_hu
+  path: mainmenu.gens.lore
+  old:
+  - '&7A saját szigeted generátorokkal.'
+- file: modes
+  path: modes.gens.description
+  old:
+  - '&7Saját sziget, generátorok,'
+  - '&7napi küldetések és jutalmak.'
+  - '&7Termelj, fejlessz, gazdagodj!'
+- file: ranks
+  path: ranks.elite.permissions
+  old:
+  - icemine.gens.extraslots.2
+- file: ranks
+  path: ranks.elite.perks
+  old:
+  - '&7Piromán és Villámmágus kit'
+  - '&7Gens: +2 generátorhely'
+  - '&7Kristály nyomvonal, tűzijáték effekt'
+  - '&750% pénz bónusz'
+- file: ranks
+  path: ranks.legend.permissions
+  old:
+  - icemine.gens.extraslots.4
+- file: ranks
+  path: ranks.legend.perks
+  old:
+  - '&7Halász, Alkimista, Poszeidón és Jégkirály kit'
+  - '&7Gens: +4 generátorhely'
+  - '&7Minden kozmetika'
+  - '&775% pénz bónusz'
+- file: scoreboard
+  path: boards.gens
+  old:
+  - '&8&m                    '
+  - '&7Mód: &a&lGens'
+  - ''
+  - '&7Pénz: %gens_money%'
+  - '&7Generátorok: &f%generators%&7/&f%slots%'
+  - '&7Szint: &f%plot_level% &8(%multiplier%)'
+  - '&7Termelés: &f%production%&7/perc'
+  - '&7Prestige: &d%prestige% &8| &7Rebirth: &5%rebirth%'
+  - '&7Összes bevétel: &e%earned%'
+  - ''
+  - '&7Sziget: &f%plot%'
+  - '&bplay.icemine.hu'

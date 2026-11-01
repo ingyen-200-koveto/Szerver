@@ -4,7 +4,7 @@
 #   ComboFly arénában még: %combo% (a mostani kombó), %combo_best% (rekord)
 #   Bárhol: %combat_time% (combat hátralévő ideje, pl. 29.4s), %pearl% (enderpearl várakozás, pl. 4.4s)
 #   Ha egy táblán ezek közül valamelyik szerepel, az a tábla másodpercenként 10-szer frissül.
-#   Gens: %generators% %slots% %plot_level% %multiplier% %production% %plot% %earned%
+#   Gens: %fields% %max_fields% %hoe% %harvested% %multiplier% %production% %plot% %earned% %prestige% %rebirth%
 #   Bárhol: %online_<mód>% %status_<mód>% %parkour_record%
 # Egy tábla legfeljebb 15 sor lehet.
 
@@ -89,9 +89,9 @@ boards:
     - "&7Mód: &a&lGens"
     - ""
     - "&7Pénz: %gens_money%"
-    - "&7Generátorok: &f%generators%&7/&f%slots%"
-    - "&7Szint: &f%plot_level% &8(%multiplier%)"
-    - "&7Termelés: &f%production%&7/perc"
+    - "&7Földek: &f%fields%&7/&f%max_fields%"
+    - "&7Kapa: &f%hoe%"
+    - "&7Learatva: &f%harvested%"
     - "&7Prestige: &d%prestige% &8| &7Rebirth: &5%rebirth%"
     - "&7Összes bevétel: &e%earned%"
     - ""

@@ -312,9 +312,9 @@ info-texts:
   mode_gens:
     - "&8&m                                             "
     - " &a&lGens &8- &7hogyan játszd?"
-    - " &7Saját szigetet kapsz, oda rakhatod a generátoraidat."
-    - " &7A generátorok tárgyakat termelnek, ezeket eladhatod: /elad"
-    - " &7A pénzből újabb és jobb generátorokat veszel."
+    - " &7Saját farm szigetet kapsz, a növényeket kapával aratod."
+    - " &7A termést a hordónál adod el, vagy: /elad"
+    - " &7A pénzből új földeket nyitsz és fejleszted a kapádat."
     - " &7Napi küldetések is vannak, nézd meg a menüt: /gens"
     - "&8&m                                             "
   mode_kingdoms:

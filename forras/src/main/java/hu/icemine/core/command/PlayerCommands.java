@@ -444,6 +444,16 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
             case "zar":
                 core.gens().toggleLock(player);
                 break;
+            case "hoe":
+            case "kapa":
+                core.gens().refreshHoe(player, core.gens().data(player));
+                core.gensMenu().hoe(player);
+                break;
+            case "unlock":
+            case "fold":
+            case "föld":
+                core.gens().unlockField(player);
+                break;
             default:
                 core.gensMenu().open(player);
         }
@@ -460,8 +470,8 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
                 case "parkour":
                     return AdminCommand.filter(Arrays.asList("start", "leave"), args[0]);
                 case "gens":
-                    return AdminCommand.filter(Arrays.asList("home", "visit", "trust", "untrust", "sell", "daily", "quests", "shop", "backpack", "autosell",
-                            "prestige", "rebirth", "members", "upgrades", "lock"), args[0]);
+                    return AdminCommand.filter(Arrays.asList("home", "kapa", "fold", "visit", "trust", "untrust", "sell", "daily", "quests", "shop", "backpack",
+                            "autosell", "prestige", "rebirth", "members", "upgrades", "lock"), args[0]);
                 case "fizet":
                 case "profil":
                 case "penz":

@@ -84,9 +84,9 @@ modes:
     combofly: false
     inventory: persistent
     description:
-      - "&7Saját sziget, generátorok,"
+      - "&7Saját farm sziget, kapa a kézben,"
       - "&7napi küldetések és jutalmak."
-      - "&7Termelj, fejlessz, gazdagodj!"
+      - "&7Arass, fejlessz, gazdagodj!"
   kingdoms:
     name: "&6&lKingdoms"
     icon: GOLDEN_HELMET

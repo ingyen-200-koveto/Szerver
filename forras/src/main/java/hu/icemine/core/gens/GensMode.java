@@ -15,15 +15,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -33,38 +37,82 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFadeEvent;
+import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.MoistureChangeEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
+/**
+ * Gens: mindenkinek saját farm szigete van 8 földdel. A növényeket a Gens kapával kell learatni (nincs generátor),
+ * a termést eladod, a pénzből új földeket nyitsz és a kapát fejleszted. Learatás után a növény magától visszanő.
+ */
 public final class GensMode implements ModeHandler, Listener {
 
     public static final String ID = "gens";
+    public static final String HOE_TAG = "gens:hoe";
+    /** A profilban ("gens.farm") jegyezzük, hogy a sziget már a földes változat. */
+    static final String FARM_VERSION = "1";
+    private static final String LABEL_TAG = "icemine_gens_label";
+
+    /** Egy learatott növény, ami épp visszanő. */
+    private static final class Regrow {
+        final int x;
+        final int y;
+        final int z;
+        final Crop crop;
+        final long half;
+        final long ready;
+        boolean halfDone;
+
+        Regrow(int x, int y, int z, Crop crop, long half, long ready) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.crop = crop;
+            this.half = half;
+            this.ready = ready;
+        }
+    }
+
+    /** Egy blokk a sziget egyik földjén. */
+    private record Spot(int plot, int field, int dx, int dz, int dy, int cx, int cz) {
+    }
 
     private final IceMineCore core;
     private final Map<UUID, GensData.Player> players = new ConcurrentHashMap<>();
     private final Map<UUID, GensData.Player> pending = new ConcurrentHashMap<>();
-    private final Map<Long, GensData.Generator> generators = new HashMap<>();
-    private final TreeMap<Integer, GensData.Tier> tiers = new TreeMap<>();
-    private final TreeMap<Integer, GensData.Level> levels = new TreeMap<>();
+    private final List<GensData.Field> fields = new ArrayList<>();
+    private final HoeUpgrades hoe = new HoeUpgrades();
     private final Map<Material, Long> prices = new HashMap<>();
     private final QuestBook quests = new QuestBook();
     private final GensProgress progress = new GensProgress();
@@ -72,7 +120,15 @@ public final class GensMode implements ModeHandler, Listener {
     private final Map<UUID, ItemStack[]> backpacks = new ConcurrentHashMap<>();
     private final Map<UUID, Long> autosold = new HashMap<>();
     private final Map<UUID, Long> confirm = new HashMap<>();
+    private final Map<UUID, String> confirmKey = new HashMap<>();
+    private final Map<Long, Regrow> regrowing = new HashMap<>();
+    private final Map<UUID, List<TextDisplay>> labels = new HashMap<>();
+    private final Map<String, BlockData> blocks = new HashMap<>();
+    private final Map<Crop, Material> cropBlocks = new EnumMap<>(Crop.class);
+    private final Map<Crop, Material> cropDrops = new EnumMap<>(Crop.class);
+    private final Map<Crop, Material> cropSoils = new EnumMap<>(Crop.class);
     private long autosellFlush;
+    private long labelCheck;
     private World world;
     private Location hub;
     private int spacing = 96;
@@ -80,8 +136,6 @@ public final class GensMode implements ModeHandler, Listener {
     private int height = 100;
     private int nextPlot = 1;
     private String currency = "gens";
-    private long generatorPrice = 300;
-    private int starterGenerators = 2;
     private long dailyAmount = 500;
     private double voidY = 40;
 
@@ -109,6 +163,14 @@ public final class GensMode implements ModeHandler, Listener {
 
     public GensProgress progress() {
         return progress;
+    }
+
+    public HoeUpgrades hoe() {
+        return hoe;
+    }
+
+    public List<GensData.Field> fields() {
+        return Collections.unmodifiableList(fields);
     }
 
     public String currency() {
@@ -146,7 +208,7 @@ public final class GensMode implements ModeHandler, Listener {
         world.setStorm(false);
         world.setTime(values.integer("time", 6000, 0, 23999));
         spacing = values.integer("plot.spacing", 96, 48, 512);
-        buildRadius = Math.min(spacing / 2 - 4, values.integer("plot.build-radius", 40, 16, 250));
+        buildRadius = Math.min(spacing / 2 - 4, values.integer("plot.build-radius", 40, GensBuild.PLOT_CLEAR, 250));
         height = values.integer("plot.height", 100, 0, 250);
         voidY = values.decimal("void-y", height - 40, -64, 320);
         currency = values.text("currency", "gens");
@@ -154,18 +216,15 @@ public final class GensMode implements ModeHandler, Listener {
             problems.add("gens.yml -> currency: ismeretlen pénznem (" + currency + "), az economy.yml-ben is létre kell hozni");
             currency = core.economy().defaultCurrency();
         }
-        generatorPrice = values.number("generator-price", 300, 0, Long.MAX_VALUE / 4);
-        starterGenerators = values.integer("starter-generators", 2, 0, 10);
         dailyAmount = values.number("daily.amount", 500, 0, Long.MAX_VALUE / 4);
         problems.addAll(values.problems());
-        loadTiers(config, problems);
-        loadLevels(config, problems);
-        progress.load(config, levels.lastKey(), problems);
+        fields.clear();
+        fields.addAll(GensData.loadFields(config, problems));
+        hoe.load(config, problems);
+        progress.load(config, fields.size(), problems);
         loadQuests(config, problems);
+        loadMaterials(problems);
         prices.clear();
-        for (GensData.Tier tier : tiers.values()) {
-            prices.put(tier.drop, tier.value);
-        }
         ConfigurationSection extra = config.getConfigurationSection("sell-prices");
         if (extra != null) {
             for (String key : extra.getKeys(false)) {
@@ -176,6 +235,9 @@ public final class GensMode implements ModeHandler, Listener {
                     prices.put(material, Math.max(0, extra.getLong(key)));
                 }
             }
+        }
+        for (GensData.Field field : fields) {
+            prices.merge(cropDrops.get(field.crop), field.value, Math::max);
         }
         if (!config.getBoolean("hub-built", false)) {
             buildHub(config);
@@ -198,58 +260,15 @@ public final class GensMode implements ModeHandler, Listener {
         nextPlot = Math.max(1, nextPlot);
     }
 
-    private void loadTiers(YamlConfiguration config, List<String> problems) {
-        tiers.clear();
-        ConfigurationSection section = config.getConfigurationSection("tiers");
-        if (section == null) {
-            problems.add("gens.yml -> tiers: nincs egy generátor szint sem");
-            return;
-        }
-        for (String key : section.getKeys(false)) {
-            int level;
-            try {
-                level = Integer.parseInt(key);
-            } catch (NumberFormatException exception) {
-                problems.add("gens.yml -> tiers." + key + ": a kulcs csak szám lehet (1, 2, 3...)");
-                continue;
-            }
-            String base = "tiers." + key + ".";
-            Values values = new Values("gens.yml", config::get);
-            Material block = Items.material(values.text(base + "block", "COAL_BLOCK"), Material.COAL_BLOCK);
-            Material drop = Items.material(values.text(base + "drop", "COAL"), Material.COAL);
-            if (!block.isBlock()) {
-                problems.add("gens.yml -> " + base + "block: ez nem blokk (" + block + ")");
-                continue;
-            }
-            tiers.put(level, new GensData.Tier(level, values.text(base + "name", key), block, drop,
-                    values.number(base + "value", 1, 0, 1_000_000_000L),
-                    values.integer(base + "interval", 6, 1, 3600),
-                    values.integer(base + "amount", 1, 1, 64),
-                    values.number(base + "capacity", 64, 1, 100_000),
-                    values.number(base + "upgrade", 0, 0, Long.MAX_VALUE / 4)));
-            problems.addAll(values.problems());
-        }
-    }
-
-    private void loadLevels(YamlConfiguration config, List<String> problems) {
-        levels.clear();
-        ConfigurationSection section = config.getConfigurationSection("levels");
-        if (section != null) {
-            for (String key : section.getKeys(false)) {
-                try {
-                    int level = Integer.parseInt(key);
-                    String base = "levels." + key + ".";
-                    Values values = new Values("gens.yml", config::get);
-                    levels.put(level, new GensData.Level(level, values.integer(base + "slots", 6, 1, 200),
-                            values.decimal(base + "multiplier", 1.0, 0.1, 100.0), values.number(base + "price", 0, 0, Long.MAX_VALUE / 4)));
-                    problems.addAll(values.problems());
-                } catch (NumberFormatException exception) {
-                    problems.add("gens.yml -> levels." + key + ": a kulcs csak szám lehet");
-                }
-            }
-        }
-        if (levels.isEmpty()) {
-            levels.put(1, new GensData.Level(1, 6, 1.0, 0));
+    private void loadMaterials(List<String> problems) {
+        cropBlocks.clear();
+        cropDrops.clear();
+        cropSoils.clear();
+        for (Crop crop : Crop.values()) {
+            cropBlocks.put(crop, Items.material(crop.block, Material.WHEAT));
+            cropDrops.put(crop, Items.material(crop.drop, Material.WHEAT));
+            String soil = crop.soil.contains("[") ? crop.soil.substring(0, crop.soil.indexOf('[')) : crop.soil;
+            cropSoils.put(crop, Items.material(soil, Material.FARMLAND));
         }
     }
 
@@ -258,9 +277,9 @@ public final class GensMode implements ModeHandler, Listener {
         ConfigurationSection section = config.getConfigurationSection("quests.pool");
         if (section != null) {
             for (String id : section.getKeys(false)) {
-                String type = section.getString(id + ".type", "").toLowerCase(Locale.ROOT);
-                if (!type.equals("sell_items") && !type.equals("collect_items") && !type.equals("upgrade") && !type.equals("earn") && !type.equals("place_gen")) {
-                    problems.add("gens.yml -> quests.pool." + id + ".type: sell_items, collect_items, upgrade, earn vagy place_gen lehet");
+                String type = QuestBook.type(section.getString(id + ".type", ""));
+                if (type == null) {
+                    problems.add("gens.yml -> quests.pool." + id + ".type: harvest, sell_items, upgrade, earn vagy unlock lehet");
                     continue;
                 }
                 list.add(new QuestBook.Quest(id, type, Math.max(1, section.getLong(id + ".amount", 10)), Math.max(0, section.getLong(id + ".reward", 100)),
@@ -290,6 +309,8 @@ public final class GensMode implements ModeHandler, Listener {
         hub = Locs.read(config.getConfigurationSection("hub"), world);
     }
 
+    // ---- betöltés, mentés ----
+
     public boolean preload(UUID uuid) {
         try {
             GensData.Player data = core.database().query(connection -> {
@@ -310,11 +331,12 @@ public final class GensMode implements ModeHandler, Listener {
                     result.fresh = true;
                     return result;
                 }
-                try (PreparedStatement statement = connection.prepareStatement("SELECT world_x, world_y, world_z, tier, stored FROM im_gens_generators WHERE uuid = ?")) {
+                // a régi generátorok (csak az átállásig vannak meg, a visszatérítéshez)
+                try (PreparedStatement statement = connection.prepareStatement("SELECT tier FROM im_gens_generators WHERE uuid = ?")) {
                     statement.setString(1, uuid.toString());
                     try (ResultSet rows = statement.executeQuery()) {
                         while (rows.next()) {
-                            result.generators.add(new GensData.Generator(uuid, rows.getInt(1), rows.getInt(2), rows.getInt(3), rows.getInt(4), rows.getLong(5)));
+                            result.legacyGenerators.add(rows.getInt(1));
                         }
                     }
                 }
@@ -340,14 +362,9 @@ public final class GensMode implements ModeHandler, Listener {
         players.put(player.getUniqueId(), data);
         readProfile(player, data);
         backpacks.put(player.getUniqueId(), core.inventories().loadItems("gens_backpack", player.getUniqueId(), progress.backpackMax()));
-        long now = System.currentTimeMillis();
-        for (GensData.Generator generator : data.generators) {
-            generator.next = now + intervalMillis(data, generator);
-            generators.put(generator.key(), generator);
-        }
     }
 
-    /** A prestige, rebirth, fejlesztések és kapcsolók a játékos profiljában vannak. */
+    /** A prestige, rebirth, fejlesztések, a kapa és a kapcsolók a játékos profiljában vannak. */
     private void readProfile(Player player, GensData.Player data) {
         PlayerProfile profile = core.profiles().profile(player);
         if (profile == null) {
@@ -357,16 +374,24 @@ public final class GensMode implements ModeHandler, Listener {
         data.rebirth = (int) profile.stat("gens.rebirth");
         data.upgrades.clear();
         for (String id : progress.upgrades().keySet()) {
-            try {
-                data.upgrades.put(id, Integer.parseInt(profile.setting("gens.up." + id, "0")));
-            } catch (NumberFormatException ignored) {
-                data.upgrades.put(id, 0);
-            }
+            data.upgrades.put(id, number(profile.setting("gens.up." + id, "0")));
+        }
+        data.hoe.clear();
+        for (String id : HoeUpgrades.IDS) {
+            data.hoe.put(id, number(profile.setting("gens.hoe." + id, "0")));
         }
         data.autosellOwned = profile.flag("gens.autosell.owned", false);
         data.autosell = profile.flag("gens.autosell", false);
         data.backpackLarge = profile.flag("gens.backpack.large", false);
         data.locked = profile.flag("gens.locked", false);
+    }
+
+    private static int number(String text) {
+        try {
+            return Math.max(0, Integer.parseInt(text.trim()));
+        } catch (NumberFormatException exception) {
+            return 0;
+        }
     }
 
     private void writeProfile(Player player, GensData.Player data) {
@@ -380,6 +405,10 @@ public final class GensMode implements ModeHandler, Listener {
         for (Map.Entry<String, Integer> entry : data.upgrades.entrySet()) {
             profile.put("gens.up." + entry.getKey(), String.valueOf(entry.getValue()));
         }
+        for (Map.Entry<String, Integer> entry : data.hoe.entrySet()) {
+            profile.put("gens.hoe." + entry.getKey(), String.valueOf(entry.getValue()));
+        }
+        profile.setStat("gens.hoe_level", hoe.total(data.hoe));
         profile.putFlag("gens.autosell.owned", data.autosellOwned);
         profile.putFlag("gens.autosell", data.autosell);
         profile.putFlag("gens.backpack.large", data.backpackLarge);
@@ -390,18 +419,16 @@ public final class GensMode implements ModeHandler, Listener {
         GensData.Player data = players.remove(uuid);
         warned.remove(uuid);
         confirm.remove(uuid);
+        confirmKey.remove(uuid);
+        removeLabels(uuid);
         flushAutosell(uuid);
         ItemStack[] pack = backpacks.remove(uuid);
         if (pack != null) {
             core.inventories().saveItems("gens_backpack", uuid, pack);
         }
-        if (data == null) {
-            return;
+        if (data != null) {
+            save(data, true);
         }
-        for (GensData.Generator generator : data.generators) {
-            generators.remove(generator.key());
-        }
-        save(data, true);
     }
 
     public GensData.Player data(Player player) {
@@ -409,63 +436,25 @@ public final class GensMode implements ModeHandler, Listener {
     }
 
     private void save(GensData.Player data, boolean all) {
-        if (data.plot < 0) {
+        if (data.plot < 0 || !(all || data.dirty)) {
             return;
         }
+        data.dirty = false;
         String trusted = data.encodeTrusted();
         String questText = data.encodeQuests();
         int plot = data.plot;
         int level = data.level;
         long daily = data.daily;
-        List<long[]> rows = new ArrayList<>();
-        for (GensData.Generator generator : data.generators) {
-            if (all || generator.dirty) {
-                rows.add(new long[]{generator.x, generator.y, generator.z, generator.tier, generator.stored});
-                generator.dirty = false;
-            }
-        }
-        boolean main = all || data.dirty;
-        data.dirty = false;
         Database database = core.database();
         String uuid = data.uuid.toString();
         database.execute(connection -> {
-            if (main) {
-                try (PreparedStatement statement = connection.prepareStatement(database.upsertPlot())) {
-                    statement.setString(1, uuid);
-                    statement.setInt(2, plot);
-                    statement.setInt(3, level);
-                    statement.setString(4, trusted);
-                    statement.setLong(5, daily);
-                    statement.setString(6, questText);
-                    statement.executeUpdate();
-                }
-            }
-            if (!rows.isEmpty()) {
-                try (PreparedStatement statement = connection.prepareStatement(database.upsertGenerator())) {
-                    for (long[] row : rows) {
-                        statement.setInt(1, (int) row[0]);
-                        statement.setInt(2, (int) row[1]);
-                        statement.setInt(3, (int) row[2]);
-                        statement.setString(4, uuid);
-                        statement.setInt(5, (int) row[3]);
-                        statement.setLong(6, row[4]);
-                        statement.addBatch();
-                    }
-                    statement.executeBatch();
-                }
-            }
-        });
-    }
-
-    private void deleteGenerator(GensData.Generator generator) {
-        int x = generator.x;
-        int y = generator.y;
-        int z = generator.z;
-        core.database().execute(connection -> {
-            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM im_gens_generators WHERE world_x = ? AND world_y = ? AND world_z = ?")) {
-                statement.setInt(1, x);
-                statement.setInt(2, y);
-                statement.setInt(3, z);
+            try (PreparedStatement statement = connection.prepareStatement(database.upsertPlot())) {
+                statement.setString(1, uuid);
+                statement.setInt(2, plot);
+                statement.setInt(3, level);
+                statement.setString(4, trusted);
+                statement.setLong(5, daily);
+                statement.setString(6, questText);
                 statement.executeUpdate();
             }
         });
@@ -477,48 +466,25 @@ public final class GensMode implements ModeHandler, Listener {
         }
     }
 
-    public GensData.Level level(GensData.Player data) {
-        GensData.Level level = levels.floorEntry(Math.max(1, data.level)) == null ? levels.firstEntry().getValue() : levels.floorEntry(Math.max(1, data.level)).getValue();
-        return level;
+    // ---- számok ----
+
+    /** A következő megnyitható föld, vagy null, ha már mind megvan. */
+    public GensData.Field nextField(GensData.Player data) {
+        return data.level >= fields.size() ? null : fields.get(Math.max(0, data.level));
     }
 
-    public GensData.Level nextLevel(GensData.Player data) {
-        Map.Entry<Integer, GensData.Level> next = levels.higherEntry(data.level);
-        return next == null ? null : next.getValue();
+    public int unlocked(GensData.Player data) {
+        return Math.max(1, Math.min(data.level, fields.size()));
     }
 
-    public GensData.Tier tier(int level) {
-        return tiers.get(level);
-    }
-
-    public TreeMap<Integer, GensData.Tier> tiers() {
-        return tiers;
-    }
-
-    private long intervalMillis(GensData.Player data, GensData.Generator generator) {
-        GensData.Tier tier = tiers.get(generator.tier);
-        return progress.intervalMillis(tier == null ? 10 : tier.interval, data == null ? Map.of() : data.upgrades);
-    }
-
-    /** Termelési szorzó: sziget szint × prestige × rebirth. */
+    /** Termelési szorzó: prestige × rebirth (ennyiszer több termény jár egy növényért). */
     public double multiplier(GensData.Player data) {
-        return level(data).multiplier * progress.productionMultiplier(data.prestige, data.rebirth);
+        return progress.productionMultiplier(data.prestige, data.rebirth);
     }
 
-    public long capacity(GensData.Player data, GensData.Tier tier) {
-        return progress.capacity(tier.capacity, data == null ? Map.of() : data.upgrades);
-    }
-
-    /** Generátorhelyek: sziget szint + rebirth + rang (icemine.gens.extraslots.N). */
-    public int slots(Player player, GensData.Player data) {
-        int extra = 0;
-        for (int n = 20; n >= 1; n--) {
-            if (player.hasPermission("icemine.gens.extraslots." + n)) {
-                extra = n;
-                break;
-            }
-        }
-        return level(data).slots + progress.extraSlots(data.rebirth) + extra;
+    /** Egy termény ára a kapa "Aranykéz" fejlesztésével (a sziget "Jobb ár" fejlesztése és a rang az eladáskor jön rá). */
+    public long unitPrice(GensData.Player data, long value) {
+        return Math.round(value * (1.0 + hoe.valuePercent(data == null ? Map.of() : data.hoe) / 100.0));
     }
 
     /** Eladási szorzó: a sziget "érték" fejlesztése, a rang pénz szorzója erre jön rá. */
@@ -526,6 +492,52 @@ public final class GensMode implements ModeHandler, Listener {
         double value = data == null ? 1.0 : progress.valueMultiplier(data.upgrades);
         return core.ranks().boost(player, Math.round(amount * value));
     }
+
+    /** Extra termés esélye százalékban: a kapa "Bőség" és a sziget "Termékeny föld" fejlesztése együtt. */
+    public double extraPercent(GensData.Player harvester, GensData.Player owner) {
+        return hoe.extraPercent(harvester.hoe) + progress.percent(owner.upgrades, GensProgress.Effect.CAPACITY);
+    }
+
+    /**
+     * Rang bónusz: icemine.gens.bonus.N = +N×10% esély extra termésre (a régi extraslots jog is ennyit ér).
+     * Csak a kifejezetten megadott jog számít, így az OP-ok nem kapják meg automatikusan a legnagyobbat.
+     */
+    public double rankBonus(Player player) {
+        for (int n = 10; n >= 1; n--) {
+            if (granted(player, "icemine.gens.bonus." + n) || granted(player, "icemine.gens.extraslots." + n)) {
+                return n * 10.0;
+            }
+        }
+        return 0;
+    }
+
+    private static boolean granted(Player player, String node) {
+        return player.isPermissionSet(node) && player.hasPermission(node);
+    }
+
+    /** Ennyi idő alatt nő vissza a növény ezen a földön (a sziget "Gyorsabb növekedés" fejlesztésével). */
+    public long regrowMillis(GensData.Player owner, GensData.Field field) {
+        return progress.intervalMillis(field.regrow, owner == null ? Map.of() : owner.upgrades);
+    }
+
+    /** Becsült bevétel percenként, ha minden megnyitott földet folyamatosan aratsz (a menüben és a scoreboardon). */
+    public long productionPerMinute(GensData.Player data) {
+        double total = 0;
+        double amount = HoeUpgrades.expected(multiplier(data), extraPercent(data, data));
+        for (int i = 0; i < unlocked(data); i++) {
+            GensData.Field field = fields.get(i);
+            total += FarmLayout.SIZE * amount * unitPrice(data, field.value) * progress.valueMultiplier(data.upgrades) * 60000.0 / regrowMillis(data, field);
+        }
+        return Math.round(total);
+    }
+
+    public String hoeName(GensData.Player data) {
+        List<String> names = core.messages().list("gens.hoe.tiers");
+        int tier = hoe.tier(data.hoe);
+        return tier < names.size() ? names.get(tier) : HoeUpgrades.MATERIALS[tier];
+    }
+
+    // ---- telkek ----
 
     public int[] plotCenter(int plot) {
         int[] cell = GenMath.spiral(plot);
@@ -567,6 +579,39 @@ public final class GensMode implements ModeHandler, Listener {
         return null;
     }
 
+    /** Ha ez a blokk egy sziget földjén van (talaj, növény vagy fölötte), megmondja, melyiken. */
+    private Spot spot(Block block) {
+        if (block.getWorld() != world) {
+            return null;
+        }
+        int dy = block.getY() - height;
+        if (dy < -1 || dy > 2) {
+            return null;
+        }
+        int plot = plotAt(block.getLocation());
+        if (plot <= 0) {
+            return null;
+        }
+        int[] center = plotCenter(plot);
+        int dx = block.getX() - center[0];
+        int dz = block.getZ() - center[1];
+        int field = FarmLayout.fieldAt(dx, dz);
+        return field < 0 ? null : new Spot(plot, field, dx, dz, dy, center[0], center[1]);
+    }
+
+    /** A tér egyik különleges blokkja (eladó hordó, kapa üllő)? */
+    private boolean plazaBlock(Block block, int[] where, Material type) {
+        if (block.getType() != type || block.getY() != height + 1) {
+            return false;
+        }
+        int plot = plotAt(block.getLocation());
+        if (plot <= 0) {
+            return false;
+        }
+        int[] center = plotCenter(plot);
+        return block.getX() - center[0] == where[0] && block.getZ() - center[1] == where[1];
+    }
+
     public Location home(GensData.Player data) {
         int[] center = plotCenter(data.plot);
         Layout.Point spawn = GensBuild.plotSpawn();
@@ -580,13 +625,123 @@ public final class GensMode implements ModeHandler, Listener {
         data.plot = nextPlot++;
         data.level = 1;
         data.dirty = true;
-        int[] center = plotCenter(data.plot);
-        Placer placer = new Placer(world, core.getLogger());
-        placer.clear(center[0] - GensBuild.PLOT_CLEAR, height - 25, center[1] - GensBuild.PLOT_CLEAR, center[0] + GensBuild.PLOT_CLEAR, height + 30, center[1] + GensBuild.PLOT_CLEAR);
-        new GensBuild(placer, center[0], height, center[1], false, data.plot).build();
+        buildFarm(data, GensBuild.PLOT_CLEAR);
+        markFarm(player);
         save(data, true);
         core.messages().sendList(player, "gens.first-join", "%player%", player.getName());
     }
+
+    private boolean farmReady(Player player) {
+        PlayerProfile profile = core.profiles().profile(player);
+        return profile == null || FARM_VERSION.equals(profile.setting("gens.farm", "0"));
+    }
+
+    private void markFarm(Player player) {
+        PlayerProfile profile = core.profiles().profile(player);
+        if (profile != null) {
+            profile.put("gens.farm", FARM_VERSION);
+        }
+    }
+
+    /**
+     * A régi, generátoros szigetet átépítjük farmmá. A megnyitott földek száma a régi sziget szint lesz (1-8),
+     * a generátorok árát és a megmaradt régi termést visszakapja, amikor legközelebb belép a Gensbe (finishConversion).
+     */
+    private boolean ensureFarm(Player player, GensData.Player data) {
+        if (data.plot <= 0 || farmReady(player)) {
+            return false;
+        }
+        data.level = Math.max(1, Math.min(fields.size(), data.level));
+        data.dirty = true;
+        data.legacyPending = true;
+        purgeRegrow(data.plot);
+        buildFarm(data, buildRadius);
+        markFarm(player);
+        String uuid = data.uuid.toString();
+        core.database().execute(connection -> {
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM im_gens_generators WHERE uuid = ?")) {
+                statement.setString(1, uuid);
+                statement.executeUpdate();
+            }
+        });
+        save(data, true);
+        core.getLogger().info("Gens: " + player.getName() + " szigete átépítve farmmá (" + data.level + " föld).");
+        return true;
+    }
+
+    private void buildFarm(GensData.Player data, int clearRadius) {
+        int[] center = plotCenter(data.plot);
+        Placer placer = new Placer(world, core.getLogger());
+        placer.clear(center[0] - clearRadius, height - 25, center[1] - clearRadius, center[0] + clearRadius, height + 40, center[1] + clearRadius);
+        new GensBuild(placer, center[0], height, center[1], false, data.plot).build();
+        for (int i = 0; i < FarmLayout.FIELDS; i++) {
+            buildField(placer, center, i, i < unlocked(data));
+        }
+    }
+
+    private void buildField(Placer placer, int[] center, int index, boolean open) {
+        Crop crop = index < fields.size() ? fields.get(index).crop : Crop.WHEAT;
+        new FieldBuild(placer, center[0], height, center[1], index, crop, open && index < fields.size()).build();
+    }
+
+    /** Minden megnyitott földön beérett növény legyen (újraindítás vagy egy átírt gens.yml után), kivéve ami épp visszanő. */
+    private void refreshFields(GensData.Player data) {
+        if (data.plot <= 0 || world == null) {
+            return;
+        }
+        int[] center = plotCenter(data.plot);
+        for (int i = 0; i < unlocked(data); i++) {
+            Crop crop = fields.get(i).crop;
+            BlockData soil = block(crop.soil);
+            BlockData ripe = block(crop.mature());
+            for (int[] cell : FarmLayout.cells(i)) {
+                int x = center[0] + cell[0];
+                int z = center[1] + cell[1];
+                Block ground = world.getBlockAt(x, height, z);
+                if (ground.getType() != cropSoils.get(crop)) {
+                    ground.setBlockData(soil, false);
+                }
+                if (regrowing.containsKey(GensData.key(x, height + 1, z))) {
+                    continue;
+                }
+                Block plant = world.getBlockAt(x, height + 1, z);
+                if (!mature(plant, crop)) {
+                    plant.setBlockData(ripe, false);
+                }
+            }
+        }
+    }
+
+    private void purgeRegrow(int plot) {
+        int[] center = plotCenter(plot);
+        regrowing.values().removeIf(r -> Math.abs(r.x - center[0]) <= GensBuild.FARM && Math.abs(r.z - center[1]) <= GensBuild.FARM);
+    }
+
+    private BlockData block(String data) {
+        BlockData result = blocks.get(data);
+        if (result == null) {
+            try {
+                result = Bukkit.createBlockData("minecraft:" + data);
+            } catch (IllegalArgumentException exception) {
+                result = Bukkit.createBlockData(Material.AIR);
+            }
+            blocks.put(data, result);
+        }
+        return result;
+    }
+
+    private boolean mature(Block block, Crop crop) {
+        Material type = cropBlocks.get(crop);
+        if (block.getType() != type) {
+            return false;
+        }
+        if (crop.wholeBlock()) {
+            return true;
+        }
+        return block.getBlockData() instanceof Ageable ageable && ageable.getAge() >= ageable.getMaximumAge();
+    }
+
+    // ---- belépés, kilépés ----
 
     @Override
     public Location spawn(Player player) {
@@ -595,6 +750,8 @@ public final class GensMode implements ModeHandler, Listener {
             return hub;
         }
         ensurePlot(player, data);
+        ensureFarm(player, data);
+        refreshFields(data);
         return home(data);
     }
 
@@ -607,15 +764,19 @@ public final class GensMode implements ModeHandler, Listener {
         boolean restored = core.inventories().restore(ID, player);
         if (!restored) {
             player.getInventory().clear();
-            if (data != null && data.fresh) {
-                for (int i = 0; i < starterGenerators; i++) {
-                    player.getInventory().addItem(generatorItem(tiers.isEmpty() ? null : tiers.firstEntry().getValue()));
-                }
-                data.fresh = false;
-            }
         }
         player.setFoodLevel(20);
         if (data != null) {
+            data.fresh = false;
+            ensurePlot(player, data);
+            if (ensureFarm(player, data)) {
+                core.guard().allowNext(player);
+                player.teleport(home(data));
+            }
+            refreshFields(data);
+            finishConversion(player, data);
+            refreshHoe(player, data);
+            spawnLabels(data);
             quests.roll(data, LocalDate.now().toString());
             updateStats(player, data);
         }
@@ -624,17 +785,72 @@ public final class GensMode implements ModeHandler, Listener {
 
     @Override
     public void leave(Player player, boolean quitting) {
+        removeLabels(player.getUniqueId());
         core.inventories().save(ID, player);
         if (!quitting) {
             player.getInventory().clear();
         }
     }
 
+    /** Átállás után: a régi generátorokért és a megmaradt régi termésért (szén, vas...) pénz jár, a tárgyak eltűnnek. */
+    private void finishConversion(Player player, GensData.Player data) {
+        if (!data.legacyPending) {
+            return;
+        }
+        data.legacyPending = false;
+        long refund = 0;
+        long count = data.legacyGenerators.size();
+        for (int tier : data.legacyGenerators) {
+            refund += GensData.legacyGenerator(tier);
+        }
+        data.legacyGenerators.clear();
+        PlayerInventory inventory = player.getInventory();
+        ItemStack[] contents = inventory.getContents();
+        for (int i = 0; i < contents.length; i++) {
+            long[] value = legacyValue(contents[i]);
+            if (value != null) {
+                refund += value[0];
+                count += value[1];
+                inventory.setItem(i, null);
+            }
+        }
+        ItemStack[] pack = backpacks.get(player.getUniqueId());
+        if (pack != null) {
+            for (int i = 0; i < pack.length; i++) {
+                long[] value = legacyValue(pack[i]);
+                if (value != null) {
+                    refund += value[0];
+                    count += value[1];
+                    pack[i] = null;
+                }
+            }
+            core.inventories().saveItems("gens_backpack", player.getUniqueId(), pack);
+        }
+        if (refund > 0) {
+            core.economy().deposit(player, currency, refund, "gens:farm-refund");
+        }
+        core.messages().sendList(player, refund > 0 ? "gens.farm.converted" : "gens.farm.converted-empty",
+                "%generators%", Text.number(count), "%money%", core.economy().format(currency, refund), "%fields%", String.valueOf(unlocked(data)));
+    }
+
+    /** Egy régi tárgy értéke: {pénz, generátorok száma}; null, ha nem régi Gens tárgy. */
+    private static long[] legacyValue(ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return null;
+        }
+        if ("gens:generator".equals(Items.tagOf(item))) {
+            return new long[]{GensData.legacyGenerator(Items.valueOf(item)) * item.getAmount(), item.getAmount()};
+        }
+        long price = item.hasItemMeta() ? 0 : GensData.legacyDrop(item.getType().name());
+        return price > 0 ? new long[]{price * item.getAmount(), 0} : null;
+    }
+
     private void updateStats(Player player, GensData.Player data) {
         PlayerProfile profile = core.profiles().profile(player);
         if (profile != null) {
-            profile.setStat("gens.generators", data.generators.size());
-            profile.setStat("gens.level", data.level);
+            profile.setStat("gens.level", unlocked(data));
+            profile.setStat("gens.fields", unlocked(data));
+            profile.setStat("gens.hoe_level", hoe.total(data.hoe));
         }
     }
 
@@ -646,39 +862,365 @@ public final class GensMode implements ModeHandler, Listener {
         if (data == null) {
             return;
         }
-        values.put("%generators%", String.valueOf(data.generators.size()));
-        values.put("%slots%", String.valueOf(slots(player, data)));
-        values.put("%plot_level%", String.valueOf(data.level));
+        String unlocked = String.valueOf(unlocked(data));
+        String max = String.valueOf(fields.size());
+        values.put("%fields%", unlocked);
+        values.put("%max_fields%", max);
+        // a régi nevek is maradnak, hogy a saját scoreboardok ne törjenek el
+        values.put("%generators%", unlocked);
+        values.put("%slots%", max);
+        values.put("%plot_level%", unlocked);
+        values.put("%hoe%", hoeName(data));
+        values.put("%hoe_level%", String.valueOf(hoe.total(data.hoe)));
         values.put("%multiplier%", String.format(Locale.ROOT, "%.2fx", multiplier(data)));
         values.put("%prestige%", String.valueOf(data.prestige));
         values.put("%rebirth%", String.valueOf(data.rebirth));
         values.put("%production%", Text.number(productionPerMinute(data)));
         values.put("%plot%", "#" + data.plot);
         values.put("%earned%", Text.number(profile == null ? 0 : profile.stat("gens.earned")));
+        values.put("%harvested%", Text.number(profile == null ? 0 : profile.stat("gens.harvested")));
     }
 
-    public long productionPerMinute(GensData.Player data) {
-        long total = 0;
-        for (GensData.Generator generator : data.generators) {
-            GensData.Tier tier = tiers.get(generator.tier);
-            if (tier != null) {
-                long produced = Math.max(1L, Math.round(tier.amount * multiplier(data)));
-                total += Math.round(tier.value * produced * progress.valueMultiplier(data.upgrades) * 60000.0 / intervalMillis(data, generator));
+    // ---- kapa ----
+
+    public static boolean isHoe(ItemStack item) {
+        return item != null && HOE_TAG.equals(Items.tagOf(item));
+    }
+
+    public ItemStack hoeItem(GensData.Player data) {
+        int tier = hoe.tier(data.hoe);
+        Material material = Items.material(HoeUpgrades.MATERIALS[tier], Material.WOODEN_HOE);
+        int radius = hoe.radius(data.hoe);
+        List<String> lore = core.messages().list("gens.hoe.item.lore",
+                "%boseg%", String.valueOf(data.hoe.getOrDefault("boseg", 0)), "%kaszalas%", String.valueOf(data.hoe.getOrDefault("kaszalas", 0)),
+                "%aranykez%", String.valueOf(data.hoe.getOrDefault("aranykez", 0)), "%szerencse%", String.valueOf(data.hoe.getOrDefault("szerencse", 0)),
+                "%area%", core.messages().raw("gens.hoe.area." + radius), "%level%", String.valueOf(hoe.total(data.hoe)));
+        Items item = Items.of(material).name(core.messages().raw("gens.hoe.item.name").replace("%hoe%", hoeName(data))).lore(lore)
+                .unbreakable().hideAll().tag(HOE_TAG);
+        if (hoe.total(data.hoe) > 0) {
+            item.glow();
+        }
+        return item.build();
+    }
+
+    /** Lecseréli a táskában a kapát a mostanira (új anyag, új leírás), vagy ad egyet, ha nincs nála. */
+    public void refreshHoe(Player player, GensData.Player data) {
+        if (data == null || player.getWorld() != world) {
+            return;
+        }
+        ItemStack fresh = hoeItem(data);
+        PlayerInventory inventory = player.getInventory();
+        boolean found = false;
+        ItemStack[] contents = inventory.getContents();
+        for (int i = 0; i < contents.length; i++) {
+            if (isHoe(contents[i])) {
+                if (found) {
+                    inventory.setItem(i, null);
+                } else {
+                    inventory.setItem(i, fresh);
+                    found = true;
+                }
             }
         }
-        return total;
+        if (found) {
+            return;
+        }
+        ItemStack first = inventory.getItem(0);
+        if (first == null || first.getType().isAir()) {
+            inventory.setItem(0, fresh);
+        } else {
+            give(player, fresh);
+        }
     }
 
-    public ItemStack generatorItem(GensData.Tier tier) {
-        if (tier == null) {
-            return Items.of(Material.STONE).build();
+    public void buyHoeUpgrade(Player player, String id) {
+        GensData.Player data = players.get(player.getUniqueId());
+        HoeUpgrades.Enchant enchant = hoe.get(id);
+        if (data == null || enchant == null) {
+            return;
         }
-        List<String> lore = core.messages().list("gens.item.lore", "%drop%", tier.drop.name().toLowerCase(Locale.ROOT).replace('_', ' '),
-                "%value%", core.economy().format(currency, tier.value), "%interval%", String.valueOf(tier.interval), "%capacity%", String.valueOf(tier.capacity));
-        return Items.of(tier.block).name(core.messages().raw("gens.item.name").replace("%tier%", tier.name)).lore(lore).glow().tag("gens:generator").value(tier.level).build();
+        int level = data.hoe.getOrDefault(id, 0);
+        long price = enchant.priceFor(level);
+        if (price < 0) {
+            core.messages().send(player, "gens.hoe.max", "%name%", enchant.name);
+            return;
+        }
+        int tierBefore = hoe.tier(data.hoe);
+        if (!pay(player, price, "gens:hoe:" + id)) {
+            return;
+        }
+        data.hoe.put(id, level + 1);
+        writeProfile(player, data);
+        updateStats(player, data);
+        refreshHoe(player, data);
+        core.messages().send(player, "gens.hoe.bought", "%name%", enchant.name, "%level%", String.valueOf(level + 1), "%max%", String.valueOf(enchant.max));
+        if (hoe.tier(data.hoe) > tierBefore) {
+            core.messages().send(player, "gens.hoe.new-tier", "%hoe%", hoeName(data));
+            player.playSound(player.getLocation(), "minecraft:entity.player.levelup", 0.8f, 1.2f);
+        } else {
+            player.playSound(player.getLocation(), "minecraft:block.anvil.use", 0.6f, 1.4f);
+        }
+        progress(player, "upgrade", 1);
+    }
+
+    // ---- földek ----
+
+    public void unlockField(Player player) {
+        GensData.Player data = players.get(player.getUniqueId());
+        if (data == null) {
+            return;
+        }
+        GensData.Field next = nextField(data);
+        if (next == null) {
+            core.messages().send(player, "gens.field.max");
+            return;
+        }
+        if (!pay(player, next.price, "gens:field")) {
+            return;
+        }
+        data.level = next.index + 1;
+        data.dirty = true;
+        int[] center = plotCenter(data.plot);
+        buildField(new Placer(world, core.getLogger()), center, next.index, true);
+        int[] middle = FarmLayout.center(next.index);
+        if (player.getWorld() == world) {
+            world.spawnParticle(Particle.HAPPY_VILLAGER, center[0] + middle[0] + 0.5, height + 1.5, center[1] + middle[1] + 0.5, 60, 3, 0.4, 3, 0);
+            player.playSound(player.getLocation(), "minecraft:ui.toast.challenge_complete", 0.7f, 1.3f);
+        }
+        if (player.getWorld() == world) {
+            spawnLabels(data);
+        }
+        updateStats(player, data);
+        save(data, false);
+        core.messages().send(player, "gens.field.unlocked", "%field%", next.name, "%count%", String.valueOf(unlocked(data)),
+                "%max%", String.valueOf(fields.size()), "%price%", core.economy().format(currency, next.price));
+        progress(player, "unlock", 1);
+    }
+
+    private void spawnLabels(GensData.Player data) {
+        removeLabels(data.uuid);
+        if (data.plot <= 0 || world == null) {
+            return;
+        }
+        int[] center = plotCenter(data.plot);
+        if (!world.isChunkLoaded(center[0] >> 4, center[1] >> 4)) {
+            return;
+        }
+        List<TextDisplay> list = new ArrayList<>();
+        for (int i = unlocked(data); i < fields.size(); i++) {
+            GensData.Field field = fields.get(i);
+            int[] middle = FarmLayout.center(i);
+            List<String> lines = core.messages().list(i == data.level ? "gens.labels.next" : "gens.labels.locked",
+                    "%field%", field.name, "%price%", core.economy().format(currency, field.price), "%value%", core.economy().format(currency, field.value));
+            list.add(label(new Location(world, center[0] + middle[0] + 0.5, height + 1.4, center[1] + middle[1] + 0.5), String.join("\n", lines)));
+        }
+        list.add(label(new Location(world, center[0] + FarmLayout.SELL[0] + 0.5, height + 3.1, center[1] + FarmLayout.SELL[1] + 0.5),
+                String.join("\n", core.messages().list("gens.labels.sell"))));
+        list.add(label(new Location(world, center[0] + FarmLayout.HOE[0] + 0.5, height + 2.2, center[1] + FarmLayout.HOE[1] + 0.5),
+                String.join("\n", core.messages().list("gens.labels.hoe"))));
+        labels.put(data.uuid, list);
+    }
+
+    private TextDisplay label(Location location, String text) {
+        TextDisplay display = world.spawn(location, TextDisplay.class);
+        display.setPersistent(false);
+        display.addScoreboardTag(LABEL_TAG);
+        display.setBillboard(Display.Billboard.CENTER);
+        display.setDefaultBackground(false);
+        display.setBackgroundColor(Color.fromARGB(90, 0, 0, 0));
+        display.setShadowed(true);
+        display.setLineWidth(200);
+        display.setViewRange(0.6f);
+        display.setText(text);
+        return display;
+    }
+
+    private void removeLabels(UUID uuid) {
+        List<TextDisplay> list = labels.remove(uuid);
+        if (list != null) {
+            for (TextDisplay display : list) {
+                if (display.isValid()) {
+                    display.remove();
+                }
+            }
+        }
+    }
+
+    /** A feliratok nem mentődnek (chunk kirakáskor eltűnnek), ezért ha a gazda a szigetén van, pár másodpercenként pótoljuk. */
+    private void checkLabels() {
+        for (Player player : world.getPlayers()) {
+            GensData.Player data = players.get(player.getUniqueId());
+            if (data == null || data.plot <= 0 || plotAt(player.getLocation()) != data.plot) {
+                continue;
+            }
+            List<TextDisplay> list = labels.get(player.getUniqueId());
+            boolean broken = list == null;
+            if (list != null) {
+                for (TextDisplay display : list) {
+                    if (!display.isValid()) {
+                        broken = true;
+                        break;
+                    }
+                }
+            }
+            if (broken) {
+                spawnLabels(data);
+            }
+        }
+    }
+
+    // ---- aratás ----
+
+    private void harvest(Player player, Block block, Spot spot) {
+        GensData.Player owner = ownerOf(spot.plot());
+        if (owner == null) {
+            warn(player, "gens.owner-offline");
+            return;
+        }
+        boolean own = owner.uuid.equals(player.getUniqueId());
+        if (!own && !owner.can(player.getUniqueId(), GensData.COLLECT) && !admin(player)) {
+            deny(player);
+            return;
+        }
+        GensData.Player self = players.get(player.getUniqueId());
+        if (self == null || spot.field() >= unlocked(owner)) {
+            return;
+        }
+        if (!isHoe(player.getInventory().getItemInMainHand())) {
+            warn(player, "gens.need-hoe");
+            return;
+        }
+        GensData.Field field = fields.get(spot.field());
+        Crop crop = field.crop;
+        if (!mature(block, crop)) {
+            warn(player, "gens.not-ripe");
+            return;
+        }
+        Material drop = cropDrops.get(crop);
+        if (!self.autosell && !hasRoom(player, self, drop)) {
+            warn(player, "gens.full");
+            return;
+        }
+        int radius = hoe.radius(self.hoe);
+        List<int[]> cells = radius >= 3 ? FarmLayout.cells(spot.field()) : FarmLayout.around(spot.field(), spot.dx(), spot.dz(), radius);
+        double extra = extraPercent(self, owner) + rankBonus(player);
+        double multiplier = field.multiplier * multiplier(self);
+        double luck = hoe.luckPercent(self.hoe);
+        long regrow = regrowMillis(owner, field);
+        long now = System.currentTimeMillis();
+        BlockData young = block(crop.young());
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        int crops = 0;
+        long items = 0;
+        int lucky = 0;
+        for (int[] cell : cells) {
+            int x = spot.cx() + cell[0];
+            int z = spot.cz() + cell[1];
+            long key = GensData.key(x, height + 1, z);
+            if (regrowing.containsKey(key)) {
+                continue;
+            }
+            Block target = world.getBlockAt(x, height + 1, z);
+            if (!mature(target, crop)) {
+                continue;
+            }
+            target.setBlockData(young, false);
+            regrowing.put(key, new Regrow(x, height + 1, z, crop, now + regrow / 2, now + regrow));
+            crops++;
+            items += HoeUpgrades.amount(multiplier, extra, random.nextDouble());
+            if (luck > 0 && random.nextDouble() * 100.0 < luck) {
+                lucky++;
+            }
+        }
+        if (crops == 0) {
+            return;
+        }
+        long unit = unitPrice(self, field.value);
+        if (self.autosell) {
+            autosold.merge(self.uuid, Math.round(GenMath.sellValue(items, unit) * progress.autosellRate()), Long::sum);
+        } else {
+            deliver(player, self, drop, items);
+        }
+        PlayerProfile profile = core.profiles().profile(player);
+        if (profile != null) {
+            profile.addStat("gens.harvested", crops);
+        }
+        world.spawnParticle(Particle.HAPPY_VILLAGER, block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5, Math.min(12, 2 + crops / 4),
+                0.3 + Math.min(3, radius), 0.2, 0.3 + Math.min(3, radius), 0);
+        player.playSound(block.getLocation(), crop.wholeBlock() ? "minecraft:block.wood.break" : "minecraft:block.crop.break", 0.6f,
+                0.9f + random.nextFloat() * 0.3f);
+        core.messages().actionBar(player, self.autosell ? "gens.harvested-sold" : "gens.harvested", "%amount%", Text.number(items),
+                "%field%", field.name, "%money%", core.economy().format(currency, GenMath.sellValue(items, unit)));
+        if (lucky > 0) {
+            long found = sellBoost(player, self, GenMath.sellValue(lucky, Math.round(unit * hoe.luckMultiplier())));
+            if (found > 0 && core.economy().deposit(player, currency, found, "gens:luck") == Ledger.Result.OK) {
+                if (profile != null) {
+                    profile.addStat("gens.earned", found);
+                }
+                core.messages().send(player, "gens.lucky", "%money%", core.economy().format(currency, found));
+                player.playSound(player.getLocation(), "minecraft:entity.experience_orb.pickup", 0.8f, 1.6f);
+                progress(player, "earn", found);
+            }
+        }
+        progress(player, "harvest", crops);
+    }
+
+    /** Van-e még hely a terménynek a táskában vagy a hátizsákban. */
+    private boolean hasRoom(Player player, GensData.Player data, Material drop) {
+        PlayerInventory inventory = player.getInventory();
+        for (ItemStack item : inventory.getStorageContents()) {
+            if (item == null || item.getType().isAir() || item.getType() == drop && !item.hasItemMeta() && item.getAmount() < item.getMaxStackSize()) {
+                return true;
+            }
+        }
+        ItemStack[] pack = backpacks.get(player.getUniqueId());
+        if (pack == null || player.getOpenInventory().getTopInventory().getHolder() instanceof GensBackpack) {
+            return false;
+        }
+        int size = progress.backpackSize(largeBackpack(player, data));
+        for (int i = 0; i < size && i < pack.length; i++) {
+            if (pack[i] == null || pack[i].getType().isAir() || pack[i].getType() == drop && !pack[i].hasItemMeta() && pack[i].getAmount() < drop.getMaxStackSize()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** A termény a táskába megy, ami nem fér el, a hátizsákba, és ami ott sem, a játékos lába elé. */
+    private void deliver(Player player, GensData.Player data, Material drop, long amount) {
+        while (amount > 0) {
+            int stack = (int) Math.min(amount, drop.getMaxStackSize());
+            Map<Integer, ItemStack> left = player.getInventory().addItem(new ItemStack(drop, stack));
+            int notGiven = 0;
+            for (ItemStack item : left.values()) {
+                notGiven += item.getAmount();
+            }
+            amount -= stack - notGiven;
+            if (notGiven > 0) {
+                break;
+            }
+        }
+        ItemStack[] pack = backpacks.get(player.getUniqueId());
+        if (amount > 0 && pack != null && !(player.getOpenInventory().getTopInventory().getHolder() instanceof GensBackpack)) {
+            amount = stash(pack, progress.backpackSize(largeBackpack(player, data)), drop, amount);
+        }
+        while (amount > 0) {
+            int stack = (int) Math.min(amount, drop.getMaxStackSize());
+            world.dropItemNaturally(player.getLocation(), new ItemStack(drop, stack));
+            amount -= stack;
+        }
+    }
+
+    private void give(Player player, ItemStack item) {
+        for (ItemStack left : player.getInventory().addItem(item).values()) {
+            player.getWorld().dropItemNaturally(player.getLocation(), left);
+        }
     }
 
     public void tick() {
+        if (world == null) {
+            return;
+        }
         long now = System.currentTimeMillis();
         if (now >= autosellFlush) {
             autosellFlush = now + 10_000L;
@@ -686,40 +1228,36 @@ public final class GensMode implements ModeHandler, Listener {
                 flushAutosell(uuid);
             }
         }
-        if (generators.isEmpty()) {
+        if (now >= labelCheck) {
+            labelCheck = now + 5_000L;
+            checkLabels();
+        }
+        if (regrowing.isEmpty()) {
             return;
         }
-        for (GensData.Generator generator : generators.values()) {
-            if (now < generator.next) {
+        Iterator<Regrow> iterator = regrowing.values().iterator();
+        while (iterator.hasNext()) {
+            Regrow regrow = iterator.next();
+            if (now < regrow.half || regrow.halfDone && now < regrow.ready) {
                 continue;
             }
-            GensData.Tier tier = tiers.get(generator.tier);
-            GensData.Player data = players.get(generator.owner);
-            if (tier == null || data == null) {
+            if (!world.isChunkLoaded(regrow.x >> 4, regrow.z >> 4)) {
                 continue;
             }
-            generator.next = now + intervalMillis(data, generator);
-            if (!world.isChunkLoaded(generator.x >> 4, generator.z >> 4)) {
-                continue;
-            }
-            long before = generator.stored;
-            generator.stored = GenMath.produce(generator.stored, capacity(data, tier), tier.amount, multiplier(data));
-            if (data.autosell && generator.stored > 0) {
-                long made = generator.stored;
-                generator.stored = 0;
-                autosold.merge(data.uuid, Math.round(GenMath.sellValue(made, tier.value) * progress.autosellRate()), Long::sum);
-            }
-            if (generator.stored != before) {
-                generator.dirty = true;
-                Player owner = Bukkit.getPlayer(generator.owner);
-                if (owner != null && owner.getWorld() == world && owner.getLocation().distanceSquared(new Location(world, generator.x, generator.y, generator.z)) < 576) {
-                    world.spawnParticle(Particle.END_ROD, generator.x + 0.5, generator.y + 1.2, generator.z + 0.5, 2, 0.15, 0.1, 0.15, 0.01);
+            Block block = world.getBlockAt(regrow.x, regrow.y, regrow.z);
+            if (now >= regrow.ready) {
+                block.setBlockData(block(regrow.crop.mature()), false);
+                iterator.remove();
+            } else {
+                regrow.halfDone = true;
+                if (!regrow.crop.wholeBlock()) {
+                    block.setBlockData(block(regrow.crop.half()), false);
                 }
             }
         }
     }
 
-    /** Az automatikus eladás pénze tíz másodpercenként egyben jön meg (így nem pörög az egyenleg minden tickben). */
+    /** Az automatikus eladás pénze tíz másodpercenként egyben jön meg (így nem pörög az egyenleg minden aratásnál). */
     private void flushAutosell(UUID uuid) {
         Long amount = autosold.remove(uuid);
         Player player = Bukkit.getPlayer(uuid);
@@ -740,6 +1278,8 @@ public final class GensMode implements ModeHandler, Listener {
         }
     }
 
+    // ---- jogok ----
+
     private boolean admin(Player player) {
         return player.getGameMode() == GameMode.CREATIVE && player.hasPermission("icemine.admin.build");
     }
@@ -748,7 +1288,7 @@ public final class GensMode implements ModeHandler, Listener {
         return canDo(player, location, GensData.BUILD);
     }
 
-    /** Szabad-e ezt a szigeten: a tulajdonos mindent, a tag a neki megadott jogokkal (építés, ládák, generátorok). */
+    /** Szabad-e ezt a szigeten: a tulajdonos mindent, a tag a neki megadott jogokkal (építés, ládák, aratás). */
     private boolean canDo(Player player, Location location, int flag) {
         if (admin(player)) {
             return true;
@@ -769,11 +1309,16 @@ public final class GensMode implements ModeHandler, Listener {
     }
 
     private void deny(Player player) {
+        warn(player, "gens.not-your-plot");
+    }
+
+    /** Action bar figyelmeztetés, legfeljebb kétmásodpercenként (az aratásnál sok kattintás jön egymás után). */
+    private void warn(Player player, String key) {
         long now = System.currentTimeMillis();
         Long last = warned.get(player.getUniqueId());
         if (last == null || now - last > 2000) {
             warned.put(player.getUniqueId(), now);
-            core.messages().actionBar(player, "gens.not-your-plot");
+            core.messages().actionBar(player, key);
         }
     }
 
@@ -799,6 +1344,8 @@ public final class GensMode implements ModeHandler, Listener {
         }
     }
 
+    // ---- események ----
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlace(BlockPlaceEvent event) {
         Block block = event.getBlockPlaced();
@@ -806,37 +1353,19 @@ public final class GensMode implements ModeHandler, Listener {
             return;
         }
         Player player = event.getPlayer();
+        if (isHoe(event.getItemInHand())) {
+            event.setCancelled(true);
+            return;
+        }
+        if (spot(block) != null && !admin(player)) {
+            event.setCancelled(true);
+            warn(player, "gens.field-protected");
+            return;
+        }
         if (!canBuild(player, block.getLocation())) {
             event.setCancelled(true);
             deny(player);
-            return;
         }
-        ItemStack hand = event.getItemInHand();
-        if (!"gens:generator".equals(Items.tagOf(hand))) {
-            return;
-        }
-        GensData.Player data = players.get(player.getUniqueId());
-        GensData.Tier tier = tiers.get(Items.valueOf(hand));
-        if (data == null || tier == null || data.plot != plotAt(block.getLocation())) {
-            event.setCancelled(true);
-            core.messages().send(player, "gens.only-own-plot");
-            return;
-        }
-        int slots = slots(player, data);
-        if (data.generators.size() >= slots) {
-            event.setCancelled(true);
-            core.messages().send(player, "gens.limit", "%slots%", String.valueOf(slots));
-            return;
-        }
-        GensData.Generator generator = new GensData.Generator(player.getUniqueId(), block.getX(), block.getY(), block.getZ(), tier.level, 0);
-        generator.next = System.currentTimeMillis() + intervalMillis(data, generator);
-        generator.dirty = true;
-        data.generators.add(generator);
-        generators.put(generator.key(), generator);
-        updateStats(player, data);
-        save(data, false);
-        core.messages().send(player, "gens.placed", "%tier%", tier.name, "%count%", String.valueOf(data.generators.size()), "%slots%", String.valueOf(slots));
-        progress(player, "place_gen", 1);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -846,15 +1375,25 @@ public final class GensMode implements ModeHandler, Listener {
             return;
         }
         Player player = event.getPlayer();
-        GensData.Generator generator = generators.get(GensData.key(block.getX(), block.getY(), block.getZ()));
-        if (generator != null) {
-            event.setCancelled(true);
-            if (!generator.owner.equals(player.getUniqueId()) && !admin(player)) {
-                deny(player);
+        Spot spot = spot(block);
+        if (spot != null) {
+            boolean hoeInHand = isHoe(player.getInventory().getItemInMainHand());
+            if (admin(player) && !hoeInHand) {
                 return;
             }
-            pickUp(player, generator);
+            event.setCancelled(true);
+            if (spot.dy() == 1) {
+                harvest(player, block, spot);
+            } else {
+                warn(player, "gens.field-protected");
+            }
             return;
+        }
+        if (plazaBlock(block, FarmLayout.SELL, Material.BARREL) || plazaBlock(block, FarmLayout.HOE, Material.ANVIL)) {
+            if (!admin(player)) {
+                event.setCancelled(true);
+                return;
+            }
         }
         if (!canBuild(player, block.getLocation())) {
             event.setCancelled(true);
@@ -862,113 +1401,70 @@ public final class GensMode implements ModeHandler, Listener {
         }
     }
 
-    private void pickUp(Player player, GensData.Generator generator) {
-        GensData.Player data = players.get(generator.owner);
-        GensData.Tier tier = tiers.get(generator.tier);
-        world.getBlockAt(generator.x, generator.y, generator.z).setType(Material.AIR, false);
-        generators.remove(generator.key());
-        if (data != null) {
-            data.generators.remove(generator);
-            updateStats(player, data);
+    /** A dinnyét és a tököt a kapával egy ütéssel le lehet aratni (a többi növény amúgy is azonnal törik). */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBlockDamage(BlockDamageEvent event) {
+        Block block = event.getBlock();
+        if (block.getWorld() != world || !isHoe(event.getItemInHand())) {
+            return;
         }
-        deleteGenerator(generator);
-        if (tier != null) {
-            give(player, generatorItem(tier));
-            collect(player, generator, tier);
+        Spot spot = spot(block);
+        if (spot != null && spot.dy() == 1 && spot.field() < fields.size() && fields.get(spot.field()).crop.wholeBlock()) {
+            event.setInstaBreak(true);
         }
-        core.messages().send(player, "gens.picked-up");
-    }
-
-    private void give(Player player, ItemStack item) {
-        for (ItemStack left : player.getInventory().addItem(item).values()) {
-            world.dropItemNaturally(player.getLocation(), left);
-        }
-    }
-
-    private long collect(Player player, GensData.Generator generator, GensData.Tier tier) {
-        long amount = generator.stored;
-        if (amount <= 0) {
-            return 0;
-        }
-        long given = 0;
-        while (amount > 0) {
-            int stack = (int) Math.min(amount, tier.drop.getMaxStackSize());
-            Map<Integer, ItemStack> left = player.getInventory().addItem(new ItemStack(tier.drop, stack));
-            int notGiven = 0;
-            for (ItemStack item : left.values()) {
-                notGiven += item.getAmount();
-            }
-            given += stack - notGiven;
-            amount -= stack - notGiven;
-            if (notGiven > 0) {
-                break;
-            }
-        }
-        ItemStack[] pack = backpacks.get(player.getUniqueId());
-        GensData.Player clicker = players.get(player.getUniqueId());
-        if (amount > 0 && pack != null) {
-            int size = progress.backpackSize(clicker != null && (clicker.backpackLarge || player.hasPermission("icemine.gens.backpack.large")));
-            long before = amount;
-            amount = stash(pack, size, tier.drop, amount);
-            given += before - amount;
-        }
-        generator.stored = amount;
-        generator.dirty = true;
-        if (given > 0) {
-            progress(player, "collect_items", given);
-        }
-        return given;
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (player.getWorld() != world) {
+            return;
+        }
         Block block = event.getClickedBlock();
-        if (block == null || block.getWorld() != world) {
+        if (event.getAction() == Action.PHYSICAL) {
+            // a termőföldet senki ne taposhassa le
+            if (block != null && (block.getType() == Material.FARMLAND || spot(block) != null || !canBuild(player, block.getLocation()))) {
+                event.setCancelled(true);
+            }
             return;
         }
         if (event.getHand() != EquipmentSlot.HAND) {
-            if (generators.containsKey(GensData.key(block.getX(), block.getY(), block.getZ()))) {
+            if (block != null && spot(block) != null) {
                 event.setCancelled(true);
             }
             return;
         }
-        Player player = event.getPlayer();
-        if (event.getAction() == Action.PHYSICAL) {
-            if (!canBuild(player, block.getLocation())) {
-                event.setCancelled(true);
+        boolean hoeInHand = isHoe(event.getItem());
+        if (event.getAction() == Action.RIGHT_CLICK_AIR) {
+            if (hoeInHand) {
+                core.gensMenu().hoe(player);
             }
             return;
         }
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || block == null) {
             return;
         }
-        GensData.Generator generator = generators.get(GensData.key(block.getX(), block.getY(), block.getZ()));
-        if (generator != null) {
+        if (plazaBlock(block, FarmLayout.SELL, Material.BARREL)) {
             event.setCancelled(true);
-            GensData.Player owner = players.get(generator.owner);
-            boolean own = generator.owner.equals(player.getUniqueId());
-            boolean mayCollect = own || (owner != null && owner.can(player.getUniqueId(), GensData.COLLECT));
-            boolean mayManage = own || (owner != null && owner.can(player.getUniqueId(), GensData.MANAGE));
-            if (!(player.isSneaking() ? mayManage : mayCollect)) {
-                deny(player);
-                return;
+            sellAll(player);
+            return;
+        }
+        if (plazaBlock(block, FarmLayout.HOE, Material.ANVIL)) {
+            event.setCancelled(true);
+            core.gensMenu().hoe(player);
+            return;
+        }
+        if (spot(block) != null) {
+            // bogyó szedés, csontliszt, kapálás: a földeken semmi ilyet nem lehet
+            event.setCancelled(true);
+            if (hoeInHand) {
+                core.gensMenu().hoe(player);
             }
-            GensData.Tier tier = tiers.get(generator.tier);
-            if (tier == null) {
-                return;
-            }
-            if (player.isSneaking()) {
-                upgrade(player, generator);
-            } else {
-                long given = collect(player, generator, tier);
-                if (given > 0) {
-                    core.messages().actionBar(player, "gens.collected", "%amount%", String.valueOf(given), "%stored%", String.valueOf(generator.stored),
-                            "%capacity%", String.valueOf(capacity(owner, tier)));
-                } else {
-                    core.messages().actionBar(player, "gens.info", "%tier%", tier.name, "%stored%", String.valueOf(generator.stored),
-                            "%capacity%", String.valueOf(capacity(owner, tier)));
-                }
-            }
+            return;
+        }
+        if (hoeInHand && !player.isSneaking() && !(block.getState() instanceof org.bukkit.block.Container)) {
+            event.setCancelled(true);
+            core.gensMenu().hoe(player);
             return;
         }
         int flag = block.getState() instanceof org.bukkit.block.Container ? GensData.CONTAINERS : GensData.BUILD;
@@ -978,32 +1474,168 @@ public final class GensMode implements ModeHandler, Listener {
         }
     }
 
-    public void upgrade(Player player, GensData.Generator generator) {
-        GensData.Tier tier = tiers.get(generator.tier);
-        Map.Entry<Integer, GensData.Tier> next = tiers.higherEntry(generator.tier);
-        if (tier == null || next == null || tier.upgrade <= 0) {
-            core.messages().send(player, "gens.max-tier");
-            return;
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onHarvestBlock(PlayerHarvestBlockEvent event) {
+        if (event.getHarvestedBlock().getWorld() == world && spot(event.getHarvestedBlock()) != null) {
+            event.setCancelled(true);
         }
-        Ledger.Result result = core.economy().withdraw(player, currency, tier.upgrade, "gens:upgrade");
-        if (result != Ledger.Result.OK) {
-            core.messages().send(player, "gens.no-money", "%price%", core.economy().format(currency, tier.upgrade));
-            return;
-        }
-        generator.tier = next.getKey();
-        generator.dirty = true;
-        world.getBlockAt(generator.x, generator.y, generator.z).setType(next.getValue().block, false);
-        world.spawnParticle(Particle.FIREWORK, generator.x + 0.5, generator.y + 1.0, generator.z + 0.5, 12, 0.3, 0.3, 0.3, 0.05);
-        player.playSound(player.getLocation(), "minecraft:block.amethyst_block.resonate", 0.8f, 1.2f);
-        core.messages().send(player, "gens.upgraded", "%tier%", next.getValue().name, "%price%", core.economy().format(currency, tier.upgrade));
-        progress(player, "upgrade", 1);
     }
+
+    /** A földeken csak a mi rendszerünk növeszt (a véletlen növekedés kikapcsolva), máshol nőhetnek a csemeték. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onGrow(BlockGrowEvent event) {
+        if (event.getBlock().getWorld() == world && spot(event.getBlock()) != null) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onFertilize(BlockFertilizeEvent event) {
+        if (event.getBlock().getWorld() == world && spot(event.getBlock()) != null) {
+            event.setCancelled(true);
+        }
+    }
+
+    /** Víz nélkül is nedves marad a termőföld, és nem válik földdé. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onMoisture(MoistureChangeEvent event) {
+        if (event.getBlock().getWorld() == world) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onFade(BlockFadeEvent event) {
+        if (event.getBlock().getWorld() == world && event.getBlock().getType() == Material.FARMLAND) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onTrample(EntityChangeBlockEvent event) {
+        if (event.getBlock().getWorld() == world && (event.getBlock().getType() == Material.FARMLAND || spot(event.getBlock()) != null)) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onDrop(PlayerDropItemEvent event) {
+        if (isHoe(event.getItemDrop().getItemStack())) {
+            event.setCancelled(true);
+            core.messages().actionBar(event.getPlayer(), "gens.hoe.no-drop");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBucket(PlayerBucketEmptyEvent event) {
+        Block target = event.getBlockClicked().getRelative(event.getBlockFace());
+        if (event.getPlayer().getWorld() == world && (spot(target) != null || !canBuild(event.getPlayer(), target.getLocation()))) {
+            event.setCancelled(true);
+            deny(event.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onFlow(BlockFromToEvent event) {
+        if (event.getBlock().getWorld() != world) {
+            return;
+        }
+        if (spot(event.getToBlock()) != null || plotAt(event.getToBlock().getLocation()) != plotAt(event.getBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onExplode(EntityExplodeEvent event) {
+        if (event.getLocation().getWorld() == world) {
+            event.blockList().clear();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBlockExplode(BlockExplodeEvent event) {
+        if (event.getBlock().getWorld() == world) {
+            event.blockList().clear();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onDamage(EntityDamageEvent event) {
+        Entity entity = event.getEntity();
+        if (entity.getWorld() != world || !(entity instanceof Player)) {
+            return;
+        }
+        event.setCancelled(true);
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+            Player player = (Player) entity;
+            Bukkit.getScheduler().runTask(core, () -> rescue(player));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onFood(FoodLevelChangeEvent event) {
+        if (event.getEntity().getWorld() == world) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onMove(PlayerMoveEvent event) {
+        Location to = event.getTo();
+        if (to == null || to.getWorld() != world || to.getY() >= voidY) {
+            return;
+        }
+        rescue(event.getPlayer());
+    }
+
+    private void rescue(Player player) {
+        if (!player.isOnline() || player.getWorld() != world) {
+            return;
+        }
+        player.setFallDistance(0f);
+        GensData.Player data = players.get(player.getUniqueId());
+        core.guard().allowNext(player);
+        player.teleport(data != null && data.plot > 0 ? home(data) : hub);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(PlayerQuitEvent event) {
+        Bukkit.getScheduler().runTask(core, () -> {
+            if (Bukkit.getPlayer(event.getPlayer().getUniqueId()) == null) {
+                detach(event.getPlayer().getUniqueId());
+            }
+        });
+    }
+
+    @Override
+    public void shutdown() {
+        for (UUID uuid : new ArrayList<>(players.keySet())) {
+            detach(uuid);
+        }
+        if (world != null) {
+            for (Entity entity : world.getEntities()) {
+                if (entity.getScoreboardTags().contains(LABEL_TAG)) {
+                    entity.remove();
+                }
+            }
+            // ami épp visszanőne, az most rögtön beérik (különben a következő belépésig kicsi maradna)
+            for (Regrow regrow : regrowing.values()) {
+                if (world.isChunkLoaded(regrow.x >> 4, regrow.z >> 4)) {
+                    world.getBlockAt(regrow.x, regrow.y, regrow.z).setBlockData(block(regrow.crop.mature()), false);
+                }
+            }
+            regrowing.clear();
+        }
+    }
+
+    // ---- eladás, napi jutalom ----
 
     public long sellAll(Player player) {
         if (player.getWorld() != world) {
             core.messages().send(player, "gens.only-in-gens");
             return 0;
         }
+        GensData.Player data = players.get(player.getUniqueId());
         long total = 0;
         long count = 0;
         ItemStack[] contents = player.getInventory().getContents();
@@ -1016,7 +1648,7 @@ public final class GensMode implements ModeHandler, Listener {
             if (price == null || price <= 0) {
                 continue;
             }
-            total += GenMath.sellValue(item.getAmount(), price);
+            total += GenMath.sellValue(item.getAmount(), unitPrice(data, price));
             count += item.getAmount();
             player.getInventory().setItem(i, null);
         }
@@ -1031,7 +1663,7 @@ public final class GensMode implements ModeHandler, Listener {
                 if (price == null || price <= 0) {
                     continue;
                 }
-                total += GenMath.sellValue(item.getAmount(), price);
+                total += GenMath.sellValue(item.getAmount(), unitPrice(data, price));
                 count += item.getAmount();
                 pack[i] = null;
             }
@@ -1040,7 +1672,7 @@ public final class GensMode implements ModeHandler, Listener {
             core.messages().send(player, "gens.nothing-to-sell");
             return 0;
         }
-        total = sellBoost(player, players.get(player.getUniqueId()), total);
+        total = sellBoost(player, data, total);
         Ledger.Result result = core.economy().deposit(player, currency, total, "gens:sell");
         if (result != Ledger.Result.OK) {
             core.messages().send(player, "gens.sell-limit");
@@ -1052,45 +1684,10 @@ public final class GensMode implements ModeHandler, Listener {
             profile.addStat("gens.sold", count);
         }
         core.messages().send(player, "gens.sold", "%amount%", Text.number(count), "%money%", core.economy().format(currency, total));
+        player.playSound(player.getLocation(), "minecraft:entity.villager.yes", 0.6f, 1.1f);
         progress(player, "sell_items", count);
         progress(player, "earn", total);
         return total;
-    }
-
-    public void buyGenerator(Player player) {
-        if (tiers.isEmpty()) {
-            return;
-        }
-        Ledger.Result result = core.economy().withdraw(player, currency, generatorPrice, "gens:buy");
-        if (result != Ledger.Result.OK) {
-            core.messages().send(player, "gens.no-money", "%price%", core.economy().format(currency, generatorPrice));
-            return;
-        }
-        give(player, generatorItem(tiers.firstEntry().getValue()));
-        core.messages().send(player, "gens.bought-generator", "%price%", core.economy().format(currency, generatorPrice));
-    }
-
-    public void upgradePlot(Player player) {
-        GensData.Player data = players.get(player.getUniqueId());
-        if (data == null) {
-            return;
-        }
-        GensData.Level next = nextLevel(data);
-        if (next == null) {
-            core.messages().send(player, "gens.max-level");
-            return;
-        }
-        Ledger.Result result = core.economy().withdraw(player, currency, next.price, "gens:level");
-        if (result != Ledger.Result.OK) {
-            core.messages().send(player, "gens.no-money", "%price%", core.economy().format(currency, next.price));
-            return;
-        }
-        data.level = next.level;
-        data.dirty = true;
-        updateStats(player, data);
-        save(data, false);
-        core.messages().send(player, "gens.level-up", "%level%", String.valueOf(next.level), "%slots%", String.valueOf(next.slots),
-                "%multiplier%", String.format(Locale.ROOT, "%.2fx", next.multiplier));
     }
 
     public void daily(Player player) {
@@ -1116,6 +1713,8 @@ public final class GensMode implements ModeHandler, Listener {
         return data != null && data.daily < LocalDate.now().toEpochDay();
     }
 
+    // ---- haza, látogatás, tagok ----
+
     public void goHome(Player player) {
         GensData.Player data = players.get(player.getUniqueId());
         if (data == null) {
@@ -1126,8 +1725,12 @@ public final class GensMode implements ModeHandler, Listener {
             return;
         }
         ensurePlot(player, data);
+        ensureFarm(player, data);
+        refreshFields(data);
+        finishConversion(player, data);
         core.guard().allowNext(player);
         player.teleport(home(data));
+        spawnLabels(data);
     }
 
     public void visit(Player player, String name) {
@@ -1208,88 +1811,45 @@ public final class GensMode implements ModeHandler, Listener {
         save(data, false);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBucket(PlayerBucketEmptyEvent event) {
-        if (event.getPlayer().getWorld() == world && !canBuild(event.getPlayer(), event.getBlockClicked().getRelative(event.getBlockFace()).getLocation())) {
-            event.setCancelled(true);
-            deny(event.getPlayer());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onFlow(BlockFromToEvent event) {
-        if (event.getBlock().getWorld() == world && plotAt(event.getToBlock().getLocation()) != plotAt(event.getBlock().getLocation())) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onExplode(EntityExplodeEvent event) {
-        if (event.getLocation().getWorld() == world) {
-            event.blockList().clear();
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBlockExplode(BlockExplodeEvent event) {
-        if (event.getBlock().getWorld() == world) {
-            event.blockList().clear();
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onDamage(EntityDamageEvent event) {
-        Entity entity = event.getEntity();
-        if (entity.getWorld() != world || !(entity instanceof Player)) {
+    public void togglePermission(Player owner, UUID member, int flag) {
+        GensData.Player data = players.get(owner.getUniqueId());
+        if (data == null || !data.trusted.contains(member)) {
             return;
         }
-        event.setCancelled(true);
-        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-            Player player = (Player) entity;
-            Bukkit.getScheduler().runTask(core, () -> rescue(player));
+        int flags = data.permissionsOf(member) ^ flag;
+        if (flags == GensData.DEFAULT_MEMBER) {
+            data.permissions.remove(member);
+        } else {
+            data.permissions.put(member, flags);
         }
+        data.dirty = true;
+        save(data, false);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onFood(FoodLevelChangeEvent event) {
-        if (event.getEntity().getWorld() == world) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onMove(PlayerMoveEvent event) {
-        Location to = event.getTo();
-        if (to == null || to.getWorld() != world || to.getY() >= voidY) {
+    public void removeMember(Player owner, UUID member) {
+        GensData.Player data = players.get(owner.getUniqueId());
+        if (data == null || !data.trusted.remove(member)) {
             return;
         }
-        rescue(event.getPlayer());
+        data.permissions.remove(member);
+        data.dirty = true;
+        save(data, false);
+        core.messages().send(owner, "gens.untrusted", "%player%", nameOf(member));
     }
 
-    private void rescue(Player player) {
-        if (!player.isOnline() || player.getWorld() != world) {
-            return;
-        }
-        player.setFallDistance(0f);
+    public String nameOf(UUID uuid) {
+        org.bukkit.OfflinePlayer offline = Bukkit.getOfflinePlayer(uuid);
+        return offline.getName() == null ? uuid.toString().substring(0, 8) : offline.getName();
+    }
+
+    public void toggleLock(Player player) {
         GensData.Player data = players.get(player.getUniqueId());
-        core.guard().allowNext(player);
-        player.teleport(data != null && data.plot > 0 ? home(data) : hub);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onQuit(PlayerQuitEvent event) {
-        Bukkit.getScheduler().runTask(core, () -> {
-            if (Bukkit.getPlayer(event.getPlayer().getUniqueId()) == null) {
-                detach(event.getPlayer().getUniqueId());
-            }
-        });
-    }
-
-    @Override
-    public void shutdown() {
-        for (UUID uuid : new ArrayList<>(players.keySet())) {
-            detach(uuid);
+        if (data == null) {
+            return;
         }
+        data.locked = !data.locked;
+        writeProfile(player, data);
+        core.messages().send(player, data.locked ? "gens.lock.on" : "gens.lock.off");
     }
 
     // ---- hátizsák ----
@@ -1417,11 +1977,12 @@ public final class GensMode implements ModeHandler, Listener {
         core.messages().send(player, "gens.upgrade.bought", "%name%", upgrade.name, "%level%", String.valueOf(level + 1),
                 "%max%", String.valueOf(upgrade.maxLevel()));
         player.playSound(player.getLocation(), "minecraft:block.anvil.use", 0.6f, 1.3f);
+        progress(player, "upgrade", 1);
     }
 
     // ---- prestige és rebirth ----
 
-    /** Két kattintás kell (10 mp-en belül), mert mindkettő törli a generátorokat és a pénzt. */
+    /** Két kattintás kell (10 mp-en belül), mert mindkettő elveszi a pénzt és lezárja a földeket. */
     private boolean confirmed(Player player, String what) {
         long now = System.currentTimeMillis();
         Long last = confirm.get(player.getUniqueId());
@@ -1436,8 +1997,6 @@ public final class GensMode implements ModeHandler, Listener {
         return false;
     }
 
-    private final Map<UUID, String> confirmKey = new HashMap<>();
-
     public void prestige(Player player) {
         GensData.Player data = players.get(player.getUniqueId());
         if (data == null || player.getWorld() != world) {
@@ -1447,7 +2006,7 @@ public final class GensMode implements ModeHandler, Listener {
             core.messages().send(player, "gens.prestige.max");
             return;
         }
-        if (!progress.canPrestige(data.level, data.prestige)) {
+        if (!progress.canPrestige(unlocked(data), data.prestige)) {
             core.messages().send(player, "gens.prestige.need-level", "%level%", String.valueOf(progress.prestigeLevel()));
             return;
         }
@@ -1468,7 +2027,7 @@ public final class GensMode implements ModeHandler, Listener {
         resetIsland(player, data);
         writeProfile(player, data);
         core.messages().send(player, "gens.prestige.done", "%prestige%", String.valueOf(data.prestige),
-                "%multiplier%", String.format(Locale.ROOT, "%.2fx", progress.productionMultiplier(data.prestige, data.rebirth)));
+                "%multiplier%", String.format(Locale.ROOT, "%.2fx", multiplier(data)));
         for (Player other : world.getPlayers()) {
             if (!other.equals(player)) {
                 core.messages().send(other, "gens.prestige.broadcast", "%player%", player.getName(), "%prestige%", String.valueOf(data.prestige));
@@ -1494,8 +2053,7 @@ public final class GensMode implements ModeHandler, Listener {
         }
         if (!confirmed(player, "rebirth")) {
             core.messages().send(player, "gens.rebirth.confirm", "%price%", core.economy().format(currency, price),
-                    "%next%", String.valueOf(data.rebirth + 1), "%bonus%", Text.decimal(progress.rebirthBonus()),
-                    "%slots%", String.valueOf(progress.rebirthSlots()));
+                    "%next%", String.valueOf(data.rebirth + 1), "%bonus%", Text.decimal(progress.rebirthBonus()));
             return;
         }
         if (!pay(player, price, "gens:rebirth")) {
@@ -1506,10 +2064,14 @@ public final class GensMode implements ModeHandler, Listener {
         for (String id : new ArrayList<>(data.upgrades.keySet())) {
             data.upgrades.put(id, 0);
         }
+        for (String id : HoeUpgrades.IDS) {
+            data.hoe.put(id, 0);
+        }
         resetIsland(player, data);
         writeProfile(player, data);
+        refreshHoe(player, data);
         core.messages().send(player, "gens.rebirth.done", "%rebirth%", String.valueOf(data.rebirth),
-                "%multiplier%", String.format(Locale.ROOT, "%.2fx", progress.productionMultiplier(data.prestige, data.rebirth)));
+                "%multiplier%", String.format(Locale.ROOT, "%.2fx", multiplier(data)));
         for (Player other : Bukkit.getOnlinePlayers()) {
             if (!other.equals(player)) {
                 core.messages().send(other, "gens.rebirth.broadcast", "%player%", player.getName(), "%rebirth%", String.valueOf(data.rebirth));
@@ -1520,82 +2082,23 @@ public final class GensMode implements ModeHandler, Listener {
     }
 
     /**
-     * Újrakezdés: a generátorok (a lerakottak, a táskában és a hátizsákban lévők is) és a Gens pénz eltűnnek,
-     * a sziget szint visszaáll 1-re, és újra jár a kezdő generátor. Az épített blokkok maradnak.
+     * Újrakezdés: a Gens pénz eltűnik, és csak az első föld marad nyitva (a többi újra lezárul). A kapa megmarad
+     * (rebirth-nél a hívó nullázza), az épített blokkok is maradnak.
      */
     private void resetIsland(Player player, GensData.Player data) {
-        for (GensData.Generator generator : new ArrayList<>(data.generators)) {
-            world.getBlockAt(generator.x, generator.y, generator.z).setType(Material.AIR, false);
-            generators.remove(generator.key());
-            deleteGenerator(generator);
-        }
-        data.generators.clear();
-        ItemStack[] contents = player.getInventory().getContents();
-        for (int i = 0; i < contents.length; i++) {
-            if ("gens:generator".equals(Items.tagOf(contents[i]))) {
-                player.getInventory().setItem(i, null);
-            }
-        }
-        ItemStack[] pack = backpacks.get(player.getUniqueId());
-        if (pack != null) {
-            for (int i = 0; i < pack.length; i++) {
-                if ("gens:generator".equals(Items.tagOf(pack[i]))) {
-                    pack[i] = null;
-                }
-            }
-        }
         autosold.remove(player.getUniqueId());
         core.economy().set(player, currency, 0, "gens:reset");
         data.level = 1;
         data.dirty = true;
-        for (int i = 0; i < starterGenerators; i++) {
-            give(player, generatorItem(tiers.isEmpty() ? null : tiers.firstEntry().getValue()));
+        purgeRegrow(data.plot);
+        int[] center = plotCenter(data.plot);
+        Placer placer = new Placer(world, core.getLogger());
+        for (int i = 0; i < FarmLayout.FIELDS; i++) {
+            buildField(placer, center, i, i < unlocked(data));
         }
+        spawnLabels(data);
         updateStats(player, data);
         save(data, true);
-    }
-
-    // ---- tagok és sziget beállítások ----
-
-    public void togglePermission(Player owner, UUID member, int flag) {
-        GensData.Player data = players.get(owner.getUniqueId());
-        if (data == null || !data.trusted.contains(member)) {
-            return;
-        }
-        int flags = data.permissionsOf(member) ^ flag;
-        if (flags == GensData.DEFAULT_MEMBER) {
-            data.permissions.remove(member);
-        } else {
-            data.permissions.put(member, flags);
-        }
-        data.dirty = true;
-        save(data, false);
-    }
-
-    public void removeMember(Player owner, UUID member) {
-        GensData.Player data = players.get(owner.getUniqueId());
-        if (data == null || !data.trusted.remove(member)) {
-            return;
-        }
-        data.permissions.remove(member);
-        data.dirty = true;
-        save(data, false);
-        core.messages().send(owner, "gens.untrusted", "%player%", nameOf(member));
-    }
-
-    public String nameOf(UUID uuid) {
-        org.bukkit.OfflinePlayer offline = Bukkit.getOfflinePlayer(uuid);
-        return offline.getName() == null ? uuid.toString().substring(0, 8) : offline.getName();
-    }
-
-    public void toggleLock(Player player) {
-        GensData.Player data = players.get(player.getUniqueId());
-        if (data == null) {
-            return;
-        }
-        data.locked = !data.locked;
-        writeProfile(player, data);
-        core.messages().send(player, data.locked ? "gens.lock.on" : "gens.lock.off");
     }
 
     public Location hub() {
@@ -1604,9 +2107,5 @@ public final class GensMode implements ModeHandler, Listener {
 
     public long dailyAmount() {
         return dailyAmount;
-    }
-
-    public long generatorPrice() {
-        return generatorPrice;
     }
 }

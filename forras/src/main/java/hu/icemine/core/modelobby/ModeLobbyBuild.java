@@ -637,8 +637,8 @@ public final class ModeLobbyBuild extends Build {
         farmPatch(-19, 8, "wheat[age=7]");
         farmPatch(15, 8, "carrots[age=7]");
         farmPatch(-19, -12, "potatoes[age=7]");
-        // generátor bemutató talapzatok
-        String[] ores = {"coal_block", "iron_block", "gold_block", "lapis_block", "diamond_block", "emerald_block"};
+        // termény bemutató talapzatok (a Gens földjei sorban)
+        String[] ores = {"hay_block[axis=y]", "melon", "pumpkin", "moss_block", "nether_wart_block", "emerald_block"};
         for (int i = 0; i < ores.length; i++) {
             int x = 14 + (i % 3) * 3;
             int z = -15 + (i / 3) * 3;

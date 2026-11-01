@@ -7,70 +7,94 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import org.bukkit.Material;
+import java.util.TreeMap;
+import org.bukkit.configuration.ConfigurationSection;
 
 public final class GensData {
 
-    public static final class Tier {
-        public final int level;
+    /**
+     * Egy föld a szigeten (gens.yml: fields). A földeket sorban lehet megnyitni, az első ingyenes.
+     * value: ennyit ér egy termény eladáskor | regrow: ennyi mp alatt nő vissza | multiplier: ennyi termény jár egy növényért.
+     */
+    public static final class Field {
+        public final int index;
         public final String name;
-        public final Material block;
-        public final Material drop;
+        public final Crop crop;
         public final long value;
-        public final int interval;
-        public final int amount;
-        public final long capacity;
-        public final long upgrade;
-
-        public Tier(int level, String name, Material block, Material drop, long value, int interval, int amount, long capacity, long upgrade) {
-            this.level = level;
-            this.name = name;
-            this.block = block;
-            this.drop = drop;
-            this.value = value;
-            this.interval = interval;
-            this.amount = amount;
-            this.capacity = capacity;
-            this.upgrade = upgrade;
-        }
-    }
-
-    public static final class Level {
-        public final int level;
-        public final int slots;
-        public final double multiplier;
+        public final int regrow;
         public final long price;
+        public final double multiplier;
 
-        public Level(int level, int slots, double multiplier, long price) {
-            this.level = level;
-            this.slots = slots;
-            this.multiplier = multiplier;
+        public Field(int index, String name, Crop crop, long value, int regrow, long price, double multiplier) {
+            this.index = index;
+            this.name = name;
+            this.crop = crop;
+            this.value = value;
+            this.regrow = regrow;
             this.price = price;
+            this.multiplier = multiplier;
         }
     }
 
-    public static final class Generator {
-        public final UUID owner;
-        public final int x;
-        public final int y;
-        public final int z;
-        public int tier;
-        public long stored;
-        public long next;
-        public boolean dirty;
+    /** A régi generátoros Gens alapárai: átálláskor ezek alapján kapja vissza a pénzét, aki generátort vett és fejlesztett. */
+    static final long LEGACY_GENERATOR = 300;
+    static final long[] LEGACY_UPGRADES = {250, 750, 2000, 5000, 12000, 30000, 75000, 180000, 400000};
+    static final Map<String, Long> LEGACY_DROPS = Map.of("COAL", 2L, "IRON_INGOT", 5L, "GOLD_INGOT", 12L, "LAPIS_LAZULI", 25L, "REDSTONE", 45L,
+            "DIAMOND", 90L, "EMERALD", 180L, "AMETHYST_SHARD", 350L, "QUARTZ", 650L, "NETHERITE_SCRAP", 1200L);
 
-        public Generator(UUID owner, int x, int y, int z, int tier, long stored) {
-            this.owner = owner;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.tier = tier;
-            this.stored = stored;
+    /** Egy régi generátor értéke: a vételár és az eddigi fejlesztések. */
+    public static long legacyGenerator(int tier) {
+        long total = LEGACY_GENERATOR;
+        for (int i = 0; i < Math.min(tier - 1, LEGACY_UPGRADES.length); i++) {
+            total += LEGACY_UPGRADES[i];
         }
+        return total;
+    }
 
-        public long key() {
-            return GensData.key(x, y, z);
+    public static long legacyDrop(String material) {
+        return LEGACY_DROPS.getOrDefault(material, 0L);
+    }
+
+    /** A földek beolvasása a gens.yml-ből (fields.1, fields.2 ...), legfeljebb 8, sorrendben. */
+    public static List<Field> loadFields(ConfigurationSection root, List<String> problems) {
+        List<Field> result = new ArrayList<>();
+        ConfigurationSection section = root == null ? null : root.getConfigurationSection("fields");
+        if (section == null) {
+            problems.add("gens.yml -> fields: nincs egy föld sem, búzával indulok");
+            result.add(new Field(0, "Búza", Crop.WHEAT, 2, 5, 0, 1.0));
+            return result;
         }
+        TreeMap<Integer, ConfigurationSection> sorted = new TreeMap<>();
+        for (String key : section.getKeys(false)) {
+            try {
+                int number = Integer.parseInt(key.trim());
+                if (number < 1 || number > FarmLayout.FIELDS) {
+                    problems.add("gens.yml -> fields." + key + ": 1 és " + FarmLayout.FIELDS + " között lehet");
+                } else if (section.isConfigurationSection(key)) {
+                    sorted.put(number, section.getConfigurationSection(key));
+                }
+            } catch (NumberFormatException exception) {
+                problems.add("gens.yml -> fields." + key + ": a kulcs csak szám lehet (1-" + FarmLayout.FIELDS + ")");
+            }
+        }
+        for (Map.Entry<Integer, ConfigurationSection> entry : sorted.entrySet()) {
+            ConfigurationSection field = entry.getValue();
+            String where = "gens.yml -> fields." + entry.getKey();
+            Crop crop = Crop.of(field.getString("crop", ""));
+            if (crop == null) {
+                problems.add(where + ".crop: ismeretlen növény (wheat, carrots, potatoes, beetroots, melon, pumpkin, sweet_berry_bush, nether_wart)");
+                crop = Crop.WHEAT;
+            }
+            result.add(new Field(result.size(), field.getString("name", crop.name()), crop,
+                    Math.max(0, Math.min(1_000_000_000L, field.getLong("value", 1))),
+                    Math.max(1, Math.min(3600, field.getInt("regrow", 5))),
+                    result.isEmpty() ? 0 : Math.max(0, field.getLong("price", 0)),
+                    Math.max(1.0, Math.min(64.0, field.getDouble("multiplier", 1.0)))));
+        }
+        if (result.isEmpty()) {
+            result.add(new Field(0, "Búza", Crop.WHEAT, 2, 5, 0, 1.0));
+        }
+        return result;
     }
 
     /** Sziget tag jogai (bitek). */
@@ -83,8 +107,15 @@ public final class GensData {
     public static final class Player {
         public final UUID uuid;
         public int plot;
+        /** Ennyi föld van megnyitva a szigeten (1 = csak a búza). Az adatbázis "level" oszlopában van. */
         public int level;
         public final Set<UUID> trusted = new HashSet<>();
+        /** A kapa fejlesztései (a profil tárolja: gens.hoe.boseg ...). */
+        public final Map<String, Integer> hoe = new LinkedHashMap<>();
+        /** A régi generátorok szintjei (csak az átállásig, a visszatérítéshez). */
+        public final List<Integer> legacyGenerators = new ArrayList<>();
+        /** Át kell még váltani a régi (generátoros) szigetet a földekre: belépéskor elintézzük a táskát is. */
+        public boolean legacyPending;
         /** Tagonként a jogok (ha nincs benne, akkor DEFAULT_MEMBER). */
         public final Map<UUID, Integer> permissions = new LinkedHashMap<>();
         /** Ezeket a profil tárolja (gens.prestige, gens.rebirth, gens.up.*, gens.autosell...), belépéskor töltjük be. */
@@ -99,7 +130,6 @@ public final class GensData {
         public String questDay = "";
         public final Map<String, Long> progress = new LinkedHashMap<>();
         public final Set<String> claimed = new HashSet<>();
-        public final List<Generator> generators = new ArrayList<>();
         public boolean dirty;
         public boolean fresh;
 

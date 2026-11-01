@@ -240,8 +240,8 @@ public final class LobbyMenus {
         List<String> gens = new ArrayList<>();
         gens.add("&7Egyenleg: " + core.economy().format("gens", profile.balance("gens")));
         gens.add("&7Összes bevétel: &e" + Text.number(profile.stat("gens.earned")));
-        gens.add("&7Generátorok: &f" + profile.stat("gens.generators"));
-        gens.add("&7Telekszint: &f" + Math.max(1, profile.stat("gens.level")));
+        gens.add("&7Földek: &f" + Math.max(1, profile.stat("gens.level")) + "&7/&f" + core.gens().fields().size());
+        gens.add("&7Learatott növények: &f" + Text.number(profile.stat("gens.harvested")));
         gens.add("&7Prestige: &d" + profile.stat("gens.prestige") + " &8| &7Rebirth: &5" + profile.stat("gens.rebirth"));
         gens.add("&7Teljesített küldetések: &f" + profile.stat("gens.quests"));
         menu.set(33, Items.of(Material.EMERALD).name("&a&lGens").lore(gens).hideAll().build());

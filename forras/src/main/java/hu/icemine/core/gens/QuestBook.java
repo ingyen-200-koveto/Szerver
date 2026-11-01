@@ -24,7 +24,23 @@ public final class QuestBook {
         }
     }
 
+    /** A küldetés típusok: aratás, eladás, fejlesztés (kapa vagy sziget), pénzszerzés, új föld megnyitása. */
+    public static final List<String> TYPES = List.of("harvest", "sell_items", "upgrade", "earn", "unlock");
+
     private final List<Quest> pool = new ArrayList<>();
+
+    /** A gens.yml-ben megadott típus; a régi (generátoros) neveket is elfogadja. Null, ha ismeretlen. */
+    public static String type(String text) {
+        String type = text == null ? "" : text.trim().toLowerCase(java.util.Locale.ROOT);
+        switch (type) {
+            case "collect_items":
+                return "harvest";
+            case "place_gen":
+                return "unlock";
+            default:
+                return TYPES.contains(type) ? type : null;
+        }
+    }
     private int perDay = 3;
 
     public void configure(List<Quest> quests, int perDay) {

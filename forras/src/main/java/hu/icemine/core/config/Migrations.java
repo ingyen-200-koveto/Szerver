@@ -303,6 +303,23 @@ public final class Migrations {
             files.save("gens");
             notes.add("gens.yml: prestige, rebirth, sziget fejlesztések, automatikus eladás, hátizsák");
         }
+        if (gensFile != null && gensFile.getDefaults() != null && !gensFile.getBoolean("migrated.farm-v1", false)) {
+            // generátorok helyett farm: a generátor és sziget szintek kikerülnek, jönnek a földek és a kapa
+            for (String path : new String[]{"tiers", "levels", "generator-price", "starter-generators", "rebirth.extra-slots"}) {
+                gensFile.set(path, null);
+            }
+            for (String section : new String[]{"fields", "hoe"}) {
+                if (!gensFile.isSet(section)) {
+                    copyDefault(gensFile, section);
+                }
+            }
+            gensFile.set("quests", null);
+            copyDefault(gensFile, "quests");
+            gensFile.set("hub-built", false);
+            gensFile.set("migrated.farm-v1", true);
+            files.save("gens");
+            notes.add("gens.yml: generátorok helyett farm (8 föld, fejleszthető kapa), a központi sziget újraépül");
+        }
         if (main.isSet("leaderboards.boards") && !main.isSet("leaderboards.boards.gensprestige")) {
             copyDefault(main, "leaderboards.boards.gensprestige");
             files.save("config");

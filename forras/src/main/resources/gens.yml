@@ -1,7 +1,7 @@
 # Gens
-# Mindenki saját szigetet kap, generátorokat rak le, a termést eladja, és fejleszt.
-# A Gens saját pénzt használ (economy.yml: gens), így a PvP nem borítja fel.
-# A generátorok csak akkor termelnek, ha a tulajdonos fent van.
+# Mindenki saját farm szigetet kap 8 földdel. A növényeket a Gens kapával kell learatni (bal klikk), a termést
+# eladod (hordó a sziget közepén, /elad vagy a menü), a pénzből új földeket nyitsz és a kapát fejleszted.
+# Learatás után a növény magától visszanő. A Gens saját pénzt használ (economy.yml: gens), így a PvP nem borítja fel.
 
 world: ice_gens
 hub-built: false
@@ -11,159 +11,148 @@ void-y: 60
 plot:
   # A szigetek távolsága egymástól (blokk)
   spacing: 96
-  # Ekkora területen lehet építeni a sziget közepétől
+  # Ekkora területen lehet építeni a sziget közepétől (legalább 26, ekkora maga a farm)
   build-radius: 40
   height: 100
 
 currency: gens
-generator-price: 300
-starter-generators: 2
 
 daily:
   amount: 500
 
-# Sziget szintek: több hely és nagyobb termelés
-levels:
+# A földek, ebben a sorrendben lehet őket megnyitni (az első ingyen jár). Legfeljebb 8.
+# crop: wheat, carrots, potatoes, beetroots, melon, pumpkin, sweet_berry_bush, nether_wart
+# value: ennyit ér egy termény | regrow: ennyi mp alatt nő vissza | price: ennyibe kerül megnyitni
+# multiplier: ennyi termény jár egy növényért (a tört rész eséllyel, pl. 1.5 = fele eséllyel 2)
+fields:
   1:
-    slots: 6
-    multiplier: 1.0
-    price: 0
-  2:
-    slots: 9
-    multiplier: 1.1
-    price: 5000
-  3:
-    slots: 12
-    multiplier: 1.25
-    price: 25000
-  4:
-    slots: 16
-    multiplier: 1.4
-    price: 100000
-  5:
-    slots: 20
-    multiplier: 1.6
-    price: 400000
-  6:
-    slots: 25
-    multiplier: 1.8
-    price: 1500000
-
-# Generátor szintek
-# value: ennyit ér egy termék | interval: ennyi mp-enként termel | amount: ennyit termel egyszerre
-# capacity: ennyi fér el benne (jobb klikkel gyűjtöd be) | upgrade: ennyibe kerül a következő szint
-tiers:
-  1:
-    name: "Szén"
-    block: COAL_BLOCK
-    drop: COAL
+    name: "Búza"
+    crop: wheat
     value: 2
-    interval: 6
-    amount: 1
-    capacity: 64
-    upgrade: 250
+    regrow: 5
+    price: 0
+    multiplier: 1.0
   2:
-    name: "Vas"
-    block: IRON_BLOCK
-    drop: IRON_INGOT
+    name: "Sárgarépa"
+    crop: carrots
     value: 5
-    interval: 6
-    amount: 1
-    capacity: 64
-    upgrade: 750
+    regrow: 6
+    price: 2500
+    multiplier: 1.1
   3:
-    name: "Arany"
-    block: GOLD_BLOCK
-    drop: GOLD_INGOT
-    value: 12
-    interval: 6
-    amount: 1
-    capacity: 96
-    upgrade: 2000
+    name: "Krumpli"
+    crop: potatoes
+    value: 11
+    regrow: 7
+    price: 15000
+    multiplier: 1.2
   4:
-    name: "Lápisz"
-    block: LAPIS_BLOCK
-    drop: LAPIS_LAZULI
+    name: "Cékla"
+    crop: beetroots
     value: 25
-    interval: 6
-    amount: 1
-    capacity: 96
-    upgrade: 5000
+    regrow: 8
+    price: 80000
+    multiplier: 1.35
   5:
-    name: "Redstone"
-    block: REDSTONE_BLOCK
-    drop: REDSTONE
-    value: 45
-    interval: 6
-    amount: 1
-    capacity: 128
-    upgrade: 12000
+    name: "Dinnye"
+    crop: melon
+    value: 55
+    regrow: 10
+    price: 350000
+    multiplier: 1.5
   6:
-    name: "Gyémánt"
-    block: DIAMOND_BLOCK
-    drop: DIAMOND
-    value: 90
-    interval: 6
-    amount: 1
-    capacity: 128
-    upgrade: 30000
+    name: "Tök"
+    crop: pumpkin
+    value: 120
+    regrow: 12
+    price: 1500000
+    multiplier: 1.7
   7:
-    name: "Smaragd"
-    block: EMERALD_BLOCK
-    drop: EMERALD
-    value: 180
-    interval: 6
-    amount: 1
-    capacity: 160
-    upgrade: 75000
+    name: "Bogyó"
+    crop: sweet_berry_bush
+    value: 260
+    regrow: 14
+    price: 6000000
+    multiplier: 1.9
   8:
-    name: "Ametiszt"
-    block: AMETHYST_BLOCK
-    drop: AMETHYST_SHARD
-    value: 350
-    interval: 6
-    amount: 1
-    capacity: 160
-    upgrade: 180000
-  9:
-    name: "Kvarc"
-    block: QUARTZ_BLOCK
-    drop: QUARTZ
-    value: 650
-    interval: 6
-    amount: 1
-    capacity: 192
-    upgrade: 400000
-  10:
-    name: "Netherit"
-    block: NETHERITE_BLOCK
-    drop: NETHERITE_SCRAP
-    value: 1200
-    interval: 6
-    amount: 1
-    capacity: 192
-    upgrade: 0
+    name: "Netherbibircsók"
+    crop: nether_wart
+    value: 600
+    regrow: 16
+    price: 25000000
+    multiplier: 2.2
 
-# Sziget fejlesztések (a menüben az üllő). effect: capacity (+% tároló), speed (-% termelési idő), value (+% eladási ár)
+# A Gens kapa fejlesztései (jobb klikk a kapával, az üllő a sziget közepén, vagy /gens kapa).
+# price: az első szint ára | price-multiplier: minden szint ennyiszer drágább | per-level: ennyit ad szintenként
+# boseg: +% esély egy extra termésre | kaszalas: 1 = 3x3, 2 = 5x5, 3 = az egész föld egyszerre (max 3)
+# aranykez: +% eladási ár | szerencse: +% esély, hogy aratáskor pénzt találsz (a termény ára × luck-multiplier)
+# tiers: ennyi összes fejlesztési szinttől lesz a kapa fa, kő, vas, arany, gyémánt, netherit
+hoe:
+  tiers: [0, 5, 15, 28, 42, 55]
+  luck-multiplier: 10
+  enchants:
+    boseg:
+      name: "&a&lBőség"
+      icon: WHEAT
+      max: 25
+      price: 750
+      price-multiplier: 1.42
+      per-level: 10
+      description:
+        - "&7Szintenként +10% esély"
+        - "&7egy extra termésre."
+    kaszalas:
+      name: "&e&lKaszálás"
+      icon: SHEARS
+      max: 3
+      price: 25000
+      price-multiplier: 10
+      per-level: 1
+      description:
+        - "&7Egyszerre több növényt aratsz:"
+        - "&73x3, utána 5x5, végül az egész földet."
+    aranykez:
+      name: "&6&lAranykéz"
+      icon: GOLD_INGOT
+      max: 20
+      price: 1500
+      price-multiplier: 1.45
+      per-level: 5
+      description:
+        - "&7Szintenként +5% pénz"
+        - "&7minden eladott terményért."
+    szerencse:
+      name: "&d&lSzerencse"
+      icon: RABBIT_FOOT
+      max: 10
+      price: 10000
+      price-multiplier: 1.6
+      per-level: 0.5
+      description:
+        - "&7Szintenként +0,5% esély, hogy aratáskor"
+        - "&7pénzt találsz a földben."
+
+# Sziget fejlesztések (a menüben). effect: capacity (+% esély extra termésre), speed (-% visszanövési idő), value (+% eladási ár)
 # per-level: ennyi százalék szintenként | prices: szintenként az ár (ahány ár, annyi szint)
+# Ezek a szigethez tartoznak: a tagjaid is élvezik, amikor nálad aratnak.
 island-upgrades:
   tarolo:
-    name: "&6&lNagyobb tároló"
-    icon: CHEST
+    name: "&a&lTermékeny föld"
+    icon: BONE_MEAL
     effect: capacity
-    per-level: 25
-    prices: [3000, 12000, 40000, 120000, 350000]
+    per-level: 10
+    prices: [5000, 20000, 75000, 250000, 800000]
     description:
-      - "&7+25% hely minden generátorban szintenként."
-      - "&7Ritkábban kell begyűjteni."
+      - "&7+10% esély egy extra termésre"
+      - "&7szintenként, a szigeted minden földjén."
   sebesseg:
-    name: "&b&lGyorsabb termelés"
+    name: "&b&lGyorsabb növekedés"
     icon: CLOCK
     effect: speed
     per-level: 8
     prices: [6000, 25000, 90000, 300000, 900000]
     description:
-      - "&7-8% termelési idő szintenként."
+      - "&7-8% visszanövési idő szintenként."
   ertek:
     name: "&e&lJobb ár"
     icon: GOLD_NUGGET
@@ -173,27 +162,27 @@ island-upgrades:
     description:
       - "&7+6% pénz minden eladásnál szintenként."
 
-# Prestige: ha a szigeted elérte a required-level szintet (0 = a legmagasabbat), pénzért újrakezdheted.
-# A generátorok és a Gens pénz elvesznek, a sziget szint 1 lesz, cserébe tartósan többet termelsz (bonus % / prestige).
+# Prestige: ha megvan required-level darab föld (0 = mind), pénzért újrakezdheted.
+# A Gens pénz elvész, a földek újra lezárulnak (csak a búza marad), a kapa megmarad.
+# Cserébe minden prestige után tartósan több termény jár egy növényért (bonus % / prestige).
 # Az ár minden prestige után a price-multiplier szorosára nő.
 prestige:
   max: 10
   required-level: 0
-  price: 2000000
-  price-multiplier: 1.8
+  price: 25000000
+  price-multiplier: 1.4
   bonus: 15
 
-# Rebirth: ha megvan a required-prestige, még nagyobb újrakezdés: a prestige és a sziget fejlesztések is nullázódnak,
-# de nagy bónusz (bonus % / rebirth) és extra generátorhely (extra-slots) jár. max: 0 = nincs felső határ.
+# Rebirth: ha megvan a required-prestige, még nagyobb újrakezdés: a prestige, a kapa és a sziget fejlesztések
+# is nullázódnak, de nagy bónusz jár (bonus % / rebirth). max: 0 = nincs felső határ.
 rebirth:
   required-prestige: 10
-  price: 100000000
+  price: 500000000
   price-multiplier: 2.5
   bonus: 75
-  extra-slots: 3
   max: 0
 
-# Automatikus eladás: a generátorok termését rögtön eladja (10 mp-enként jön meg a pénz).
+# Automatikus eladás: a learatott termést rögtön eladja (10 mp-enként jön meg a pénz).
 # Megvásárolható, vagy a rang adja (icemine.gens.autosell). rate: a teljes ár hányad része (1.0 = teljes ár).
 autosell:
   price: 250000
@@ -206,46 +195,43 @@ backpack:
   large-size: 54
   large-price: 150000
 
-# Egyéb eladható tárgyak (ANYAG: ár)
-sell-prices:
-  WHEAT: 1
-  CARROT: 1
-  POTATO: 1
+# Egyéb eladható tárgyak (ANYAG: ár). A földek terményeinek árát a fields résznél állítod.
+sell-prices: {}
 
 quests:
   per-day: 3
-  # type: sell_items | collect_items | upgrade | earn | place_gen
+  # type: harvest (aratás) | sell_items (eladás) | upgrade (kapa vagy sziget fejlesztés) | earn (pénz) | unlock (új föld)
   pool:
-    elad100:
-      name: "Adj el 100 terméket"
-      type: sell_items
-      amount: 100
+    arat200:
+      name: "Arass le 200 növényt"
+      type: harvest
+      amount: 200
       reward: 300
+    arat1000:
+      name: "Arass le 1 000 növényt"
+      type: harvest
+      amount: 1000
+      reward: 1200
     elad500:
-      name: "Adj el 500 terméket"
+      name: "Adj el 500 terményt"
       type: sell_items
       amount: 500
-      reward: 1200
-    gyujt200:
-      name: "Gyűjts be 200 terméket"
-      type: collect_items
-      amount: 200
-      reward: 400
-    fejleszt3:
-      name: "Fejlessz 3 generátort"
+      reward: 600
+    fejleszt2:
+      name: "Fejleszd kétszer a kapádat vagy a szigeted"
       type: upgrade
-      amount: 3
+      amount: 2
       reward: 800
     keres5000:
       name: "Keress 5 000 érmét"
       type: earn
       amount: 5000
       reward: 1000
-    lerak2:
-      name: "Rakj le 2 generátort"
-      type: place_gen
-      amount: 2
-      reward: 500
+    nyit1:
+      name: "Nyiss meg egy új földet"
+      type: unlock
+      amount: 1
+      reward: 1500
 
 shop:
   ho:

@@ -96,10 +96,10 @@ ranks:
     coin-multiplier: 1.5
     kits: [piroman, villammago]
     cosmetics: [trail.kristaly, kill.tuzijatek]
-    permissions: [icemine.gens.extraslots.2]
+    permissions: [icemine.gens.bonus.2]
     perks:
       - "&7Piromán és Villámmágus kit"
-      - "&7Gens: +2 generátorhely"
+      - "&7Gens: +20% esély extra termésre"
       - "&7Kristály nyomvonal, tűzijáték effekt"
       - "&750% pénz bónusz"
   legend:
@@ -109,10 +109,10 @@ ranks:
     coin-multiplier: 1.75
     kits: [halasz, alkimista, poszeidon, jegkiraly]
     cosmetics: [trail.szikra, kill.villam, kill.robbanas]
-    permissions: [icemine.gens.extraslots.4]
+    permissions: [icemine.gens.bonus.4]
     perks:
       - "&7Halász, Alkimista, Poszeidón és Jégkirály kit"
-      - "&7Gens: +4 generátorhely"
+      - "&7Gens: +40% esély extra termésre"
       - "&7Minden kozmetika"
       - "&775% pénz bónusz"
   youtuber:

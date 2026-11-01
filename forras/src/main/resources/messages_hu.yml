@@ -283,49 +283,116 @@ skypvp:
   chest-locked: "A ládákat csak kittel, a biztonságos zónán kívül nyithatod ki."
 
 gens:
-  welcome: "Üdv a Gensben! A menüt a &f/gens &7paranccsal nyitod meg."
+  welcome: "Üdv a Gensben! Arass a kapáddal, a menüt a &f/gens &7paranccsal nyitod meg."
   first-join:
     - ""
-    - " &b[IceMine] &7Szia &f%player%&7, ez itt a te szigeted!"
-    - " &7Kaptál pár generátort, rakd le őket a szigeteden."
-    - " &7Jobb klikk: termés begyűjtése &8| &7Guggolás + jobb klikk: fejlesztés"
-    - " &7Eladás: &f/elad &8| &7Menü, küldetések, bolt: &f/gens"
+    - " &b[IceMine] &7Szia &f%player%&7, ez itt a te farmod!"
+    - " &7Bal klikk a kapával a beérett növényre: &faratás&7. Pár mp múlva visszanő."
+    - " &7A termést a középső &fhordónál &7adhatod el (vagy &f/elad&7)."
+    - " &7A pénzből új földeket nyitsz és fejleszted a kapát (&füllő &7vagy &f/gens kapa&7)."
     - ""
   not-your-plot: "Ez nem a te szigeted."
-  only-own-plot: "Generátort csak a saját szigetedre rakhatsz."
   only-in-gens: "Ezt csak a Gensben tudod használni."
-  limit: "Elérted a generátorlimitet (&f%slots%&7). Fejleszd a szigeted a &f/gens &7menüben!"
-  placed: "Leraktál egy &a%tier% &7generátort &8(%count%/%slots%)"
-  picked-up: "Felvetted a generátort."
-  max-tier: "&eEz már a legerősebb szint."
-  upgraded: "Fejlesztve: &a%tier% &8(-%price%&8)"
+  owner-offline: "&7A sziget gazdája nincs fent, most nem lehet itt aratni."
+  need-hoe: "&7Aratni csak a &fGens kapával &7lehet."
+  not-ripe: "&7Ez még nem érett be, várj egy kicsit."
+  full: "&cTele a táskád és a hátizsákod! &7Adj el valamit a hordónál."
+  field-protected: "&7A földet nem lehet átépíteni, csak aratni."
+  harvested: "&a+%amount% %field% &8| &7ér: &f%money%"
+  harvested-sold: "&a+%amount% %field% &8| &7eladva: &f%money%"
+  lucky: "&d&lSZERENCSE! &7Pénzt találtál a földben: &f%money%"
   no-money: "Nincs elég pénzed. Kell: &f%price%"
   nothing-to-sell: "Nincs nálad semmi eladható."
   sell-limit: "Nem sikerült eladni, túl sok pénzed lenne."
-  sold: "Eladtál &f%amount% &7darabot, kaptál érte &f%money%&7-t."
-  bought-generator: "Vettél egy generátort &8(-%price%&8)"
-  level-up: "A szigeted &a%level%. szintű &7lett: &f%slots% &7generátorhely, &f%multiplier% &7termelés."
-  max-level: "&eA szigeted már a legmagasabb szinten van."
+  sold: "Eladtál &f%amount% &7terményt, kaptál érte &f%money%&7-t."
   daily: "Megkaptad a napi Gens jutalmad: &f%money%"
   daily-taken: "Ma már elvitted a napi Gens jutalmat."
   quest-done: "&a&lKÜLDETÉS KÉSZ! &f%quest% &8(+%reward%&8)"
-  collected: "&a+%amount% &7begyűjtve &8(%stored%/%capacity%)"
-  info: "&7%tier% generátor &8| &7Tároló: &f%stored%/%capacity% &8| &7Guggolj a fejlesztéshez"
   no-plot: "Neki még nincs szigete."
   visiting: "Átjöttél &f%player% &7szigetére."
-  trusted: "&f%player% &7mostantól építhet a szigeteden."
-  trusted-you: "&f%player% &7beengedett a szigetére, ott építhetsz is."
-  untrusted: "&f%player% &7már nem építhet a szigeteden."
+  trusted: "&f%player% &7mostantól a tagod: építhet és arathat a szigeteden."
+  trusted-you: "&f%player% &7beengedett a szigetére, ott építhetsz és arathatsz is."
+  untrusted: "&f%player% &7már nem tagja a szigetednek."
   trust-limit: "Legfeljebb 10 embert engedhetsz be."
   inventory-full: "Tele van a táskád."
   autosold: "&7Automatikus eladás: &a+%money%"
   locked-visit: "&f%player% &7bezárta a szigetét, most nem lehet meglátogatni."
+  farm:
+    converted:
+      - ""
+      - " &b[IceMine] &a&lÚj Gens! &7Nincsenek többé generátorok: mostantól farmolsz."
+      - " &7A szigeted farmmá alakult, &f%fields% &7föld van nyitva (a régi szinted szerint)."
+      - " &7A régi generátoraidért (&f%generators% &7db) és a megmaradt termésért kaptál &f%money%&7-t."
+      - " &7Fogd a kapát, és arass! Súgó: &f/gens"
+      - ""
+    converted-empty:
+      - ""
+      - " &b[IceMine] &a&lÚj Gens! &7Nincsenek többé generátorok: mostantól farmolsz."
+      - " &7A szigeted farmmá alakult, &f%fields% &7föld van nyitva (a régi szinted szerint)."
+      - " &7Fogd a kapát, és arass! Súgó: &f/gens"
+      - ""
+  field:
+    max: "&eMár minden földed nyitva van."
+    unlocked: "&a&lÚJ FÖLD! &7Megnyitottad: &f%field% &8(%count%/%max%, -%price%&8)"
+  labels:
+    next:
+      - "&e&l%field%"
+      - "&7Ár: &f%price%"
+      - "&7Egy termény: &f%value%"
+      - "&a▶ Nyisd meg: /gens"
+    locked:
+      - "&8&l%field%"
+      - "&8Ár: %price%"
+      - "&8Előbb az előzőt nyisd meg"
+    sell:
+      - "&6&lEladás"
+      - "&7Jobb klikk a hordóra"
+    hoe:
+      - "&b&lKapa fejlesztés"
+      - "&7Jobb klikk az üllőre"
+  hoe:
+    title: "&3[IceMine] &8Kapa fejlesztés"
+    tiers:
+      - "Fa kapa"
+      - "Kő kapa"
+      - "Vas kapa"
+      - "Arany kapa"
+      - "Gyémánt kapa"
+      - "Netherit kapa"
+    item:
+      name: "&a&l%hoe%"
+      lore:
+        - "&7Bal klikk a beérett növényre: aratás"
+        - "&7Jobb klikk: fejlesztések"
+        - ""
+        - "&a▪ &7Bőség: &f%boseg%"
+        - "&e▪ &7Kaszálás: &f%kaszalas% &8(%area%&8)"
+        - "&6▪ &7Aranykéz: &f%aranykez%"
+        - "&d▪ &7Szerencse: &f%szerencse%"
+        - ""
+        - "&8Nem dobható el, minden belépéskor nálad van."
+    area:
+      "0": "egy növény"
+      "1": "3x3"
+      "2": "5x5"
+      "3": "az egész föld"
+    now: "&7Most: &f%value%"
+    max: "%name% &7már a legmagasabb szinten van."
+    bought: "Kapa fejlesztve: %name% &8(%level%/%max%)"
+    new-tier: "&a&lÚJ KAPA! &7Mostantól ez van nálad: &f%hoe%"
+    no-drop: "&7A Gens kapát nem dobhatod el."
+    tier-name: "&f&lA kapád"
+    tier-info:
+      - "&7Most: &f%hoe%"
+      - "&7Összes fejlesztés: &f%level% &7szint"
+    tier-next: "&7Következő: &f%hoe% &8(még %need% szint)"
+    tier-max: "&a✔ Ennél jobb kapa nincs"
   lock:
     on: "Bezártad a szigeted: csak a tagjaid látogathatnak meg."
     off: "Kinyitottad a szigeted: bárki meglátogathat."
   autosell:
     bought: "Megvetted az automatikus eladást!"
-    on: "Automatikus eladás &abekapcsolva&7. A termés rögtön pénzzé válik."
+    on: "Automatikus eladás &abekapcsolva&7. A learatott termés rögtön pénzzé válik."
     off: "Automatikus eladás &ckikapcsolva&7."
   backpack:
     title: "&3[IceMine] &8Hátizsák (%size%)"
@@ -337,69 +404,62 @@ gens:
     max: "%name% &7már a legmagasabb szinten van."
   prestige:
     max: "Elérted a legmagasabb prestige-t. Jöhet a rebirth: &f/gens rebirth"
-    need-level: "A prestige-hez a szigetednek &f%level%. &7szintűnek kell lennie."
-    confirm: "&eBiztos? &7A generátoraid és a Gens pénzed elvesznek, a sziget 1. szintre áll vissza. Cserébe: &d%next%. prestige &7(+%bonus%% termelés). Ár: &f%price%&7. Kattints újra 10 mp-en belül!"
-    done: "&d&lPRESTIGE %prestige%! &7Mostantól ennyit termelsz: &f%multiplier%"
+    need-level: "A prestige-hez &f%level% &7földnek kell nyitva lennie."
+    confirm: "&eBiztos? &7A Gens pénzed elvész, és a földek újra lezárulnak (csak a búza marad). A kapád megmarad. Cserébe: &d%next%. prestige &7(+%bonus%% termés). Ár: &f%price%&7. Kattints újra 10 mp-en belül!"
+    done: "&d&lPRESTIGE %prestige%! &7Mostantól ennyi termés jár: &f%multiplier%"
     broadcast: "&f%player% &7elérte a &d%prestige%. prestige&7-t!"
   rebirth:
     need-prestige: "A rebirth-höz &f%prestige% &7prestige kell."
-    confirm: "&eBiztos? &7A prestige, a fejlesztések, a generátorok és a Gens pénz is nullázódnak. Cserébe: &5%next%. rebirth &7(+%bonus%% termelés, +%slots% generátorhely). Ár: &f%price%&7. Kattints újra 10 mp-en belül!"
-    done: "&5&lREBIRTH %rebirth%! &7Mostantól ennyit termelsz: &f%multiplier%"
+    confirm: "&eBiztos? &7A prestige, a kapa, a sziget fejlesztések és a Gens pénz is nullázódnak. Cserébe: &5%next%. rebirth &7(+%bonus%% termés, örökre). Ár: &f%price%&7. Kattints újra 10 mp-en belül!"
+    done: "&5&lREBIRTH %rebirth%! &7Mostantól ennyi termés jár: &f%multiplier%"
     broadcast: "&f%player% &7újjászületett a Gensben: &5%rebirth%. rebirth&7!"
   members:
     title: "&3[IceMine] &8Sziget tagok"
     title-one: "&3[IceMine] &8%player% jogai"
     build: "&fÉpítés és bontás"
     containers: "&fLádák használata"
-    collect: "&fGenerátorok begyűjtése"
-    manage: "&fGenerátorok fejlesztése"
+    collect: "&fAratás a földeken"
+    manage: "&fKezelés"
     click: "&b▶ Kattints a jogok állításához"
     remove: "&c&lTag eltávolítása"
     empty: "&7Még nincs tagod"
     hint:
       - "&7Hívj meg valakit: &f/gens trust <név>"
       - "&7Utána itt állíthatod, mit csinálhat."
-  item:
-    name: "&a&l%tier% generátor"
-    lore:
-      - "&7Termel: &f%drop%"
-      - "&7Érték: &f%value% &7/ db"
-      - "&7Időköz: &f%interval% mp &8| &7Tároló: &f%capacity%"
-      - ""
-      - "&8Rakd le a szigeteden!"
   menu:
     title: "&3[IceMine] &8Gens menü"
     info:
       - "&7Egyenleg: &f%money%"
-      - "&7Generátorok: &f%generators%&7/&f%slots%"
-      - "&7Termelés: &f%production% &7/ perc &8(%multiplier%&8)"
-      - "&7Prestige: &d%prestige% &8| &7Rebirth: &5%rebirth%"
+      - "&7Földek: &f%fields%&7/&f%max_fields%"
+      - "&7Learatva: &f%harvested% &7növény"
+      - "&7Max. bevétel: &f%production% &7/ perc"
+      - "&7Prestige: &d%prestige% &8| &7Rebirth: &5%rebirth% &8(%multiplier%&8)"
       - "&7Sziget: &f%plot%"
-    buy:
-      name: "&a&lGenerátor vásárlása"
+    hoe:
+      name: "&a&lKapa fejlesztése"
       lore:
-        - "&7Kapsz egy alap generátort."
+        - "&7Most: &f%hoe% &8(%level% szint)"
+        - "&7Egy ütéssel: &f%area%"
         - ""
-        - "&7Ár: &f%price%"
-        - "&b▶ Kattints a vásárláshoz"
-    level:
-      name: "&e&lSziget fejlesztése"
+        - "&7Több termés, nagyobb terület,"
+        - "&7jobb ár és egy kis szerencse."
+        - "&b▶ Kattints a fejlesztésekhez"
+    field:
+      name: "&e&lÚj föld"
       lore:
-        - "&7Jelenlegi szint: &f%level%"
-        - "&7Generátorhelyek: &f%slots%"
-        - "&7Termelési szorzó: &f%multiplier%"
+        - "&7Nyitott földek: &f%count%&7/&f%max%"
         - ""
       next:
-        - "&7Következő: &a%level%. szint"
-        - "&7 → &f%slots% &7hely, &f%multiplier% &7szorzó"
+        - "&7Következő: &a%field%"
+        - "&7Egy termény: &f%value% &8| &7visszanő: &f%regrow% mp"
         - "&7Ár: &f%price%"
-        - "&b▶ Kattints a fejlesztéshez"
-      max: "&a✔ Elérted a maximumot"
+        - "&b▶ Kattints a megnyitáshoz"
+      max: "&a✔ Minden föld nyitva van"
     sell:
       name: "&6&lMindent elad"
       lore:
-        - "&7Eladja a táskádban lévő"
-        - "&7összes termést."
+        - "&7Eladja a táskádban és a hátizsákodban"
+        - "&7lévő összes terményt."
     daily:
       name: "&b&lNapi Gens jutalom"
       ready:
@@ -426,31 +486,30 @@ gens:
     upgrades:
       name: "&6&lSziget fejlesztések"
       lore:
-        - "&7Nagyobb tároló, gyorsabb termelés,"
-        - "&7jobb ár minden eladásnál."
+        - "&7Termékenyebb föld, gyorsabb növekedés,"
+        - "&7jobb ár. A tagjaidnak is jár."
     autosell:
       name: "&e&lAutomatikus eladás"
       lore:
-        - "&7A termés rögtön pénzzé válik,"
-        - "&7nem kell begyűjteni és eladni."
+        - "&7A learatott termés rögtön pénzzé válik,"
+        - "&7nem kell a hordóhoz járni."
       buy: "&7Ár: &f%price% &8(vagy a rangod adja)"
     prestige:
       name: "&d&lPrestige"
       lore:
         - "&7Prestige: &d%prestige%&7/&d%max%"
-        - "&7Minden prestige: &a+%bonus%% &7termelés, örökre."
-        - "&8A generátorok és a pénz elvesznek."
+        - "&7Minden prestige: &a+%bonus%% &7termés, örökre."
+        - "&8A pénz elvész, a földek lezárulnak."
       price: "&7Ár: &f%price%"
       ready: "&a▶ Kattints (kétszer) a prestige-hez"
-      need: "&8✖ Ehhez %level%. szintű sziget kell"
+      need: "&8✖ Ehhez mind a %level% föld kell"
       maxed: "&a✔ Maximum prestige, jöhet a rebirth"
     rebirth:
       name: "&5&lRebirth"
       lore:
         - "&7Rebirth: &5%rebirth%"
-        - "&7Minden rebirth: &a+%bonus%% &7termelés"
-        - "&7és &a+%slots% &7generátorhely, örökre."
-        - "&8Minden nullázódik, a prestige is."
+        - "&7Minden rebirth: &a+%bonus%% &7termés, örökre."
+        - "&8Minden nullázódik, a kapa és a prestige is."
       price: "&7Ár: &f%price%"
       ready: "&a▶ Kattints (kétszer) a rebirth-höz"
       need: "&8✖ Ehhez %need% prestige kell"
@@ -478,12 +537,13 @@ gens:
       locked:
         - "&7Most csak a tagjaid jöhetnek."
         - "&b▶ Kattints a kinyitáshoz"
-    tiers:
-      name: "&f&lGenerátor szintek"
-      line: "&8%level%. &f%tier% &8- &7%value%/db, %interval% mp &8(fejlesztés: %upgrade%&8)"
+    crops:
+      name: "&f&lFöldek és árak"
+      open: "&a✔ &f%number%. %field% &8- &7%value%/db, %regrow% mp"
+      locked: "&8✖ %number%. %field% - %value%/db, ár: %price%"
       hint:
-        - "&7Guggolj, és kattints jobb gombbal"
-        - "&7a generátorra a fejlesztéshez!"
+        - "&7A földeket sorban nyithatod meg."
+        - "&7A kapával aratsz: bal klikk a beérett növényre."
   quests:
     title: "&3[IceMine] &8Napi küldetések"
     reward: "&7Jutalom: &f%reward%"
@@ -766,7 +826,7 @@ mainmenu:
   gens:
     name: "&a&lGens"
     lore:
-      - "&7A saját szigeted generátorokkal."
+      - "&7A saját farmod: arass és fejlessz."
 
 # BedWars (/bw). A %valami% részeket a plugin tölti ki.
 bedwars:

@@ -23,7 +23,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public final class Upgrades {
 
     /** A kiadott verziók, amelyekhez van frissítési lista, régebbitől az újabb felé. */
-    public static final String[] VERSIONS = {"3.2.0", "3.3.0", "3.4.0", "3.5.0", "3.6.0", "3.7.0", "3.8.0", "3.8.1", "3.8.2"};
+    public static final String[] VERSIONS = {"3.2.0", "3.3.0", "3.4.0", "3.5.0", "3.6.0", "3.7.0", "3.8.0", "3.8.1", "3.8.2", "3.9.0"};
     private static final String DONE_FILE = ".frissitesek";
 
     public interface Target {

@@ -55,7 +55,7 @@ elmenti. Ha ezt nem kéred: `plugins/IceMine/config.yml` -> `kulso-uzenetek: fal
 
 A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `/kit`, `/profil`...) is maradtak.
 
-**Főmenü:** `/menu`, vagy a hotbaron a nether csillag. Innen minden elérhető: játékmódok, kitek, Duels, profil
+**Főmenü:** `/menu` (a hotbaron már nincs rá tárgy). Innen minden elérhető: játékmódok, kitek, Duels, profil
 (minden mód statisztikájával), toplisták, rangok, napi jutalom, kozmetikák, beállítások, kapcsolatok, információk,
 parkour és Gens. Minden menüben van "Vissza" gomb a főmenübe.
 
@@ -131,18 +131,30 @@ a `kitpvp.yml`-ben finomítható.
 
 ### Gens
 
-A `/gens` menüben minden elérhető:
-- **Sziget fejlesztések:** nagyobb tároló, gyorsabb termelés, jobb ár.
-- **Prestige:** ha a sziget elérte a legmagasabb szintet, pénzért újrakezded, cserébe örökre +15% termelés.
-- **Rebirth:** 10 prestige után a prestige is nullázódik, de +75% termelés és +3 generátorhely jár.
+Nincsenek generátorok: mindenkinek saját farm szigete van 8 földdel, és a növényeket a Gens kapával kell
+learatni (bal klikk a beérett növényre). Learatás után pár másodperc alatt visszanő. A termést a sziget
+közepén lévő hordónál (jobb klikk), a `/elad` paranccsal vagy a menüben adod el.
+
+- **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
+  meg, mindegyik drágább, és többet ér a termése.
+- **Kapa fejlesztések** (jobb klikk a kapával, az üllő a tér közepén, vagy `/gens kapa`): Bőség (extra termés),
+  Kaszálás (3x3, 5x5, végül az egész föld egyszerre), Aranykéz (jobb ár), Szerencse (pénzt találsz a földben).
+  Ahogy fejleszted, a kapa is jobb lesz: fa, kő, vas, arany, gyémánt, végül netherit.
+- **Sziget fejlesztések:** termékenyebb föld, gyorsabb növekedés, jobb ár. A tagjaidnak is jár, amikor nálad aratnak.
+- **Prestige:** ha minden föld nyitva van, pénzért újrakezded (a földek lezárulnak, a kapa marad), cserébe örökre +15% termés.
+- **Rebirth:** 10 prestige után a prestige, a kapa és a fejlesztések is nullázódnak, de +75% termés jár.
 - **Automatikus eladás:** megvehető, vagy a VIP+ rang adja.
 - **Hátizsák:** ide megy a termés, ha tele a táskád. A nagy hátizsák megvehető, vagy az MVP rang adja.
-- **Sziget tagok:** tagonként állítható, mit csinálhat: építés, ládák, generátor begyűjtés, generátor fejlesztés.
+- **Sziget tagok:** tagonként állítható, mit csinálhat: építés, ládák, aratás.
 - **Sziget bezárása:** ha be van zárva, csak a tagjaid látogathatnak meg.
-- **ELITE és LEGEND rang:** +2 / +4 generátorhely.
+- **ELITE és LEGEND rang:** +20% / +40% esély extra termésre.
 
-Parancsok: `/gens backpack`, `/gens autosell`, `/gens prestige`, `/gens rebirth`, `/gens members`, `/gens upgrades`,
-`/gens lock`. Beállítás: `plugins/IceMine/gens.yml`. Új toplista: Gens prestige.
+A régi, generátoros szigetek az első belépéskor maguktól farmmá alakulnak: annyi föld lesz nyitva, ahányas
+szintű volt a sziget, és a generátorokért meg a megmaradt régi termésért (szén, vas...) pénzt kap vissza a játékos.
+
+Parancsok: `/gens kapa`, `/gens fold` (következő föld megnyitása), `/gens backpack`, `/gens autosell`, `/gens prestige`,
+`/gens rebirth`, `/gens members`, `/gens upgrades`, `/gens lock`. Beállítás: `plugins/IceMine/gens.yml`
+(a földek a `fields`, a kapa a `hoe` résznél). Toplista: Gens prestige.
 
 ### ComboFly lökés
 
@@ -164,7 +176,7 @@ Ezeket az IceMine hozza létre és építi fel magától:
 - minden játékmódnak külön lobby világ: `lobby_kitpvp`, `lobby_skypvp`, `lobby_combofly`,
   `lobby_gens`, `lobby_kingdoms`, `lobby_duels`, `lobby_bedwars` (beállítás: `plugins/IceMine/modelobbies.yml`)
 - minden mód lobbyjának saját témája van: KitPvP gladiátor aréna, SkyPvP felhők fölött, ComboFly ametiszt kristályok,
-  Gens farm és bánya, Kingdoms vár udvar, Duels párbaj csarnok, BedWars tábor ágyakkal (`theme:` a `modelobbies.yml`-ben)
+  Gens farm, Kingdoms vár udvar, Duels párbaj csarnok, BedWars tábor ágyakkal (`theme:` a `modelobbies.yml`-ben)
 
 ## Duels
 

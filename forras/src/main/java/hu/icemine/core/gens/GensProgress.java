@@ -13,18 +13,18 @@ import org.bukkit.configuration.ConfigurationSection;
  * Csak számol és beállításokat tárol, a Bukkit részeket a GensMode végzi, így tesztelhető.
  *
  * <ul>
- *     <li>Prestige: ha a sziget elérte a szükséges szintet, pénzért újrakezded (a generátorok és a pénz elvesznek),
- *     cserébe minden prestige után tartósan többet termelsz.</li>
- *     <li>Rebirth: ha megvan a szükséges prestige, még nagyobb újrakezdés: a prestige is nullázódik, de nagy bónusz
- *     és extra generátorhely jár érte.</li>
+ *     <li>Prestige: ha minden föld nyitva van, pénzért újrakezded (a pénz elvész, a földek újra lezárulnak),
+ *     cserébe minden prestige után tartósan több termény jár egy növényért.</li>
+ *     <li>Rebirth: ha megvan a szükséges prestige, még nagyobb újrakezdés: a prestige, a kapa és a sziget
+ *     fejlesztések is nullázódnak, de nagy bónusz jár érte.</li>
  * </ul>
  */
 public final class GensProgress {
 
     public enum Effect {
-        /** +% generátor tároló. */
+        /** +% esély egy extra termésre aratáskor (a configban "capacity", a régi név maradt). */
         CAPACITY,
-        /** -% termelési idő (gyorsabb). */
+        /** -% visszanövési idő (gyorsabb). */
         SPEED,
         /** +% eladási érték. */
         VALUE;
@@ -75,7 +75,6 @@ public final class GensProgress {
     long rebirthPrice = 50_000_000;
     double rebirthGrowth = 3.0;
     double rebirthBonus = 50;
-    int rebirthSlots = 2;
     int rebirthMax = 0;
     long autosellPrice = 250_000;
     double autosellRate = 1.0;
@@ -84,6 +83,7 @@ public final class GensProgress {
     int backpackLargeSize = 54;
     private final Map<String, IslandUpgrade> upgrades = new LinkedHashMap<>();
 
+    /** @param maxIslandLevel a földek száma: a prestige-hez alapból mindnek nyitva kell lennie */
     public void load(ConfigurationSection root, int maxIslandLevel, List<String> problems) {
         prestigeMax = clamp(root.getInt("prestige.max", 10), 1, 1000);
         prestigePrice = Math.max(0, root.getLong("prestige.price", 1_000_000));
@@ -95,7 +95,6 @@ public final class GensProgress {
         rebirthPrice = Math.max(0, root.getLong("rebirth.price", 50_000_000));
         rebirthGrowth = Math.max(1.0, Math.min(10.0, root.getDouble("rebirth.price-multiplier", 3.0)));
         rebirthBonus = Math.max(0, Math.min(10000, root.getDouble("rebirth.bonus", 50)));
-        rebirthSlots = clamp(root.getInt("rebirth.extra-slots", 2), 0, 50);
         rebirthMax = Math.max(0, root.getInt("rebirth.max", 0));
         autosellPrice = Math.max(0, root.getLong("autosell.price", 250_000));
         autosellRate = Math.max(0.1, Math.min(1.0, root.getDouble("autosell.rate", 1.0)));
@@ -171,13 +170,9 @@ public final class GensProgress {
         return prestige >= rebirthPrestige && (rebirthMax <= 0 || rebirth < rebirthMax);
     }
 
-    /** Termelési szorzó a prestige és a rebirth után (a sziget szint szorzója erre jön rá). */
+    /** Termelési szorzó a prestige és a rebirth után (ennyiszer több termény jár egy növényért). */
     public double productionMultiplier(int prestige, int rebirth) {
         return (1.0 + prestige * prestigeBonus / 100.0) * (1.0 + rebirth * rebirthBonus / 100.0);
-    }
-
-    public int extraSlots(int rebirth) {
-        return rebirth * rebirthSlots;
     }
 
     /** Az adott hatás összesen hány százalék a sziget fejlesztésekből. */
@@ -195,7 +190,7 @@ public final class GensProgress {
         return Math.max(1L, Math.round(base * (1.0 + percent(levels, Effect.CAPACITY) / 100.0)));
     }
 
-    /** Termelési idő milliszekundumban (a gyorsítás legfeljebb 75%). */
+    /** Visszanövési idő milliszekundumban (a gyorsítás legfeljebb 75%). */
     public long intervalMillis(int seconds, Map<String, Integer> levels) {
         double cut = Math.min(75.0, percent(levels, Effect.SPEED));
         return Math.max(500L, Math.round(seconds * 1000.0 * (1.0 - cut / 100.0)));
@@ -223,10 +218,6 @@ public final class GensProgress {
 
     public double rebirthBonus() {
         return rebirthBonus;
-    }
-
-    public int rebirthSlots() {
-        return rebirthSlots;
     }
 
     public long autosellPrice() {
