@@ -28,27 +28,27 @@ public final class ArenaSlot {
         this.x = i;
         this.y = j;
         this.z = k;
-        Layout.Point layout$point = layout.points.get("spawn:red");
-        Layout.Point layout$point1 = layout.points.get("spawn:blue");
-        this.red = new Location(world, i + layout$point.x, j + layout$point.y, k + layout$point.z, (float)layout$point.yaw, 0.0F);
-        this.blue = new Location(world, i + layout$point1.x, j + layout$point1.y, k + layout$point1.z, (float)layout$point1.yaw, 0.0F);
+        Layout.Point redPoint = layout.points.get("spawn:red");
+        Layout.Point bluePoint = layout.points.get("spawn:blue");
+        this.red = new Location(world, i + redPoint.x, j + redPoint.y, k + redPoint.z, (float)redPoint.yaw, 0.0F);
+        this.blue = new Location(world, i + bluePoint.x, j + bluePoint.y, k + bluePoint.z, (float)bluePoint.yaw, 0.0F);
         this.bounds = this.area(layout.areas.get("bounds"));
         this.goalRed = this.area(layout.areas.get("goal:red"));
         this.goalBlue = this.area(layout.areas.get("goal:blue"));
-        Layout.Point layout$point2 = layout.points.get("fall");
-        this.fallY = j + (layout$point2 == null ? -10.0 : layout$point2.y);
+        Layout.Point fall = layout.points.get("fall");
+        this.fallY = j + (fall == null ? -10.0 : fall.y);
     }
 
-    private int[] area(Layout.Area layout$area) {
-        return layout$area == null
+    private int[] area(Layout.Area area) {
+        return area == null
             ? null
             : new int[]{
-                this.x + layout$area.x1,
-                this.y + layout$area.y1,
-                this.z + layout$area.z1,
-                this.x + layout$area.x2,
-                this.y + layout$area.y2,
-                this.z + layout$area.z2
+                this.x + area.x1,
+                this.y + area.y1,
+                this.z + area.z1,
+                this.x + area.x2,
+                this.y + area.y2,
+                this.z + area.z2
             };
     }
 

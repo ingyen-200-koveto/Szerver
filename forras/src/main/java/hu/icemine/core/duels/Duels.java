@@ -73,9 +73,9 @@ public final class Duels implements Listener, ModeHandler {
     private long rewardWin = 10L;
     private long rewardRanked = 20L;
 
-    public Duels(IceMineCore iceminecore) {
-        this.core = iceminecore;
-        this.menu = new DuelsMenu(iceminecore, this);
+    public Duels(IceMineCore core) {
+        this.core = core;
+        this.menu = new DuelsMenu(core, this);
     }
 
     public IceMineCore core() {
@@ -86,31 +86,31 @@ public final class Duels implements Listener, ModeHandler {
         return this.menu;
     }
 
-    public void load(YamlConfiguration yamlconfiguration, List<String> list) {
+    public void load(YamlConfiguration config, List<String> list) {
         this.kits.clear();
-        ConfigurationSection configurationsection = yamlconfiguration.getConfigurationSection("modes");
-        if (configurationsection != null) {
-            for (String s : configurationsection.getKeys(false)) {
-                ConfigurationSection configurationsection1 = configurationsection.getConfigurationSection(s);
-                if (configurationsection1 != null && configurationsection1.getBoolean("enabled", true)) {
-                    this.kits.put(s.toLowerCase(Locale.ROOT), DuelKit.read(s.toLowerCase(Locale.ROOT), configurationsection1, list));
+        ConfigurationSection section = config.getConfigurationSection("modes");
+        if (section != null) {
+            for (String s : section.getKeys(false)) {
+                ConfigurationSection entry = section.getConfigurationSection(s);
+                if (entry != null && entry.getBoolean("enabled", true)) {
+                    this.kits.put(s.toLowerCase(Locale.ROOT), DuelKit.read(s.toLowerCase(Locale.ROOT), entry, list));
                 }
             }
         }
 
-        this.kFactor = Math.max(4, Math.min(64, yamlconfiguration.getInt("elo.k-factor", 32)));
-        this.maxSeconds = Math.max(60, Math.min(3600, yamlconfiguration.getInt("max-minutes", 10) * 60));
-        this.rewardWin = Math.max(0L, yamlconfiguration.getLong("rewards.win", 10L));
-        this.rewardRanked = Math.max(0L, yamlconfiguration.getLong("rewards.ranked-win", 20L));
-        String s1 = yamlconfiguration.getString("world", "duels");
+        this.kFactor = Math.max(4, Math.min(64, config.getInt("elo.k-factor", 32)));
+        this.maxSeconds = Math.max(60, Math.min(3600, config.getInt("max-minutes", 10) * 60));
+        this.rewardWin = Math.max(0L, config.getLong("rewards.win", 10L));
+        this.rewardRanked = Math.max(0L, config.getLong("rewards.ranked-win", 20L));
+        String s1 = config.getString("world", "duels");
         if (this.world == null || !this.world.getName().equals(s1)) {
             this.world = Bukkit.getWorld(s1);
             if (this.world == null) {
-                WorldCreator worldcreator = new WorldCreator(s1);
-                worldcreator.type(WorldType.FLAT);
-                worldcreator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:air\",\"height\":1}],\"biome\":\"minecraft:the_void\"}");
-                worldcreator.generateStructures(false);
-                this.world = worldcreator.createWorld();
+                WorldCreator creator = new WorldCreator(s1);
+                creator.type(WorldType.FLAT);
+                creator.generatorSettings("{\"layers\":[{\"block\":\"minecraft:air\",\"height\":1}],\"biome\":\"minecraft:the_void\"}");
+                creator.generateStructures(false);
+                this.world = creator.createWorld();
             }
         }
 
@@ -121,7 +121,7 @@ public final class Duels implements Listener, ModeHandler {
             this.world.setSpawnFlags(false, false);
             this.world.setPVP(true);
 
-            for (String[] astring : new String[][]{
+            for (String[] args : new String[][]{
                 {"doDaylightCycle", "false"},
                 {"doWeatherCycle", "false"},
                 {"doMobSpawning", "false"},
@@ -134,36 +134,36 @@ public final class Duels implements Listener, ModeHandler {
                 {"naturalRegeneration", "true"},
                 {"mobGriefing", "false"}
             }) {
-                this.world.setGameRuleValue(astring[0], astring[1]);
+                this.world.setGameRuleValue(args[0], args[1]);
             }
 
             this.world.setStorm(false);
             this.world.setThundering(false);
             this.world.setTime(6000L);
             if (this.matches.isEmpty()) {
-                this.loadArenas(yamlconfiguration, list);
+                this.loadArenas(config, list);
             }
         }
     }
 
-    private void loadArenas(YamlConfiguration yamlconfiguration, List<String> list) {
+    private void loadArenas(YamlConfiguration config, List<String> list) {
         this.slots.clear();
-        ConfigurationSection configurationsection = yamlconfiguration.getConfigurationSection("arenas");
-        if (configurationsection == null) {
+        ConfigurationSection section = config.getConfigurationSection("arenas");
+        if (section == null) {
             list.add("duels.yml -> arenas: nincs egy aréna sem");
         } else {
             int i = 0;
             boolean flag = false;
 
-            for (String s : configurationsection.getKeys(false)) {
-                ConfigurationSection configurationsection1 = configurationsection.getConfigurationSection(s);
-                if (configurationsection1 != null) {
-                    List<String> list1 = configurationsection1.getStringList("themes");
+            for (String s : section.getKeys(false)) {
+                ConfigurationSection entry = section.getConfigurationSection(s);
+                if (entry != null) {
+                    List<String> list1 = entry.getStringList("themes");
                     if (list1.isEmpty()) {
                         list1 = List.of("forest");
                     }
 
-                    int j = Math.max(1, Math.min(20, configurationsection1.getInt("count", 2)));
+                    int j = Math.max(1, Math.min(20, entry.getInt("count", 2)));
 
                     for (int k = 0; k < j; k++) {
                         String s1 = ((String)list1.get(k % list1.size())).toLowerCase(Locale.ROOT);
@@ -171,16 +171,16 @@ public final class Duels implements Listener, ModeHandler {
                         byte b0 = 100;
                         int i1 = i * 160;
                         String s2 = s + "-" + (k + 1);
-                        DuelArenaBuild duelarenabuild = new DuelArenaBuild((j1, k1, l1, s3) -> {}, l, b0, i1, s, s1);
-                        duelarenabuild.build();
-                        ArenaSlot arenaslot = new ArenaSlot(s2, s.toLowerCase(Locale.ROOT), s1, this.world, l, b0, i1, duelarenabuild.layout());
-                        if (!yamlconfiguration.getBoolean("built." + s2, false)) {
-                            this.rebuild(arenaslot);
-                            yamlconfiguration.set("built." + s2, true);
+                        DuelArenaBuild build = new DuelArenaBuild((j1, k1, l1, s3) -> {}, l, b0, i1, s, s1);
+                        build.build();
+                        ArenaSlot slot = new ArenaSlot(s2, s.toLowerCase(Locale.ROOT), s1, this.world, l, b0, i1, build.layout());
+                        if (!config.getBoolean("built." + s2, false)) {
+                            this.rebuild(slot);
+                            config.set("built." + s2, true);
                             flag = true;
                         }
 
-                        this.slots.add(arenaslot);
+                        this.slots.add(slot);
                     }
 
                     i++;
@@ -193,20 +193,20 @@ public final class Duels implements Listener, ModeHandler {
         }
     }
 
-    void rebuild(ArenaSlot arenaslot) {
+    void rebuild(ArenaSlot slot) {
         Placer placer = new Placer(this.world, this.core.getLogger());
-        int[] aint = arenaslot.bounds;
+        int[] aint = slot.bounds;
         placer.clear(aint[0] - 2, aint[1] - 2, aint[2] - 2, aint[3] + 2, aint[4] + 2, aint[5] + 2);
-        new DuelArenaBuild(placer, arenaslot.x, arenaslot.y, arenaslot.z, arenaslot.type, arenaslot.theme).build();
-        this.clearEntities(arenaslot);
+        new DuelArenaBuild(placer, slot.x, slot.y, slot.z, slot.type, slot.theme).build();
+        this.clearEntities(slot);
     }
 
     public int rebuildFree() {
         int i = 0;
 
-        for (ArenaSlot arenaslot : this.slots) {
-            if (arenaslot.free()) {
-                this.rebuild(arenaslot);
+        for (ArenaSlot slot : this.slots) {
+            if (slot.free()) {
+                this.rebuild(slot);
                 i++;
             }
         }
@@ -214,8 +214,8 @@ public final class Duels implements Listener, ModeHandler {
         return i;
     }
 
-    private void clearEntities(ArenaSlot arenaslot) {
-        int[] aint = arenaslot.bounds;
+    private void clearEntities(ArenaSlot slot) {
+        int[] aint = slot.bounds;
         Location location = new Location(this.world, (aint[0] + aint[3]) / 2.0, (aint[1] + aint[4]) / 2.0, (aint[2] + aint[5]) / 2.0);
 
         for (Entity entity : this.world
@@ -243,15 +243,15 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     public List<Match> running() {
-        List<Match> arraylist = new ArrayList<>();
+        List<Match> result = new ArrayList<>();
 
         for (Match match : this.matches.values()) {
-            if (!arraylist.contains(match)) {
-                arraylist.add(match);
+            if (!result.contains(match)) {
+                result.add(match);
             }
         }
 
-        return arraylist;
+        return result;
     }
 
     public boolean ranked(Player player) {
@@ -263,12 +263,12 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     public int elo(Player player, String s) {
-        PlayerProfile playerprofile = this.core.profiles().profile(player);
-        if (playerprofile == null) {
+        PlayerProfile profile = this.core.profiles().profile(player);
+        if (profile == null) {
             return 1000;
         }
 
-        long i = playerprofile.stat("duels.elo." + s);
+        long i = profile.stat("duels.elo." + s);
         return i <= 0L ? 1000 : (int)i;
     }
 
@@ -327,24 +327,24 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     public void join(Player player, String s, boolean flag) {
-        DuelKit duelkit = this.kit(s);
-        if (duelkit == null) {
+        DuelKit kit = this.kit(s);
+        if (kit == null) {
             this.core.messages().send(player, "duels.unknown-mode");
-        } else if (!duelkit.allowed(player)) {
+        } else if (!kit.allowed(player)) {
             this.core.messages().send(player, "general.no-permission");
         } else {
-            if (flag && !duelkit.ranked) {
+            if (flag && !kit.ranked) {
                 flag = false;
             }
 
             if (this.available(player, true)) {
                 this.leaveQueue(player, false);
-                String s1 = duelkit.id + (flag ? ":r" : ":u");
-                this.queues.computeIfAbsent(s1, s2 -> new ArrayList<>()).add(new Duels.Waiting(player.getUniqueId(), this.elo(player, duelkit.id)));
+                String s1 = kit.id + (flag ? ":r" : ":u");
+                this.queues.computeIfAbsent(s1, s2 -> new ArrayList<>()).add(new Duels.Waiting(player.getUniqueId(), this.elo(player, kit.id)));
                 this.queued.put(player.getUniqueId(), s1);
                 this.core
                     .messages()
-                    .send(player, "duels.queued", "%mode%", duelkit.name, "%type%", this.core.messages().raw(flag ? "duels.ranked" : "duels.unranked"));
+                    .send(player, "duels.queued", "%mode%", kit.name, "%type%", this.core.messages().raw(flag ? "duels.ranked" : "duels.unranked"));
                 this.matchmake();
             }
         }
@@ -358,7 +358,7 @@ public final class Duels implements Listener, ModeHandler {
 
         List<Duels.Waiting> list = this.queues.get(s);
         if (list != null) {
-            list.removeIf(duels$waiting -> duels$waiting.id.equals(player.getUniqueId()));
+            list.removeIf(waiting -> waiting.id.equals(player.getUniqueId()));
         }
 
         if (flag) {
@@ -373,40 +373,40 @@ public final class Duels implements Listener, ModeHandler {
 
         for (Entry<String, List<Duels.Waiting>> entry : this.queues.entrySet()) {
             List<Duels.Waiting> list = entry.getValue();
-            list.removeIf(duels$waiting2 -> {
-                Player player2 = Bukkit.getPlayer(duels$waiting2.id);
-                boolean flag1 = player2 == null || this.matches.containsKey(duels$waiting2.id) || this.core.combat().tagged(player2) || !this.inLobby(player2);
+            list.removeIf(waiting -> {
+                Player player2 = Bukkit.getPlayer(waiting.id);
+                boolean flag1 = player2 == null || this.matches.containsKey(waiting.id) || this.core.combat().tagged(player2) || !this.inLobby(player2);
                 if (flag1) {
-                    this.queued.remove(duels$waiting2.id);
+                    this.queued.remove(waiting.id);
                 }
 
                 return flag1;
             });
             if (list.size() >= 2) {
                 boolean flag = ((String)entry.getKey()).endsWith(":r");
-                DuelKit duelkit = this.kit(((String)entry.getKey()).substring(0, ((String)entry.getKey()).indexOf(58)));
-                if (duelkit != null) {
+                DuelKit kit = this.kit(((String)entry.getKey()).substring(0, ((String)entry.getKey()).indexOf(58)));
+                if (kit != null) {
                     for (int j = 0; j < list.size(); j++) {
-                        Duels.Waiting duels$waiting = (Duels.Waiting)list.get(j);
+                        Duels.Waiting waiting = (Duels.Waiting)list.get(j);
 
                         for (int k = j + 1; k < list.size(); k++) {
                             Duels.Waiting duels$waiting1 = (Duels.Waiting)list.get(k);
                             if (!flag
                                 || Elo.fits(
-                                    duels$waiting.elo, (int)((i - duels$waiting.since) / 1000L), duels$waiting1.elo, (int)((i - duels$waiting1.since) / 1000L)
+                                    waiting.elo, (int)((i - waiting.since) / 1000L), duels$waiting1.elo, (int)((i - duels$waiting1.since) / 1000L)
                                 )) {
-                                Player player = Bukkit.getPlayer(duels$waiting.id);
+                                Player player = Bukkit.getPlayer(waiting.id);
                                 Player player1 = Bukkit.getPlayer(duels$waiting1.id);
                                 if (player != null && player1 != null) {
-                                    if (this.freeSlot(duelkit) == null) {
+                                    if (this.freeSlot(kit) == null) {
                                         return;
                                     }
 
                                     list.remove(k);
                                     list.remove(j);
-                                    this.queued.remove(duels$waiting.id);
+                                    this.queued.remove(waiting.id);
                                     this.queued.remove(duels$waiting1.id);
-                                    this.start(duelkit, flag, 1, player, player1);
+                                    this.start(kit, flag, 1, player, player1);
                                     this.matchmake();
                                     return;
                                 }
@@ -418,21 +418,21 @@ public final class Duels implements Listener, ModeHandler {
         }
     }
 
-    private ArenaSlot freeSlot(DuelKit duelkit) {
-        List<ArenaSlot> arraylist = new ArrayList<>();
+    private ArenaSlot freeSlot(DuelKit kit) {
+        List<ArenaSlot> result = new ArrayList<>();
 
-        for (ArenaSlot arenaslot : this.slots) {
-            if (arenaslot.free() && arenaslot.type.equals(duelkit.arena)) {
-                arraylist.add(arenaslot);
+        for (ArenaSlot slot : this.slots) {
+            if (slot.free() && slot.type.equals(kit.arena)) {
+                result.add(slot);
             }
         }
 
-        return arraylist.isEmpty() ? null : (ArenaSlot)arraylist.get((int)(Math.random() * arraylist.size()));
+        return result.isEmpty() ? null : (ArenaSlot)result.get((int)(Math.random() * result.size()));
     }
 
     public void invite(Player player, Player player1, String s, int i) {
-        DuelKit duelkit = this.kit(s);
-        if (duelkit == null) {
+        DuelKit kit = this.kit(s);
+        if (kit == null) {
             this.core.messages().send(player, "duels.unknown-mode");
         } else if (player.equals(player1)) {
             this.core.messages().send(player, "duels.self");
@@ -446,13 +446,13 @@ public final class Duels implements Listener, ModeHandler {
                 } else {
                     this.invites
                         .computeIfAbsent(player1.getUniqueId(), uuid -> new HashMap<>())
-                        .put(player.getUniqueId(), new Duels.Invite(player.getUniqueId(), duelkit.id, i));
-                    this.core.messages().send(player, "duels.invite-sent", "%player%", player1.getName(), "%mode%", duelkit.name, "%rounds%", this.rounds(i));
+                        .put(player.getUniqueId(), new Duels.Invite(player.getUniqueId(), kit.id, i));
+                    this.core.messages().send(player, "duels.invite-sent", "%player%", player1.getName(), "%mode%", kit.name, "%rounds%", this.rounds(i));
                     player1.sendMessage(
                         Text.color(
                             this.core
                                 .messages()
-                                .prefixed("duels.invite-received", "%player%", player.getName(), "%mode%", duelkit.name, "%rounds%", this.rounds(i))
+                                .prefixed("duels.invite-received", "%player%", player.getName(), "%mode%", kit.name, "%rounds%", this.rounds(i))
                         )
                     );
                     String s1 = this.core.messages().raw("duels.invite-buttons").replace("%player%", player.getName());
@@ -470,38 +470,38 @@ public final class Duels implements Listener, ModeHandler {
     public void accept(Player player, String s) {
         Map<UUID, Duels.Invite> map = this.invites.get(player.getUniqueId());
         if (map != null && !map.isEmpty()) {
-            Duels.Invite duels$invite = null;
+            Duels.Invite invite = null;
             if (s == null) {
-                for (Duels.Invite duels$invite1 : map.values()) {
-                    if (duels$invite == null || duels$invite1.at > duels$invite.at) {
-                        duels$invite = duels$invite1;
+                for (Duels.Invite candidate : map.values()) {
+                    if (invite == null || candidate.at > invite.at) {
+                        invite = candidate;
                     }
                 }
             } else {
-                for (Duels.Invite duels$invite2 : map.values()) {
-                    Player player1 = Bukkit.getPlayer(duels$invite2.from);
+                for (Duels.Invite candidate : map.values()) {
+                    Player player1 = Bukkit.getPlayer(candidate.from);
                     if (player1 != null && player1.getName().equalsIgnoreCase(s)) {
-                        duels$invite = duels$invite2;
+                        invite = candidate;
                     }
                 }
             }
 
-            if (duels$invite != null && System.currentTimeMillis() - duels$invite.at <= 60000L) {
-                Player player2 = Bukkit.getPlayer(duels$invite.from);
+            if (invite != null && System.currentTimeMillis() - invite.at <= 60000L) {
+                Player player2 = Bukkit.getPlayer(invite.from);
                 if (player2 == null) {
-                    map.remove(duels$invite.from);
+                    map.remove(invite.from);
                     this.core.messages().send(player, "general.no-player");
                 } else {
-                    DuelKit duelkit = this.kit(duels$invite.kit);
-                    if (duelkit == null || !this.available(player, true) || !this.available(player2, false)) {
+                    DuelKit kit = this.kit(invite.kit);
+                    if (kit == null || !this.available(player, true) || !this.available(player2, false)) {
                         this.core.messages().send(player, "duels.target-busy", "%player%", player2.getName());
-                    } else if (this.freeSlot(duelkit) == null) {
+                    } else if (this.freeSlot(kit) == null) {
                         this.core.messages().send(player, "duels.no-arena");
                     } else {
-                        map.remove(duels$invite.from);
+                        map.remove(invite.from);
                         this.leaveQueue(player, false);
                         this.leaveQueue(player2, false);
-                        this.start(duelkit, false, duels$invite.bestOf, player2, player);
+                        this.start(kit, false, invite.bestOf, player2, player);
                     }
                 }
             } else {
@@ -535,27 +535,27 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     public void rematch(Player player) {
-        Duels.Last duels$last = this.lastMatch.get(player.getUniqueId());
-        if (duels$last != null && System.currentTimeMillis() - duels$last.at <= 60000L) {
-            Player player1 = Bukkit.getPlayer(duels$last.opponent);
+        Duels.Last last = this.lastMatch.get(player.getUniqueId());
+        if (last != null && System.currentTimeMillis() - last.at <= 60000L) {
+            Player player1 = Bukkit.getPlayer(last.opponent);
             if (player1 == null) {
                 this.core.messages().send(player, "general.no-player");
             } else {
-                this.invite(player, player1, duels$last.kit, duels$last.bestOf);
+                this.invite(player, player1, last.kit, last.bestOf);
             }
         } else {
             this.core.messages().send(player, "duels.no-rematch");
         }
     }
 
-    void start(DuelKit duelkit, boolean flag, int i, Player player, Player player1) {
-        ArenaSlot arenaslot = this.freeSlot(duelkit);
-        if (arenaslot == null) {
+    void start(DuelKit kit, boolean flag, int i, Player player, Player player1) {
+        ArenaSlot slot = this.freeSlot(kit);
+        if (slot == null) {
             this.core.messages().send(player, "duels.no-arena");
             this.core.messages().send(player1, "duels.no-arena");
         } else {
-            Match match = new Match(this, duelkit, arenaslot, flag, i, player, player1);
-            arenaslot.match = match;
+            Match match = new Match(this, kit, slot, flag, i, player, player1);
+            slot.match = match;
             this.matches.put(player.getUniqueId(), match);
             this.matches.put(player1.getUniqueId(), match);
             this.invites.remove(player.getUniqueId());
@@ -571,11 +571,11 @@ public final class Duels implements Listener, ModeHandler {
                         "%player%",
                         player3.getName(),
                         "%mode%",
-                        duelkit.name,
+                        kit.name,
                         "%type%",
                         this.core.messages().raw(flag ? "duels.ranked" : "duels.unranked"),
                         "%elo%",
-                        flag ? " &8(&f" + this.elo(player3, duelkit.id) + " Elo&8)" : ""
+                        flag ? " &8(&f" + this.elo(player3, kit.id) + " Elo&8)" : ""
                     );
             }
 
@@ -588,19 +588,19 @@ public final class Duels implements Listener, ModeHandler {
         match.timer = 3;
         match.resetHits();
 
-        for (DuelKit.Side duelkit$side : DuelKit.Side.values()) {
-            Player player = match.player(duelkit$side);
+        for (DuelKit.Side side : DuelKit.Side.values()) {
+            Player player = match.player(side);
             if (player != null) {
                 this.core.guard().allowNext(player);
-                player.teleport(match.spawn(duelkit$side));
-                this.setup(player, match, duelkit$side);
+                player.teleport(match.spawn(side));
+                this.setup(player, match, side);
             }
         }
 
         this.countdown(match);
     }
 
-    private void setup(Player player, Match match, DuelKit.Side duelkit$side) {
+    private void setup(Player player, Match match, DuelKit.Side side) {
         player.setGameMode(match.kit.usesBlocks() ? GameMode.SURVIVAL : GameMode.ADVENTURE);
         player.setAllowFlight(false);
         player.setFlying(false);
@@ -616,7 +616,7 @@ public final class Duels implements Listener, ModeHandler {
         player.setSaturation(20.0F);
         player.setExp(0.0F);
         player.setLevel(0);
-        match.kit.equip(player, duelkit$side);
+        match.kit.equip(player, side);
         Attributes.oldCombat(player, match.kit.oldCombat);
         player.setMaximumNoDamageTicks(match.kit.hitDelay);
         player.setNoDamageTicks(0);
@@ -632,12 +632,12 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     List<Player> players(Match match, boolean flag) {
-        List<Player> arraylist = new ArrayList<>();
+        List<Player> result = new ArrayList<>();
 
-        for (DuelKit.Side duelkit$side : DuelKit.Side.values()) {
-            Player player = match.player(duelkit$side);
+        for (DuelKit.Side side : DuelKit.Side.values()) {
+            Player player = match.player(side);
             if (player != null) {
-                arraylist.add(player);
+                result.add(player);
             }
         }
 
@@ -645,12 +645,12 @@ public final class Duels implements Listener, ModeHandler {
             for (UUID uuid : match.spectators) {
                 Player player1 = Bukkit.getPlayer(uuid);
                 if (player1 != null) {
-                    arraylist.add(player1);
+                    result.add(player1);
                 }
             }
         }
 
-        return arraylist;
+        return result;
     }
 
     public void tick() {
@@ -698,33 +698,33 @@ public final class Duels implements Listener, ModeHandler {
         long i = System.currentTimeMillis();
 
         for (Map<UUID, Duels.Invite> map : this.invites.values()) {
-            map.values().removeIf(duels$invite -> i - duels$invite.at > 60000L);
+            map.values().removeIf(invite -> i - invite.at > 60000L);
         }
 
-        this.lastMatch.values().removeIf(duels$last -> i - duels$last.at > 60000L);
+        this.lastMatch.values().removeIf(last -> i - last.at > 60000L);
         this.matchmake();
 
         for (Entry<UUID, String> entry : this.queued.entrySet()) {
             Player player1 = Bukkit.getPlayer((UUID)entry.getKey());
             if (player1 != null) {
                 String s = (String)entry.getValue();
-                DuelKit duelkit = this.kit(s.substring(0, s.indexOf(58)));
-                player1.sendActionBar(Text.color(this.core.messages().raw("duels.searching").replace("%mode%", duelkit == null ? "?" : duelkit.name)));
+                DuelKit kit = this.kit(s.substring(0, s.indexOf(58)));
+                player1.sendActionBar(Text.color(this.core.messages().raw("duels.searching").replace("%mode%", kit == null ? "?" : kit.name)));
             }
         }
     }
 
-    void roundWon(Match match, DuelKit.Side duelkit$side, String s) {
+    void roundWon(Match match, DuelKit.Side side, String s) {
         if (match.state == Match.State.FIGHT) {
-            match.addWin(duelkit$side);
-            Player player = match.player(duelkit$side);
-            Player player1 = match.player(duelkit$side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED);
+            match.addWin(side);
+            Player player = match.player(side);
+            Player player1 = match.player(side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED);
             if (player != null && player1 != null) {
                 this.core.cosmetics().playKill(player, player1.getLocation());
             }
 
-            if (match.wins(duelkit$side) >= match.needed()) {
-                this.end(match, duelkit$side == DuelKit.Side.RED ? match.red : match.blue);
+            if (match.wins(side) >= match.needed()) {
+                this.end(match, side == DuelKit.Side.RED ? match.red : match.blue);
             } else {
                 match.state = Match.State.ROUND_END;
                 match.timer = 3;
@@ -815,8 +815,8 @@ public final class Duels implements Listener, ModeHandler {
                 }
             }
 
-            for (DuelKit.Side duelkit$side : DuelKit.Side.values()) {
-                UUID uuid2 = duelkit$side == DuelKit.Side.RED ? match.red : match.blue;
+            for (DuelKit.Side side : DuelKit.Side.values()) {
+                UUID uuid2 = side == DuelKit.Side.RED ? match.red : match.blue;
                 UUID uuid3 = match.opponent(uuid2);
                 this.lastMatch.put(uuid2, new Duels.Last(uuid3, match.kit.id, match.bestOf));
                 Player player4 = Bukkit.getPlayer(uuid2);
@@ -829,26 +829,26 @@ public final class Duels implements Listener, ModeHandler {
 
     private void setElo(UUID uuid, String s, int i) {
         Player player = Bukkit.getPlayer(uuid);
-        PlayerProfile playerprofile = player == null ? null : this.core.profiles().profile(player);
-        if (playerprofile != null) {
-            playerprofile.setStat("duels.elo." + s, i);
-            playerprofile.maxStat("duels.elo_best", i);
+        PlayerProfile profile = player == null ? null : this.core.profiles().profile(player);
+        if (profile != null) {
+            profile.setStat("duels.elo." + s, i);
+            profile.maxStat("duels.elo_best", i);
         }
     }
 
     private void record(UUID uuid, String s, boolean flag) {
         Player player = Bukkit.getPlayer(uuid);
-        PlayerProfile playerprofile = player == null ? null : this.core.profiles().profile(player);
-        if (playerprofile != null) {
-            playerprofile.addStat("duels.played", 1L);
-            playerprofile.addStat("duels." + s + (flag ? ".wins" : ".losses"), 1L);
+        PlayerProfile profile = player == null ? null : this.core.profiles().profile(player);
+        if (profile != null) {
+            profile.addStat("duels.played", 1L);
+            profile.addStat("duels." + s + (flag ? ".wins" : ".losses"), 1L);
             if (flag) {
-                playerprofile.addStat("duels.wins", 1L);
-                long i = playerprofile.addStat("duels.streak", 1L);
-                playerprofile.maxStat("duels.best_streak", i);
+                profile.addStat("duels.wins", 1L);
+                long i = profile.addStat("duels.streak", 1L);
+                profile.maxStat("duels.best_streak", i);
             } else {
-                playerprofile.addStat("duels.losses", 1L);
-                playerprofile.setStat("duels.streak", 0L);
+                profile.addStat("duels.losses", 1L);
+                profile.setStat("duels.streak", 0L);
             }
         }
     }
@@ -973,8 +973,8 @@ public final class Duels implements Listener, ModeHandler {
     public Location spawn(Player player) {
         Match match = this.matches.get(player.getUniqueId());
         if (match != null) {
-            DuelKit.Side duelkit$side = match.side(player.getUniqueId());
-            return match.spawn(duelkit$side);
+            DuelKit.Side side = match.side(player.getUniqueId());
+            return match.spawn(side);
         } else {
             Location location = this.core.modeLobbies() != null && this.core.modeLobbies().has("duels") ? this.core.modeLobbies().entry("duels") : null;
             return location != null ? location : this.core.lobby().spawn(player);
@@ -1057,44 +1057,44 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onHit(EntityDamageByEntityEvent entitydamagebyentityevent) {
-        if (entitydamagebyentityevent.getEntity().getWorld() == this.world && entitydamagebyentityevent.getEntity() instanceof Player) {
-            Player player = (Player)entitydamagebyentityevent.getEntity();
-            Player player1 = entitydamagebyentityevent.getDamager() instanceof Player
-                ? (Player)entitydamagebyentityevent.getDamager()
+    public void onHit(EntityDamageByEntityEvent event) {
+        if (event.getEntity().getWorld() == this.world && event.getEntity() instanceof Player) {
+            Player player = (Player)event.getEntity();
+            Player player1 = event.getDamager() instanceof Player
+                ? (Player)event.getDamager()
                 : (
-                    entitydamagebyentityevent.getDamager() instanceof Projectile
-                            && ((Projectile)entitydamagebyentityevent.getDamager()).getShooter() instanceof Player
-                        ? (Player)((Projectile)entitydamagebyentityevent.getDamager()).getShooter()
+                    event.getDamager() instanceof Projectile
+                            && ((Projectile)event.getDamager()).getShooter() instanceof Player
+                        ? (Player)((Projectile)event.getDamager()).getShooter()
                         : null
                 );
             Match match = this.matches.get(player.getUniqueId());
             if (match != null && player1 != null && match.state == Match.State.FIGHT && match.involves(player1.getUniqueId())) {
                 if (!player1.equals(player)) {
-                    if (entitydamagebyentityevent.getCause().name().equals("ENTITY_SWEEP_ATTACK") && match.kit.oldCombat) {
-                        entitydamagebyentityevent.setCancelled(true);
+                    if (event.getCause().name().equals("ENTITY_SWEEP_ATTACK") && match.kit.oldCombat) {
+                        event.setCancelled(true);
                     } else {
-                        DuelKit.Side duelkit$side = match.side(player1.getUniqueId());
+                        DuelKit.Side side = match.side(player1.getUniqueId());
                         switch (match.kit.rule) {
                             case BOXING:
-                                entitydamagebyentityevent.setDamage(0.0);
-                                if (entitydamagebyentityevent.getDamager() instanceof Player) {
-                                    int j = match.addHit(duelkit$side);
+                                event.setDamage(0.0);
+                                if (event.getDamager() instanceof Player) {
+                                    int j = match.addHit(side);
                                     player1.sendActionBar(Text.color("&e" + match.hitScore(player1.getUniqueId()) + " &7ütés"));
                                     if (j >= match.kit.target) {
-                                        this.roundWon(match, duelkit$side, "duels.boxing-win");
+                                        this.roundWon(match, side, "duels.boxing-win");
                                     }
                                 }
                                 break;
                             case SUMO:
-                                entitydamagebyentityevent.setDamage(0.0);
+                                event.setDamage(0.0);
                                 break;
                             case COMBOFLY:
-                                if (entitydamagebyentityevent.getDamager() instanceof Player) {
+                                if (event.getDamager() instanceof Player) {
                                     int i = match.combo.merge(player1.getUniqueId(), 1, Integer::sum);
                                     match.combo.put(player.getUniqueId(), 0);
-                                    entitydamagebyentityevent.setDamage(entitydamagebyentityevent.getDamage() * this.core.combo().damageFor("combofly"));
-                                    Knockback.Settings knockback$settings = this.core.combo().settingsFor("combofly");
+                                    event.setDamage(event.getDamage() * this.core.combo().damageFor("combofly"));
+                                    Knockback.Settings settings = this.core.combo().settingsFor("combofly");
                                     UUID uuid = player.getUniqueId();
                                     Bukkit.getScheduler()
                                         .runTask(
@@ -1104,15 +1104,15 @@ public final class Duels implements Listener, ModeHandler {
                                                 if (player3 != null && !player3.isDead() && player3.getWorld() == player1.getWorld()) {
                                                     Location location = player1.getLocation();
                                                     Location location1 = player3.getLocation();
-                                                    double[] adouble = Knockback.compute(
+                                                    double[] velocity = Knockback.compute(
                                                         location1.getX() - location.getX(),
                                                         location1.getZ() - location.getZ(),
                                                         Math.toRadians(location.getYaw()),
                                                         i,
-                                                        knockback$settings,
-                                                        heightAboveGround(player3, knockback$settings.maxHeight)
+                                                        settings,
+                                                        heightAboveGround(player3, settings.maxHeight)
                                                     );
-                                                    player3.setVelocity(new Vector(adouble[0], adouble[1], adouble[2]));
+                                                    player3.setVelocity(new Vector(velocity[0], velocity[1], velocity[2]));
                                                 }
                                             }
                                         );
@@ -1125,7 +1125,7 @@ public final class Duels implements Listener, ModeHandler {
                 }
             } else {
                 if (player1 != null && !player1.equals(player)) {
-                    entitydamagebyentityevent.setCancelled(true);
+                    event.setCancelled(true);
                 }
             }
         }
@@ -1150,79 +1150,79 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onDamage(EntityDamageEvent entitydamageevent) {
-        Match match = this.fighting(entitydamageevent.getEntity());
+    public void onDamage(EntityDamageEvent event) {
+        Match match = this.fighting(event.getEntity());
         if (match == null) {
-            if (entitydamageevent.getEntity() instanceof Player && entitydamageevent.getEntity().getWorld() == this.world) {
-                entitydamageevent.setCancelled(true);
+            if (event.getEntity() instanceof Player && event.getEntity().getWorld() == this.world) {
+                event.setCancelled(true);
             }
         } else {
-            Player player = (Player)entitydamageevent.getEntity();
+            Player player = (Player)event.getEntity();
             if (match.state != Match.State.FIGHT) {
-                entitydamageevent.setCancelled(true);
+                event.setCancelled(true);
             } else if (match.kit.rule != DuelKit.Rule.BOXING && match.kit.rule != DuelKit.Rule.SUMO) {
-                if (!(entitydamageevent.getFinalDamage() < player.getHealth()) && !hasTotem(player)) {
-                    entitydamageevent.setCancelled(true);
+                if (!(event.getFinalDamage() < player.getHealth()) && !hasTotem(player)) {
+                    event.setCancelled(true);
                     this.died(match, player);
                 }
             } else {
-                if (!(entitydamageevent instanceof EntityDamageByEntityEvent)) {
-                    entitydamageevent.setCancelled(true);
+                if (!(event instanceof EntityDamageByEntityEvent)) {
+                    event.setCancelled(true);
                 }
             }
         }
     }
 
     private void died(Match match, Player player) {
-        DuelKit.Side duelkit$side = match.side(player.getUniqueId());
-        DuelKit.Side duelkit$side1 = duelkit$side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED;
+        DuelKit.Side side = match.side(player.getUniqueId());
+        DuelKit.Side other = side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED;
         if (match.kit.rule == DuelKit.Rule.BRIDGE) {
-            Player player1 = match.player(duelkit$side1);
+            Player player1 = match.player(other);
 
             for (Player player2 : this.players(match, true)) {
                 this.core.messages().send(player2, "duels.bridge-death", "%player%", player.getName(), "%killer%", player1 == null ? "?" : player1.getName());
             }
 
-            this.respawn(match, player, duelkit$side);
+            this.respawn(match, player, side);
         } else {
-            this.roundWon(match, duelkit$side1, null);
+            this.roundWon(match, other, null);
         }
     }
 
-    private void respawn(Match match, Player player, DuelKit.Side duelkit$side) {
+    private void respawn(Match match, Player player, DuelKit.Side side) {
         this.core.guard().allowNext(player);
-        player.teleport(match.spawn(duelkit$side));
-        this.setup(player, match, duelkit$side);
+        player.teleport(match.spawn(side));
+        this.setup(player, match, side);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onMove(PlayerMoveEvent playermoveevent) {
-        Location location = playermoveevent.getTo();
+    public void onMove(PlayerMoveEvent event) {
+        Location location = event.getTo();
         if (location != null && location.getWorld() == this.world) {
-            Player player = playermoveevent.getPlayer();
+            Player player = event.getPlayer();
             Match match = this.matches.get(player.getUniqueId());
             if (match != null) {
-                Location location1 = playermoveevent.getFrom();
+                Location location1 = event.getFrom();
                 if (match.state != Match.State.COUNTDOWN && match.state != Match.State.ROUND_END) {
                     if (match.state == Match.State.FIGHT) {
-                        DuelKit.Side duelkit$side = match.side(player.getUniqueId());
+                        DuelKit.Side side = match.side(player.getUniqueId());
                         if (location.getY() < match.slot.fallY) {
                             if (match.kit.rule == DuelKit.Rule.SUMO) {
-                                this.roundWon(match, duelkit$side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED, "duels.sumo-win");
+                                this.roundWon(match, side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED, "duels.sumo-win");
                             } else {
                                 this.died(match, player);
                             }
                         } else if (match.kit.rule == DuelKit.Rule.BRIDGE) {
-                            int[] aint = duelkit$side == DuelKit.Side.RED ? match.slot.goalBlue : match.slot.goalRed;
-                            int[] aint1 = duelkit$side == DuelKit.Side.RED ? match.slot.goalRed : match.slot.goalBlue;
+                            int[] aint = side == DuelKit.Side.RED ? match.slot.goalBlue : match.slot.goalRed;
+                            int[] aint1 = side == DuelKit.Side.RED ? match.slot.goalRed : match.slot.goalBlue;
                             if (ArenaSlot.inside(aint, location)) {
-                                this.scored(match, player, duelkit$side);
+                                this.scored(match, player, side);
                             } else if (ArenaSlot.inside(aint1, location)) {
-                                this.respawn(match, player, duelkit$side);
+                                this.respawn(match, player, side);
                             }
                         } else {
                             if (!match.slot.contains(location)) {
-                                this.respawn(match, player, duelkit$side);
+                                this.respawn(match, player, side);
                             }
                         }
                     }
@@ -1231,24 +1231,24 @@ public final class Duels implements Listener, ModeHandler {
                         Location location2 = location1.clone();
                         location2.setYaw(location.getYaw());
                         location2.setPitch(location.getPitch());
-                        playermoveevent.setTo(location2);
+                        event.setTo(location2);
                     }
                 }
             }
         }
     }
 
-    private void scored(Match match, Player player, DuelKit.Side duelkit$side) {
-        match.addWin(duelkit$side);
+    private void scored(Match match, Player player, DuelKit.Side side) {
+        match.addWin(side);
 
         for (Player player1 : this.players(match, true)) {
             player1.sendTitle(
-                Text.color(duelkit$side.chat + player.getName() + " &ególt lőtt!"), Text.color("&c" + match.redWins + " &8- &9" + match.blueWins), 0, 30, 8
+                Text.color(side.chat + player.getName() + " &ególt lőtt!"), Text.color("&c" + match.redWins + " &8- &9" + match.blueWins), 0, 30, 8
             );
             player1.playSound(player1.getLocation(), "minecraft:entity.firework_rocket.blast", 0.8F, 1.0F);
         }
 
-        if (match.wins(duelkit$side) >= match.kit.target) {
+        if (match.wins(side) >= match.kit.target) {
             this.end(match, player.getUniqueId());
         } else {
             this.prepareRound(match);
@@ -1256,14 +1256,14 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlace(BlockPlaceEvent blockplaceevent) {
-        Block block = blockplaceevent.getBlock();
+    public void onPlace(BlockPlaceEvent event) {
+        Block block = event.getBlock();
         if (block.getWorld() == this.world) {
-            Player player = blockplaceevent.getPlayer();
+            Player player = event.getPlayer();
             Match match = this.matches.get(player.getUniqueId());
             if (match == null) {
                 if (player.getGameMode() != GameMode.CREATIVE || !player.hasPermission("icemine.admin.build")) {
-                    blockplaceevent.setCancelled(true);
+                    event.setCancelled(true);
                 }
             } else {
                 Location location = block.getLocation().add(0.5, 0.5, 0.5);
@@ -1275,7 +1275,7 @@ public final class Duels implements Listener, ModeHandler {
                     && block.getY() <= match.slot.y + 24 - 4) {
                     match.placed.add(key(block));
                 } else {
-                    blockplaceevent.setCancelled(true);
+                    event.setCancelled(true);
                 }
             }
         }
@@ -1296,14 +1296,14 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onBreak(BlockBreakEvent blockbreakevent) {
-        Block block = blockbreakevent.getBlock();
+    public void onBreak(BlockBreakEvent event) {
+        Block block = event.getBlock();
         if (block.getWorld() == this.world) {
-            Player player = blockbreakevent.getPlayer();
+            Player player = event.getPlayer();
             Match match = this.matches.get(player.getUniqueId());
             if (match == null) {
                 if (player.getGameMode() != GameMode.CREATIVE || !player.hasPermission("icemine.admin.build")) {
-                    blockbreakevent.setCancelled(true);
+                    event.setCancelled(true);
                 }
             } else {
                 boolean flag = match.kit.build
@@ -1313,85 +1313,85 @@ public final class Duels implements Listener, ModeHandler {
                     && block.getType() != Material.BARRIER
                     && block.getType() != Material.BEDROCK;
                 if (match.state == Match.State.FIGHT && (flag || match.placed.remove(key(block)))) {
-                    blockbreakevent.setDropItems(match.kit.build);
+                    event.setDropItems(match.kit.build);
                 } else {
-                    blockbreakevent.setCancelled(true);
+                    event.setCancelled(true);
                 }
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBucket(PlayerBucketEmptyEvent playerbucketemptyevent) {
-        if (playerbucketemptyevent.getBlock().getWorld() == this.world) {
-            Match match = this.matches.get(playerbucketemptyevent.getPlayer().getUniqueId());
-            if (match == null || !match.kit.build || match.state != Match.State.FIGHT || !match.slot.contains(playerbucketemptyevent.getBlock().getLocation())) {
-                playerbucketemptyevent.setCancelled(true);
+    public void onBucket(PlayerBucketEmptyEvent event) {
+        if (event.getBlock().getWorld() == this.world) {
+            Match match = this.matches.get(event.getPlayer().getUniqueId());
+            if (match == null || !match.kit.build || match.state != Match.State.FIGHT || !match.slot.contains(event.getBlock().getLocation())) {
+                event.setCancelled(true);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onExplode(EntityExplodeEvent entityexplodeevent) {
-        if (entityexplodeevent.getLocation().getWorld() == this.world) {
-            entityexplodeevent.blockList().removeIf(block -> block.getType() == Material.BARRIER || block.getType() == Material.BEDROCK);
+    public void onExplode(EntityExplodeEvent event) {
+        if (event.getLocation().getWorld() == this.world) {
+            event.blockList().removeIf(block -> block.getType() == Material.BARRIER || block.getType() == Material.BEDROCK);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onDrop(PlayerDropItemEvent playerdropitemevent) {
-        if (playerdropitemevent.getPlayer().getWorld() == this.world) {
-            playerdropitemevent.setCancelled(true);
+    public void onDrop(PlayerDropItemEvent event) {
+        if (event.getPlayer().getWorld() == this.world) {
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onFood(FoodLevelChangeEvent foodlevelchangeevent) {
-        Match match = this.fighting(foodlevelchangeevent.getEntity());
-        if (foodlevelchangeevent.getEntity().getWorld() == this.world && (match == null || !match.kit.hunger)) {
-            foodlevelchangeevent.setCancelled(true);
+    public void onFood(FoodLevelChangeEvent event) {
+        Match match = this.fighting(event.getEntity());
+        if (event.getEntity().getWorld() == this.world && (match == null || !match.kit.hunger)) {
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onRegen(EntityRegainHealthEvent entityregainhealthevent) {
-        Match match = this.fighting(entityregainhealthevent.getEntity());
+    public void onRegen(EntityRegainHealthEvent event) {
+        Match match = this.fighting(event.getEntity());
         if (match != null && !match.kit.regen) {
-            String s = entityregainhealthevent.getRegainReason().name();
+            String s = event.getRegainReason().name();
             if (s.equals("SATIATED") || s.equals("REGEN")) {
-                entityregainhealthevent.setCancelled(true);
+                event.setCancelled(true);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPearl(PlayerTeleportEvent playerteleportevent) {
-        Location location = playerteleportevent.getTo();
-        if (location != null && location.getWorld() == this.world && playerteleportevent.getCause().name().equals("ENDER_PEARL")) {
-            Match match = this.matches.get(playerteleportevent.getPlayer().getUniqueId());
+    public void onPearl(PlayerTeleportEvent event) {
+        Location location = event.getTo();
+        if (location != null && location.getWorld() == this.world && event.getCause().name().equals("ENDER_PEARL")) {
+            Match match = this.matches.get(event.getPlayer().getUniqueId());
             if (match != null && !match.slot.contains(location)) {
-                playerteleportevent.setCancelled(true);
+                event.setCancelled(true);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPortal(PlayerPortalEvent playerportalevent) {
-        if (playerportalevent.getFrom().getWorld() == this.world) {
-            playerportalevent.setCancelled(true);
+    public void onPortal(PlayerPortalEvent event) {
+        if (event.getFrom().getWorld() == this.world) {
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityPortal(EntityPortalEvent entityportalevent) {
-        if (entityportalevent.getFrom().getWorld() == this.world) {
-            entityportalevent.setCancelled(true);
+    public void onEntityPortal(EntityPortalEvent event) {
+        if (event.getFrom().getWorld() == this.world) {
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void onQuit(PlayerQuitEvent playerquitevent) {
-        Player player = playerquitevent.getPlayer();
+    public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
         this.leaveQueue(player, false);
         this.invites.remove(player.getUniqueId());
 
@@ -1416,9 +1416,9 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     public static Layout layoutFor(String s, String s1) {
-        DuelArenaBuild duelarenabuild = new DuelArenaBuild((i, j, k, s2) -> {}, 0, 0, 0, s, s1);
-        duelarenabuild.build();
-        return duelarenabuild.layout();
+        DuelArenaBuild build = new DuelArenaBuild((i, j, k, s2) -> {}, 0, 0, 0, s, s1);
+        build.build();
+        return build.layout();
     }
 
     static final class Invite {

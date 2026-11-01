@@ -32,10 +32,10 @@ public final class Match {
     int round = 1;
     UUID winner;
 
-    Match(Duels duels, DuelKit duelkit, ArenaSlot arenaslot, boolean flag, int i, Player player, Player player1) {
+    Match(Duels duels, DuelKit kit, ArenaSlot slot, boolean flag, int i, Player player, Player player1) {
         this.duels = duels;
-        this.kit = duelkit;
-        this.slot = arenaslot;
+        this.kit = kit;
+        this.slot = slot;
         this.ranked = flag;
         this.bestOf = Math.max(1, i);
         this.red = player.getUniqueId();
@@ -64,32 +64,32 @@ public final class Match {
         return this.red.equals(uuid) ? this.redName : this.blueName;
     }
 
-    public Player player(DuelKit.Side duelkit$side) {
-        return Bukkit.getPlayer(duelkit$side == DuelKit.Side.RED ? this.red : this.blue);
+    public Player player(DuelKit.Side side) {
+        return Bukkit.getPlayer(side == DuelKit.Side.RED ? this.red : this.blue);
     }
 
-    public Location spawn(DuelKit.Side duelkit$side) {
-        return (duelkit$side == DuelKit.Side.RED ? this.slot.red : this.slot.blue).clone();
+    public Location spawn(DuelKit.Side side) {
+        return (side == DuelKit.Side.RED ? this.slot.red : this.slot.blue).clone();
     }
 
-    public int wins(DuelKit.Side duelkit$side) {
-        return duelkit$side == DuelKit.Side.RED ? this.redWins : this.blueWins;
+    public int wins(DuelKit.Side side) {
+        return side == DuelKit.Side.RED ? this.redWins : this.blueWins;
     }
 
-    public int hits(DuelKit.Side duelkit$side) {
-        return duelkit$side == DuelKit.Side.RED ? this.redHits : this.blueHits;
+    public int hits(DuelKit.Side side) {
+        return side == DuelKit.Side.RED ? this.redHits : this.blueHits;
     }
 
-    void addWin(DuelKit.Side duelkit$side) {
-        if (duelkit$side == DuelKit.Side.RED) {
+    void addWin(DuelKit.Side side) {
+        if (side == DuelKit.Side.RED) {
             this.redWins++;
         } else {
             this.blueWins++;
         }
     }
 
-    int addHit(DuelKit.Side duelkit$side) {
-        return duelkit$side == DuelKit.Side.RED ? ++this.redHits : ++this.blueHits;
+    int addHit(DuelKit.Side side) {
+        return side == DuelKit.Side.RED ? ++this.redHits : ++this.blueHits;
     }
 
     void resetHits() {
@@ -99,23 +99,23 @@ public final class Match {
     }
 
     public String score(UUID uuid) {
-        DuelKit.Side duelkit$side = this.side(uuid);
-        if (duelkit$side == null) {
+        DuelKit.Side side = this.side(uuid);
+        if (side == null) {
             return this.redWins + " - " + this.blueWins;
         }
 
-        DuelKit.Side duelkit$side1 = duelkit$side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED;
-        return this.wins(duelkit$side) + " - " + this.wins(duelkit$side1);
+        DuelKit.Side other = side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED;
+        return this.wins(side) + " - " + this.wins(other);
     }
 
     public String hitScore(UUID uuid) {
-        DuelKit.Side duelkit$side = this.side(uuid);
-        if (duelkit$side == null) {
+        DuelKit.Side side = this.side(uuid);
+        if (side == null) {
             return this.redHits + " - " + this.blueHits;
         }
 
-        DuelKit.Side duelkit$side1 = duelkit$side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED;
-        return this.hits(duelkit$side) + " - " + this.hits(duelkit$side1);
+        DuelKit.Side other = side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED;
+        return this.hits(side) + " - " + this.hits(other);
     }
 
     public Match.State state() {

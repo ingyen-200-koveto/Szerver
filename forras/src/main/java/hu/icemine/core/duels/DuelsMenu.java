@@ -16,8 +16,8 @@ public final class DuelsMenu {
     private final IceMineCore core;
     private final Duels duels;
 
-    DuelsMenu(IceMineCore iceminecore, Duels duels) {
-        this.core = iceminecore;
+    DuelsMenu(IceMineCore core, Duels duels) {
+        this.core = core;
         this.duels = duels;
     }
 
@@ -32,38 +32,38 @@ public final class DuelsMenu {
         String s = this.duels.queuedFor(player);
         int i = 0;
 
-        for (DuelKit duelkit : this.duels.kits().values()) {
+        for (DuelKit kit : this.duels.kits().values()) {
             if (i >= MODE_SLOTS.length) {
                 break;
             }
 
-            boolean flag1 = flag && duelkit.ranked;
-            List<String> arraylist = new ArrayList<>(duelkit.description);
-            arraylist.add("");
-            arraylist.add(this.raw("duels.menu.in-queue").replace("%count%", String.valueOf(this.duels.queueSize(duelkit.id, flag1))));
-            arraylist.add(this.raw("duels.menu.playing").replace("%count%", String.valueOf(this.duels.playing(duelkit.id))));
-            if (duelkit.ranked) {
-                arraylist.add(this.raw("duels.menu.your-elo").replace("%elo%", String.valueOf(this.duels.elo(player, duelkit.id))));
+            boolean flag1 = flag && kit.ranked;
+            List<String> result = new ArrayList<>(kit.description);
+            result.add("");
+            result.add(this.raw("duels.menu.in-queue").replace("%count%", String.valueOf(this.duels.queueSize(kit.id, flag1))));
+            result.add(this.raw("duels.menu.playing").replace("%count%", String.valueOf(this.duels.playing(kit.id))));
+            if (kit.ranked) {
+                result.add(this.raw("duels.menu.your-elo").replace("%elo%", String.valueOf(this.duels.elo(player, kit.id))));
             }
 
-            arraylist.add("");
-            boolean flag2 = s != null && s.startsWith(duelkit.id + ":");
-            if (!duelkit.allowed(player)) {
-                arraylist.add(this.raw("duels.menu.locked"));
+            result.add("");
+            boolean flag2 = s != null && s.startsWith(kit.id + ":");
+            if (!kit.allowed(player)) {
+                result.add(this.raw("duels.menu.locked"));
             } else {
-                arraylist.add(
+                result.add(
                     flag2
                         ? this.raw("duels.menu.click-leave")
                         : this.raw("duels.menu.click-join").replace("%type%", this.raw(flag1 ? "duels.ranked" : "duels.unranked"))
                 );
             }
 
-            Items items = Items.of(duelkit.icon).name(duelkit.name).lore(arraylist).hideAll();
+            Items items = Items.of(kit.icon).name(kit.name).lore(result).hideAll();
             if (flag2) {
                 items.glow();
             }
 
-            String s1 = duelkit.id;
+            String s1 = kit.id;
             menu.set(MODE_SLOTS[i++], items.build(), player1 -> {
                 if (flag2) {
                     this.duels.leaveQueue(player1, true);
@@ -104,47 +104,47 @@ public final class DuelsMenu {
     }
 
     private List<String> statsLore(Player player) {
-        PlayerProfile playerprofile = this.core.profiles().profile(player);
-        List<String> arraylist = new ArrayList<>();
-        long i = playerprofile == null ? 0L : playerprofile.stat("duels.wins");
-        long j = playerprofile == null ? 0L : playerprofile.stat("duels.losses");
-        arraylist.add("&7Győzelmek: &a" + Text.number(i));
-        arraylist.add("&7Vereségek: &c" + Text.number(j));
-        arraylist.add("&7W/L: &f" + Text.ratio(i, j));
-        arraylist.add(
+        PlayerProfile profile = this.core.profiles().profile(player);
+        List<String> result = new ArrayList<>();
+        long i = profile == null ? 0L : profile.stat("duels.wins");
+        long j = profile == null ? 0L : profile.stat("duels.losses");
+        result.add("&7Győzelmek: &a" + Text.number(i));
+        result.add("&7Vereségek: &c" + Text.number(j));
+        result.add("&7W/L: &f" + Text.ratio(i, j));
+        result.add(
             "&7Győzelmi sorozat: &e"
-                + (playerprofile == null ? 0L : playerprofile.stat("duels.streak"))
+                + (profile == null ? 0L : profile.stat("duels.streak"))
                 + " &8(legjobb: "
-                + (playerprofile == null ? 0L : playerprofile.stat("duels.best_streak"))
+                + (profile == null ? 0L : profile.stat("duels.best_streak"))
                 + ")"
         );
-        arraylist.add("");
-        arraylist.add("&e» Kattints a részletekért!");
-        return arraylist;
+        result.add("");
+        result.add("&e» Kattints a részletekért!");
+        return result;
     }
 
     public void stats(Player player) {
-        PlayerProfile playerprofile = this.core.profiles().profile(player);
+        PlayerProfile profile = this.core.profiles().profile(player);
         Menu menu = new Menu("duels-stats", 6, this.raw("duels.menu.stats-title"));
         menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
         int i = 0;
 
-        for (DuelKit duelkit : this.duels.kits().values()) {
+        for (DuelKit kit : this.duels.kits().values()) {
             if (i >= MODE_SLOTS.length) {
                 break;
             }
 
-            long j = playerprofile == null ? 0L : playerprofile.stat("duels." + duelkit.id + ".wins");
-            long k = playerprofile == null ? 0L : playerprofile.stat("duels." + duelkit.id + ".losses");
-            List<String> arraylist = new ArrayList<>();
-            arraylist.add("&7Győzelmek: &a" + j);
-            arraylist.add("&7Vereségek: &c" + k);
-            if (duelkit.ranked) {
-                int l = this.duels.elo(player, duelkit.id);
-                arraylist.add("&7Elo: &f" + l + " &8(" + Elo.division(l) + "&8)");
+            long j = profile == null ? 0L : profile.stat("duels." + kit.id + ".wins");
+            long k = profile == null ? 0L : profile.stat("duels." + kit.id + ".losses");
+            List<String> result = new ArrayList<>();
+            result.add("&7Győzelmek: &a" + j);
+            result.add("&7Vereségek: &c" + k);
+            if (kit.ranked) {
+                int l = this.duels.elo(player, kit.id);
+                result.add("&7Elo: &f" + l + " &8(" + Elo.division(l) + "&8)");
             }
 
-            menu.set(MODE_SLOTS[i++], Items.of(duelkit.icon).name(duelkit.name).lore(arraylist).hideAll().build());
+            menu.set(MODE_SLOTS[i++], Items.of(kit.icon).name(kit.name).lore(result).hideAll().build());
         }
 
         menu.set(49, Items.of(Material.ARROW).name(this.raw("menu.back")).build(), this::open);
@@ -163,13 +163,13 @@ public final class DuelsMenu {
 
             Player player1 = Bukkit.getPlayer(match.red);
             if (player1 != null) {
-                List<String> arraylist = new ArrayList<>();
-                arraylist.add("&7" + Text.color(match.kit.name));
-                arraylist.add("&7Állás: &f" + match.redWins + " - " + match.blueWins);
-                arraylist.add("&7Nézők: &f" + match.spectators.size());
-                arraylist.add("");
-                arraylist.add("&e» Kattints a nézéshez!");
-                menu.set(MODE_SLOTS[i++], Items.head(player1).name("&c" + match.redName + " &7vs &9" + match.blueName).lore(arraylist).build(), player2 -> {
+                List<String> result = new ArrayList<>();
+                result.add("&7" + Text.color(match.kit.name));
+                result.add("&7Állás: &f" + match.redWins + " - " + match.blueWins);
+                result.add("&7Nézők: &f" + match.spectators.size());
+                result.add("");
+                result.add("&e» Kattints a nézéshez!");
+                menu.set(MODE_SLOTS[i++], Items.head(player1).name("&c" + match.redName + " &7vs &9" + match.blueName).lore(result).build(), player2 -> {
                     player2.closeInventory();
                     Player player3 = Bukkit.getPlayer(match.red);
                     if (player3 != null) {
@@ -192,16 +192,16 @@ public final class DuelsMenu {
         menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
         int j = 0;
 
-        for (DuelKit duelkit : this.duels.kits().values()) {
+        for (DuelKit kit : this.duels.kits().values()) {
             if (j >= MODE_SLOTS.length) {
                 break;
             }
 
-            List<String> arraylist = new ArrayList<>(duelkit.description);
-            arraylist.add("");
-            arraylist.add(this.raw("duels.menu.click-invite"));
-            String s = duelkit.id;
-            menu.set(MODE_SLOTS[j++], Items.of(duelkit.icon).name(duelkit.name).lore(arraylist).hideAll().build(), player3 -> {
+            List<String> result = new ArrayList<>(kit.description);
+            result.add("");
+            result.add(this.raw("duels.menu.click-invite"));
+            String s = kit.id;
+            menu.set(MODE_SLOTS[j++], Items.of(kit.icon).name(kit.name).lore(result).hideAll().build(), player3 -> {
                 player3.closeInventory();
                 Player player4 = Bukkit.getPlayer(player1.getUniqueId());
                 if (player4 == null) {

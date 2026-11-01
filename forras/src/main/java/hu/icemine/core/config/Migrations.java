@@ -340,6 +340,13 @@ public final class Migrations {
             files.save("modelobbies");
             notes.add("modelobbies.yml: minden játékmód saját témájú lobbyt kap, most újraépülnek");
         }
+        YamlConfiguration duelsFile = files.get("duels");
+        if (duelsFile != null && duelsFile.isSet("arenas") && !duelsFile.getBoolean("migrated.arenas-v2", false)) {
+            duelsFile.set("built", null);
+            duelsFile.set("migrated.arenas-v2", true);
+            files.save("duels");
+            notes.add("duels.yml: új Duels arénák (lelátó, tornyok, fedezékek, sumo kert, Bridge szigetek), most újraépülnek");
+        }
         YamlConfiguration combofly = files.get("combofly");
         if (refresh(combofly, "migrated.combo-v2", "knockback-horizontal", "knockback-vertical", "combo-scaling", "max-vertical", "max-height",
                 "hit-delay-ticks", "damage-multiplier", "modes.combofly")) {

@@ -35,71 +35,71 @@ public final class DuelKit {
     final ItemStack[] armor = new ItemStack[4];
     final List<PotionEffect> effects = new ArrayList<>();
 
-    private DuelKit(String s, ConfigurationSection configurationsection) {
+    private DuelKit(String s, ConfigurationSection section) {
         this.id = s;
-        this.name = configurationsection.getString("name", s);
-        this.icon = Items.material(configurationsection.getString("icon", "IRON_SWORD"), Material.IRON_SWORD);
-        this.description = new ArrayList<>(configurationsection.getStringList("description"));
-        this.arena = configurationsection.getString("arena", "classic").toLowerCase(Locale.ROOT);
+        this.name = section.getString("name", s);
+        this.icon = Items.material(section.getString("icon", "IRON_SWORD"), Material.IRON_SWORD);
+        this.description = new ArrayList<>(section.getStringList("description"));
+        this.arena = section.getString("arena", "classic").toLowerCase(Locale.ROOT);
 
         DuelKit.Rule duelkit$rule;
         try {
-            duelkit$rule = DuelKit.Rule.valueOf(configurationsection.getString("rule", "normal").toUpperCase(Locale.ROOT));
+            duelkit$rule = DuelKit.Rule.valueOf(section.getString("rule", "normal").toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException illegalargumentexception) {
             duelkit$rule = DuelKit.Rule.NORMAL;
         }
 
         this.rule = duelkit$rule;
-        this.oldCombat = configurationsection.getBoolean("old-combat", true);
-        this.hitDelay = Math.max(1, Math.min(20, configurationsection.getInt("hit-delay", 20)));
-        this.hunger = configurationsection.getBoolean("hunger", false);
-        this.regen = configurationsection.getBoolean("natural-regen", true);
-        this.build = configurationsection.getBoolean("build", false);
-        this.ranked = configurationsection.getBoolean("ranked", true);
+        this.oldCombat = section.getBoolean("old-combat", true);
+        this.hitDelay = Math.max(1, Math.min(20, section.getInt("hit-delay", 20)));
+        this.hunger = section.getBoolean("hunger", false);
+        this.regen = section.getBoolean("natural-regen", true);
+        this.build = section.getBoolean("build", false);
+        this.ranked = section.getBoolean("ranked", true);
         int i = this.rule == DuelKit.Rule.BOXING ? 100 : (this.rule == DuelKit.Rule.BRIDGE ? 5 : 1);
-        this.target = Math.max(1, configurationsection.getInt("target", i));
-        this.permission = configurationsection.getString("permission", "");
+        this.target = Math.max(1, section.getInt("target", i));
+        this.permission = section.getString("permission", "");
     }
 
-    public static DuelKit read(String s, ConfigurationSection configurationsection, List<String> list) {
-        DuelKit duelkit = new DuelKit(s, configurationsection);
+    public static DuelKit read(String s, ConfigurationSection section, List<String> list) {
+        DuelKit kit = new DuelKit(s, section);
         String s1 = "duels.yml -> modes." + s;
 
-        for (String s2 : configurationsection.getStringList("items")) {
-            ItemStack itemstack = Kit.parse(null, s2, s1 + ".items", list);
-            if (itemstack != null) {
-                duelkit.items.add(itemstack);
+        for (String s2 : section.getStringList("items")) {
+            ItemStack item = Kit.parse(null, s2, s1 + ".items", list);
+            if (item != null) {
+                kit.items.add(item);
             }
         }
 
         String[] astring1 = new String[]{"boots", "leggings", "chestplate", "helmet"};
 
         for (int j = 0; j < astring1.length; j++) {
-            String s3 = configurationsection.getString("armor." + astring1[j], "");
+            String s3 = section.getString("armor." + astring1[j], "");
             if (!s3.isBlank()) {
-                duelkit.armor[j] = Kit.parse(null, s3, s1 + ".armor", list);
+                kit.armor[j] = Kit.parse(null, s3, s1 + ".armor", list);
             }
         }
 
-        for (String s4 : configurationsection.getStringList("effects")) {
-            String[] astring = s4.trim().split(":");
-            PotionEffectType potioneffecttype = Kit.effect(astring[0]);
+        for (String s4 : section.getStringList("effects")) {
+            String[] args = s4.trim().split(":");
+            PotionEffectType potioneffecttype = Kit.effect(args[0]);
             if (potioneffecttype == null) {
-                list.add(s1 + ".effects: ismeretlen effekt (" + astring[0] + ")");
+                list.add(s1 + ".effects: ismeretlen effekt (" + args[0] + ")");
             } else {
                 int i = 1;
-                if (astring.length > 1) {
+                if (args.length > 1) {
                     try {
-                        i = Math.max(1, Math.min(5, Integer.parseInt(astring[1].trim())));
+                        i = Math.max(1, Math.min(5, Integer.parseInt(args[1].trim())));
                     } catch (NumberFormatException numberformatexception) {
                     }
                 }
 
-                duelkit.effects.add(new PotionEffect(potioneffecttype, -1, i - 1, true, false));
+                kit.effects.add(new PotionEffect(potioneffecttype, -1, i - 1, true, false));
             }
         }
 
-        return duelkit;
+        return kit;
     }
 
     public boolean allowed(Player player) {
@@ -110,21 +110,21 @@ public final class DuelKit {
         return this.build || this.rule == DuelKit.Rule.BRIDGE;
     }
 
-    public void equip(Player player, DuelKit.Side duelkit$side) {
-        PlayerInventory playerinventory = player.getInventory();
-        playerinventory.clear();
+    public void equip(Player player, DuelKit.Side side) {
+        PlayerInventory inventory = player.getInventory();
+        inventory.clear();
 
-        for (ItemStack itemstack : this.items) {
-            playerinventory.addItem(tint(itemstack.clone(), duelkit$side));
+        for (ItemStack item : this.items) {
+            inventory.addItem(tint(item.clone(), side));
         }
 
         ItemStack[] aitemstack = new ItemStack[4];
 
         for (int i = 0; i < 4; i++) {
-            aitemstack[i] = this.armor[i] == null ? null : tint(this.armor[i].clone(), duelkit$side);
+            aitemstack[i] = this.armor[i] == null ? null : tint(this.armor[i].clone(), side);
         }
 
-        playerinventory.setArmorContents(aitemstack);
+        inventory.setArmorContents(aitemstack);
 
         for (PotionEffect potioneffect : new ArrayList<>(player.getActivePotionEffects())) {
             player.removePotionEffect(potioneffect.getType());
@@ -134,25 +134,25 @@ public final class DuelKit {
             player.addPotionEffect(potioneffect1);
         }
 
-        playerinventory.setHeldItemSlot(0);
+        inventory.setHeldItemSlot(0);
     }
 
-    static ItemStack tint(ItemStack itemstack, DuelKit.Side duelkit$side) {
-        if (duelkit$side != null && itemstack != null) {
-            String s = itemstack.getType().name();
+    static ItemStack tint(ItemStack item, DuelKit.Side side) {
+        if (side != null && item != null) {
+            String s = item.getType().name();
             if ((!s.endsWith("_TERRACOTTA") || s.equals("TERRACOTTA")) && !s.endsWith("_WOOL")) {
-                ItemMeta itemmeta = itemstack.getItemMeta();
+                ItemMeta itemmeta = item.getItemMeta();
                 if (itemmeta instanceof LeatherArmorMeta) {
-                    ((LeatherArmorMeta)itemmeta).setColor(duelkit$side.color);
-                    itemstack.setItemMeta(itemmeta);
+                    ((LeatherArmorMeta)itemmeta).setColor(side.color);
+                    item.setItemMeta(itemmeta);
                 }
 
-                return itemstack;
+                return item;
             } else {
-                return new ItemStack(s.endsWith("_WOOL") ? duelkit$side.wool : duelkit$side.terracotta, itemstack.getAmount());
+                return new ItemStack(s.endsWith("_WOOL") ? side.wool : side.terracotta, item.getAmount());
             }
         } else {
-            return itemstack;
+            return item;
         }
     }
 

@@ -1,0 +1,4 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.7.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.7.0
+changes: []

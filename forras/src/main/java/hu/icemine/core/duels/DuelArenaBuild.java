@@ -3,315 +3,546 @@ package hu.icemine.core.duels;
 import hu.icemine.core.build.Build;
 import hu.icemine.core.build.Layout;
 
+/**
+ * A Duels arénák. Típus (classic, sumo, bridge, builduhc, crystal) és téma (forest, desert, ice, nether) szerint épül.
+ * A játékhoz fontos méretek (a pálya határa, a spawnok, a Bridge kapuk, a leesési magasság) fixek, a dísz körülöttük van.
+ * Classic/UHC/Crystal/Sumo: a piros a pálya északi (z-), a kék a déli (z+) oldalán kezd. Bridge: a kék sziget van északon.
+ */
 public final class DuelArenaBuild extends Build {
+
     public static final int HALF = 24;
     public static final int WALL = 6;
     public static final int CEILING = 24;
     public static final int DEPTH = 12;
+    /** Ennyivel nagyobb területet kell újraépítéskor letakarítani a határnál (a lelátók miatt). */
+    public static final int MARGIN = 7;
+
     private final String type;
     private final String theme;
 
-    public DuelArenaBuild(Build.Sink build$sink, int i, int j, int k, String s, String s1) {
-        super(build$sink, i, j, k);
-        this.type = s == null ? "classic" : s;
-        this.theme = s1 == null ? "forest" : s1;
+    public DuelArenaBuild(Build.Sink sink, int x, int y, int z, String type, String theme) {
+        super(sink, x, y, z);
+        this.type = type == null ? "classic" : type;
+        this.theme = theme == null ? "forest" : theme;
     }
 
     @Override
     public void build() {
-        switch (this.type) {
+        switch (type) {
             case "sumo":
-                this.sumo();
+                sumo();
                 break;
             case "bridge":
-                this.bridge();
+                bridge();
                 break;
             case "builduhc":
-                this.uhc();
+                uhc();
                 break;
             case "crystal":
-                this.crystal();
+                crystal();
                 break;
             default:
-                this.classic();
+                classic();
         }
     }
 
-    private String floor(int i, int j) {
-        double d0 = noise(i, j, 301);
-        double d1 = smooth(i, j, 6.0, 302);
-        switch (this.theme) {
+    // ---- anyagok témánként ----
+
+    private String floor(int x, int z) {
+        double n = noise(x, z, 301);
+        double s = smooth(x, z, 6.0, 302);
+        switch (theme) {
             case "desert":
-                return d1 > 0.7 ? "cut_sandstone" : (d0 < 0.6 ? "smooth_sandstone" : (d0 < 0.85 ? "sandstone" : "chiseled_sandstone"));
+                return s > 0.7 ? "cut_sandstone" : (n < 0.6 ? "smooth_sandstone" : (n < 0.85 ? "sandstone" : "chiseled_sandstone"));
             case "ice":
-                return d1 > 0.72 ? "light_blue_concrete_powder" : (d0 < 0.8 ? "snow_block" : "white_concrete_powder");
+                return s > 0.72 ? "light_blue_concrete_powder" : (n < 0.8 ? "snow_block" : "white_concrete_powder");
             case "nether":
-                return d1 > 0.7 ? "crimson_nylium" : (d0 < 0.6 ? "nether_bricks" : (d0 < 0.85 ? "polished_blackstone_bricks" : "cracked_nether_bricks"));
+                return s > 0.7 ? "crimson_nylium" : (n < 0.6 ? "nether_bricks" : (n < 0.85 ? "polished_blackstone_bricks" : "cracked_nether_bricks"));
             default:
-                return d1 > 0.72 ? "moss_block" : (d0 < 0.85 ? "grass_block" : "coarse_dirt");
+                return s > 0.72 ? "moss_block" : (n < 0.93 ? "grass_block" : "coarse_dirt");
         }
     }
 
-    private String wall(int i, int j, int k) {
-        double d0 = noise(i + j, k - j, 303);
-        switch (this.theme) {
+    private String wall(int x, int y, int z) {
+        double n = noise(x + y, z - y, 303);
+        switch (theme) {
             case "desert":
-                return j == 5 ? "chiseled_sandstone" : (d0 < 0.6 ? "sandstone" : "cut_sandstone");
+                return y >= 5 ? "chiseled_sandstone" : (n < 0.6 ? "sandstone" : "cut_sandstone");
             case "ice":
-                return j == 5 ? "snow_block" : (d0 < 0.55 ? "packed_ice" : "stone_bricks");
+                return y >= 5 ? "snow_block" : (y <= 1 ? "stone_bricks" : (n < 0.85 ? "packed_ice" : "blue_ice"));
             case "nether":
-                return j == 5 ? "chiseled_polished_blackstone" : (d0 < 0.6 ? "nether_bricks" : "polished_blackstone_bricks");
+                return y >= 5 ? "chiseled_polished_blackstone" : (n < 0.6 ? "nether_bricks" : "polished_blackstone_bricks");
             default:
-                return j == 5 ? "mossy_stone_bricks" : (d0 < 0.6 ? "stone_bricks" : (d0 < 0.85 ? "mossy_stone_bricks" : "cracked_stone_bricks"));
+                return y >= 5 ? "mossy_stone_bricks" : (n < 0.6 ? "stone_bricks" : (n < 0.85 ? "mossy_stone_bricks" : "cracked_stone_bricks"));
         }
     }
 
-    private String under(int i, int j, int k) {
-        double d0 = noise(i + j, k + j, 304);
-        if (this.theme.equals("desert")) {
-            return d0 < 0.7 ? "sandstone" : "terracotta";
-        } else if (this.theme.equals("nether")) {
-            return d0 < 0.7 ? "netherrack" : "blackstone";
-        } else {
-            return d0 < 0.6 ? "stone" : (d0 < 0.85 ? "andesite" : "dirt");
+    private String wallTop() {
+        switch (theme) {
+            case "desert":
+                return "sandstone_wall";
+            case "ice":
+                return "stone_brick_wall";
+            case "nether":
+                return "polished_blackstone_wall";
+            default:
+                return "mossy_stone_brick_wall";
         }
     }
 
-    private void box(int i, int j) {
-        for (int k = -i - 1; k <= i + 1; k++) {
-            for (int l = -i - 1; l <= i + 1; l++) {
-                boolean flag = Math.abs(k) == i + 1 || Math.abs(l) == i + 1;
+    private String accent() {
+        switch (theme) {
+            case "desert":
+                return "smooth_sandstone";
+            case "ice":
+                return "packed_ice";
+            case "nether":
+                return "polished_blackstone";
+            default:
+                return "polished_andesite";
+        }
+    }
 
-                for (int i1 = -3; i1 < 0; i1++) {
-                    this.put(k, i1, l, this.under(k, i1, l));
+    private String light() {
+        return theme.equals("nether") ? "soul_lantern[hanging=false]" : "lantern[hanging=false]";
+    }
+
+    private String seat() {
+        switch (theme) {
+            case "desert":
+                return "sandstone_stairs";
+            case "ice":
+                return "stone_brick_stairs";
+            case "nether":
+                return "nether_brick_stairs";
+            default:
+                return "spruce_stairs";
+        }
+    }
+
+    private String under(int x, int y, int z) {
+        double n = noise(x + y, z + y, 304);
+        if (theme.equals("desert")) {
+            return n < 0.7 ? "sandstone" : "terracotta";
+        }
+        if (theme.equals("nether")) {
+            return n < 0.7 ? "netherrack" : "blackstone";
+        }
+        return n < 0.6 ? "stone" : (n < 0.85 ? "andesite" : "dirt");
+    }
+
+    // ---- közös elemek: fal, sarok tornyok, csapat zászlók, lelátó ----
+
+    private void box(int half, int ceiling) {
+        for (int x = -half - 1; x <= half + 1; x++) {
+            for (int z = -half - 1; z <= half + 1; z++) {
+                boolean edge = Math.abs(x) == half + 1 || Math.abs(z) == half + 1;
+                for (int y = -3; y < 0; y++) {
+                    put(x, y, z, under(x, y, z));
                 }
+                if (!edge) {
+                    put(x, ceiling, z, "barrier");
+                    continue;
+                }
+                for (int y = 0; y <= WALL - 1; y++) {
+                    put(x, y, z, wall(x, y, z));
+                }
+                put(x, WALL, z, Math.floorMod(x + z, 2) == 0 ? wall(x, 5, z) : wallTop());
+                for (int y = WALL + 1; y <= ceiling; y++) {
+                    put(x, y, z, "barrier");
+                }
+            }
+        }
+        // a fal belső szegélye és csapatszínű csík a két kezdő oldalon
+        for (int i = -half; i <= half; i++) {
+            put(i, 2, -half - 1, Math.floorMod(i, 4) == 0 ? "red_glazed_terracotta" : wall(i, 2, -half - 1));
+            put(i, 2, half + 1, Math.floorMod(i, 4) == 0 ? "blue_glazed_terracotta" : wall(i, 2, half + 1));
+        }
+        for (int sx = -1; sx <= 1; sx += 2) {
+            for (int sz = -1; sz <= 1; sz += 2) {
+                tower(sx * (half + 1), sz * (half + 1));
+            }
+        }
+        for (int i = -2; i <= 2; i++) {
+            int x = i * (half / 3);
+            put(x, 4, -half, "red_wall_banner[facing=south]");
+            put(x, 4, half, "blue_wall_banner[facing=north]");
+        }
+        layout.areas.put("bounds", new Layout.Area(-half, -12, -half, half, ceiling - 1, half));
+    }
 
-                if (!flag) {
-                    this.put(k, j, l, "barrier");
+    private void tower(int x, int z) {
+        for (int y = 0; y <= WALL + 3; y++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    // a csipkézett tetőn a rések helyén marad a fal barrierje, így ott sem lehet kimászni
+                    if (y == WALL + 3 && Math.floorMod(dx + dz, 2) != 0) {
+                        continue;
+                    }
+                    put(x + dx, y, z + dz, wall(x + dx, Math.min(5, y), z + dz));
+                }
+            }
+        }
+        put(x, WALL + 4, z, light());
+    }
+
+    /** Lelátó a pálya két hosszanti oldalán, a falon kívül (a nézők innen is láthatják a meccset). */
+    private void stands(int half) {
+        for (int side = -1; side <= 1; side += 2) {
+            for (int tier = 0; tier < 4; tier++) {
+                int x = side * (half + 2 + tier);
+                int seatY = WALL - 2 + tier;
+                for (int z = -half + 3; z <= half - 3; z++) {
+                    for (int y = 0; y < seatY; y++) {
+                        put(x, y, z, wall(x, Math.min(4, y), z));
+                    }
+                    // a lépcső magas fele kifelé néz, így a néző a pálya felé fordul
+                    String facing = side < 0 ? "west" : "east";
+                    put(x, seatY, z, Math.floorMod(z, 6) == 0 ? light() : seat() + "[facing=" + facing + ",half=bottom]");
+                }
+            }
+            // korlát a legfelső sor mögött
+            int back = side * (half + 6);
+            for (int z = -half + 3; z <= half - 3; z++) {
+                for (int y = 0; y <= WALL + 2; y++) {
+                    put(back, y, z, wall(back, Math.min(5, y), z));
+                }
+                put(back, WALL + 3, z, Math.floorMod(z, 2) == 0 ? wallTop() : "air");
+            }
+        }
+    }
+
+    private void spawns(double distance) {
+        layout.point("spawn:red", 0.5, 1, -distance + 0.5, 0);
+        layout.point("spawn:blue", 0.5, 1, distance + 0.5, 180);
+    }
+
+    /** A pálya közepén a jel: kör, félig piros, félig kék. */
+    private void emblem(int y) {
+        for (int x = -5; x <= 5; x++) {
+            for (int z = -5; z <= 5; z++) {
+                double d = dist(x, z);
+                if (d > 5.2) {
+                    continue;
+                }
+                String block;
+                if (d < 1.3) {
+                    block = theme.equals("nether") ? "gilded_blackstone" : "gold_block";
+                } else if (d > 4.2) {
+                    block = accent();
+                } else if (d > 3.2) {
+                    block = z < 0 ? "red_terracotta" : (z > 0 ? "blue_terracotta" : "white_terracotta");
                 } else {
-                    this.put(k, 0, l, this.wall(k, 0, l));
+                    block = floor(x, z);
+                }
+                put(x, y, z, block);
+            }
+        }
+    }
 
-                    for (int l1 = 1; l1 < 6; l1++) {
-                        this.put(k, l1, l, this.wall(k, l1, l));
-                    }
-
-                    for (int i2 = 6; i2 <= j; i2++) {
-                        this.put(k, i2, l, "barrier");
-                    }
+    /** Fedezékek: romos oszlopok és alacsony falak témához illő anyagból. */
+    private void cover(int half) {
+        int[][] ruins = {{-9, -9}, {9, -9}, {-9, 9}, {9, 9}};
+        for (int[] r : ruins) {
+            int height = 3 + (int) (noise(r[0], r[1], 310) * 2);
+            for (int y = 1; y <= height; y++) {
+                put(r[0], y, r[1], wall(r[0], Math.min(4, y), r[1]));
+            }
+            put(r[0], height + 1, r[1], light());
+            int[][] rubble = {{1, 0}, {0, 1}, {-1, 1}, {1, -1}};
+            for (int[] d : rubble) {
+                if (noise(r[0] + d[0], r[1] + d[1], 311) < 0.7) {
+                    put(r[0] + d[0], 1, r[1] + d[1], wall(r[0] + d[0], 1, r[1] + d[1]));
+                }
+            }
+            decoration(r[0] + 2, r[1] - 2);
+        }
+        for (int side = -1; side <= 1; side += 2) {
+            int x = side * 16;
+            for (int z = -2; z <= 2; z++) {
+                put(x, 1, z, wall(x, 1, z));
+                if (Math.abs(z) <= 1) {
+                    put(x, 2, z, wallTop());
                 }
             }
         }
+    }
 
-        for (byte b0 = -1; b0 <= 1; b0 += 2) {
-            for (byte b1 = -1; b1 <= 1; b1 += 2) {
-                int k1 = b0 * i;
-                int j2 = b1 * i;
-
-                for (int j1 = 1; j1 <= 6; j1++) {
-                    this.put(k1, j1, j2, this.wall(k1, 5, j2));
-                }
-
-                this.put(k1, 7, j2, "lantern[hanging=false]");
-            }
+    private void decoration(int x, int z) {
+        switch (theme) {
+            case "desert":
+                put(x, 1, z, "dead_bush");
+                break;
+            case "ice":
+                put(x, 1, z, "packed_ice");
+                put(x, 2, z, "ice");
+                break;
+            case "nether":
+                put(x, 1, z, "crimson_roots");
+                break;
+            default:
+                put(x, 1, z, "azalea");
         }
-
-        this.layout.areas.put("bounds", new Layout.Area(-i, -12, -i, i, j - 1, i));
     }
 
-    private void spawns(double d0) {
-        this.layout.point("spawn:red", 0.5, 1.0, -d0 + 0.5, 0.0);
-        this.layout.point("spawn:blue", 0.5, 1.0, d0 + 0.5, 180.0);
-    }
+    // ---- típusok ----
 
     private void classic() {
-        for (int i = -24; i <= 24; i++) {
-            for (int j = -24; j <= 24; j++) {
-                this.put(i, 0, j, this.floor(i, j));
+        for (int x = -HALF; x <= HALF; x++) {
+            for (int z = -HALF; z <= HALF; z++) {
+                boolean border = Math.abs(x) >= HALF - 1 || Math.abs(z) >= HALF - 1;
+                put(x, 0, z, border ? accent() : floor(x, z));
             }
         }
+        box(HALF, CEILING);
+        emblem(0);
+        cover(HALF);
+        stands(HALF);
+        spawns(16);
+        spawnPads(16);
+    }
 
-        this.box(24, 24);
-        int[][] aint1 = new int[][]{{-9, -9}, {9, -9}, {-9, 9}, {9, 9}};
-
-        for (int[] aint : aint1) {
-            for (int k = 1; k <= 3; k++) {
-                this.put(aint[0], k, aint[1], this.wall(aint[0], k, aint[1]));
+    private void spawnPads(int distance) {
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                put(x, 0, -distance + z, x == 0 && z == 0 ? "red_concrete" : "red_terracotta");
+                put(x, 0, distance + z, x == 0 && z == 0 ? "blue_concrete" : "blue_terracotta");
             }
-
-            this.put(aint[0], 4, aint[1], "lantern[hanging=false]");
         }
-
-        this.spawns(16.0);
     }
 
     private void sumo() {
-        double d0 = 7.5;
-
-        for (int i = -10; i <= 10; i++) {
-            for (int j = -10; j <= 10; j++) {
-                double d1 = dist(i, j);
-                if (d1 <= d0) {
-                    this.put(
-                        i,
-                        0,
-                        j,
-                        d1 > d0 - 1.0 ? "white_concrete" : (d1 < 1.5 ? "red_concrete" : (Math.floorMod(i + j, 2) == 0 ? "smooth_stone" : "polished_andesite"))
-                    );
-                    int k = 1 + (int)Math.round((1.0 - d1 / d0) * 7.0);
-
-                    for (int l = -k; l < 0; l++) {
-                        this.put(i, l, j, this.under(i, l, j));
+        double radius = 7.5;
+        for (int x = -10; x <= 10; x++) {
+            for (int z = -10; z <= 10; z++) {
+                double d = dist(x, z);
+                if (d > radius) {
+                    continue;
+                }
+                String top;
+                if (d > radius - 1.0) {
+                    top = "white_concrete";
+                } else if (d < 1.5) {
+                    top = "red_concrete";
+                } else if (d > radius - 2.2) {
+                    top = "stripped_bamboo_block[axis=y]";
+                } else {
+                    top = Math.floorMod(x + z, 2) == 0 ? "bamboo_mosaic" : "bamboo_planks";
+                }
+                put(x, 0, z, top);
+                int depth = 1 + (int) Math.round((1.0 - d / radius) * 7.0);
+                for (int y = -depth; y < 0; y++) {
+                    put(x, y, z, under(x, y, z));
+                }
+            }
+        }
+        for (int x = -16; x <= 16; x++) {
+            for (int z = -16; z <= 16; z++) {
+                double d = dist(x, z);
+                if (d > radius + 3.0 && d <= 16.0) {
+                    put(x, -6, z, "water");
+                    put(x, -7, z, "sand");
+                    if (noise(x, z, 312) < 0.03) {
+                        put(x, -5, z, "lily_pad");
+                    }
+                }
+                if (d > 15.0 && d <= 16.2) {
+                    for (int y = -6; y <= 1; y++) {
+                        put(x, y, z, y == 1 ? "dark_oak_slab[type=bottom]" : (y == 0 ? "stripped_dark_oak_log[axis=y]" : "stone_bricks"));
+                    }
+                    for (int y = 2; y <= 8; y++) {
+                        put(x, y, z, "barrier");
                     }
                 }
             }
         }
-
-        for (int i1 = -16; i1 <= 16; i1++) {
-            for (int j1 = -16; j1 <= 16; j1++) {
-                double d2 = dist(i1, j1);
-                if (d2 > d0 + 3.0 && d2 <= 16.0) {
-                    this.put(i1, -6, j1, "water");
-                    this.put(i1, -7, j1, "sand");
-                }
-
-                if (d2 > 15.0 && d2 <= 16.2) {
-                    for (int k1 = -6; k1 <= 2; k1++) {
-                        this.put(i1, k1, j1, k1 == 2 ? "stone_brick_wall[up=true]" : "stone_bricks");
-                    }
-                }
-            }
+        // négy torii kapu a peremen
+        int[][] gates = {{0, -15, 0}, {0, 15, 0}, {-15, 0, 1}, {15, 0, 1}};
+        for (int[] g : gates) {
+            torii(g[0], g[1], g[2] == 1);
         }
-
-        this.layout.areas.put("bounds", new Layout.Area(-16, -12, -16, 16, 20, 16));
-        this.layout.point("spawn:red", 0.5, 1.0, -3.5, 0.0);
-        this.layout.point("spawn:blue", 0.5, 1.0, 4.5, 180.0);
-        this.layout.point("fall", 0.0, -2.0, 0.0, 0.0);
+        // cseresznyefák a kapuk között
+        int[][] trees = {{-11, -11}, {11, -11}, {-11, 11}, {11, 11}};
+        for (int[] t : trees) {
+            cherry(t[0], t[1]);
+        }
+        layout.areas.put("bounds", new Layout.Area(-16, -12, -16, 16, 20, 16));
+        layout.point("spawn:red", 0.5, 1, -3.5, 0);
+        layout.point("spawn:blue", 0.5, 1, 4.5, 180);
+        layout.point("fall", 0, -2, 0, 0);
     }
 
-    private void island(int i, String s) {
-        for (int j = -6; j <= 6; j++) {
-            for (int k = -6; k <= 6; k++) {
-                int l = i + k;
-                boolean flag = Math.abs(j) == 6 || Math.abs(k) == 6;
-                this.put(j, 0, l, flag ? s + "_terracotta" : (noise(j, l, 305) < 0.8 ? "stone_bricks" : "cracked_stone_bricks"));
-                int i1 = flag ? 2 : 4 + (int)(noise(j, l, 306) * 3.0);
+    private void torii(int x, int z, boolean alongZ) {
+        for (int side = -1; side <= 1; side += 2) {
+            int px = alongZ ? x : x + side * 2;
+            int pz = alongZ ? z + side * 2 : z;
+            for (int y = 1; y <= 5; y++) {
+                put(px, y, pz, "crimson_stem[axis=y]");
+            }
+        }
+        for (int i = -3; i <= 3; i++) {
+            int bx = alongZ ? x : x + i;
+            int bz = alongZ ? z + i : z;
+            put(bx, 6, bz, "red_concrete");
+            if (Math.abs(i) <= 2) {
+                put(bx, 4, bz, "crimson_planks");
+            }
+        }
+        put(x, 3, z, "lantern[hanging=true]");
+    }
 
-                for (int j1 = -i1; j1 < 0; j1++) {
-                    this.put(j, j1, l, this.under(j, j1, l));
+    private void cherry(int x, int z) {
+        for (int y = 1; y <= 4; y++) {
+            put(x, y, z, "cherry_log[axis=y]");
+        }
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                for (int y = 4; y <= 6; y++) {
+                    if (dist(dx, dz) + Math.abs(y - 5) * 0.8 <= 2.6) {
+                        put(x + dx, y, z + dz, "cherry_leaves[persistent=true]");
+                    }
+                }
+            }
+        }
+    }
+
+    private void island(int center, String team) {
+        for (int x = -6; x <= 6; x++) {
+            for (int dz = -6; dz <= 6; dz++) {
+                int z = center + dz;
+                boolean edge = Math.abs(x) == 6 || Math.abs(dz) == 6;
+                String top = edge ? team + "_concrete" : (Math.floorMod(x + dz, 2) == 0 ? team + "_terracotta" : "white_terracotta");
+                put(x, 0, z, top);
+                int depth = edge ? 2 : 4 + (int) (noise(x, z, 306) * 3);
+                for (int y = -depth; y < 0; y++) {
+                    put(x, y, z, under(x, y, z));
+                }
+            }
+        }
+        for (int sx = -1; sx <= 1; sx += 2) {
+            for (int sz = -1; sz <= 1; sz += 2) {
+                int px = sx * 6;
+                int pz = center + sz * 6;
+                put(px, 1, pz, team + "_concrete");
+                put(px, 2, pz, "stone_brick_wall");
+                put(px, 3, pz, team + "_banner[rotation=" + (center < 0 ? 0 : 8) + "]");
+            }
+        }
+    }
+
+    private void goal(int center, String team) {
+        for (int x = -3; x <= 3; x++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                int z = center + dz;
+                boolean hole = Math.abs(x) <= 2 && Math.abs(dz) <= 1;
+                if (hole) {
+                    put(x, 0, z, "end_portal");
+                    put(x, -1, z, "bedrock");
+                } else {
+                    put(x, 0, z, "end_stone_bricks");
+                    put(x, 1, z, team + "_stained_glass");
                 }
             }
         }
     }
 
     private void bridge() {
-        this.island(-27, "blue");
-        this.island(27, "red");
-
-        for (int i = -4; i <= 4; i++) {
-            for (int j = -4; j <= 4; j++) {
-                this.put(i, 0, j, Math.abs(i) != 4 && Math.abs(j) != 4 ? "smooth_stone" : "white_terracotta");
-
-                for (int k = -3; k < 0; k++) {
-                    this.put(i, k, j, this.under(i, k, j));
+        island(-27, "blue");
+        island(27, "red");
+        for (int x = -4; x <= 4; x++) {
+            for (int z = -4; z <= 4; z++) {
+                boolean edge = Math.abs(x) == 4 || Math.abs(z) == 4;
+                put(x, 0, z, edge ? "white_terracotta" : (dist(x, z) < 1.5 ? "gold_block" : "smooth_quartz"));
+                for (int y = -3; y < 0; y++) {
+                    put(x, y, z, under(x, y, z));
                 }
             }
         }
-
-        for (int i1 = -21; i1 <= 21; i1++) {
-            if (Math.abs(i1) > 4) {
-                this.put(0, 0, i1, "white_terracotta");
+        for (int z = -21; z <= 21; z++) {
+            if (Math.abs(z) > 4) {
+                put(0, 0, z, "white_terracotta");
             }
         }
-
-        for (byte b0 = -1; b0 <= 1; b0 += 2) {
-            int j1 = b0 * 31;
-
-            for (int k1 = -2; k1 <= 2; k1++) {
-                for (int l = -1; l <= 1; l++) {
-                    this.put(k1, 0, j1 + l, "end_portal");
-                    this.put(k1, -1, j1 + l, "bedrock");
-                }
+        goal(-31, "blue");
+        goal(31, "red");
+        for (int side = -1; side <= 1; side += 2) {
+            for (int sx = -1; sx <= 1; sx += 2) {
+                put(sx * 3, 1, side * 27, "stone_brick_wall");
+                put(sx * 3, 2, side * 27, "lantern[hanging=false]");
             }
         }
-
-        for (byte b1 = -1; b1 <= 1; b1 += 2) {
-            for (byte b2 = -1; b2 <= 1; b2 += 2) {
-                this.put(b2 * 3, 1, b1 * 27, "stone_brick_wall[up=true]");
-                this.put(b2 * 3, 2, b1 * 27, "lantern[hanging=false]");
-            }
-        }
-
-        this.layout.areas.put("bounds", new Layout.Area(-20, -12, -36, 20, 30, 36));
-        this.layout.areas.put("goal:blue", new Layout.Area(-2, -1, -32, 2, 1, -30));
-        this.layout.areas.put("goal:red", new Layout.Area(-2, -1, 30, 2, 1, 32));
-        this.layout.point("spawn:blue", 0.5, 1.0, -25.5, 0.0);
-        this.layout.point("spawn:red", 0.5, 1.0, 26.5, 180.0);
-        this.layout.point("fall", 0.0, -8.0, 0.0, 0.0);
+        layout.areas.put("bounds", new Layout.Area(-20, -12, -36, 20, 30, 36));
+        layout.areas.put("goal:blue", new Layout.Area(-2, -1, -32, 2, 1, -30));
+        layout.areas.put("goal:red", new Layout.Area(-2, -1, 30, 2, 1, 32));
+        layout.point("spawn:blue", 0.5, 1, -25.5, 0);
+        layout.point("spawn:red", 0.5, 1, 26.5, 180);
+        layout.point("fall", 0, -8, 0, 0);
     }
 
     private void uhc() {
-        for (int i = -24; i <= 24; i++) {
-            for (int j = -24; j <= 24; j++) {
-                int k = this.uhcTop(i, j);
-                boolean flag = dist(i - 8, j + 6) < 4.2;
-                if (flag) {
-                    k = 0;
+        for (int x = -HALF; x <= HALF; x++) {
+            for (int z = -HALF; z <= HALF; z++) {
+                int top = uhcTop(x, z);
+                boolean pond = dist(x - 8, z + 6) < 4.2;
+                if (pond) {
+                    top = 0;
                 }
-
-                for (int l = 0; l <= k; l++) {
-                    this.put(i, l, j, l == k ? (flag ? "water" : "grass_block") : "dirt");
+                for (int y = 0; y <= top; y++) {
+                    put(x, y, z, y == top ? (pond ? "water" : "grass_block") : "dirt");
                 }
-
-                if (flag) {
-                    this.put(i, -1, j, "sand");
+                if (pond) {
+                    put(x, -1, z, "sand");
                 }
             }
         }
-
-        this.box(24, 28);
-        int[][] aint = new int[][]{{-12, 10}, {13, -12}, {-15, -14}, {16, 12}};
-
-        for (int[] aint1 : aint) {
-            int i1 = this.uhcTop(aint1[0], aint1[1]) + 1;
-
-            for (int j1 = 0; j1 < 5; j1++) {
-                this.put(aint1[0], i1 + j1, aint1[1], "oak_log[axis=y]");
+        box(HALF, 28);
+        stands(HALF);
+        int[][] trees = {{-12, 10}, {13, -12}, {-15, -14}, {16, 12}};
+        for (int[] tree : trees) {
+            int base = uhcTop(tree[0], tree[1]) + 1;
+            for (int y = 0; y < 5; y++) {
+                put(tree[0], base + y, tree[1], "oak_log[axis=y]");
             }
-
-            for (int i2 = -2; i2 <= 2; i2++) {
-                for (int k1 = -2; k1 <= 2; k1++) {
-                    for (int l1 = 3; l1 <= 5; l1++) {
-                        if ((i2 != 0 || k1 != 0 || l1 == 5) && (Math.abs(i2) != 2 || Math.abs(k1) != 2)) {
-                            this.put(aint1[0] + i2, i1 + l1, aint1[1] + k1, "oak_leaves[persistent=true]");
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dz = -2; dz <= 2; dz++) {
+                    for (int y = 3; y <= 5; y++) {
+                        if ((dx != 0 || dz != 0 || y == 5) && (Math.abs(dx) != 2 || Math.abs(dz) != 2)) {
+                            put(tree[0] + dx, base + y, tree[1] + dz, "oak_leaves[persistent=true]");
                         }
                     }
                 }
             }
         }
-
-        this.layout.point("spawn:red", 0.5, this.uhcTop(0, -16) + 1, -15.5, 0.0);
-        this.layout.point("spawn:blue", 0.5, this.uhcTop(0, 16) + 1, 16.5, 180.0);
+        layout.point("spawn:red", 0.5, uhcTop(0, -16) + 1, -15.5, 0);
+        layout.point("spawn:blue", 0.5, uhcTop(0, 16) + 1, 16.5, 180);
     }
 
-    private int uhcTop(int i, int j) {
-        if (dist(i - 8, j + 6) < 4.2) {
+    private int uhcTop(int x, int z) {
+        if (dist(x - 8, z + 6) < 4.2) {
             return 0;
         }
-
-        double d0 = smooth(i, j, 9.0, 307) * 4.0 + smooth(i, j, 4.0, 308) * 1.5;
-        return (int)Math.max(0L, Math.round(d0 - 1.5));
+        double height = smooth(x, z, 9.0, 307) * 4.0 + smooth(x, z, 4.0, 308) * 1.5;
+        return (int) Math.max(0L, Math.round(height - 1.5));
     }
 
     private void crystal() {
-        for (int i = -24; i <= 24; i++) {
-            for (int j = -24; j <= 24; j++) {
-                double d0 = noise(i, j, 309);
-                this.put(i, 0, j, d0 < 0.12 ? "obsidian" : (d0 < 0.6 ? "polished_blackstone" : "blackstone"));
-                this.put(i, -1, j, "bedrock");
+        for (int x = -HALF; x <= HALF; x++) {
+            for (int z = -HALF; z <= HALF; z++) {
+                double n = noise(x, z, 309);
+                boolean border = Math.abs(x) >= HALF - 1 || Math.abs(z) >= HALF - 1;
+                put(x, 0, z, border ? "crying_obsidian" : (n < 0.12 ? "obsidian" : (n < 0.6 ? "polished_blackstone" : "blackstone")));
+                put(x, -1, z, "bedrock");
             }
         }
-
-        this.box(24, 24);
-        this.spawns(14.0);
+        box(HALF, CEILING);
+        stands(HALF);
+        int[][] pillars = {{-12, 0}, {12, 0}, {0, -6}, {0, 6}};
+        for (int[] p : pillars) {
+            for (int y = 1; y <= 2; y++) {
+                put(p[0], y, p[1], "obsidian");
+            }
+        }
+        spawns(14);
+        spawnPads(14);
     }
 }

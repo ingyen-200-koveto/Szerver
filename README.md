@@ -162,6 +162,10 @@ Ezeket az IceMine hozza létre és építi fel magától:
 13 mód: Classic, NoDebuff, Boxing, Combo, ComboFly, Bridge, OP, Sumo, BuildUHC, Axe, Sword, Crystal
 és az IceMine saját kitje. Unranked és ranked sor (Elo), kihívás, visszavágó, best of 3, nézők.
 Az arénák a `duels` világban vannak, beállítás: `plugins/IceMine/duels.yml`.
+Classic: fallal körbezárt pálya lelátóval, sarok tornyokkal, fedezékekkel és csapat zászlókkal, négy témában
+(`themes:` forest, desert, ice, nether). Sumo: japán kert vízzel, torii kapukkal. Bridge: két csapat sziget,
+középen egy kis platform, a kapuk a szigetek végén. BuildUHC: dombos rét fákkal és tóval. Crystal: obszidián pálya.
+Ha az arénákat újra kell építeni: `/duels rebuild` (a szabad arénákat építi újra, jog: `icemine.admin.duels`).
 Parancsok: `/duels`, `/duel <név> [mód] [bo3]`, `/duel accept`, `/duel rematch`, `/duels spectate <név>`.
 
 ## Első telepítés

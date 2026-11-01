@@ -17,15 +17,15 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
     private final IceMineCore core;
     private final Duels duels;
 
-    public DuelsCommand(IceMineCore iceminecore, Duels duels) {
-        this.core = iceminecore;
+    public DuelsCommand(IceMineCore core, Duels duels) {
+        this.core = core;
         this.duels = duels;
     }
 
     @Override
-    public boolean onCommand(CommandSender commandsender, Command command, String s, String[] astring) {
-        if (!(commandsender instanceof Player player)) {
-            this.core.messages().send(commandsender, "general.only-players");
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+        if (!(sender instanceof Player player)) {
+            this.core.messages().send(sender, "general.only-players");
             return true;
         } else {
             if (!this.core.auth().isLoggedIn(player)) {
@@ -34,44 +34,44 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
             }
 
             if (command.getName().equalsIgnoreCase("duel")) {
-                this.duel(player, astring);
+                this.duel(player, args);
             } else {
-                this.duels(player, astring);
+                this.duels(player, args);
             }
 
             return true;
         }
     }
 
-    private void duel(Player player, String[] astring) {
-        if (astring.length == 0) {
+    private void duel(Player player, String[] args) {
+        if (args.length == 0) {
             this.core.messages().sendList(player, "duels.help");
         } else {
-            String s = astring[0].toLowerCase(Locale.ROOT);
+            String s = args[0].toLowerCase(Locale.ROOT);
             switch (s) {
                 case "accept":
                 case "elfogad":
-                    this.duels.accept(player, astring.length > 1 ? astring[1] : null);
+                    this.duels.accept(player, args.length > 1 ? args[1] : null);
                     return;
                 case "deny":
                 case "elutasit":
-                    this.duels.deny(player, astring.length > 1 ? astring[1] : null);
+                    this.duels.deny(player, args.length > 1 ? args[1] : null);
                     return;
                 case "rematch":
                 case "visszavago":
                     this.duels.rematch(player);
                     return;
                 default:
-                    Player player1 = Bukkit.getPlayerExact(astring[0]);
+                    Player player1 = Bukkit.getPlayerExact(args[0]);
                     if (player1 == null) {
                         this.core.messages().send(player, "general.no-player");
                     } else {
-                        int i = astring.length > 2 && astring[2].equalsIgnoreCase("bo3") ? 3 : 1;
-                        if (astring.length > 1 && astring[1].equalsIgnoreCase("bo3")) {
+                        int i = args.length > 2 && args[2].equalsIgnoreCase("bo3") ? 3 : 1;
+                        if (args.length > 1 && args[1].equalsIgnoreCase("bo3")) {
                             byte b0 = 3;
                             this.duels.menu().chooseForInvite(player, player1, b0);
-                        } else if (astring.length > 1) {
-                            this.duels.invite(player, player1, astring[1], i);
+                        } else if (args.length > 1) {
+                            this.duels.invite(player, player1, args[1], i);
                         } else {
                             this.duels.menu().chooseForInvite(player, player1, 1);
                         }
@@ -80,19 +80,19 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void duels(Player player, String[] astring) {
-        if (astring.length == 0) {
+    private void duels(Player player, String[] args) {
+        if (args.length == 0) {
             this.duels.menu().open(player);
         } else {
-            switch (astring[0].toLowerCase(Locale.ROOT)) {
+            switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "queue":
                 case "sor":
-                    if (astring.length < 2) {
+                    if (args.length < 2) {
                         this.duels.menu().open(player);
                         return;
                     }
 
-                    this.duels.join(player, astring[1], astring.length > 2 && astring[2].equalsIgnoreCase("ranked"));
+                    this.duels.join(player, args[1], args.length > 2 && args[2].equalsIgnoreCase("ranked"));
                     return;
                 case "leave":
                 case "kilep":
@@ -110,11 +110,11 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
                     return;
                 case "spectate":
                 case "nez":
-                    if (astring.length < 2) {
+                    if (args.length < 2) {
                         this.duels.menu().spectate(player);
                         return;
                     } else {
-                        Player player1 = Bukkit.getPlayerExact(astring[1]);
+                        Player player1 = Bukkit.getPlayerExact(args[1]);
                         if (player1 == null) {
                             this.core.messages().send(player, "general.no-player");
                             return;
@@ -151,31 +151,31 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandsender, Command command, String s1, String[] astring) {
-        List<String> arraylist = new ArrayList<>();
+    public List<String> onTabComplete(CommandSender sender, Command command, String s1, String[] args) {
+        List<String> result = new ArrayList<>();
         if (command.getName().equalsIgnoreCase("duel")) {
-            if (astring.length == 1) {
-                arraylist.addAll(Arrays.asList("accept", "deny", "rematch"));
+            if (args.length == 1) {
+                result.addAll(Arrays.asList("accept", "deny", "rematch"));
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    arraylist.add(player.getName());
+                    result.add(player.getName());
                 }
-            } else if (astring.length == 2 && !Arrays.asList("accept", "deny", "rematch").contains(astring[0].toLowerCase(Locale.ROOT))) {
-                arraylist.addAll(this.duels.kits().keySet());
-                arraylist.add("bo3");
-            } else if (astring.length == 3) {
-                arraylist.add("bo3");
+            } else if (args.length == 2 && !Arrays.asList("accept", "deny", "rematch").contains(args[0].toLowerCase(Locale.ROOT))) {
+                result.addAll(this.duels.kits().keySet());
+                result.add("bo3");
+            } else if (args.length == 3) {
+                result.add("bo3");
             }
-        } else if (astring.length == 1) {
-            arraylist.addAll(Arrays.asList("queue", "leave", "spectate", "stats", "top"));
-        } else if (astring.length == 2 && astring[0].equalsIgnoreCase("queue")) {
-            arraylist.addAll(this.duels.kits().keySet());
-        } else if (astring.length == 3 && astring[0].equalsIgnoreCase("queue")) {
-            arraylist.add("ranked");
+        } else if (args.length == 1) {
+            result.addAll(Arrays.asList("queue", "leave", "spectate", "stats", "top"));
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("queue")) {
+            result.addAll(this.duels.kits().keySet());
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("queue")) {
+            result.add("ranked");
         }
 
-        String s = astring.length == 0 ? "" : astring[astring.length - 1].toLowerCase(Locale.ROOT);
-        arraylist.removeIf(s2 -> !s2.toLowerCase(Locale.ROOT).startsWith(s));
-        return arraylist;
+        String s = args.length == 0 ? "" : args[args.length - 1].toLowerCase(Locale.ROOT);
+        result.removeIf(s2 -> !s2.toLowerCase(Locale.ROOT).startsWith(s));
+        return result;
     }
 }
