@@ -266,7 +266,18 @@ public final class LobbyMenus {
         combo.add("&7Kombók száma: &f" + profile.stat("combofly.combos"));
         combo.add("&7Ölések: &a" + Text.number(comboKills) + " &8| &7Halálok: &c" + Text.number(comboDeaths));
         combo.add("&7K/D: &f" + Text.ratio(comboKills, comboDeaths) + " &8| &7Legjobb sorozat: &e" + profile.stat("combofly.best_streak"));
-        menu.set(40, Items.of(Material.PRISMARINE_SHARD).name("&3&lComboFly").lore(combo).hideAll().build());
+        menu.set(41, Items.of(Material.PRISMARINE_SHARD).name("&3&lComboFly").lore(combo).hideAll().build());
+        List<String> bedwars = new ArrayList<>();
+        long bwWins = profile.stat("bedwars.wins");
+        long bwGames = profile.stat("bedwars.games");
+        bedwars.add("&7Győzelmek: &a" + Text.number(bwWins) + " &8| &7Meccsek: &f" + Text.number(bwGames));
+        bedwars.add("&7Végső ölések: &b" + Text.number(profile.stat("bedwars.final_kills")) + " &8| &7Végső K/D: &f"
+                + Text.ratio(profile.stat("bedwars.final_kills"), profile.stat("bedwars.final_deaths")));
+        bedwars.add("&7Ölések: &a" + Text.number(profile.stat("bedwars.kills")) + " &8| &7K/D: &f"
+                + Text.ratio(profile.stat("bedwars.kills"), profile.stat("bedwars.deaths")));
+        bedwars.add("&7Lerombolt ágyak: &e" + Text.number(profile.stat("bedwars.beds")));
+        bedwars.add("&7Győzelmi sorozat: &e" + profile.stat("bedwars.streak") + " &8(legjobb: " + profile.stat("bedwars.best_streak") + ")");
+        menu.set(39, Items.of(Material.RED_BED).name("&6&lBedWars").lore(bedwars).hideAll().build());
         back(menu, 49);
         menu.open(viewer);
     }
@@ -284,9 +295,9 @@ public final class LobbyMenus {
     }
 
     public void stats(Player player) {
-        Menu menu = new Menu("stats", 5, title("stats", "&b&lIce&f&lMine &8» &fToplisták"));
+        Menu menu = new Menu("stats", 6, title("stats", "&b&lIce&f&lMine &8» &fToplisták"));
         menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
-        int[] slots = {10, 12, 14, 16, 28, 30, 32, 34};
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34};
         int index = 0;
         for (Leaderboards.Board board : core.leaderboards().boards().values()) {
             if (index >= slots.length) {
@@ -304,7 +315,7 @@ public final class LobbyMenus {
             menu.set(slots[index++], Items.of(icon).name(board.title).lore(lore).hideAll().build());
         }
         menu.set(22, Items.head(player).name(core.messages().raw("selector.profile.name")).lore(core.messages().list("selector.profile.lore")).build(), clicker -> open(clicker, "profile"));
-        back(menu, 40);
+        back(menu, 49);
         menu.open(player);
     }
 

@@ -17,7 +17,7 @@ public final class ModeLobbyBuild extends Build {
     static final int SPAWN_Z = 12;
 
     enum Theme {
-        KITPVP, SKYPVP, COMBOFLY, GENS, KINGDOMS, DUELS, SNOW;
+        KITPVP, SKYPVP, COMBOFLY, GENS, KINGDOMS, DUELS, BEDWARS, SNOW;
 
         static Theme of(String text) {
             if (text == null) {
@@ -100,6 +100,9 @@ public final class ModeLobbyBuild extends Build {
             case DUELS:
                 hall();
                 break;
+            case BEDWARS:
+                camp();
+                break;
             default:
                 trees();
         }
@@ -141,6 +144,8 @@ public final class ModeLobbyBuild extends Build {
                 return s > 0.58 ? "coarse_dirt" : (n < 0.1 ? "moss_block" : "grass_block");
             case DUELS:
                 return n < 0.15 ? "cracked_polished_blackstone_bricks" : (s > 0.6 ? "blackstone" : "polished_blackstone_bricks");
+            case BEDWARS:
+                return s > 0.64 ? "moss_block" : (n < 0.1 ? "coarse_dirt" : "grass_block");
             default:
                 return n < 0.08 ? "white_concrete_powder" : "snow_block";
         }
@@ -157,6 +162,7 @@ public final class ModeLobbyBuild extends Build {
             case SKYPVP:
             case GENS:
             case KINGDOMS:
+            case BEDWARS:
                 if (y > -3) {
                     return "dirt";
                 }
@@ -242,6 +248,13 @@ public final class ModeLobbyBuild extends Build {
                 put(x, 1, z, "blackstone_wall");
                 put(x, 2, z, post ? "soul_lantern[hanging=false]" : "air");
                 break;
+            case BEDWARS:
+                // a perem négy csapatszínben körbe
+                String[] wool = {"red", "blue", "lime", "yellow"};
+                int part = (int) Math.floor((Math.atan2(z, x) + Math.PI) / (Math.PI / 2)) % 4;
+                put(x, 1, z, wool[part] + "_wool");
+                put(x, 2, z, post ? "lantern[hanging=false]" : "air");
+                break;
             default:
                 put(x, 1, z, "stone_brick_wall[up=true]");
                 put(x, 2, z, post ? "lantern[hanging=false]" : "air");
@@ -264,6 +277,8 @@ public final class ModeLobbyBuild extends Build {
                 return new String[]{"stone_bricks", "cobblestone", "chiseled_stone_bricks"};
             case DUELS:
                 return new String[]{"polished_blackstone", "smooth_quartz", "chiseled_polished_blackstone"};
+            case BEDWARS:
+                return new String[]{"oak_planks", "smooth_stone", c("terracotta")};
             default:
                 return new String[]{"polished_andesite", "smooth_stone", c("concrete")};
         }
@@ -336,6 +351,8 @@ public final class ModeLobbyBuild extends Build {
                 return new String[]{"stone_bricks", "chiseled_stone_bricks", "mossy_stone_bricks", "gold_block"};
             case DUELS:
                 return new String[]{"polished_blackstone_bricks", "gilded_blackstone", "chiseled_polished_blackstone", "soul_lantern[hanging=false]"};
+            case BEDWARS:
+                return new String[]{"stripped_dark_oak_log[axis=y]", "red_wool", "spruce_planks", "glowstone"};
             default:
                 return new String[]{"quartz_pillar[axis=y]", "chiseled_quartz_block", "quartz_bricks", "sea_lantern"};
         }
@@ -854,6 +871,90 @@ public final class ModeLobbyBuild extends Build {
                 }
             }
         }
+    }
+
+    // ---- BedWars: tábor ágyakkal, generátorokkal és fákkal ----
+
+    private void camp() {
+        String[] colors = {"red", "blue", "lime", "yellow"};
+        int[][] pads = {{-17, -12}, {17, -12}, {-17, 10}, {17, 10}};
+        for (int i = 0; i < pads.length; i++) {
+            int x = pads[i][0];
+            int z = pads[i][1];
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dz = -3; dz <= 3; dz++) {
+                    boolean border = Math.abs(dx) == 2 || Math.abs(dz) == 3;
+                    put(x + dx, 0, z + dz, border ? "oak_planks" : colors[i] + "_wool");
+                }
+            }
+            put(x, 1, z, colors[i] + "_bed[part=foot,facing=north]");
+            put(x, 1, z - 1, colors[i] + "_bed[part=head,facing=north]");
+            for (int side = -1; side <= 1; side += 2) {
+                put(x + side * 2, 1, z - 3, "oak_log[axis=y]");
+                put(x + side * 2, 2, z - 3, "oak_fence");
+                put(x + side * 2, 3, z - 3, "lantern[hanging=false]");
+            }
+            // a "védelem" az ágy körül, ahogy a játékban szokás
+            int[][] ring = {{-1, 0}, {1, 0}, {-1, -1}, {1, -1}, {0, 1}, {0, -2}};
+            for (int[] r : ring) {
+                put(x + r[0], 1, z + r[1], colors[i] + "_wool");
+            }
+            put(x, 2, z, "end_stone");
+            put(x, 2, z - 1, "end_stone");
+        }
+        int[][] gens = {{-9, -17, 0}, {9, -17, 1}};
+        for (int[] g : gens) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    boolean center = dx == 0 && dz == 0;
+                    put(g[0] + dx, 0, g[1] + dz, center ? (g[2] == 0 ? "iron_block" : "diamond_block") : (g[2] == 0 ? "gold_block" : "polished_andesite"));
+                }
+            }
+            put(g[0], 1, g[1], g[2] == 0 ? "light_weighted_pressure_plate" : "heavy_weighted_pressure_plate");
+        }
+        int[][] trees = {{-19, 0}, {20, -2}, {-11, 19}, {12, 20}, {0, 23}, {-21, -5}};
+        for (int[] t : trees) {
+            if (dist(t[0], t[1]) > RADIUS - 4 || !free(t[0], t[1]) || nearAny(t[0], t[1], pads, 5, 6)) {
+                continue;
+            }
+            int height = 4 + (int) (noise(t[0], t[1], 85) * 2);
+            for (int y = 1; y <= height; y++) {
+                put(t[0], y, t[1], "oak_log[axis=y]");
+            }
+            for (int dy = -1; dy <= 1; dy++) {
+                int r = dy == 1 ? 1 : 2;
+                for (int dx = -r; dx <= r; dx++) {
+                    for (int dz = -r; dz <= r; dz++) {
+                        if ((Math.abs(dx) == r && Math.abs(dz) == r && dy != -1) || (dx == 0 && dz == 0 && dy < 1)) {
+                            continue;
+                        }
+                        put(t[0] + dx, height + dy, t[1] + dz, "oak_leaves[persistent=true]");
+                    }
+                }
+            }
+        }
+        for (int x = -RADIUS; x <= RADIUS; x++) {
+            for (int z = -RADIUS; z <= RADIUS; z++) {
+                if (!free(x, z) || nearAny(x, z, pads, 3, 4) || nearAny(x, z, gens, 2, 2)) {
+                    continue;
+                }
+                double n = noise(x, z, 86);
+                if (n < 0.08) {
+                    put(x, 1, z, "short_grass");
+                } else if (n < 0.1) {
+                    put(x, 1, z, n < 0.09 ? "poppy" : "dandelion");
+                }
+            }
+        }
+    }
+
+    private static boolean nearAny(int x, int z, int[][] spots, int rx, int rz) {
+        for (int[] spot : spots) {
+            if (Math.abs(x - spot[0]) <= rx && Math.abs(z - spot[1]) <= rz) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ---- az eredeti havas fenyők ----

@@ -78,6 +78,14 @@ leaderboards:
       title: "&b&l✦ Legjobb Elo"
       source: stat
       key: duels.elo_best
+    bedwarswins:
+      title: "&6&l🛏 BedWars győzelmek"
+      source: stat
+      key: bedwars.wins
+    bedwarsfinals:
+      title: "&c&l⚔ BedWars végső ölések"
+      source: stat
+      key: bedwars.final_kills
     combokills:
       title: "&d&l✦ ComboFly ölések"
       source: stat

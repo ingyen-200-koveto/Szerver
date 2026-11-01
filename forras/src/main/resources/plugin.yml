@@ -26,6 +26,10 @@ commands:
   duels:
     description: Duels menü
     usage: /duels [queue|leave|spectate|stats|top]
+  bw:
+    description: BedWars menü és parancsok
+    usage: /bw [play <mód>|leave|nez|stats|top]
+    aliases: [bedwars]
   lobby:
     description: Vissza a lobbyba
     usage: /lobby
@@ -92,6 +96,9 @@ commands:
 permissions:
   icemine.admin.duels:
     description: Duels arénák újraépítése
+    default: op
+  icemine.admin.bedwars:
+    description: BedWars admin (start, stop, rebuild, reload) és építés a BedWars világban
     default: op
   icemine.kingdoms.admin:
     default: op

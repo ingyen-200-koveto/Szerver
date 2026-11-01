@@ -134,3 +134,26 @@ lobbies:
       top2:
         toplist: duelselo
         lines: []
+  bedwars:
+    world: lobby_bedwars
+    theme: bedwars
+    built: false
+    color: orange
+    title: "BEDWARS"
+    title-split: 3
+    center: {x: 0, y: 100, z: 0}
+    # A portál és a Játék gomb a BedWars menüt nyitja meg (módválasztó)
+    play-command: "bw"
+    holograms:
+      play:
+        lines: ["&6&lBEDWARS", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        action: play
+      info:
+        lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
+        action: "info:mode_bedwars"
+      top1:
+        toplist: bedwarswins
+        lines: []
+      top2:
+        toplist: bedwarsfinals
+        lines: []

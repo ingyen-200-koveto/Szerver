@@ -34,7 +34,7 @@ public final class LobbyBuild extends Build {
             {"kingdoms", "41", "yellow"},
             {"gens", "-62", "lime"},
             {"duels", "62", "yellow"},
-            {"soon_2", "-83", "gray"},
+            {"bedwars", "-83", "orange"},
             {"soon_3", "83", "gray"}
     };
 

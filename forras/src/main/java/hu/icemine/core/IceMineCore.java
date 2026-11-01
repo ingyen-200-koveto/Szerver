@@ -82,6 +82,7 @@ public final class IceMineCore extends JavaPlugin {
     private Holograms holograms;
     private hu.icemine.core.modelobby.ModeLobbies modeLobbies;
     private IceMineKingdoms kingdoms;
+    private hu.icemine.core.bedwars.Bedwars bedwars;
     private Duels duels;
     private Npcs npcs;
     private ContactBook contacts;
@@ -188,6 +189,7 @@ public final class IceMineCore extends JavaPlugin {
         gensMenu = new GensMenu(this, gens);
         modeLobbies = new hu.icemine.core.modelobby.ModeLobbies(this);
         duels = new Duels(this);
+        bedwars = new hu.icemine.core.bedwars.Bedwars(this);
         auth = new AuthHook(getLogger());
         problems.addAll(values.problems());
         safely("pénzrendszer", () -> economy.load(configs.get("economy"), problems));
@@ -229,6 +231,10 @@ public final class IceMineCore extends JavaPlugin {
             duels.load(configs.get("duels"), problems);
             modes.register(duels);
         });
+        safely("BedWars", () -> {
+            bedwars.load(configs.get(hu.icemine.core.bedwars.Bedwars.FILE), problems);
+            modes.register(bedwars);
+        });
         safely("mód lobbyk", () -> {
             modeLobbies.load(configs.get(hu.icemine.core.modelobby.ModeLobbies.FILE), problems);
             modeLobbies.spawnAll();
@@ -236,7 +242,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("scoreboard", () -> boards.load(configs.get("scoreboard"), problems));
         configs.report(problems);
         registerListeners(new CoreListener(this), modes, guard, combat, combo, protection, portals, npcs, holograms, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
-                skypvp, kitpvp, comboArena, gens, new hu.icemine.core.command.CommandGuard(this));
+                skypvp, kitpvp, comboArena, gens, new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars));
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
@@ -248,6 +254,8 @@ public final class IceMineCore extends JavaPlugin {
         DuelsCommand duelsCommand = new DuelsCommand(this, duels);
         register("duel", duelsCommand, duelsCommand);
         register("duels", duelsCommand, duelsCommand);
+        hu.icemine.core.bedwars.BwCommand bwCommand = new hu.icemine.core.bedwars.BwCommand(bedwars);
+        register("bw", bwCommand, bwCommand);
         safely("jogosultságok", () -> permissions.load(configs.get("permissions"), problems));
         startTasks();
         kingdoms = new IceMineKingdoms(this);
@@ -448,6 +456,9 @@ public final class IceMineCore extends JavaPlugin {
         }
         if (all || file.equals("duels")) {
             safely("Duels", () -> duels.load(configs.get("duels"), problems));
+        }
+        if (all || file.equals(hu.icemine.core.bedwars.Bedwars.FILE)) {
+            safely("BedWars", () -> bedwars.load(configs.get(hu.icemine.core.bedwars.Bedwars.FILE), problems));
         }
         if (all || file.equals("modes") || file.equals(hu.icemine.core.modelobby.ModeLobbies.FILE)) {
             safely("mód lobbyk", () -> {
@@ -710,6 +721,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public IceMineKingdoms kingdoms() {
         return kingdoms;
+    }
+
+    public hu.icemine.core.bedwars.Bedwars bedwars() {
+        return bedwars;
     }
 
     public GensMode gens() {

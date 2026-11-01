@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-final class LobbyDefaults {
+public final class LobbyDefaults {
 
     private LobbyDefaults() {
     }
@@ -106,7 +106,7 @@ final class LobbyDefaults {
         look(config, base, "soon");
     }
 
-    static void npc(YamlConfiguration config, String id) {
+    public static void npc(YamlConfiguration config, String id) {
         String base = "npcs." + id + ".";
         if (id.startsWith("soon")) {
             config.set(base + "name", Arrays.asList("&7&lHAMAROSAN", "&8Új játékmód érkezik"));

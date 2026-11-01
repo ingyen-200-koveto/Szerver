@@ -61,6 +61,19 @@ modes:
       - "&71v1 párbajok 13 módban: NoDebuff,"
       - "&7Boxing, Bridge, Sumo, BuildUHC..."
       - "&7Ranked sor Elo pontokkal!"
+  bedwars:
+    name: "&6&lBedWars"
+    icon: RED_BED
+    slot: 24
+    color: "&6"
+    status: open
+    combat-tag: false
+    combofly: false
+    core-scoreboard: false
+    description:
+      - "&7Védd meg az ágyad, rombold le"
+      - "&7a többiekét! Solo, Duó,"
+      - "&73v3v3v3 és 4v4v4v4."
   gens:
     name: "&a&lGens"
     icon: EMERALD

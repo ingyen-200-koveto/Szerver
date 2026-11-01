@@ -219,6 +219,11 @@ menus:
       combo: PRISMARINE_SHARD
       combokills: AMETHYST_SHARD
       gensprestige: NETHER_STAR
+      duelswins: GOLDEN_SWORD
+      duelsstreak: BLAZE_ROD
+      duelselo: EXPERIENCE_BOTTLE
+      bedwarswins: RED_BED
+      bedwarsfinals: IRON_SWORD
   cosmetics:
     title: "&3[IceMine] &8Kozmetikák"
   settings:
@@ -343,6 +348,16 @@ info-texts:
     - " &7sorban hozzád hasonló Elo-jú ellenfelet kapsz."
     - " &7Barátot kihívni: /duel <név> &8(bo3: /duel <név> bo3)"
     - " &7Nézőként: /duels spectate <név>"
+    - "&8&m                                             "
+  mode_bedwars:
+    - "&8&m                                             "
+    - " &6&lBedWars &8- &7hogyan játszd?"
+    - " &7Válassz módot a menüben (/bw): Solo, Duó, 3v3v3v3, 4v4v4v4."
+    - " &7A bázisod generátora vasat és aranyat ad, a kis szigeteken"
+    - " &7gyémánt, középen smaragd van. A boltban cuccot veszel,"
+    - " &7a másik NPC-nél csapatfejlesztést és csapdát."
+    - " &7Védd meg az ágyad: amíg áll, újraéledsz. Rombold le a többiekét!"
+    - " &7Nézőként: /bw nez <név>"
     - "&8&m                                             "
   parkour:
     - "&8&m                                             "

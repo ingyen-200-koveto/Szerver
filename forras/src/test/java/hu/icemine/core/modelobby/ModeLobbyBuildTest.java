@@ -57,7 +57,7 @@ class ModeLobbyBuildTest {
 
     @org.junit.jupiter.api.Test
     void everyThemeKeepsTheSameImportantSpots() {
-        String[] themes = {"kitpvp", "skypvp", "combofly", "gens", "kingdoms", "duels", "snow"};
+        String[] themes = {"kitpvp", "skypvp", "combofly", "gens", "kingdoms", "duels", "bedwars", "snow"};
         java.util.Map<String, hu.icemine.core.build.Layout.Point> reference = null;
         java.util.Set<String> seen = new java.util.HashSet<>();
         for (String theme : themes) {

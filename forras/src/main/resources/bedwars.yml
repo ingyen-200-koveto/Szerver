@@ -1,0 +1,129 @@
+# IceMine BedWars
+#
+# A pályákat az IceMine építi fel magától a BedWars világban, az első indításkor egyesével (pár másodperc pályánként).
+# Pályák: 8 csapatos: jegcsucs (Jégcsúcs), tolgyes (Tölgyes) | 4 csapatos: sziklavar (Sziklavár), homokko (Homokkő)
+# Parancsok: /bw (menü), /bw play <mód>, /bw leave, /bw nez <játékos>, /bw stats [játékos], /bw top
+# Admin (icemine.admin.bedwars): /bw start <aréna>, /bw stop <aréna>, /bw rebuild <aréna>, /bw reload, /bw list
+# Módosítás után: /bw reload
+
+world: ice_bedwars
+
+# A módok. teams: hány csapat (4 vagy 8), team-size: hány fő egy csapatban,
+# min-players: ennyi játékos kell a visszaszámláláshoz, arenas: hány aréna legyen ebből a módból (ennyi meccs mehet egyszerre),
+# maps: ezeken a pályákon megy (a pálya csapatszáma egyezzen a móddal), sorban kapják meg az arénák,
+# generator-speed: a csapat generátorok sebessége (nagyobb csapatnak több vas és arany kell),
+# slot: hol legyen a /bw menüben (10-16 a középső sor), aliases: ezekkel is lehet rá hivatkozni (/bw play solo)
+modes:
+  solo:
+    name: "&a&lSolo"
+    icon: RED_BED
+    slot: 10
+    teams: 8
+    team-size: 1
+    min-players: 2
+    arenas: 2
+    generator-speed: 1.0
+    maps: [jegcsucs, tolgyes]
+    aliases: [egyeni, "1"]
+    description:
+      - "&78 csapat, mindenki egyedül."
+      - "&7Védd meg az ágyad, és rombold le"
+      - "&7a többiekét!"
+  duo:
+    name: "&b&lDuó"
+    icon: BLUE_BED
+    slot: 12
+    teams: 8
+    team-size: 2
+    min-players: 2
+    arenas: 2
+    generator-speed: 1.25
+    maps: [tolgyes, jegcsucs]
+    aliases: [duok, doubles, "2"]
+    description:
+      - "&78 csapat, csapatonként 2 fő."
+      - "&7Hívd a barátod, és dolgozzatok együtt!"
+  "3v3v3v3":
+    name: "&e&l3v3v3v3"
+    icon: YELLOW_BED
+    slot: 14
+    teams: 4
+    team-size: 3
+    min-players: 2
+    arenas: 1
+    generator-speed: 1.5
+    maps: [sziklavar, homokko]
+    aliases: [3v3, trio, "3"]
+    description:
+      - "&74 csapat, csapatonként 3 fő."
+      - "&7Nagyobb pálya, nagyobb csaták."
+  "4v4v4v4":
+    name: "&c&l4v4v4v4"
+    icon: LIME_BED
+    slot: 16
+    teams: 4
+    team-size: 4
+    min-players: 2
+    arenas: 1
+    generator-speed: 1.75
+    maps: [homokko, sziklavar]
+    aliases: [4v4, "4"]
+    description:
+      - "&74 csapat, csapatonként 4 fő."
+      - "&7A legnagyobb káosz, igazi csapatjáték."
+
+lobby:
+  # Visszaszámlálás, ha megvan a minimum létszám (másodperc)
+  countdown: 30
+  # Ha megtelt az aréna, ennyire rövidül
+  full-countdown: 10
+
+game:
+  respawn-seconds: 5
+  # Aki ennyivel a szigetek alá esik, meghal
+  void-depth: 25
+  # Ennél magasabbra nem lehet építeni (a szigetek szintjétől számítva)
+  build-limit: 30
+  # Ennyi csapdát vehet egy csapat (sorban sülnek el)
+  max-traps: 3
+  # Két csapda között ennyi másodperc szünet van
+  trap-cooldown-seconds: 15
+  # A meccs vége után ennyi másodperc múlva megy mindenki vissza a lobbyba
+  end-seconds: 10
+
+# Generátorok: ennyi másodpercenként termelnek (a csapat generátorokat a Kovácsműhely és a generator-speed gyorsítja)
+generators:
+  iron: 1.2
+  gold: 8
+  # A Kovácsműhely III. szintje után a bázison is lesz smaragd
+  team-emerald: 60
+  # Szintenként (I, II, III)
+  diamond: [30, 23, 12]
+  emerald: [65, 50, 35]
+
+# Események: at = hányadik percben, event = diamond-2, emerald-2, diamond-3, emerald-3, beds, end
+timeline:
+  - {at: 6, event: diamond-2, name: "Gyémánt II"}
+  - {at: 12, event: emerald-2, name: "Smaragd II"}
+  - {at: 18, event: diamond-3, name: "Gyémánt III"}
+  - {at: 24, event: emerald-3, name: "Smaragd III"}
+  - {at: 30, event: beds, name: "Ágyak pusztulása"}
+  - {at: 40, event: end, name: "Játék vége"}
+
+# Jutalmak (IceMine pénz, a rang szorzója is számít)
+rewards:
+  win: 50
+  kill: 3
+  final-kill: 8
+  bed: 15
+  play: 5
+
+# A bolt árai felülírhatók, pl. gyapju: "4 vas" (vas, arany, gyemant, smaragd)
+# Azonosítók: gyapju, terrakotta, uveg, endko, letra, deszka, obszidian, kokard, vaskard, gyemantkard,
+# lokobot, lancpancel, vaspancel, gyemantpancel, csakany, balta, ollo, nyil, ij, erosij, legjobbij, gyorsasag, ugras,
+# lathatatlansag, aranyalma, tuzgolyo, tnt, enderpearl, viz, szivacs
+prices: {}
+
+# Ezt az IceMine tölti ki: hol van melyik aréna, és melyik pálya épült fel rajta.
+# Ha egy arénát teljesen újra akarsz építeni: /bw rebuild <aréna>
+built: {}

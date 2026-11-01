@@ -28,7 +28,7 @@ public final class ModeService implements Listener {
 
     public static final String LOBBY = "lobby";
     public static final String CHANNEL = "BungeeCord";
-    private static final String[] INTERNAL = {"skypvp", "kitpvp", "combofly", "gens", "duels"};
+    private static final String[] INTERNAL = {"skypvp", "kitpvp", "combofly", "gens", "duels", "bedwars"};
 
     public enum SendResult {
         OK,

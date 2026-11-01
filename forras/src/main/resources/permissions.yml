@@ -33,6 +33,7 @@ commands:
   elad:      {permission: icemine.command.elad, default: true}
   duel:      {permission: icemine.command.duel, default: true}
   duels:     {permission: icemine.command.duels, default: true}
+  bw:        {permission: icemine.command.bedwars, default: true}
   k:         {permission: icemine.command.kingdoms, default: true}
   kadmin:    {permission: icemine.kingdoms.admin, default: op}
 

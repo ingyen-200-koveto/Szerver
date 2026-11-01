@@ -2,6 +2,7 @@ package hu.icemine.core.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -227,23 +228,38 @@ public final class Migrations {
             copyDefault(lobbies, "lobbies.duels");
             files.save("modelobbies");
         }
-        if (modes.isSet("modes.bedwars")) {
+        if (modes.isSet("modes") && !modes.getBoolean("migrated.bedwars-v1", false)) {
+            // a régi, külön pluginos Bedwars bejegyzései helyett az IceMine saját BedWars módja
             modes.set("modes.bedwars", null);
+            copyDefault(modes, "modes.bedwars");
+            modes.set("migrated.bedwars-v1", true);
             files.save("modes");
-            notes.add("modes.yml: a Bedwars kikerült a játékmódok közül");
-        }
-        if (main.isSet("leaderboards.boards.bedwarswins") || main.isSet("leaderboards.boards.bedwarsfinals")) {
-            main.set("leaderboards.boards.bedwarswins", null);
-            main.set("leaderboards.boards.bedwarsfinals", null);
-            files.save("config");
-        }
-        if (lobbies != null && lobbies.isSet("lobbies.bedwars")) {
-            lobbies.set("lobbies.bedwars", null);
-            files.save("modelobbies");
-        }
-        if (lobbyFile != null && lobbyFile.isSet("info-texts.mode_bedwars")) {
-            lobbyFile.set("info-texts.mode_bedwars", null);
-            files.save("lobby");
+            if (main.isSet("leaderboards.boards")) {
+                main.set("leaderboards.boards.bedwarswins", null);
+                main.set("leaderboards.boards.bedwarsfinals", null);
+                copyDefault(main, "leaderboards.boards.bedwarswins");
+                copyDefault(main, "leaderboards.boards.bedwarsfinals");
+                files.save("config");
+            }
+            if (lobbies != null && lobbies.isSet("lobbies")) {
+                lobbies.set("lobbies.bedwars", null);
+                copyDefault(lobbies, "lobbies.bedwars");
+                files.save("modelobbies");
+            }
+            if (lobbyFile != null && lobbyFile.isConfigurationSection("npcs.soon_2") && !lobbyFile.isSet("npcs.mode_bedwars")) {
+                ConfigurationSection location = lobbyFile.getConfigurationSection("npcs.soon_2.location");
+                if (location != null) {
+                    for (Map.Entry<String, Object> entry : location.getValues(true).entrySet()) {
+                        if (!(entry.getValue() instanceof ConfigurationSection)) {
+                            lobbyFile.set("npcs.mode_bedwars.location." + entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+                hu.icemine.core.lobby.LobbyDefaults.npc(lobbyFile, "mode_bedwars");
+                lobbyFile.set("npcs.soon_2", null);
+                files.save("lobby");
+            }
+            notes.add("új játékmód: BedWars (Solo, Duó, 3v3v3v3, 4v4v4v4), saját lobbyval és szoborral a lobbyban");
         }
         if (resetIfContains(files, "modes", "modes.kitpvp.description", "öt kit")) {
             notes.add("modes.yml: új KitPvP leírás");
