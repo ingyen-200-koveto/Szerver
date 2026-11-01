@@ -18,22 +18,22 @@ max-combo: 50
 #
 # Horizontal (oldalirányú) és Vertical (függőleges) alap lökés:
 knockback-horizontal: 0.30
-knockback-vertical: 0.40
+knockback-vertical: 0.30
 # Air: szorzó, ha az ellenfél már a levegőben van. Kisebb oldallökés = nem repül el, tovább ütheted.
 knockback-air-horizontal: 0.8
-knockback-air-vertical: 1.0
+knockback-air-vertical: 0.9
 # Ground: szorzó, ha a földön áll. Az első ütés rendesen emelje fel.
 knockback-ground-horizontal: 1.0
-knockback-ground-vertical: 1.1
+knockback-ground-vertical: 1.0
 # Combo: minden kombó találat után ennyivel változik a lökés.
 # Függőleges (combo-scaling): pozitív = egyre feljebb dob. Oldal: negatív = egyre közelebb marad.
-combo-scaling: 0.004
+combo-scaling: 0.002
 knockback-combo-horizontal: -0.004
 # Felső határok
 max-horizontal: 0.9
-max-vertical: 0.55
+max-vertical: 0.40
 # Ennél magasabban (blokk, a talajtól) már nem lök felfelé, hogy senki ne repüljön el
-max-height: 7
+max-height: 4
 
 # Két találat közti sérthetetlenség tickben (vanilla: 20, 1.8 kombó szervereken 2-5).
 # Minél kisebb, annál gyorsabban lehet egymás után ütni. Ez a CPS kezelés is: 4 tick = legfeljebb 5 találat
@@ -75,7 +75,7 @@ tiers:
 modes:
   combofly:
     knockback-horizontal: 0.30
-    knockback-vertical: 0.40
+    knockback-vertical: 0.30
     # Erősebb ütések az arénában (a dia szett és az op almák miatt)
     damage-multiplier: 1.5
 

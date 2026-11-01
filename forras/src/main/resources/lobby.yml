@@ -54,14 +54,6 @@ hotbar:
       lore:
         - "&7A statisztikáid és a pénzed."
       action: "menu:profile"
-    main:
-      slot: 4
-      material: NETHER_STAR
-      name: "&b[IceMine] &fFőmenü"
-      lore:
-        - "&7Minden egy helyen: játékmódok, profil,"
-        - "&7toplisták, rangok, napi jutalom."
-      action: "menu:main"
     cosmetics:
       slot: 3
       material: AMETHYST_SHARD
@@ -76,13 +68,6 @@ hotbar:
       lore:
         - "&7Ugrás a parkour startjához."
       action: "parkour:start"
-    contacts:
-      slot: 6
-      material: BOOK
-      name: "&b[IceMine] &fKapcsolatok"
-      lore:
-        - "&7Discord, weboldal, YouTube..."
-      action: "book:contacts"
     settings:
       slot: 7
       material: COMPARATOR

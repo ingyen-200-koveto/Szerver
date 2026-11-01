@@ -1,0 +1,120 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.8.2 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.8.2
+changes:
+- file: combofly
+  path: knockback-vertical
+  old: 0.4
+- file: combofly
+  path: knockback-air-vertical
+  old: 1.0
+- file: combofly
+  path: knockback-ground-vertical
+  old: 1.1
+- file: combofly
+  path: combo-scaling
+  old: 0.004
+- file: combofly
+  path: max-vertical
+  old: 0.55
+- file: combofly
+  path: max-height
+  old: 7
+- file: combofly
+  path: modes.combofly.knockback-vertical
+  old: 0.4
+- file: lobby
+  path: hotbar.items.main.slot
+  old: 4
+- file: lobby
+  path: hotbar.items.main.material
+  old: NETHER_STAR
+- file: lobby
+  path: hotbar.items.main.name
+  old: '&b[IceMine] &fFőmenü'
+- file: lobby
+  path: hotbar.items.main.lore
+  old:
+  - '&7Minden egy helyen: játékmódok, profil,'
+  - '&7toplisták, rangok, napi jutalom.'
+- file: lobby
+  path: hotbar.items.main.action
+  old: menu:main
+- file: lobby
+  path: hotbar.items.contacts.slot
+  old: 6
+- file: lobby
+  path: hotbar.items.contacts.material
+  old: BOOK
+- file: lobby
+  path: hotbar.items.contacts.name
+  old: '&b[IceMine] &fKapcsolatok'
+- file: lobby
+  path: hotbar.items.contacts.lore
+  old:
+  - '&7Discord, weboldal, YouTube...'
+- file: lobby
+  path: hotbar.items.contacts.action
+  old: book:contacts
+- file: scoreboard
+  path: boards.modelobby
+  old:
+  - '&8&m                    '
+  - '&7Játékos: &f%player%'
+  - '&7Rang: %rank%'
+  - '&7Pénz: %money%'
+  - ''
+  - '&7Hol vagy: %mode%'
+  - '&7Online: &b%online%'
+  - ''
+  - '&eLépj be a portálba!'
+  - '&bplay.icemine.hu'
+- file: scoreboard
+  path: boards.lobby
+  old:
+  - '&8&m                    '
+  - '&7Játékos: &f%player%'
+  - '&7Rang: %rank%'
+  - '&7Pénz: %money%'
+  - ''
+  - '&7Játékmód: &bLobby'
+  - '&7Online: &b%online%'
+  - ''
+  - '&9%discord%'
+  - '&bplay.icemine.hu'
+- file: scoreboard
+  path: boards.kitpvp
+  old:
+  - '&8&m                    '
+  - '&7Mód: &c&lKitPvP &8(%arena%&8)'
+  - '&7Kit: %kit%'
+  - '&7Képesség: &f%ability%'
+  - ''
+  - '&7Ölés: &a%kills% &8| &7Halál: &c%deaths%'
+  - '&7K/D: &f%kd%'
+  - '&7Sorozat: &e%streak% &8(legjobb: %best_streak%)'
+  - '&7Harc: %combat%'
+  - ''
+  - '&7Pénz: %money%'
+  - '&bplay.icemine.hu'
+- file: scoreboard
+  path: boards.skypvp
+  old:
+  - '&8&m                    '
+  - '&7Mód: &b&lSkyPvP'
+  - '&7Kit: %kit%'
+  - ''
+  - '&7Ölés: &a%kills% &8| &7Halál: &c%deaths%'
+  - '&7K/D: &f%kd%'
+  - '&7Sorozat: &e%streak% &8(legjobb: %best_streak%)'
+  - '&7Ládák: &f%refill%'
+  - ''
+  - '&7Pénz: %money%'
+  - '&bplay.icemine.hu'
+- file: scoreboard
+  path: tablist.footer
+  old:
+  - ''
+  - '&7Pénz: %money% &8| &7Rang: %rank%'
+  - '&9%discord% &8| &bplay.icemine.hu'
+  - ''

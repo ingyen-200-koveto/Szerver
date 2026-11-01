@@ -1054,3 +1054,8 @@ bedwars:
     height: "&cIlyen magasra nem építhetsz."
     protected: "&cIde nem rakhatsz blokkot."
     map: "&cCsak a játékosok által lerakott blokkokat bonthatod ki."
+
+# A scoreboard IceCoin sora, ha a játékos nem regisztrált a weboldalon / még tölt
+icecoin:
+  no-account: "&7nincs fiók"
+  loading: "&7..."

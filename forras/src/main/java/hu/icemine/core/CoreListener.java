@@ -55,6 +55,7 @@ final class CoreListener implements Listener {
         if (core.profiles().profile(player) == null) {
             return;
         }
+        core.iceCoins().refreshSoon();
         if (player.isDead()) {
             Bukkit.getScheduler().runTask(core, () -> {
                 if (player.isOnline() && player.isDead()) {
@@ -100,6 +101,7 @@ final class CoreListener implements Listener {
                 : Text.color(format.replace("%player%", player.getName()).replace("%prefix%", core.prefixes().prefix(player))));
         core.lobby().quit(player);
         core.npcs().forget(player.getUniqueId());
+        core.iceCoins().forget(player);
         core.prefixes().clear(player);
         core.ranks().clear(player);
         core.profiles().detach(player);

@@ -33,8 +33,13 @@ public final class LobbyDefaults {
         }
     }
 
-    private static String action(String id) {
+    /** A hologram alap kattintása (ha a lobby.yml-ben nincs megadva, ezt használjuk). */
+    static String action(String id) {
         switch (id) {
+            case "welcome":
+                return "menu:selector";
+            case "contacts":
+                return "contacts";
             case "info_commands":
                 return "info:commands";
             case "info_rules":

@@ -427,8 +427,6 @@ public final class ModeLobbies implements Listener {
                 .lore(core.messages().list("modelobby.item.selector-lore")).hideAll().tag(ITEM + "selector").build());
         inventory.setItem(4, Items.of(Material.AMETHYST_SHARD).name(core.messages().raw("modelobby.item.cosmetics"))
                 .lore(core.messages().list("modelobby.item.cosmetics-lore")).hideAll().tag(ITEM + "cosmetics").build());
-        inventory.setItem(7, Items.of(Material.NETHER_STAR).name(core.messages().raw("mainmenu.item"))
-                .lore(core.messages().list("mainmenu.item-lore")).hideAll().tag(ITEM + "main").build());
         inventory.setItem(8, Items.of(Material.RED_BED).name(core.messages().raw("modelobby.item.back"))
                 .lore(core.messages().list("modelobby.item.back-lore")).hideAll().tag(ITEM + "back").build());
         inventory.setHeldItemSlot(0);

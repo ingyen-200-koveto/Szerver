@@ -14,6 +14,26 @@ database:
   password: ""
   ssl: false
 
+# IceCoin: a játékosok weboldalas egyenlege. A scoreboard ezt mutatja (%icecoin%), a szerver csak olvassa.
+icecoin:
+  enabled: true
+  # A weboldal címe (ahol a játékosok regisztrálnak)
+  url: "https://icemine.hu"
+  # Ha a weboldal .env fájljába beírod: MC_API_KEY=valami, akkor ide is ugyanazt írd (így más nem kérdezheti le az egyenlegeket)
+  api-key: ""
+  # Ennyi másodpercenként frissül
+  refresh-seconds: 30
+
+# A játékosok feje fölött: a név előtt a rang, a név alatt az életerő (pl. "20 ❤").
+# A rang a LuckPerms előtag, ha be van állítva, különben az IceMine rang neve (ranks.yml). Alap rangnál nem ír ki semmit.
+# BedWars meccsben a rang helyett a csapat színe látszik. Ha a TAB fent van, a rangot a TAB-on keresztül írja ki.
+nametags:
+  enabled: true
+  rank: true
+  health: true
+  health-title: "&c❤"
+  disabled-worlds: []
+
 # Ennyi másodpercenként menti a pénzt, statisztikákat és a Gens adatokat.
 autosave-seconds: 60
 

@@ -55,7 +55,7 @@ public final class ComboFly implements Listener {
     private double damageMultiplier = 1.0;
     private double maxReach = 4.2;
     private int endMessageFrom = 5;
-    private Knockback.Settings defaults = new Knockback.Settings(0.30, 0.40, 0.004, 0.9, 0.55, 7, 0.8, 1.0, 1.0, 1.1, -0.004);
+    private Knockback.Settings defaults = new Knockback.Settings(0.30, 0.30, 0.002, 0.9, 0.40, 4, 0.8, 0.9, 1.0, 1.0, -0.004);
 
     public ComboFly(IceMineCore core) {
         this.core = core;

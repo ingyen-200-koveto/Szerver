@@ -70,6 +70,15 @@ A lista: `plugins/IceMine/config.yml` -> `blocked-commands`. Az OP-k és az `ice
 joggal rendelkezők használhatják. Az Essentials parancsait is csak az használhatja, akinek megvan hozzá
 az `essentials.<parancs>` joga.
 
+### Scoreboard és névtáblák
+
+- Az oldalsó scoreboardon a játékos weboldalas IceCoin egyenlege látszik (`%icecoin%`). A szerver 30 másodpercenként
+  lekérdezi a weboldaltól (https://icemine.hu/api/mc/coins), beállítás: `config.yml` -> `icecoin`.
+  Ha nem akarod, hogy bárki lekérdezhesse az egyenlegeket, írj a weboldal `.env` fájljába egy `MC_API_KEY=...` sort,
+  és ugyanezt a `config.yml`-ben az `icecoin.api-key`-hez.
+- A játékosok feje fölött a név előtt a rang (LuckPerms előtag, ha nincs, az IceMine rang), alatta az életerő (pl. `20 ❤`).
+  BedWarsban a rang helyett a csapat színe. Beállítás: `config.yml` -> `nametags`.
+
 ### Rangok
 
 A rang nevét, előtagját és chat színét a LuckPerms adja (ezt te írod meg). Hogy melyik rang mit kap

@@ -83,6 +83,8 @@ public final class IceMineCore extends JavaPlugin {
     private hu.icemine.core.modelobby.ModeLobbies modeLobbies;
     private IceMineKingdoms kingdoms;
     private hu.icemine.core.bedwars.Bedwars bedwars;
+    private hu.icemine.core.economy.IceCoins iceCoins;
+    private hu.icemine.core.rank.NameTags nameTags;
     private Duels duels;
     private Npcs npcs;
     private ContactBook contacts;
@@ -163,6 +165,8 @@ public final class IceMineCore extends JavaPlugin {
         }
         profiles = new ProfileService(database, getLogger(), "jatekos");
         economy = new Economy(database, profiles);
+        iceCoins = new hu.icemine.core.economy.IceCoins(this);
+        nameTags = new hu.icemine.core.rank.NameTags(this);
         prefixes = new Prefixes(this, getLogger());
         ranks = new hu.icemine.core.rank.Ranks(this);
         permissions = new hu.icemine.core.command.PermissionSetup(this);
@@ -203,6 +207,8 @@ public final class IceMineCore extends JavaPlugin {
         loadLobbyParts(problems);
         safely("parkour", () -> parkour.load(configs.get("parkour"), problems));
         safely("toplisták", () -> leaderboards.load(main, problems));
+        safely("IceCoin", () -> iceCoins.load(main, problems));
+        safely("névtáblák", () -> nameTags.load(main));
         safely("SkyPvP", () -> {
             skypvp.load(configs.get("skypvp"), problems);
             modes.register(skypvp);
@@ -242,7 +248,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("scoreboard", () -> boards.load(configs.get("scoreboard"), problems));
         configs.report(problems);
         registerListeners(new CoreListener(this), modes, guard, combat, combo, protection, portals, npcs, holograms, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
-                skypvp, kitpvp, comboArena, gens, new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars));
+                skypvp, kitpvp, comboArena, gens, new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
@@ -337,6 +343,7 @@ public final class IceMineCore extends JavaPlugin {
         }, 5L, 5L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, cosmetics::tick, 4L, 4L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, combat::tick, 10L, 10L));
+        tasks.add(Bukkit.getScheduler().runTaskTimer(this, nameTags::tick, 20L, 5L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, boards::tick, boardTicks, boardTicks));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, boards::fastTick, 3L, 2L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, () -> {
@@ -391,6 +398,12 @@ public final class IceMineCore extends JavaPlugin {
         }
         ranks.clearAll();
         profiles.saveAllNow();
+        if (iceCoins != null) {
+            iceCoins.stop();
+        }
+        if (nameTags != null) {
+            nameTags.cleanup();
+        }
         inventories.close();
         database.close();
         ready = false;
@@ -441,6 +454,8 @@ public final class IceMineCore extends JavaPlugin {
         if (all || file.equals("config")) {
             safely("toplisták", () -> leaderboards.load(main, problems));
             leaderboards.refresh();
+            safely("IceCoin", () -> iceCoins.load(main, problems));
+            safely("névtáblák", () -> nameTags.load(main));
         }
         if (all || file.equals("skypvp")) {
             safely("SkyPvP", () -> skypvp.load(configs.get("skypvp"), problems));
@@ -721,6 +736,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public IceMineKingdoms kingdoms() {
         return kingdoms;
+    }
+
+    public hu.icemine.core.economy.IceCoins iceCoins() {
+        return iceCoins;
     }
 
     public hu.icemine.core.bedwars.Bedwars bedwars() {

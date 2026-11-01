@@ -1,5 +1,5 @@
 # Scoreboard, tablista és chat
-# Placeholderek: %player% %rank% (LuckPerms előtag) %rank_name% (LuckPerms csoport) %money% %gens_money% %online% %max% %mode% %discord% %combat%
+# Placeholderek: %player% %rank% (LuckPerms előtag) %rank_name% (LuckPerms csoport) %icecoin% (a weboldalas egyenleg) %money% %gens_money% %online% %max% %mode% %discord% %combat%
 #   PvP módokban: %kills% %deaths% %kd% %streak% %best_streak% %kit% (KitPvP: %arena%, SkyPvP: %refill%)
 #   ComboFly arénában még: %combo% (a mostani kombó), %combo_best% (rekord)
 #   Bárhol: %combat_time% (combat hátralévő ideje, pl. 29.4s), %pearl% (enderpearl várakozás, pl. 4.4s)
@@ -34,7 +34,7 @@ boards:
     - "&8&m                    "
     - "&7Játékos: &f%player%"
     - "&7Rang: %rank%"
-    - "&7Pénz: %money%"
+    - "&7IceCoin: &b%icecoin%"
     - ""
     - "&7Hol vagy: %mode%"
     - "&7Online: &b%online%"
@@ -45,7 +45,7 @@ boards:
     - "&8&m                    "
     - "&7Játékos: &f%player%"
     - "&7Rang: %rank%"
-    - "&7Pénz: %money%"
+    - "&7IceCoin: &b%icecoin%"
     - ""
     - "&7Játékmód: &bLobby"
     - "&7Online: &b%online%"
@@ -63,7 +63,7 @@ boards:
     - "&7Sorozat: &e%streak% &8(legjobb: %best_streak%)"
     - "&7Harc: %combat%"
     - ""
-    - "&7Pénz: %money%"
+    - "&7IceCoin: &b%icecoin%"
     - "&bplay.icemine.hu"
   skypvp:
     - "&8&m                    "
@@ -75,7 +75,7 @@ boards:
     - "&7Sorozat: &e%streak% &8(legjobb: %best_streak%)"
     - "&7Ládák: &f%refill%"
     - ""
-    - "&7Pénz: %money%"
+    - "&7IceCoin: &b%icecoin%"
     - "&bplay.icemine.hu"
   combofly:
     - "&7&m                         "
@@ -114,7 +114,7 @@ tablist:
     - ""
   footer:
     - ""
-    - "&7Pénz: %money% &8| &7Rang: %rank%"
+    - "&7IceCoin: &b%icecoin% &8| &7Rang: %rank%"
     - "&9%discord% &8| &bplay.icemine.hu"
     - ""
 

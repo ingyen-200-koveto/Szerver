@@ -77,8 +77,12 @@ public final class Holograms implements org.bukkit.event.Listener {
             }
             String target = section.getString(id + ".target", "");
             int background = parseColor(section.getString(id + ".background", "60102030"));
-            holograms.put(id, new Hologram(id, location, type, new ArrayList<>(section.getStringList(id + ".lines")), target, background,
-                    section.getString(id + ".action", "")));
+            // ha egy régi lobby építésnél még nem került be a kattintás, az alapértelmezettet kapja (pl. "Kattints rám!" feliratúak)
+            String action = section.getString(id + ".action", "");
+            if (action.isBlank() && type.equals("text")) {
+                action = LobbyDefaults.action(id);
+            }
+            holograms.put(id, new Hologram(id, location, type, new ArrayList<>(section.getStringList(id + ".lines")), target, background, action));
         }
     }
 

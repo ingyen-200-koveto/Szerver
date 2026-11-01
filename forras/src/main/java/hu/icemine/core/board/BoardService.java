@@ -117,6 +117,7 @@ public final class BoardService implements Listener {
         values.put("%rank_name%", core.prefixes().group(player));
         String currency = core.economy().defaultCurrency();
         values.put("%money%", core.economy().format(currency, profile == null ? 0 : profile.balance(currency)));
+        values.put("%icecoin%", core.iceCoins() == null ? "-" : core.iceCoins().display(player));
         values.put("%gens_money%", core.economy().format("gens", profile == null ? 0 : profile.balance("gens")));
         values.put("%discord%", core.configs().get("scoreboard").getString("discord", ""));
         values.put("%combo_best%", String.valueOf(profile == null ? 0 : profile.stat("combofly.best")));

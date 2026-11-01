@@ -57,10 +57,12 @@ public final class Bedwars implements ModeHandler {
     private static final class BuildJob {
         final BwArena arena;
         final BwMap.Theme previous;
+        final int previousLayout;
 
-        BuildJob(BwArena arena, BwMap.Theme previous) {
+        BuildJob(BwArena arena, BwMap.Theme previous, int previousLayout) {
             this.arena = arena;
             this.previous = previous;
+            this.previousLayout = previousLayout;
         }
     }
 
@@ -169,10 +171,12 @@ public final class Bedwars implements ModeHandler {
                 int x;
                 int z;
                 BwMap.Theme previous = null;
+                int previousLayout = 1;
                 if (built != null && built.isConfigurationSection(id)) {
                     x = built.getInt(id + ".x");
                     z = built.getInt(id + ".z");
                     previous = BwMap.Theme.of(built.getString(id + ".map"));
+                    previousLayout = built.getInt(id + ".layout", 1);
                 } else {
                     int[] slot = freeSlot(used);
                     x = slot[0] * SPACING;
@@ -183,12 +187,12 @@ public final class Bedwars implements ModeHandler {
                     core.configs().save(FILE);
                 }
                 BwArena arena = new BwArena(this, id, mode, map, world, x, HEIGHT, z);
-                if (previous == map) {
+                if (previous == map && previousLayout == BwMap.LAYOUT) {
                     arena.setReady(true);
                     arena.reset();
                     arena.clearEntities();
                 } else {
-                    builds.add(new BuildJob(arena, previous));
+                    builds.add(new BuildJob(arena, previous, previousLayout));
                 }
                 next.put(id, arena);
             }
@@ -247,12 +251,13 @@ public final class Bedwars implements ModeHandler {
         long started = System.currentTimeMillis();
         Placer placer = new Placer(world, core.getLogger());
         if (job.previous != null) {
-            int old = BwMap.extent(job.previous.teams);
-            placer.clear(arena.cx - old, arena.cy - 32, arena.cz - old, arena.cx + old, arena.cy + BwMap.LOBBY_Y + 8, arena.cz + old);
+            // a régi pályát blokkra pontosan eltüntetjük: ugyanazzal az építővel végigmegyünk rajta, csak levegőt rakunk
+            new BwMap((x, y, z, data) -> placer.set(x, y, z, "air"), arena.cx, arena.cy, arena.cz, job.previous, job.previousLayout).build();
         }
         new BwMap(placer, arena.cx, arena.cy, arena.cz, arena.map).build();
         YamlConfiguration config = core.configs().get(FILE);
         config.set("built." + arena.id + ".map", arena.map.id);
+        config.set("built." + arena.id + ".layout", BwMap.LAYOUT);
         core.configs().save(FILE);
         arena.setReady(true);
         arena.reset();
@@ -267,7 +272,7 @@ public final class Bedwars implements ModeHandler {
             return false;
         }
         arena.setReady(false);
-        builds.add(new BuildJob(arena, arena.map));
+        builds.add(new BuildJob(arena, arena.map, BwMap.LAYOUT));
         return true;
     }
 
@@ -431,6 +436,19 @@ public final class Bedwars implements ModeHandler {
                     .replace("%bw_format_" + mode.id + "%", mode.format());
         }
         return result;
+    }
+
+    /** A névtábla előtag BedWars meccs közben (a csapat színe és betűje), vagy null, ha nem játszik. */
+    public String nameTag(Player player) {
+        BwArena arena = tracked.get(player.getUniqueId());
+        if (arena == null || (arena.state() != BwArena.State.PLAYING && arena.state() != BwArena.State.ENDING)) {
+            return null;
+        }
+        BwPlayer data = arena.data(player);
+        if (data == null || data.team == null) {
+            return null;
+        }
+        return data.team.chat + "&l" + data.team.letter + " " + data.team.chat;
     }
 
     // ---- statisztika, jutalom ----

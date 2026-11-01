@@ -365,6 +365,15 @@ public final class Migrations {
             files.save("modelobbies");
             notes.add("modelobbies.yml: minden játékmód saját témájú lobbyt kap, most újraépülnek");
         }
+        if (lobbyFile != null && lobbyFile.isSet("hotbar.items") && !lobbyFile.getBoolean("migrated.hotbar-v2", false)) {
+            // a főmenü (nether csillag) és a kapcsolatok könyv kikerült a lobby hotbarjáról
+            for (String item : new String[]{"main", "contacts"}) {
+                lobbyFile.set("hotbar.items." + item, null);
+            }
+            lobbyFile.set("migrated.hotbar-v2", true);
+            files.save("lobby");
+            notes.add("lobby.yml: a főmenü és a kapcsolatok tárgy kikerült a hotbarról");
+        }
         YamlConfiguration duelsFile = files.get("duels");
         if (duelsFile != null && duelsFile.isSet("arenas") && !duelsFile.getBoolean("migrated.arenas-v2", false)) {
             duelsFile.set("built", null);

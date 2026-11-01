@@ -252,4 +252,22 @@ class BedwarsTest {
         assertNull(TeamColor.parse("lila"));
         assertEquals(BwMap.Theme.HOMOKKO, BwMap.Theme.of("Homokkő"));
     }
+
+    @Test
+    void everyBlockIsInsideTheArenaAndIslandsGotFurtherApart() {
+        for (BwMap.Theme theme : BwMap.Theme.values()) {
+            for (int layout = 1; layout <= BwMap.LAYOUT; layout++) {
+                int extent = BwMap.extent(theme.teams, layout);
+                int[] max = {0};
+                new BwMap((x, y, z, data) -> max[0] = Math.max(max[0], Math.max(Math.abs(x), Math.abs(z))), 0, 0, 0, theme, layout).build();
+                assertTrue(max[0] <= extent, theme.id + " (" + layout + "): " + max[0] + " > " + extent);
+            }
+        }
+        for (int teams : new int[]{4, 8}) {
+            BwMap.Slot oldSlot = BwMap.slots(teams, 1).get(0);
+            BwMap.Slot newSlot = BwMap.slots(teams, BwMap.LAYOUT).get(0);
+            assertTrue(Math.hypot(newSlot.x, newSlot.z) > Math.hypot(oldSlot.x, oldSlot.z) + 10, "nagyobb távolság: " + teams);
+            assertTrue(Math.abs(BwMap.diamonds(teams, BwMap.LAYOUT)[0][0]) > Math.abs(BwMap.diamonds(teams, 1)[0][0]));
+        }
+    }
 }
