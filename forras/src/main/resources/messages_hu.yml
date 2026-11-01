@@ -30,6 +30,7 @@ mode:
   cooldown: "Várj egy picit, mielőtt újra próbálod."
   maintenance: "%mode% &7most karbantartás alatt van, nézz vissza később!"
   closed: "%mode% &7jelenleg zárva van."
+  soon: "%mode% &7még készül, hamarosan érkezik! Figyeld a Discordot."
   already-there: "&7Már itt vagy: %mode%"
   unavailable: "%mode% &7most nem érhető el. Szólj egy adminnak!"
   unknown: "Ilyen játékmód nincs."
@@ -100,6 +101,7 @@ selector:
     open: "&a▶ Kattints a belépéshez!"
     maintenance: "&6⚠ Karbantartás alatt"
     closed: "&c✖ Jelenleg zárva"
+    soon: "&e⏳ Hamarosan érkezik!"
     unavailable: "&c✖ Most nem érhető el"
   parkour:
     name: "&f&lJégparkour"
@@ -164,12 +166,12 @@ cosmetics:
   disabled: "Levetted: %name%"
   trails-title: "&b&lNyomvonalak"
   trails-lore:
-    - "&7Részecskék, amik követnek, bárhol is jársz."
-    - "&7A parkour futás alatt nem látszanak."
+    - "&7Részecskék, amik követnek a lobbyban."
+    - "&7Játék közben és a parkouron nem látszanak."
   kills-title: "&c&lÖlés effektek"
   kills-lore:
-    - "&7Ez jelenik meg, amikor megölsz valakit."
-    - "&7Kiválasztáskor egyszer meg is mutatom."
+    - "&7Kiválasztáskor egyszer megmutatom."
+    - "&7Játék közben nem látszanak."
 
 spawn:
   mode: "&7Visszakerültél a %mode%&7 spawnra."

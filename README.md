@@ -59,6 +59,14 @@ A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `
 (minden mód statisztikájával), toplisták, rangok, napi jutalom, kozmetikák, beállítások, kapcsolatok, információk,
 parkour és Gens. Minden menüben van "Vissza" gomb a főmenübe.
 
+**Játékmód választó** (iránytű a hotbaron): Gens (gyémánt kapa), SkyPvP (mézes üveg), KitPvP (buzogány),
+Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly, és a Creative "Hamarosan" felirattal.
+A buzogány csak 1.21-től létezik, ezért amíg a lobby 1.20.6, vasbalta látszik helyette (`modes.yml`: `icon-fallback`).
+Ha a Creative elkészül, a `modes.yml`-ben a `status: soon` helyett `open` kell.
+
+**Kozmetikák:** a nyomvonalak és az ölés effektek csak a lobbyban (és a játékmódok lobbyjaiban) látszanak,
+játék közben nem. Visszakapcsolás: `plugins/IceMine/lobby.yml` -> `cosmetics.lobby-only: false`.
+
 ### Jogok
 
 Minden parancsnak külön joga van, egy helyen: `plugins/IceMine/permissions.yml`.
@@ -162,6 +170,7 @@ Parancsok: `/gens kapa`, `/gens fold` (következő föld megnyitása), `/gens ba
 Vertical (`knockback-vertical`), Air (`knockback-air-*`, ha az ellenfél már a levegőben van),
 Ground (`knockback-ground-*`, ha a földön áll) és Combo (`combo-scaling`, `knockback-combo-horizontal`,
 kombónként mennyit változik). Alapból felfelé dob és közel tartja az ellenfelet, így hosszú kombókat lehet csinálni.
+Kombó közben nincs részecske és hang effekt, csak a számláló az action baron (`particles-enabled`, `sounds-enabled`).
 
 ### Forráskód
 

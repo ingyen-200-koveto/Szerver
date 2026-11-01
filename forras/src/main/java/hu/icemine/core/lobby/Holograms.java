@@ -241,6 +241,19 @@ public final class Holograms implements org.bukkit.event.Listener {
         }
     }
 
+    /** A kattintható hologramok dobozai a szerver oldali kattintáshoz (LobbyClicks). */
+    void targets(List<LobbyClicks.Target> out) {
+        for (Hologram hologram : holograms.values()) {
+            if (hologram.action.isEmpty() || hologram.location.getWorld() == null) {
+                continue;
+            }
+            double height = Math.max(1, hologram.shownLines) * 0.27 + 0.25;
+            Location at = hologram.location;
+            out.add(new LobbyClicks.Target(new org.bukkit.util.BoundingBox(at.getX() - 1.2, at.getY() - 0.15, at.getZ() - 1.2,
+                    at.getX() + 1.2, at.getY() + height, at.getZ() + 1.2), player -> click(player, hologram)));
+        }
+    }
+
     @org.bukkit.event.EventHandler
     public void onQuit(org.bukkit.event.player.PlayerQuitEvent event) {
         clicked.remove(event.getPlayer().getUniqueId());

@@ -48,8 +48,9 @@ max-reach: 4.2
 reset-on-ground: true
 ground-grace-ticks: 6
 
-particles-enabled: true
-sounds-enabled: true
+# Kombó közben nincs részecske és hang effekt (a kombó számláló az action baron megmarad)
+particles-enabled: false
+sounds-enabled: false
 actionbar-enabled: true
 # Csak olyan módban működik, ahol a Combat Tag is be van kapcsolva
 combat-tag-required: true

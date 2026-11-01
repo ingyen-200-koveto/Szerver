@@ -599,6 +599,23 @@ public final class ModeLobbies implements Listener {
         core.lobby().handleAction(player, holo.action);
     }
 
+    /** A kattintható hologramok dobozai a szerver oldali kattintáshoz (LobbyClicks). */
+    public void targets(World world, List<hu.icemine.core.lobby.LobbyClicks.Target> out) {
+        ModeLobby lobby = lobbyOf(world);
+        if (lobby == null) {
+            return;
+        }
+        for (Holo holo : lobby.holograms) {
+            if (holo.action.isEmpty()) {
+                continue;
+            }
+            double height = Math.max(1, holo.shown.split("\n", -1).length) * 0.27 + 0.25;
+            Location at = holo.location;
+            out.add(new hu.icemine.core.lobby.LobbyClicks.Target(new org.bukkit.util.BoundingBox(at.getX() - 1.2, at.getY() - 0.15, at.getZ() - 1.2,
+                    at.getX() + 1.2, at.getY() + height, at.getZ() + 1.2), player -> click(player, holo)));
+        }
+    }
+
     @EventHandler(priority = EventPriority.LOW)
     public void onHoloRight(PlayerInteractEntityEvent event) {
         Holo holo = holoOf(event.getRightClicked());
@@ -627,7 +644,7 @@ public final class ModeLobbies implements Listener {
     public void onUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ModeLobby lobby = lobbyOf(player.getWorld());
-        if (lobby == null) {
+        if (lobby == null || core.lobbyClicks() != null && core.lobbyClicks().handled(event)) {
             return;
         }
         String tag = Items.tagOf(event.getItem());

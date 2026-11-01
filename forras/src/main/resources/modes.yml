@@ -1,5 +1,7 @@
 # Játékmódok
-# status: open (nyitva) | maintenance (karbantartás) | closed (zárva)
+# status: open (nyitva) | maintenance (karbantartás) | closed (zárva) | soon (hamarosan, még készül)
+# icon: a tárgy a játékmód választóban | icon-fallback: ha az ikon ezen a szerver verzión még nem létezik
+#   (pl. a buzogány, MACE csak 1.21-től van), ezt mutatja helyette
 #   Karbantartás alatt csak az icemine.admin.maintenance.bypass joggal lehet belépni.
 #   Gyorsan: /icemine maintenance <mód> <on|off|closed>
 # world: a mód világa. A skypvp, kitpvp, combofly és gens világát a plugin maga hozza létre (a saját .yml fájljukban állítható).
@@ -15,7 +17,7 @@ send-cooldown-ms: 2000
 modes:
   skypvp:
     name: "&b&lSkyPvP"
-    icon: FEATHER
+    icon: HONEY_BOTTLE
     slot: 10
     color: "&b"
     status: open
@@ -27,7 +29,8 @@ modes:
       - "&7Gyűjts cuccot, és élj túl!"
   kitpvp:
     name: "&c&lKitPvP"
-    icon: DIAMOND_SWORD
+    icon: MACE
+    icon-fallback: IRON_AXE
     slot: 12
     color: "&c"
     status: open
@@ -51,7 +54,7 @@ modes:
       - "&7és tartsd a levegőben!"
   duels:
     name: "&e&lDuels"
-    icon: GOLDEN_SWORD
+    icon: NETHERITE_SWORD
     slot: 20
     color: "&e"
     status: open
@@ -76,7 +79,7 @@ modes:
       - "&73v3v3v3 és 4v4v4v4."
   gens:
     name: "&a&lGens"
-    icon: EMERALD
+    icon: DIAMOND_HOE
     slot: 14
     color: "&a"
     status: open
@@ -89,7 +92,7 @@ modes:
       - "&7Arass, fejlessz, gazdagodj!"
   kingdoms:
     name: "&6&lKingdoms"
-    icon: GOLDEN_HELMET
+    icon: GOLD_BLOCK
     slot: 16
     color: "&6"
     status: open
@@ -102,3 +105,16 @@ modes:
       - "&7Túlélés, királyságok,"
       - "&7területfoglalás és háborúk."
       - "&7Építsd fel a saját birodalmad!"
+  creative:
+    name: "&5&lCreative"
+    icon: AMETHYST_SHARD
+    slot: 31
+    color: "&5"
+    status: soon
+    world: creative
+    combat-tag: false
+    combofly: false
+    inventory: external
+    description:
+      - "&7Saját telek, végtelen blokkok,"
+      - "&7építs, amit csak el tudsz képzelni!"

@@ -34,6 +34,7 @@ public final class ModeService implements Listener {
         OK,
         UNKNOWN,
         CLOSED,
+        SOON,
         MAINTENANCE,
         COMBAT,
         COOLDOWN,
@@ -192,6 +193,9 @@ public final class ModeService implements Listener {
             if (info.status == ModeInfo.Status.CLOSED && !force) {
                 return SendResult.CLOSED;
             }
+            if (info.status == ModeInfo.Status.SOON && !force) {
+                return SendResult.SOON;
+            }
             if (info.status == ModeInfo.Status.MAINTENANCE && !force && !player.hasPermission("icemine.admin.maintenance.bypass")) {
                 return SendResult.MAINTENANCE;
             }
@@ -250,6 +254,9 @@ public final class ModeService implements Listener {
                 return false;
             case CLOSED:
                 core.messages().send(player, "mode.closed", "%mode%", name);
+                return false;
+            case SOON:
+                core.messages().send(player, "mode.soon", "%mode%", name);
                 return false;
             case SAME:
                 core.messages().send(player, "mode.already-there", "%mode%", name);

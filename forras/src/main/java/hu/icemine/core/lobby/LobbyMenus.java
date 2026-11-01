@@ -172,12 +172,12 @@ public final class LobbyMenus {
             lore.add("");
             lore.addAll(info.description);
             lore.add("");
-            int online = core.modes().online(info.id);
+            int online = info.status == ModeInfo.Status.SOON ? -1 : core.modes().online(info.id);
             if (online >= 0) {
                 lore.add(core.messages().raw("selector.online").replace("%online%", String.valueOf(online)));
             }
             lore.add(statusLine(info));
-            Items item = Items.of(info.icon).name(info.name).lore(lore).hideAll();
+            Items item = Items.of(info.displayIcon(core.lobby().world())).name(info.name).lore(lore).hideAll();
             if (info.status == ModeInfo.Status.OPEN && core.modes().available(info)) {
                 item.glow();
             }
@@ -191,6 +191,9 @@ public final class LobbyMenus {
     }
 
     private String statusLine(ModeInfo info) {
+        if (info.status == ModeInfo.Status.SOON) {
+            return core.messages().raw("selector.status.soon");
+        }
         if (!core.modes().available(info)) {
             return core.messages().raw("selector.status.unavailable");
         }

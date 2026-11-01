@@ -97,6 +97,7 @@ public final class IceMineCore extends JavaPlugin {
     private KitPvpMode kitpvp;
     private ComboArenaMode comboArena;
     private GensMode gens;
+    private hu.icemine.core.lobby.LobbyClicks lobbyClicks;
     private GensMenu gensMenu;
     private AuthHook auth;
     private final List<BukkitTask> tasks = new ArrayList<>();
@@ -247,7 +248,8 @@ public final class IceMineCore extends JavaPlugin {
         });
         safely("scoreboard", () -> boards.load(configs.get("scoreboard"), problems));
         configs.report(problems);
-        registerListeners(new CoreListener(this), modes, guard, combat, combo, protection, portals, npcs, holograms, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
+        lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
+        registerListeners(new CoreListener(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
                 skypvp, kitpvp, comboArena, gens, new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
@@ -684,6 +686,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public hu.icemine.core.modelobby.ModeLobbies modeLobbies() {
         return modeLobbies;
+    }
+
+    public hu.icemine.core.lobby.LobbyClicks lobbyClicks() {
+        return lobbyClicks;
     }
 
     public Holograms holograms() {

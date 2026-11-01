@@ -1,0 +1,35 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.9.1 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.9.1
+changes:
+- file: combofly
+  path: particles-enabled
+  old: true
+- file: combofly
+  path: sounds-enabled
+  old: true
+- file: messages_hu
+  path: cosmetics.trails-lore
+  old:
+  - '&7Részecskék, amik követnek, bárhol is jársz.'
+  - '&7A parkour futás alatt nem látszanak.'
+- file: messages_hu
+  path: cosmetics.kills-lore
+  old:
+  - '&7Ez jelenik meg, amikor megölsz valakit.'
+  - '&7Kiválasztáskor egyszer meg is mutatom.'
+- file: modes
+  path: modes.skypvp.icon
+  old: FEATHER
+- file: modes
+  path: modes.kitpvp.icon
+  old: DIAMOND_SWORD
+- file: modes
+  path: modes.duels.icon
+  old: GOLDEN_SWORD
+- file: modes
+  path: modes.gens.icon
+  old: EMERALD
+- file: modes
+  path: modes.kingdoms.icon
+  old: GOLDEN_HELMET

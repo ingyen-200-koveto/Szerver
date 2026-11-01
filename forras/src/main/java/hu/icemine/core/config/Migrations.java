@@ -208,6 +208,17 @@ public final class Migrations {
                 files.save("lobby");
             }
         }
+        if (modes.isSet("modes") && !modes.getBoolean("migrated.creative-v1", false)) {
+            if (!modes.isSet("modes.creative")) {
+                copyDefault(modes, "modes.creative");
+            }
+            if (modes.getString("modes.kitpvp.icon", "").equalsIgnoreCase("MACE") && !modes.isSet("modes.kitpvp.icon-fallback")) {
+                modes.set("modes.kitpvp.icon-fallback", "IRON_AXE");
+            }
+            modes.set("migrated.creative-v1", true);
+            files.save("modes");
+            notes.add("modes.yml: a játékmód választóba bekerült a Creative (hamarosan), új ikonok");
+        }
         if (modes.isSet("modes") && !modes.isSet("modes.duels")) {
             copyDefault(modes, "modes.duels");
             files.save("modes");

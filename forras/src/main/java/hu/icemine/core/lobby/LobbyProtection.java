@@ -98,7 +98,7 @@ public final class LobbyProtection implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (!lobby(player)) {
+        if (!lobby(player) || core.lobbyClicks() != null && core.lobbyClicks().handled(event)) {
             return;
         }
         ItemStack item = event.getItem();

@@ -45,8 +45,8 @@ public final class ComboFly implements Listener {
     private final Set<Integer> milestones = new HashSet<>();
     private final Map<UUID, Long> shownUntil = new HashMap<>();
     private boolean enabled = true;
-    private boolean particles = true;
-    private boolean sounds = true;
+    private boolean particles = false;
+    private boolean sounds = false;
     private boolean actionbar = true;
     private boolean combatTagRequired = true;
     private boolean resetOnGround = true;
@@ -65,8 +65,8 @@ public final class ComboFly implements Listener {
         Values values = new Values("combofly.yml", config::get);
         enabled = values.bool("enabled", true);
         tracker.configure(values.integer("combo-timeout", 2500, 300, 10000), values.integer("max-combo", 50, 2, 500));
-        particles = values.bool("particles-enabled", true);
-        sounds = values.bool("sounds-enabled", true);
+        particles = values.bool("particles-enabled", false);
+        sounds = values.bool("sounds-enabled", false);
         actionbar = values.bool("actionbar-enabled", true);
         combatTagRequired = values.bool("combat-tag-required", true);
         resetOnGround = values.bool("reset-on-ground", true);

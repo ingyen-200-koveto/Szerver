@@ -83,11 +83,13 @@ hotbar:
         - "&7Hasznos tudnivalók a szerverről."
       action: "menu:info"
 
-# Kozmetikák: a nyomvonal minden játékmódban látszik (a parkour futás alatt nem),
-# az ölés effekt akkor jelenik meg, amikor megölsz valakit (bármelyik PvP módban).
+# Kozmetikák: a nyomvonal és az ölés effekt csak a lobbyban (és a játékmódok lobbyjaiban) látszik,
+# játék közben nem, és a parkour futás alatt sem. Ha mégis minden módban kellenek: lobby-only: false
+# Az ölés effektet kiválasztáskor a lobbyban egyszer megmutatja.
 # Megnyitás: iránytű / hotbar, vagy bárhol: /kozmetika
 # Jog: icemine.cosmetic.trail.<id> és icemine.cosmetic.kill.<id> (LuckPerms-szel rangokhoz adhatod)
 cosmetics:
+  lobby-only: true
   # Ezekben a világokban nincs nyomvonal (pl. "kingdoms")
   disabled-worlds: []
   trails:

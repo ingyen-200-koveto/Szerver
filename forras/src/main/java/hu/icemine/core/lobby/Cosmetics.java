@@ -80,6 +80,8 @@ public final class Cosmetics implements Listener {
     private final Map<UUID, Trail> active = new HashMap<>();
     private final Set<UUID> known = new HashSet<>();
     private final Set<String> disabledWorlds = new HashSet<>();
+    /** A kozmetikák (nyomvonal, ölés effekt) csak a lobbyban és a játékmódok lobbyjaiban látszanak, játék közben nem. */
+    private boolean lobbyOnly = true;
 
     public Cosmetics(IceMineCore core) {
         this.core = core;
@@ -89,6 +91,7 @@ public final class Cosmetics implements Listener {
         trails.clear();
         kills.clear();
         disabledWorlds.clear();
+        lobbyOnly = config.getBoolean("cosmetics.lobby-only", true);
         for (String world : config.getStringList("cosmetics.disabled-worlds")) {
             disabledWorlds.add(world.toLowerCase(Locale.ROOT));
         }
@@ -246,7 +249,20 @@ public final class Cosmetics implements Listener {
         if (disabledWorlds.contains(player.getWorld().getName().toLowerCase(Locale.ROOT))) {
             return true;
         }
+        if (lobbyOnly && !lobbyWorld(player.getWorld())) {
+            return true;
+        }
         return core.parkour().running(player);
+    }
+
+    private boolean lobbyWorld(World world) {
+        if (world == null) {
+            return false;
+        }
+        if (core.lobby() != null && world == core.lobby().world()) {
+            return true;
+        }
+        return core.modeLobbies() != null && core.modeLobbies().isLobbyWorld(world);
     }
 
     private static void spawn(World world, Effect effect, double x, double y, double z, int count, double spread, double speed) {
@@ -279,7 +295,7 @@ public final class Cosmetics implements Listener {
 
     public void playKill(Player killer, Location at) {
         KillEffect effect = currentKill(killer);
-        if (effect == null || at.getWorld() == null) {
+        if (effect == null || at.getWorld() == null || lobbyOnly && !lobbyWorld(at.getWorld())) {
             return;
         }
         World world = at.getWorld();

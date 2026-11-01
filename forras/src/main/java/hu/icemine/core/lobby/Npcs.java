@@ -56,6 +56,8 @@ public final class Npcs implements Listener {
         public final String action;
         public LivingEntity entity;
         public TextDisplay label;
+        /** Láthatatlan kattintható doboz a test és a név (pl. "Kattints rám!") körül. */
+        public org.bukkit.entity.Interaction hitbox;
         String shown;
         boolean failed;
         String skin = "";
@@ -241,6 +243,11 @@ public final class Npcs implements Listener {
             npc.label.remove();
             npc.label = null;
         }
+        if (npc.hitbox != null) {
+            byEntity.remove(npc.hitbox.getUniqueId());
+            npc.hitbox.remove();
+            npc.hitbox = null;
+        }
         npc.shown = null;
     }
 
@@ -287,6 +294,7 @@ public final class Npcs implements Listener {
                 citizen(npc);
             }
             label(world, npc);
+            hitbox(world, npc);
             return;
         }
         LivingEntity entity;
@@ -308,6 +316,45 @@ public final class Npcs implements Listener {
             setup((Villager) entity, npc);
         }
         label(world, npc);
+        hitbox(world, npc);
+    }
+
+    /** Ilyen magas az NPC a nevével együtt (a név 2,35 blokkal a talpa fölött kezdődik). */
+    private static double height(Npc npc) {
+        return npc.name.isEmpty() ? 2.0 : 2.35 + npc.name.size() * 0.27 + 0.1;
+    }
+
+    /**
+     * A név felirata magában nem kattintható (a TextDisplay-nek nincs doboza), ezért a játékosok hiába kattintottak a
+     * "Kattints rám!" szövegre. Most egy láthatatlan doboz fogja át a testet és a nevet is.
+     */
+    private void hitbox(World world, Npc npc) {
+        if (npc.hitbox != null && npc.hitbox.isValid() || npc.action == null || npc.action.isBlank()) {
+            return;
+        }
+        if (npc.hitbox != null) {
+            byEntity.remove(npc.hitbox.getUniqueId());
+        }
+        org.bukkit.entity.Interaction box = world.spawn(npc.location.clone(), org.bukkit.entity.Interaction.class);
+        box.setPersistent(false);
+        box.addScoreboardTag(TAG);
+        box.setInteractionWidth(1.1f);
+        box.setInteractionHeight((float) height(npc));
+        box.setResponsive(true);
+        npc.hitbox = box;
+        byEntity.put(box.getUniqueId(), npc);
+    }
+
+    /** Az NPC-k dobozai a szerver oldali kattintáshoz (LobbyClicks). */
+    void targets(World world, List<LobbyClicks.Target> out) {
+        for (Npc npc : npcs.values()) {
+            if (npc.location.getWorld() != world || npc.action == null || npc.action.isBlank()) {
+                continue;
+            }
+            Location at = npc.location;
+            out.add(new LobbyClicks.Target(new org.bukkit.util.BoundingBox(at.getX() - 0.6, at.getY(), at.getZ() - 0.6,
+                    at.getX() + 0.6, at.getY() + height(npc), at.getZ() + 0.6), player -> use(player, npc)));
+        }
     }
 
     private void citizen(Npc npc) {
@@ -460,6 +507,7 @@ public final class Npcs implements Listener {
                 World world = npc.location.getWorld();
                 if (world != null && world.isChunkLoaded(npc.location.getBlockX() >> 4, npc.location.getBlockZ() >> 4)) {
                     label(world, npc);
+                    hitbox(world, npc);
                     if (check || npc.citizenId < 0 && System.currentTimeMillis() >= citizensReadyAt) {
                         citizen(npc);
                     }
@@ -477,6 +525,9 @@ public final class Npcs implements Listener {
             }
             if (npc.entity.getLocation().distanceSquared(npc.location) > 0.25) {
                 npc.entity.teleport(npc.location);
+            }
+            if (npc.hitbox == null || !npc.hitbox.isValid()) {
+                hitbox(npc.location.getWorld(), npc);
             }
             refresh(npc);
         }

@@ -381,7 +381,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 3 || core.modes().info(args[1]) == null) {
-            core.messages().send(sender, "admin.usage", "%usage%", "/icem admin maintenance <mód> <on|off|closed>");
+            core.messages().send(sender, "admin.usage", "%usage%", "/icem admin maintenance <mód> <on|off|closed|soon>");
             return;
         }
         ModeInfo.Status status;
@@ -391,6 +391,9 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 break;
             case "closed":
                 status = ModeInfo.Status.CLOSED;
+                break;
+            case "soon":
+                status = ModeInfo.Status.SOON;
                 break;
             default:
                 status = ModeInfo.Status.OPEN;
