@@ -40,6 +40,13 @@ public final class LobbyMenus {
 
     public void open(Player player, String id) {
         switch (id.toLowerCase(Locale.ROOT)) {
+            case "main":
+            case "fomenu":
+                main(player);
+                break;
+            case "ranks":
+                core.ranks().openMenu(player);
+                break;
             case "selector":
                 selector(player);
                 break;
@@ -66,6 +73,97 @@ public final class LobbyMenus {
         }
     }
 
+    /**
+     * Főmenü: innen minden elérhető (játékmódok, kitek, Duels, profil, toplisták, rangok, napi jutalom, kozmetikák,
+     * beállítások, kapcsolatok, információk, parkour). Megnyitás: /menu, vagy a hotbaron a nether csillag.
+     */
+    public void main(Player player) {
+        PlayerProfile profile = core.profiles().profile(player);
+        Menu menu = new Menu("main", 4, title("main", "&3[IceMine] &8Főmenü"));
+        menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
+        menu.set(10, button(Material.COMPASS, "mainmenu.selector"), clicker -> selector(clicker));
+        menu.set(11, button(Material.CHEST, "mainmenu.kits"), clicker -> {
+            hu.icemine.core.kitpvp.PvpMode mode = core.pvpModeOf(clicker);
+            if (mode == null) {
+                clicker.closeInventory();
+                core.messages().send(clicker, "kit.only-pvp");
+                return;
+            }
+            mode.openKits(clicker);
+        });
+        menu.set(12, button(Material.GOLDEN_SWORD, "mainmenu.duels"), clicker -> {
+            if (core.duels() != null && clicker.getWorld().getName().equalsIgnoreCase("lobby_duels")) {
+                core.duels().menu().open(clicker);
+            } else {
+                clicker.closeInventory();
+                core.modes().sendAndReport(clicker, "duels");
+            }
+        });
+        List<String> summary = new ArrayList<>();
+        if (profile != null) {
+            hu.icemine.core.rank.Ranks.Rank rank = core.ranks().of(player);
+            summary.add(core.messages().raw("mainmenu.rank").replace("%rank%", rank.name));
+            for (Economy.Currency currency : core.economy().currencies()) {
+                summary.add("&7" + currency.name + ": " + core.economy().format(currency.id, profile.balance(currency.id)));
+            }
+            summary.add(core.messages().raw("mainmenu.playtime").replace("%time%", Text.duration(profile.playtime())));
+            summary.add("");
+        }
+        summary.add(core.messages().raw("mainmenu.profile-click"));
+        menu.set(13, Items.head(player).name("&b&l" + player.getName()).lore(summary).build(), clicker -> open(clicker, "profile"));
+        menu.set(14, button(Material.GOLD_INGOT, "mainmenu.stats"), this::stats);
+        menu.set(15, button(Material.NETHER_STAR, "mainmenu.ranks"), clicker -> core.ranks().openMenu(clicker));
+        boolean daily = dailyReady(profile);
+        Items dailyItem = Items.of(daily ? Material.CHEST_MINECART : Material.MINECART).name(core.messages().raw("mainmenu.daily.name"))
+                .lore(core.messages().list(daily ? "mainmenu.daily.ready" : "mainmenu.daily.taken")).hideAll();
+        if (daily) {
+            dailyItem.glow();
+        }
+        menu.set(16, dailyItem.build(), clicker -> {
+            clicker.closeInventory();
+            clicker.performCommand("napi");
+        });
+        menu.set(19, button(Material.AMETHYST_SHARD, "mainmenu.cosmetics"), this::cosmetics);
+        menu.set(20, button(Material.COMPARATOR, "mainmenu.settings"), this::settings);
+        menu.set(21, button(Material.BOOK, "mainmenu.contacts"), clicker -> {
+            clicker.closeInventory();
+            core.contacts().chat(clicker);
+        });
+        menu.set(22, button(Material.RED_BED, "mainmenu.lobby"), clicker -> {
+            clicker.closeInventory();
+            core.modes().sendAndReport(clicker, hu.icemine.core.mode.ModeService.LOBBY);
+        });
+        menu.set(23, button(Material.HEART_OF_THE_SEA, "mainmenu.info"), this::info);
+        menu.set(24, button(Material.FEATHER, "mainmenu.parkour"), clicker -> {
+            clicker.closeInventory();
+            clicker.performCommand("parkour");
+        });
+        menu.set(25, button(Material.EMERALD, "mainmenu.gens"), clicker -> {
+            clicker.closeInventory();
+            clicker.performCommand("gens");
+        });
+        menu.open(player);
+    }
+
+    private org.bukkit.inventory.ItemStack button(Material icon, String key) {
+        return Items.of(icon).name(core.messages().raw(key + ".name")).lore(core.messages().list(key + ".lore")).hideAll().build();
+    }
+
+    private static boolean dailyReady(PlayerProfile profile) {
+        if (profile == null) {
+            return false;
+        }
+        try {
+            return Long.parseLong(profile.setting("daily.last", "0")) < java.time.LocalDate.now().toEpochDay();
+        } catch (NumberFormatException exception) {
+            return true;
+        }
+    }
+
+    private void back(Menu menu, int slot) {
+        menu.set(slot, Items.of(Material.ARROW).name(core.messages().raw("menu.back")).build(), this::main);
+    }
+
     public void selector(Player player) {
         Menu menu = new Menu("selector", 5, title("selector", "&b&lIce&f&lMine &8» &fJátékmódok"));
         menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, Material.WHITE_STAINED_GLASS_PANE);
@@ -88,6 +186,7 @@ public final class LobbyMenus {
                 core.modes().sendAndReport(clicker, info.id);
             });
         }
+        back(menu, 40);
         menu.open(player);
     }
 
@@ -127,6 +226,15 @@ public final class LobbyMenus {
         }
         Items headItem = head == null ? Items.of(Material.PLAYER_HEAD) : Items.head(head);
         menu.set(13, headItem.name("&b&l" + profile.name()).lore(lore).build());
+        if (online != null) {
+            hu.icemine.core.rank.Ranks.Rank rank = core.ranks().of(online);
+            List<String> rankLore = new ArrayList<>(core.messages().list("mainmenu.rank-info", "%rank%", rank.name,
+                    "%multiplier%", Text.decimal(rank.multiplier)));
+            menu.set(11, Items.of(Material.NETHER_STAR).name(core.messages().raw("mainmenu.ranks.name")).lore(rankLore).build(),
+                    clicker -> core.ranks().openMenu(clicker));
+        }
+        menu.set(15, Items.of(Material.GOLD_INGOT).name(core.messages().raw("mainmenu.stats.name")).lore(core.messages().list("mainmenu.stats.lore")).hideAll().build(),
+                this::stats);
         menu.set(29, pvpItem(Material.DIAMOND_SWORD, "&c&lKitPvP", profile, "kitpvp"));
         menu.set(31, pvpItem(Material.FEATHER, "&b&lSkyPvP", profile, "skypvp"));
         List<String> gens = new ArrayList<>();
@@ -134,13 +242,23 @@ public final class LobbyMenus {
         gens.add("&7Összes bevétel: &e" + Text.number(profile.stat("gens.earned")));
         gens.add("&7Generátorok: &f" + profile.stat("gens.generators"));
         gens.add("&7Telekszint: &f" + Math.max(1, profile.stat("gens.level")));
+        gens.add("&7Prestige: &d" + profile.stat("gens.prestige") + " &8| &7Rebirth: &5" + profile.stat("gens.rebirth"));
         gens.add("&7Teljesített küldetések: &f" + profile.stat("gens.quests"));
         menu.set(33, Items.of(Material.EMERALD).name("&a&lGens").lore(gens).hideAll().build());
+        List<String> duels = new ArrayList<>();
+        long wins = profile.stat("duels.wins");
+        long losses = profile.stat("duels.losses");
+        duels.add("&7Győzelmek: &a" + Text.number(wins) + " &8| &7Vereségek: &c" + Text.number(losses));
+        duels.add("&7Arány: &f" + Text.ratio(wins, losses));
+        duels.add("&7Győzelmi sorozat: &e" + profile.stat("duels.streak") + " &8(legjobb: " + profile.stat("duels.best_streak") + ")");
+        duels.add("&7Legjobb Elo: &b" + Math.max(1000, profile.stat("duels.elo_best")));
+        duels.add("&7Lejátszott meccsek: &f" + profile.stat("duels.played"));
+        menu.set(37, Items.of(Material.GOLDEN_SWORD).name("&e&lDuels").lore(duels).hideAll().build());
         List<String> parkour = new ArrayList<>();
         long best = profile.stat("parkour2.best_ms");
         parkour.add("&7Legjobb idő: &f" + (best > 0 ? Text.timer(best) : "-"));
         parkour.add("&7Teljesítve: &f" + profile.stat("parkour2.completions") + "x");
-        menu.set(39, Items.of(Material.LEATHER_BOOTS).name("&f&lParkour").lore(parkour).hideAll().build());
+        menu.set(43, Items.of(Material.LEATHER_BOOTS).name("&f&lParkour").lore(parkour).hideAll().build());
         List<String> combo = new ArrayList<>();
         long comboKills = profile.stat("combofly.kills");
         long comboDeaths = profile.stat("combofly.deaths");
@@ -148,8 +266,8 @@ public final class LobbyMenus {
         combo.add("&7Kombók száma: &f" + profile.stat("combofly.combos"));
         combo.add("&7Ölések: &a" + Text.number(comboKills) + " &8| &7Halálok: &c" + Text.number(comboDeaths));
         combo.add("&7K/D: &f" + Text.ratio(comboKills, comboDeaths) + " &8| &7Legjobb sorozat: &e" + profile.stat("combofly.best_streak"));
-        menu.set(41, Items.of(Material.PRISMARINE_SHARD).name("&3&lComboFly").lore(combo).hideAll().build());
-        menu.set(49, Items.of(Material.ARROW).name(core.messages().raw("menu.back")).build(), this::selector);
+        menu.set(40, Items.of(Material.PRISMARINE_SHARD).name("&3&lComboFly").lore(combo).hideAll().build());
+        back(menu, 49);
         menu.open(viewer);
     }
 
@@ -186,7 +304,7 @@ public final class LobbyMenus {
             menu.set(slots[index++], Items.of(icon).name(board.title).lore(lore).hideAll().build());
         }
         menu.set(22, Items.head(player).name(core.messages().raw("selector.profile.name")).lore(core.messages().list("selector.profile.lore")).build(), clicker -> open(clicker, "profile"));
-        menu.set(40, Items.of(Material.ARROW).name(core.messages().raw("menu.back")).build(), this::selector);
+        back(menu, 40);
         menu.open(player);
     }
 
@@ -234,7 +352,7 @@ public final class LobbyMenus {
                 cosmetics(clicker);
             });
         }
-        menu.set(49, Items.of(Material.ARROW).name(core.messages().raw("menu.back")).build(), this::selector);
+        back(menu, 49);
         menu.open(player);
     }
 
@@ -269,6 +387,7 @@ public final class LobbyMenus {
         toggle(menu, 14, player, profile, ComboFly.DISPLAY, true, Material.PRISMARINE_SHARD, "settings.combo-display", true, null);
         toggle(menu, 15, player, profile, ComboFly.EFFECTS, true, Material.FIREWORK_STAR, "settings.combo-effects", true, null);
         toggle(menu, 16, player, profile, "board.hidden", false, Material.OAK_SIGN, "settings.scoreboard", true, p -> core.boards().rebuild(p));
+        back(menu, 22);
         menu.open(player);
     }
 
@@ -322,6 +441,7 @@ public final class LobbyMenus {
                 });
             }
         }
+        back(menu, 22);
         menu.open(player);
     }
 

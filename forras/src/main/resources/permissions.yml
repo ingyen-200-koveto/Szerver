@@ -23,6 +23,7 @@ commands:
   fizet:     {permission: icemine.command.fizet, default: true}
   napi:      {permission: icemine.command.napi, default: true}
   kozmetika: {permission: icemine.command.kozmetika, default: true}
+  menu:      {permission: icemine.command.menu, default: true}
   kapcsolat: {permission: icemine.command.kapcsolat, default: true}
   parkour:   {permission: icemine.command.parkour, default: true}
   combofly:  {permission: icemine.command.combofly, default: true}

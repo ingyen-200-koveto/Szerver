@@ -6,7 +6,7 @@
 
     <groupId>hu.icemine</groupId>
     <artifactId>icemine</artifactId>
-    <version>3.4.0</version>
+    <version>3.5.0</version>
     <packaging>jar</packaging>
     <name>IceMine</name>
     <description>IceMine Network: lobby, SkyPvP, KitPvP, ComboFly, Duels, Gens, Kingdoms - egyetlen pluginban</description>

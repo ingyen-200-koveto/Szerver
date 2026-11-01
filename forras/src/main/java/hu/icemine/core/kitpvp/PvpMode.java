@@ -673,6 +673,7 @@ public abstract class PvpMode implements ModeHandler, Listener {
             inventory.setItem(2, Items.of(org.bukkit.Material.COMPASS).name(core.messages().raw("arena.item")).lore(core.messages().list("arena.item-lore")).tag("pvp:arenas").build());
         }
         inventory.setItem(8, Items.of(org.bukkit.Material.RED_BED).name(core.messages().raw("pvp.item.lobby")).tag("pvp:lobby").build());
+        inventory.setItem(7, Items.of(org.bukkit.Material.NETHER_STAR).name(core.messages().raw("mainmenu.item")).tag("pvp:menu").build());
         extraHotbar(inventory);
         inventory.setHeldItemSlot(0);
     }
@@ -787,6 +788,9 @@ public abstract class PvpMode implements ModeHandler, Listener {
                 break;
             case "pvp:upgrades":
                 openUpgrades(player);
+                break;
+            case "pvp:menu":
+                core.menus().main(player);
                 break;
             case "pvp:lobby":
                 core.modes().sendAndReport(player, hu.icemine.core.mode.ModeService.LOBBY);

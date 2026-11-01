@@ -242,7 +242,7 @@ public final class IceMineCore extends JavaPlugin {
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
         register("icem", icem, icem);
         PlayerCommands players = new PlayerCommands(this);
-        for (String name : new String[]{"lobby", "spawn", "profil", "top", "kozmetika", "penz", "fizet", "napi", "kapcsolat", "parkour", "combofly", "kit", "arena", "gens", "elad"}) {
+        for (String name : new String[]{"lobby", "spawn", "profil", "top", "kozmetika", "penz", "fizet", "napi", "kapcsolat", "parkour", "combofly", "kit", "arena", "gens", "elad", "menu"}) {
             register(name, players, players);
         }
         DuelsCommand duelsCommand = new DuelsCommand(this, duels);

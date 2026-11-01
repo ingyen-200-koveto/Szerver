@@ -55,6 +55,10 @@ elmenti. Ha ezt nem kéred: `plugins/IceMine/config.yml` -> `kulso-uzenetek: fal
 
 A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `/kit`, `/profil`...) is maradtak.
 
+**Főmenü:** `/menu`, vagy a hotbaron a nether csillag. Innen minden elérhető: játékmódok, kitek, Duels, profil
+(minden mód statisztikájával), toplisták, rangok, napi jutalom, kozmetikák, beállítások, kapcsolatok, információk,
+parkour és Gens. Minden menüben van "Vissza" gomb a főmenübe.
+
 ### Jogok
 
 Minden parancsnak külön joga van, egy helyen: `plugins/IceMine/permissions.yml`.

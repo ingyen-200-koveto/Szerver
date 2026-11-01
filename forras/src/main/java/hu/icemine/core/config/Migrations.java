@@ -286,6 +286,46 @@ public final class Migrations {
             lobbyFile.set("menus.stats.icons.gensprestige", "NETHER_STAR");
             files.save("lobby");
         }
+        if (lobbyFile != null && lobbyFile.isSet("hotbar.items") && !lobbyFile.getBoolean("migrated.mainmenu-v1", false)) {
+            if (!lobbyFile.isSet("hotbar.items.main")) {
+                boolean taken = false;
+                ConfigurationSection items = lobbyFile.getConfigurationSection("hotbar.items");
+                for (String key : items.getKeys(false)) {
+                    if (items.getInt(key + ".slot", -1) == 4) {
+                        taken = true;
+                    }
+                }
+                if (!taken) {
+                    copyDefault(lobbyFile, "hotbar.items.main");
+                }
+            }
+            if (!lobbyFile.isSet("menus.main")) {
+                copyDefault(lobbyFile, "menus.main");
+            }
+            lobbyFile.set("migrated.mainmenu-v1", true);
+            files.save("lobby");
+            notes.add("lobby.yml: főmenü a hotbaron (nether csillag)");
+        }
+        YamlConfiguration perms = files.get("permissions");
+        if (perms != null && perms.getDefaults() != null) {
+            boolean added = false;
+            for (String section : new String[]{"commands", "icem"}) {
+                ConfigurationSection permDefaults = perms.getDefaults().getConfigurationSection(section);
+                if (permDefaults == null || !perms.isSet(section)) {
+                    continue;
+                }
+                for (String key : permDefaults.getKeys(false)) {
+                    if (!perms.isSet(section + "." + key)) {
+                        copyDefault(perms, section + "." + key);
+                        added = true;
+                    }
+                }
+            }
+            if (added) {
+                files.save("permissions");
+                notes.add("permissions.yml: új parancsok joga");
+            }
+        }
         YamlConfiguration combofly = files.get("combofly");
         if (refresh(combofly, "migrated.combo-v2", "knockback-horizontal", "knockback-vertical", "combo-scaling", "max-vertical", "max-height",
                 "hit-delay-ticks", "damage-multiplier", "modes.combofly")) {

@@ -695,3 +695,75 @@ upgrade:
   bought: "Megvetted: %name% &8(%level%/%max%, -%price%&8)&7. A következő kitválasztásnál már rajtad lesz."
   no-money: "Nincs elég pénzed! Ehhez &f%price% &7kell."
   max: "%name% &7már a legmagasabb szinten van."
+
+mainmenu:
+  item: "&b[IceMine] &fFőmenü"
+  item-lore:
+    - "&7Játékmódok, profil, toplisták, rangok."
+  rank: "&7Rang: %rank%"
+  playtime: "&7Játékidő: &f%time%"
+  profile-click: "&b▶ Kattints a profilodért"
+  rank-info:
+    - "&7A rangod: %rank%"
+    - "&7Pénz szorzó: &e%multiplier%x"
+    - ""
+    - "&b▶ Kattints a rangokért"
+  selector:
+    name: "&b&lJátékmódok"
+    lore:
+      - "&7KitPvP, SkyPvP, ComboFly, Gens,"
+      - "&7Kingdoms és Duels."
+  kits:
+    name: "&6&lKitek"
+    lore:
+      - "&7Kit választó (KitPvP, SkyPvP, ComboFly)."
+  duels:
+    name: "&e&lDuels"
+    lore:
+      - "&713 féle 1v1, ranked sor, kihívások."
+  stats:
+    name: "&e&lToplisták"
+    lore:
+      - "&7Kik a legjobbak az egyes módokban."
+  ranks:
+    name: "&d&lRangok"
+    lore:
+      - "&7Mit ad az egyes rang:"
+      - "&7kitek, kozmetikák, pénz szorzó."
+  daily:
+    name: "&a&lNapi jutalom"
+    ready:
+      - "&7Ma még nem vitted el!"
+      - "&b▶ Kattints érte"
+    taken:
+      - "&7Ma már megkaptad,"
+      - "&7holnap újra jöhetsz."
+  cosmetics:
+    name: "&d&lKozmetikák"
+    lore:
+      - "&7Nyomvonalak és ölés effektek."
+  settings:
+    name: "&7&lBeállítások"
+    lore:
+      - "&7Játékosok elrejtése, repülés,"
+      - "&7kombó kijelzés, scoreboard."
+  contacts:
+    name: "&3&lKapcsolatok"
+    lore:
+      - "&7Discord, YouTube, Instagram."
+  lobby:
+    name: "&c&lLobby"
+    lore:
+      - "&7Vissza a főlobbyba."
+  info:
+    name: "&3&lInformációk"
+    lore:
+      - "&7Szabályok, parancsok, a szerverről."
+  parkour:
+    name: "&f&lJégparkour"
+    lore:
+      - "&7Ugrás a parkour startjához."
+  gens:
+    name: "&a&lGens"
+    lore:
+      - "&7A saját szigeted generátorokkal."

@@ -53,6 +53,10 @@ commands:
     description: Napi jutalom
     usage: /napi
     aliases: [daily]
+  menu:
+    description: IceMine főmenü (játékmódok, profil, toplisták, rangok, beállítások)
+    usage: /menu
+    aliases: [fomenu, mainmenu]
   kozmetika:
     description: Kozmetikák (nyomvonalak, ölés effektek)
     usage: /kozmetika

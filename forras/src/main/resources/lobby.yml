@@ -54,6 +54,14 @@ hotbar:
       lore:
         - "&7A statisztikáid és a pénzed."
       action: "menu:profile"
+    main:
+      slot: 4
+      material: NETHER_STAR
+      name: "&b[IceMine] &fFőmenü"
+      lore:
+        - "&7Minden egy helyen: játékmódok, profil,"
+        - "&7toplisták, rangok, napi jutalom."
+      action: "menu:main"
     cosmetics:
       slot: 3
       material: AMETHYST_SHARD
@@ -71,7 +79,7 @@ hotbar:
     contacts:
       slot: 6
       material: BOOK
-      name: "&b&lIce&f&lMine &f| &bKapcsolatok"
+      name: "&b[IceMine] &fKapcsolatok"
       lore:
         - "&7Discord, weboldal, YouTube..."
       action: "book:contacts"
@@ -194,6 +202,8 @@ cosmetics:
         - "&7Látványos, de senkinek nem árt."
 
 menus:
+  main:
+    title: "&3[IceMine] &8Főmenü"
   selector:
     title: "&3[IceMine] &8Játékmódok"
   profile:
