@@ -13,7 +13,7 @@ commands:
     aliases: [kingdom, kingdoms, kiralysag]
   kadmin:
     description: Kingdoms admin parancsok
-    usage: /kadmin <reload|disband|unclaim|rebuild>
+    usage: /kadmin <reload|rebuild|disband|unclaim|give|rp|bank|xp|level|masswar|stopinvasion|join|setking|info>
     aliases: [ka]
   icem:
     description: IceMine parancsok (help, stats, kit, arena, rank, setspawn, reload, admin)

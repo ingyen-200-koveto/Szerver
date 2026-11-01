@@ -1,9 +1,10 @@
 package hu.icemine.kingdoms;
 
+import hu.icemine.core.IceMineCore;
 import hu.icemine.core.config.Upgrades;
 import hu.icemine.core.module.Module;
+import hu.icemine.core.util.ClickText;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
@@ -21,6 +21,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -35,28 +36,34 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
+/**
+ * A Kingdoms mód: saját (generált) világ, királyi város a spawnon, királyságok rangokkal, földekkel, Nexusszal, bankkal,
+ * Resource Pointtal, kapcsolatokkal, nemzetekkel, inváziókkal, tornyokkal és építményekkel. Az adatok az IceMine
+ * adatbázisában vannak (SQLite vagy MySQL).
+ */
 public final class IceMineKingdoms extends Module {
 
     private static final String OBJECTIVE = "kingdoms";
     private static final String SUFFIX = "0123456789abcdef";
 
-    private final Map<String, Kingdom> kingdoms = new ConcurrentHashMap<>();
-    private final Map<String, Kingdom> claims = new ConcurrentHashMap<>();
-    private final Map<UUID, Kingdom> members = new ConcurrentHashMap<>();
-    private final Map<UUID, String> names = new ConcurrentHashMap<>();
-    private final Map<UUID, String> invites = new ConcurrentHashMap<>();
-    private final Map<UUID, Boolean> kingdomChat = new ConcurrentHashMap<>();
+    private final KConfig settings = new KConfig();
     private final Map<UUID, String> lastArea = new HashMap<>();
+    private final Map<UUID, Long> lastChunk = new HashMap<>();
     private final Map<UUID, Scoreboard> boards = new HashMap<>();
     private final Map<UUID, List<String>> shown = new HashMap<>();
     private final List<BukkitTask> tasks = new ArrayList<>();
+    private KingdomStore store;
+    private KingdomManager manager;
+    private Structures structures;
+    private Invasions invasions;
+    private Borders borders;
+    private KingdomMenus menus;
+    private Donations donations;
     private World world;
     private Location spawn;
     private int townX;
     private int townZ;
-    private InventoryStore store;
-    private File dataFile;
-    private boolean dirty;
+    private InventoryStore inventories;
     private boolean enabled;
 
     public IceMineKingdoms(JavaPlugin plugin) {
@@ -83,19 +90,43 @@ public final class IceMineKingdoms extends Module {
         })) {
             getLogger().info("Config frissítve: " + note);
         }
-        if (String.join("\n", getConfig().getStringList("tablist.header")).contains("❄ IceMine ❄") && getConfig().getDefaults() != null) {
-            getConfig().set("tablist.header", getConfig().getDefaults().getStringList("tablist.header"));
-            saveConfig();
+        List<String> problems = new ArrayList<>();
+        settings.load(getConfig(), problems);
+        for (String problem : problems) {
+            getLogger().warning(problem);
         }
-        store = new InventoryStore(new File(getDataFolder(), "inventories"), getLogger());
-        dataFile = new File(getDataFolder(), "kingdoms.yml");
+        inventories = new InventoryStore(new File(getDataFolder(), "inventories"), getLogger());
         world = loadWorld();
         if (world == null) {
             getLogger().severe("Nem sikerült betölteni a Kingdoms világot, a Kingdoms mód nem indul el.");
             return;
         }
         prepareWorld();
-        loadData();
+        store = new KingdomStore(core().database(), getLogger());
+        manager = new KingdomManager(this, store);
+        structures = new Structures(this);
+        invasions = new Invasions(this);
+        borders = new Borders(this);
+        menus = new KingdomMenus(this);
+        donations = new Donations(this);
+        try {
+            store.init();
+            KingdomStore.Loaded loaded = store.loadAll(settings.defaultRanks);
+            File legacy = new File(getDataFolder(), "kingdoms.yml");
+            if (loaded.kingdoms.isEmpty() && legacy.isFile()) {
+                loaded = KingdomStore.convertLegacy(legacy, settings.defaultRanks, getLogger());
+                manager.load(loaded);
+                manager.saveAll();
+                getLogger().info("Kingdoms: a régi mentésből átvettem " + loaded.kingdoms.size() + " királyságot.");
+            } else {
+                manager.load(loaded);
+            }
+        } catch (Exception exception) {
+            getLogger().severe("Kingdoms: nem sikerült betölteni az adatokat, a mód nem indul el (" + exception.getMessage() + ")");
+            return;
+        }
+        structures.rebuild();
+        invasions.loadMasswar();
         KingdomCommands commands = new KingdomCommands(this);
         for (String name : new String[]{"k", "kadmin"}) {
             PluginCommand command = getCommand(name);
@@ -104,13 +135,15 @@ public final class IceMineKingdoms extends Module {
                 command.setTabCompleter(commands);
             }
         }
-        getServer().getPluginManager().registerEvents(new KingdomListener(this), plugin());
+        for (org.bukkit.event.Listener listener : new org.bukkit.event.Listener[]{new KingdomListener(this), structures, invasions, borders, donations}) {
+            getServer().getPluginManager().registerEvents(listener, plugin());
+        }
         startTasks();
         for (Player player : world.getPlayers()) {
             enter(player);
         }
         enabled = true;
-        getLogger().info("Kingdoms elindult, " + kingdoms.size() + " királyság betöltve.");
+        getLogger().info("Kingdoms elindult, " + manager.all().size() + " királyság és " + manager.nations().size() + " nemzet betöltve.");
     }
 
     @Override
@@ -119,21 +152,74 @@ public final class IceMineKingdoms extends Module {
             task.cancel();
         }
         tasks.clear();
-        if (world != null) {
+        if (invasions != null) {
+            invasions.stopAll();
+        }
+        if (structures != null) {
+            structures.removeSoldiers();
+        }
+        if (world != null && inventories != null) {
             for (Player player : world.getPlayers()) {
-                store.save(player);
+                inventories.save(player);
             }
         }
-        saveData();
+        if (manager != null) {
+            manager.saveDirty();
+        }
     }
+
+    // ---- szolgáltatások ----
+
+    public IceMineCore core() {
+        return (IceMineCore) plugin();
+    }
+
+    public KConfig settings() {
+        return settings;
+    }
+
+    public KingdomManager manager() {
+        return manager;
+    }
+
+    public Structures structures() {
+        return structures;
+    }
+
+    public Invasions invasions() {
+        return invasions;
+    }
+
+    public Borders borders() {
+        return borders;
+    }
+
+    public KingdomMenus menus() {
+        return menus;
+    }
+
+    public Donations donations() {
+        return donations;
+    }
+
+    public World world() {
+        return world;
+    }
+
+    Location spawn() {
+        return spawn;
+    }
+
+    boolean inKingdoms(Entity entity) {
+        return world != null && entity.getWorld() == world;
+    }
+
+    // ---- világ ----
 
     private World loadWorld() {
         String name = getConfig().getString("world", "kingdoms");
         World loaded = Bukkit.getWorld(name);
-        if (loaded != null) {
-            return loaded;
-        }
-        return new WorldCreator(name).createWorld();
+        return loaded != null ? loaded : new WorldCreator(name).createWorld();
     }
 
     private void prepareWorld() {
@@ -229,54 +315,10 @@ public final class IceMineKingdoms extends Module {
 
     private String surfaceOf(int x, int z) {
         String name = world.getBlockAt(x, groundAt(x, z), z).getType().name().toLowerCase(Locale.ROOT);
-        switch (name) {
-            case "sand":
-            case "red_sand":
-            case "podzol":
-            case "mycelium":
-            case "coarse_dirt":
-            case "snow_block":
-            case "moss_block":
-            case "stone":
-            case "terracotta":
-            case "grass_block":
-                return name;
-            default:
-                return "grass_block";
-        }
-    }
-
-    boolean insideBorder(int cx, int cz) {
-        double half = getConfig().getInt("border-size", 6000) / 2.0 - 16;
-        return Math.abs(cx * 16 + 8 - (townX + 0.5)) < half && Math.abs(cz * 16 + 8 - (townZ + 0.5)) < half;
-    }
-
-    void teleport(Player player, Location target) {
-        int delay = getConfig().getInt("teleport-delay", 3);
-        if (delay <= 0 || admin(player)) {
-            player.teleport(target);
-            return;
-        }
-        player.sendMessage(message("teleporting").replace("%seconds%", String.valueOf(delay)));
-        Location start = player.getLocation();
-        Bukkit.getScheduler().runTaskLater(plugin(), () -> {
-            if (!player.isOnline() || player.getWorld() != world) {
-                return;
-            }
-            if (player.getLocation().distanceSquared(start) > 1.0) {
-                player.sendMessage(message("teleport-cancelled"));
-                return;
-            }
-            if (player.teleport(target)) {
-                player.sendMessage(message("teleported"));
-            }
-        }, delay * 20L);
-    }
-
-    void reload() {
-        reloadConfig();
-        prepareWorld();
-        startTasks();
+        return switch (name) {
+            case "sand", "red_sand", "podzol", "mycelium", "coarse_dirt", "snow_block", "moss_block", "stone", "terracotta", "grass_block" -> name;
+            default -> "grass_block";
+        };
     }
 
     private BlockData blockData(Map<String, BlockData> cache, String data) {
@@ -293,169 +335,9 @@ public final class IceMineKingdoms extends Module {
         return result;
     }
 
-    private void loadData() {
-        kingdoms.clear();
-        claims.clear();
-        members.clear();
-        names.clear();
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(dataFile);
-        ConfigurationSection players = yaml.getConfigurationSection("names");
-        if (players != null) {
-            for (String key : players.getKeys(false)) {
-                try {
-                    names.put(UUID.fromString(key), players.getString(key, "?"));
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-        }
-        ConfigurationSection section = yaml.getConfigurationSection("kingdoms");
-        if (section == null) {
-            return;
-        }
-        for (String key : section.getKeys(false)) {
-            ConfigurationSection entry = section.getConfigurationSection(key);
-            if (entry == null) {
-                continue;
-            }
-            try {
-                Kingdom kingdom = new Kingdom(entry.getString("name", key), UUID.fromString(entry.getString("leader", "")), entry.getLong("created", 0L));
-                ConfigurationSection list = entry.getConfigurationSection("members");
-                if (list != null) {
-                    for (String id : list.getKeys(false)) {
-                        try {
-                            Kingdom.Role role = Kingdom.Role.valueOf(list.getString(id, "MEMBER"));
-                            UUID uuid = UUID.fromString(id);
-                            kingdom.members.put(uuid, role);
-                            members.put(uuid, kingdom);
-                        } catch (IllegalArgumentException ignored) {
-                        }
-                    }
-                }
-                for (String chunk : entry.getStringList("claims")) {
-                    kingdom.claims.add(chunk);
-                    claims.put(chunk, kingdom);
-                }
-                if (entry.contains("home.x")) {
-                    kingdom.home = new double[]{entry.getDouble("home.x", 0), entry.getDouble("home.y", 0), entry.getDouble("home.z", 0), entry.getDouble("home.yaw", 0)};
-                }
-                kingdoms.put(kingdom.name.toLowerCase(Locale.ROOT), kingdom);
-            } catch (IllegalArgumentException exception) {
-                getLogger().warning("Hibás királyság a mentésben: " + key);
-            }
-        }
-    }
-
-    void saveData() {
-        YamlConfiguration yaml = new YamlConfiguration();
-        for (Map.Entry<UUID, String> entry : names.entrySet()) {
-            yaml.set("names." + entry.getKey(), entry.getValue());
-        }
-        for (Kingdom kingdom : kingdoms.values()) {
-            String base = "kingdoms." + kingdom.name.toLowerCase(Locale.ROOT);
-            yaml.set(base + ".name", kingdom.name);
-            yaml.set(base + ".leader", kingdom.leader.toString());
-            yaml.set(base + ".created", kingdom.created);
-            for (Map.Entry<UUID, Kingdom.Role> member : kingdom.members.entrySet()) {
-                yaml.set(base + ".members." + member.getKey(), member.getValue().name());
-            }
-            yaml.set(base + ".claims", new ArrayList<>(kingdom.claims));
-            if (kingdom.home != null) {
-                yaml.set(base + ".home.x", kingdom.home[0]);
-                yaml.set(base + ".home.y", kingdom.home[1]);
-                yaml.set(base + ".home.z", kingdom.home[2]);
-                yaml.set(base + ".home.yaw", kingdom.home[3]);
-            }
-        }
-        try {
-            yaml.save(dataFile);
-            dirty = false;
-        } catch (IOException exception) {
-            getLogger().warning("Nem sikerült menteni a királyságokat: " + exception.getMessage());
-        }
-    }
-
-    void markDirty() {
-        dirty = true;
-    }
-
-    private void startTasks() {
-        for (BukkitTask task : tasks) {
-            task.cancel();
-        }
-        tasks.clear();
-        tasks.add(Bukkit.getScheduler().runTaskTimer(plugin(), () -> {
-            for (Player player : world.getPlayers()) {
-                updateSidebar(player);
-                updateTab(player);
-            }
-        }, 20L, 20L));
-        tasks.add(Bukkit.getScheduler().runTaskTimer(plugin(), () -> {
-            if (dirty) {
-                saveData();
-            }
-            for (Player player : world.getPlayers()) {
-                store.save(player);
-            }
-        }, 6000L, 6000L));
-    }
-
-    World world() {
-        return world;
-    }
-
-    Location spawn() {
-        return spawn;
-    }
-
-    boolean inKingdoms(Entity entity) {
-        return entity.getWorld() == world;
-    }
-
-    void remember(Player player) {
-        names.put(player.getUniqueId(), player.getName());
-    }
-
-    String prefix(Player player) {
-        for (MetadataValue value : player.getMetadata("icemine_prefix")) {
-            if (value.getOwningPlugin() != null && value.getOwningPlugin() == plugin()) {
-                return value.asString();
-            }
-        }
-        return "";
-    }
-
-    String nameOf(UUID id) {
-        String name = names.get(id);
-        return name == null ? "?" : name;
-    }
-
-    UUID idOf(String name) {
-        for (Map.Entry<UUID, String> entry : names.entrySet()) {
-            if (entry.getValue().equalsIgnoreCase(name)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    Kingdom kingdomOf(UUID id) {
-        return members.get(id);
-    }
-
-    Kingdom kingdom(String name) {
-        return kingdoms.get(name.toLowerCase(Locale.ROOT));
-    }
-
-    List<Kingdom> all() {
-        return new ArrayList<>(kingdoms.values());
-    }
-
-    Kingdom owner(Location location) {
-        return claims.get(Kingdom.chunk(location.getBlockX() >> 4, location.getBlockZ() >> 4));
-    }
-
-    Kingdom ownerOf(int cx, int cz) {
-        return claims.get(Kingdom.chunk(cx, cz));
+    boolean insideBorder(int cx, int cz) {
+        double half = getConfig().getInt("border-size", 6000) / 2.0 - 16;
+        return Math.abs(cx * 16 + 8 - (townX + 0.5)) < half && Math.abs(cz * 16 + 8 - (townZ + 0.5)) < half;
     }
 
     boolean inSpawn(Location location) {
@@ -473,118 +355,84 @@ public final class IceMineKingdoms extends Module {
         return Math.sqrt(dx * dx + dz * dz) <= getConfig().getInt("spawn-protection", 48) + 16;
     }
 
-    boolean admin(Player player) {
-        return player.hasPermission("icemine.kingdoms.admin") && player.getGameMode() == GameMode.CREATIVE;
-    }
-
-    boolean canBuild(Player player, Location location) {
-        if (admin(player)) {
-            return true;
+    void teleport(Player player, Location target) {
+        int delay = getConfig().getInt("teleport-delay", 3);
+        if (delay <= 0 || admin(player)) {
+            player.teleport(target);
+            return;
         }
-        if (inSpawn(location)) {
-            return false;
+        send(player, "teleporting", "%seconds%", String.valueOf(delay));
+        Location start = player.getLocation();
+        Bukkit.getScheduler().runTaskLater(plugin(), () -> {
+            if (!player.isOnline() || player.getWorld() != world) {
+                return;
+            }
+            if (player.getLocation().distanceSquared(start) > 1.0) {
+                send(player, "teleport-cancelled");
+                return;
+            }
+            if (player.teleport(target)) {
+                send(player, "teleported");
+            }
+        }, delay * 20L);
+    }
+
+    void reload() {
+        reloadConfig();
+        List<String> problems = new ArrayList<>();
+        settings.load(getConfig(), problems);
+        for (String problem : problems) {
+            getLogger().warning(problem);
         }
-        Kingdom owner = owner(location);
-        return owner == null || owner.members.containsKey(player.getUniqueId());
+        prepareWorld();
+        startTasks();
     }
 
-    int maxClaims(Kingdom kingdom) {
-        return getConfig().getInt("claims.base", 6) + getConfig().getInt("claims.per-member", 4) * kingdom.members.size();
-    }
-
-    Kingdom create(Player player, String name) {
-        Kingdom kingdom = new Kingdom(name, player.getUniqueId(), System.currentTimeMillis());
-        kingdom.members.put(player.getUniqueId(), Kingdom.Role.KING);
-        kingdoms.put(name.toLowerCase(Locale.ROOT), kingdom);
-        members.put(player.getUniqueId(), kingdom);
-        dirty = true;
-        return kingdom;
-    }
-
-    void addMember(Kingdom kingdom, UUID id) {
-        kingdom.members.put(id, Kingdom.Role.MEMBER);
-        members.put(id, kingdom);
-        invites.remove(id);
-        dirty = true;
-    }
-
-    void removeMember(Kingdom kingdom, UUID id) {
-        kingdom.members.remove(id);
-        members.remove(id);
-        kingdomChat.remove(id);
-        dirty = true;
-    }
-
-    void disband(Kingdom kingdom) {
-        for (String chunk : kingdom.claims) {
-            claims.remove(chunk);
+    private void startTasks() {
+        for (BukkitTask task : tasks) {
+            task.cancel();
         }
-        for (UUID id : kingdom.members.keySet()) {
-            members.remove(id);
-            kingdomChat.remove(id);
-        }
-        kingdoms.remove(kingdom.name.toLowerCase(Locale.ROOT));
-        dirty = true;
+        tasks.clear();
+        tasks.add(Bukkit.getScheduler().runTaskTimer(plugin(), () -> {
+            for (Player player : world.getPlayers()) {
+                updateSidebar(player);
+                updateTab(player);
+            }
+            invasions.tick();
+        }, 20L, 20L));
+        tasks.add(Bukkit.getScheduler().runTaskTimer(plugin(), () -> {
+            structures.tick();
+            borders.tick();
+        }, 10L, 10L));
+        tasks.add(Bukkit.getScheduler().runTaskTimer(plugin(), () -> {
+            manager.tickPower();
+            manager.saveDirty();
+        }, 1200L, 1200L));
+        tasks.add(Bukkit.getScheduler().runTaskTimer(plugin(), () -> {
+            for (Player player : world.getPlayers()) {
+                inventories.save(player);
+            }
+        }, 6000L, 6000L));
     }
 
-    void claim(Kingdom kingdom, int cx, int cz) {
-        String key = Kingdom.chunk(cx, cz);
-        kingdom.claims.add(key);
-        claims.put(key, kingdom);
-        dirty = true;
-    }
-
-    void unclaim(Kingdom kingdom, int cx, int cz) {
-        String key = Kingdom.chunk(cx, cz);
-        kingdom.claims.remove(key);
-        claims.remove(key);
-        dirty = true;
-    }
-
-    boolean adjacent(Kingdom kingdom, int cx, int cz) {
-        return kingdom.claims.contains(Kingdom.chunk(cx + 1, cz)) || kingdom.claims.contains(Kingdom.chunk(cx - 1, cz))
-                || kingdom.claims.contains(Kingdom.chunk(cx, cz + 1)) || kingdom.claims.contains(Kingdom.chunk(cx, cz - 1));
-    }
-
-    void invite(UUID id, Kingdom kingdom) {
-        invites.put(id, kingdom.name.toLowerCase(Locale.ROOT));
-    }
-
-    String invitation(UUID id) {
-        return invites.get(id);
-    }
-
-    boolean toggleChat(UUID id) {
-        boolean now = !kingdomChat.getOrDefault(id, false);
-        kingdomChat.put(id, now);
-        return now;
-    }
-
-    boolean chatMode(UUID id) {
-        return kingdomChat.getOrDefault(id, false);
-    }
-
-    Location home(Kingdom kingdom) {
-        if (kingdom.home == null) {
-            return null;
-        }
-        return new Location(world, kingdom.home[0], kingdom.home[1], kingdom.home[2], (float) kingdom.home[3], 0f);
-    }
+    // ---- belépés, kilépés ----
 
     void enter(Player player) {
-        remember(player);
+        KPlayer data = manager.player(player);
+        data.lastSeen = System.currentTimeMillis();
         if (!player.hasPermission("icemine.kingdoms.bypass")) {
             player.setGameMode(GameMode.SURVIVAL);
         }
         player.setFlying(false);
         player.setAllowFlight(player.getGameMode() == GameMode.CREATIVE);
-        Location saved = store.location(player.getUniqueId(), world);
-        boolean known = store.restore(player);
+        Location saved = inventories.location(player.getUniqueId(), world);
+        boolean known = inventories.restore(player);
         if (!known) {
             player.getInventory().clear();
             try {
                 player.setHealth(20.0);
             } catch (IllegalArgumentException ignored) {
+                // a max életerő más lehet, nem gond
             }
             player.setFoodLevel(20);
             for (String spec : getConfig().getStringList("starter-kit")) {
@@ -599,16 +447,23 @@ public final class IceMineKingdoms extends Module {
         }
         player.teleport(saved != null ? saved : spawn);
         lastArea.remove(player.getUniqueId());
+        lastChunk.remove(player.getUniqueId());
         createSidebar(player);
         updateTab(player);
         player.sendTitle(Text.color(getConfig().getString("welcome.title", "&6&lKingdoms")), Text.color(getConfig().getString("welcome.subtitle", "")), 10, 40, 15);
     }
 
     void leave(Player player) {
-        store.save(player);
+        inventories.save(player);
+        KPlayer data = manager.player(player);
+        data.lastSeen = System.currentTimeMillis();
+        data.autoClaim = false;
+        data.dirty = true;
         boards.remove(player.getUniqueId());
         shown.remove(player.getUniqueId());
         lastArea.remove(player.getUniqueId());
+        lastChunk.remove(player.getUniqueId());
+        manager.forget(player.getUniqueId());
     }
 
     private ItemStack parse(String spec) {
@@ -621,58 +476,243 @@ public final class IceMineKingdoms extends Module {
         return new ItemStack(material, Math.max(1, Math.min(64, amount)));
     }
 
-    String area(Location location) {
+    /** A hely neve (action bar és scoreboard): királyi város, vadon, vagy a királyság neve a kapcsolat színével. */
+    String area(Player player, Location location) {
         if (inSpawn(location)) {
             return Text.color(getConfig().getString("areas.spawn", "&bSpawn"));
         }
-        Kingdom owner = owner(location);
+        Kingdom owner = manager.owner(location);
         if (owner == null) {
             return Text.color(getConfig().getString("areas.wild", "&2Vadon"));
         }
-        return Text.color(getConfig().getString("areas.kingdom", "&6%kingdom% &7földje").replace("%kingdom%", owner.name));
+        Relation relation = manager.relation(player.getUniqueId(), owner);
+        return Text.color(getConfig().getString("areas.kingdom", "%color%%kingdom% &7földje").replace("%color%", relation.color).replace("%kingdom%", owner.name));
     }
 
-    void checkArea(Player player, Location to) {
-        String now = area(to);
+    /** Mozgáskor: új terület kiírása, automata foglalás és térkép chunk váltáskor. */
+    void moved(Player player, Location to) {
+        String now = area(player, to);
         String before = lastArea.put(player.getUniqueId(), now);
         if (before != null && !before.equals(now)) {
-            player.sendActionBar(now);
+            Kingdom owner = manager.owner(to);
+            if (settings.landTitles && owner != null && !inSpawn(to)) {
+                Relation relation = manager.relation(player.getUniqueId(), owner);
+                player.sendTitle("", Text.color(relation.color + owner.name + (owner.description.isEmpty() ? "" : " &8- &7" + owner.description)), 5, 30, 10);
+            } else {
+                player.sendActionBar(now);
+            }
+        }
+        long chunk = Lands.key(to.getBlockX() >> 4, to.getBlockZ() >> 4);
+        Long previous = lastChunk.put(player.getUniqueId(), chunk);
+        if (previous != null && previous != chunk) {
+            KPlayer data = manager.player(player);
+            if (data.autoClaim && !manager.claim(player, true) && manager.owner(chunk) == null) {
+                data.autoClaim = false;
+                send(player, "autoclaim-off");
+            }
+            if (data.autoMap) {
+                showMap(player);
+            }
         }
     }
 
+    /** A környék térképe a chatben, színekkel (saját, szövetséges, ellenség, szabad, spawn). */
+    void showMap(Player player) {
+        if (player.getWorld() != world) {
+            send(player, "only-in-kingdoms");
+            return;
+        }
+        int cx = player.getLocation().getBlockX() >> 4;
+        int cz = player.getLocation().getBlockZ() >> 4;
+        player.sendMessage(Text.color(getConfig().getString("map.header", "&6&lTérkép")));
+        for (String line : Lands.render(cx, cz, 15, 4, key -> {
+            if (chunkNearSpawn(Lands.x(key), Lands.z(key))) {
+                return "&b■";
+            }
+            Kingdom owner = manager.owner(key);
+            if (owner == null) {
+                return "&8■";
+            }
+            return manager.relation(player.getUniqueId(), owner).color + "■";
+        }, "&e◆")) {
+            player.sendMessage(Text.color(" " + line));
+        }
+        player.sendMessage(Text.color(getConfig().getString("map.legend", " &a■ &7tiétek  &d■ &7szövetséges  &c■ &7ellenség  &f■ &7más  &8■ &7szabad  &b■ &7spawn")));
+        borders.show(player, cx, cz);
+    }
+
+    // ---- üzenetek ----
+
     String message(String key) {
+        return Text.color(prefix() + raw(key));
+    }
+
+    private String raw(String key) {
         String text = getConfig().getString("messages." + key);
-        return Text.color(prefix() + (text == null ? key : text));
+        return text == null ? key : text;
+    }
+
+    /** Üzenet kulcs alapján (kingdoms.yml: messages), az IceMine prefixszel. */
+    public void send(CommandSender sender, String key, String... pairs) {
+        if (sender != null) {
+            sender.sendMessage(Text.color(prefix() + replace(raw(key), pairs)));
+        }
+    }
+
+    /** Szöveg kulcs alapján, prefix és színezés nélkül (menükhöz, címekhez). */
+    public String text(String key, String... pairs) {
+        return replace(raw(key), pairs);
+    }
+
+    /** Kattintható üzenet: a [[szöveg|run:/parancs]] részekre kattintva lefut a parancs. */
+    public void click(Player player, String key, String... pairs) {
+        player.sendMessage(ClickText.line(prefix() + replace(raw(key), pairs), "&7Kattints: &f%value%", "&7Kattints"));
+    }
+
+    public void broadcast(String key, String... pairs) {
+        String line = Text.color(prefix() + replace(raw(key), pairs));
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (world == null || player.getWorld() == world) {
+                player.sendMessage(line);
+            }
+        }
+    }
+
+    static String replace(String text, String... pairs) {
+        String result = text;
+        for (int i = 0; i + 1 < pairs.length; i += 2) {
+            result = result.replace(pairs[i], pairs[i + 1] == null ? "" : pairs[i + 1]);
+        }
+        return result;
+    }
+
+    public String label(String path, String fallback) {
+        return getConfig().getString(path, fallback);
+    }
+
+    public String color(String text) {
+        return Text.color(text);
+    }
+
+    public String strip(String text) {
+        return org.bukkit.ChatColor.stripColor(Text.color(text));
     }
 
     /** A közös IceMine prefix (messages_hu.yml), hogy a Kingdoms üzenetei is ugyanúgy nézzenek ki, mint a többi. */
     String prefix() {
-        if (plugin() instanceof hu.icemine.core.IceMineCore core && core.messages() != null) {
-            return core.messages().prefix();
+        if (core().messages() != null) {
+            return core().messages().prefix();
         }
         return hu.icemine.core.config.Messages.DEFAULT_PREFIX;
     }
 
-    private String apply(String text, Player player) {
-        Kingdom kingdom = kingdomOf(player.getUniqueId());
-        int online = 0;
-        if (kingdom != null) {
-            for (UUID id : kingdom.members.keySet()) {
-                if (Bukkit.getPlayer(id) != null) {
-                    online++;
-                }
+    public String currency() {
+        return settings.currency == null || settings.currency.isBlank() ? core().economy().defaultCurrency() : settings.currency;
+    }
+
+    public String money(long amount) {
+        return core().economy().format(currency(), amount);
+    }
+
+    public String duration(long millis) {
+        long seconds = Math.max(0, millis) / 1000;
+        if (seconds < 60) {
+            return seconds + " mp";
+        }
+        long minutes = seconds / 60;
+        if (minutes < 60) {
+            return minutes + " perc" + (seconds % 60 > 0 && minutes < 10 ? " " + seconds % 60 + " mp" : "");
+        }
+        long hours = minutes / 60;
+        if (hours < 48) {
+            return hours + " óra" + (minutes % 60 > 0 ? " " + minutes % 60 + " perc" : "");
+        }
+        return hours / 24 + " nap " + hours % 24 + " óra";
+    }
+
+    /** Összeg a chatből (pl. "1500", "1.5k", "2m"); 0 és üzenet, ha nem értelmes. */
+    long amount(Player player, String text) {
+        String clean = text.trim().toLowerCase(Locale.ROOT).replace(" ", "").replace(",", ".");
+        double multiplier = 1;
+        if (clean.endsWith("k")) {
+            multiplier = 1_000;
+            clean = clean.substring(0, clean.length() - 1);
+        } else if (clean.endsWith("m")) {
+            multiplier = 1_000_000;
+            clean = clean.substring(0, clean.length() - 1);
+        }
+        try {
+            long value = Math.round(Double.parseDouble(clean) * multiplier);
+            if (value > 0) {
+                return value;
+            }
+        } catch (NumberFormatException ignored) {
+            // lent szólunk
+        }
+        send(player, "bad-amount");
+        return 0;
+    }
+
+    // ---- egyebek ----
+
+    boolean admin(Player player) {
+        return player.hasPermission("icemine.kingdoms.admin") && player.getGameMode() == GameMode.CREATIVE;
+    }
+
+    boolean combatTagged(Player player) {
+        try {
+            return core().combat() != null && core().combat().tagged(player);
+        } catch (RuntimeException exception) {
+            return false;
+        }
+    }
+
+    boolean vanished(Player player) {
+        for (MetadataValue value : player.getMetadata("vanished")) {
+            if (value.asBoolean()) {
+                return true;
             }
         }
-        Kingdom.Role role = kingdom == null ? null : kingdom.role(player.getUniqueId());
+        return false;
+    }
+
+    String rankPrefix(Player player) {
+        for (MetadataValue value : player.getMetadata("icemine_prefix")) {
+            if (value.getOwningPlugin() != null && value.getOwningPlugin() == plugin()) {
+                return value.asString();
+            }
+        }
+        return "";
+    }
+
+    /** Ha változik a királyság vagy a rang, a scoreboard és a tab azonnal frissüljön. */
+    void refreshTags(Player player) {
+        if (player.getWorld() == world) {
+            updateSidebar(player);
+            updateTab(player);
+        }
+    }
+
+    private String apply(String text, Player player) {
+        Kingdom kingdom = manager.kingdomOf(player.getUniqueId());
+        Rank rank = kingdom == null ? null : kingdom.rankOf(player.getUniqueId());
+        KPlayer data = manager.player(player);
         return Text.color(text
                 .replace("%player%", player.getName())
-                .replace("%kingdom%", kingdom == null ? getConfig().getString("no-kingdom", "&8nincs") : "&6" + kingdom.name)
-                .replace("%role%", role == null ? "-" : role.title)
+                .replace("%kingdom%", kingdom == null ? getConfig().getString("no-kingdom", "&8nincs") : kingdom.display())
+                .replace("%role%", rank == null ? "-" : rank.display())
+                .replace("%rank%", rank == null ? "-" : rank.display())
                 .replace("%members%", kingdom == null ? "0" : String.valueOf(kingdom.members.size()))
-                .replace("%kmonline%", String.valueOf(online))
+                .replace("%kmonline%", kingdom == null ? "0" : String.valueOf(manager.online(kingdom).size()))
                 .replace("%claims%", kingdom == null ? "0" : String.valueOf(kingdom.claims.size()))
-                .replace("%maxclaims%", kingdom == null ? "0" : String.valueOf(maxClaims(kingdom)))
-                .replace("%here%", area(player.getLocation()))
+                .replace("%maxclaims%", kingdom == null ? "0" : String.valueOf(manager.maxClaims(kingdom)))
+                .replace("%level%", kingdom == null ? "-" : String.valueOf(manager.level(kingdom)))
+                .replace("%rp%", kingdom == null ? "0" : hu.icemine.core.util.Text.number(kingdom.resourcePoints))
+                .replace("%bank%", kingdom == null ? "-" : money(kingdom.bank))
+                .replace("%power%", String.valueOf(Math.round(data.power)))
+                .replace("%kpower%", kingdom == null ? "0" : String.valueOf(Math.round(manager.power(kingdom))))
+                .replace("%here%", area(player, player.getLocation()))
+                .replace("%masswar%", invasions.masswar() ? text("masswar-running") : "")
                 .replace("%online%", String.valueOf(Bukkit.getOnlinePlayers().size())));
     }
 
@@ -686,6 +726,7 @@ public final class IceMineKingdoms extends Module {
             Method method = Objective.class.getMethod("numberFormat", format);
             method.invoke(objective, blank);
         } catch (Throwable ignored) {
+            // régebbi szerveren látszanak a számok, nem gond
         }
         player.setScoreboard(board);
         boards.put(player.getUniqueId(), board);
@@ -695,17 +736,18 @@ public final class IceMineKingdoms extends Module {
 
     private void updateSidebar(Player player) {
         Scoreboard board = boards.get(player.getUniqueId());
-        if (board == null) {
-            return;
-        }
-        Objective objective = board.getObjective(OBJECTIVE);
+        Objective objective = board == null ? null : board.getObjective(OBJECTIVE);
         if (objective == null) {
             return;
         }
         List<String> raw = getConfig().getStringList("sidebar.lines");
         List<String> lines = new ArrayList<>();
         for (int i = 0; i < raw.size() && i < SUFFIX.length(); i++) {
-            lines.add(apply(raw.get(i), player) + "§" + SUFFIX.charAt(i));
+            String line = apply(raw.get(i), player);
+            if (raw.get(i).contains("%masswar%") && !invasions.masswar()) {
+                continue;
+            }
+            lines.add(line + "§" + SUFFIX.charAt(i));
         }
         List<String> old = shown.get(player.getUniqueId());
         if (old != null) {

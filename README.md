@@ -26,7 +26,7 @@ ez már kikerült, a régebbiekben még nincs benne, ezért ezt ne cseréld le.
 ## IceMine.jar
 
 Az összes saját rendszer egy pluginban van. A beállítások a `plugins/IceMine` mappában vannak
-(a Kingdoms beállítása: `plugins/IceMine/kingdoms.yml`, az adatai: `plugins/IceMine/kingdoms`).
+(a Kingdoms beállítása: `plugins/IceMine/kingdoms.yml`, az adatai az IceMine adatbázisában, SQLite vagy MySQL).
 A régi `plugins/IceMineCore` és `plugins/IceMineKingdoms` mappát az első indításkor magától
 átköltözteti, semmi nem vész el.
 
@@ -216,6 +216,34 @@ A szobrok a `plugins/IceMine/modelobbies.yml` fájlban vannak (`lobbies.bedwars.
 Parancsok (nem kötelező): `/bw` (menü), `/bw play <solo|duo|3v3v3v3|4v4v4v4>`, `/bw leave`, `/bw nez [játékos]`, `/bw stats [játékos]`, `/bw top`.
 Admin (`icemine.admin.bedwars`): `/bw list`, `/bw start <aréna>`, `/bw stop <aréna>`, `/bw rebuild <aréna>`, `/bw reload`.
 Beállítás: `plugins/IceMine/bedwars.yml` (módok, hány aréna legyen módonként, melyik pályán, árak, generátorok, események).
+
+## Kingdoms
+
+Saját írású királyság rendszer a `kingdoms` világban (a KingdomsX csak ötletnek kellett, a kódja nincs benne).
+Minden menüből elérhető, a `/k` megnyitja a főmenüt.
+
+- Királyság: alapítás, meghívás, rangok (Király, Trónörökös, Herceg, Lovag, Tag, és bármennyi saját rang),
+  rangonként 22 állítható jog és foglalási limit, tulajdon átadás, otthon, királysági chat, napló.
+- Földek: chunk foglalás (az első néhány ingyen, utána pénzbe kerül), térkép (`/k map`, auto map, auto foglalás),
+  a határ részecskékkel látszik, a földet a hatalom és a szint korlátozza.
+- Bank és erőforrás pont (RP): pénz be és ki, tárgyak leadása RP-ért (`/k rp`), banki napló.
+- Nexus: a királyság szíve (`/k nexus`), innen lehet fejleszteni, építményeket és tornyokat venni.
+- Fejlesztések: 8 általános, 4 erősítés és 10 bajnok fejlesztés, mind szintekkel.
+- Építmények: erőmű cella, kitermelő, regeneráló, bástya, előőrs, warp pad. Tornyok: íjász, láng, ágyú, mágia,
+  katona, gyógyító és akna. Lerakás után rájuk kattintva fejleszthetők, tölthetők, ki-be kapcsolhatók.
+- Kapcsolatok: semleges, szövetséges, fegyverszünet, ellenség (a barátit mindkét félnek el kell fogadnia).
+- Nemzetek: több királyság egy nemzetben, közös bank, közös pajzs, főváros.
+- Háború: ellenséges földre betörés (`/k invade`), a védő bajnoka és a Nexus őrei harcolnak, győzelem esetén a föld
+  átkerül. Pajzs, védelem utáni pajzs, várakozási idő, békés mód, időzített tömeges háború.
+
+Parancsok: `/k` (menü), `/k create <név>`, `/k claim`, `/k unclaim`, `/k map`, `/k invite <játékos>`, `/k home`,
+`/k nexus`, `/k rp`, `/k invade`, `/k nation`, `/k help` a teljes listához.
+Admin (`icemine.kingdoms.admin`): `/ka reload`, `/ka disband`, `/ka unclaim`, `/ka give`, `/ka rp`, `/ka bank`,
+`/ka xp`, `/ka level`, `/ka masswar`, `/ka stopinvasion`, `/ka join`, `/ka setking`, `/ka info`.
+Beállítás: `plugins/IceMine/kingdoms.yml` (árak, limitek, hatalom, háború, építmények, tornyok, üzenetek).
+
+A régi királyságok, földek és otthonok az első indításkor maguktól átjönnek az új rendszerbe
+(a régi fájl `kingdoms.yml.regi` néven megmarad).
 
 ## Első telepítés
 

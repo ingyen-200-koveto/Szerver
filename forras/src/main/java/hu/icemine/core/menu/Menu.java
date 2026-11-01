@@ -16,6 +16,7 @@ public class Menu implements InventoryHolder {
 
     private final Inventory inventory;
     private final Map<Integer, Consumer<Player>> actions = new HashMap<>();
+    private final Map<Integer, Consumer<Player>> rightActions = new HashMap<>();
     private final String id;
 
     public Menu(String id, int rows, String title) {
@@ -53,6 +54,19 @@ public class Menu implements InventoryHolder {
         return set(slot, item, null);
     }
 
+    /** Külön művelet bal és jobb klikkre (pl. +1 / -1, vagy kiválasztás / törlés). */
+    public Menu set(int slot, ItemStack item, Consumer<Player> left, Consumer<Player> right) {
+        set(slot, item, left);
+        if (slot >= 0 && slot < inventory.getSize()) {
+            if (right == null) {
+                rightActions.remove(slot);
+            } else {
+                rightActions.put(slot, right);
+            }
+        }
+        return this;
+    }
+
     public Menu frame(Material edge, Material inner) {
         ItemStack border = Items.of(edge).name(" ").build();
         ItemStack fill = inner == null ? null : Items.of(inner).name(" ").build();
@@ -75,7 +89,11 @@ public class Menu implements InventoryHolder {
     }
 
     public void click(Player player, int slot) {
-        Consumer<Player> action = actions.get(slot);
+        click(player, slot, false);
+    }
+
+    public void click(Player player, int slot, boolean right) {
+        Consumer<Player> action = right && rightActions.containsKey(slot) ? rightActions.get(slot) : actions.get(slot);
         if (action != null) {
             action.accept(player);
         }

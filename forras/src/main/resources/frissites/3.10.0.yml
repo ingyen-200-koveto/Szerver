@@ -1,0 +1,150 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.10.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.10.0
+changes:
+- file: kingdoms
+  path: claims.per-member
+  old: 4
+- file: kingdoms
+  path: max-members
+  old: 20
+- file: kingdoms
+  path: areas.kingdom
+  old: '&6%kingdom% &7földje'
+- file: kingdoms
+  path: sidebar.lines
+  old:
+  - ''
+  - '&7Királyság: %kingdom%'
+  - '&7Rang: &f%role%'
+  - '&7Tagok: &a%kmonline%&7/&f%members% &8online'
+  - '&7Terület: &f%claims%&7/&f%maxclaims% &8chunk'
+  - ''
+  - '&7Itt: %here%'
+  - ''
+  - '&bplay.icemine.hu'
+- file: kingdoms
+  path: chat.tag
+  old: '&8[&6%kingdom%&8] '
+- file: kingdoms
+  path: map.legend
+  old: ' &a■ &7tiétek  &c■ &7másé  &b■ &7spawn  &8■ &7szabad'
+- file: kingdoms
+  path: info
+  old:
+  - '&8&m        &r &6&l%kingdom% &8&m        '
+  - ' &7Király: &f%king%'
+  - ' &7Alapítva: &f%date%'
+  - ' &7Tagok (&f%members%&7): %list%'
+  - ' &7Terület: &f%claims%&7/&f%max% &7chunk'
+- file: kingdoms
+  path: list-header
+  old: '&6&lKirályságok &8(%count% db)'
+- file: kingdoms
+  path: top-header
+  old: '&6&lLegnagyobb területek'
+- file: kingdoms
+  path: list-line
+  old: ' &7%place%. &6%kingdom% &8- &f%members% &7tag, &f%claims% &7chunk &8(király: %king%)'
+- file: kingdoms
+  path: help
+  old:
+  - '&8&m          &r &6&lKingdoms &8&m          '
+  - ' &e/k create <név> &8- &7királyság alapítása'
+  - ' &e/k invite <játékos> &8- &7meghívás'
+  - ' &e/k join <királyság> &8- &7meghívás elfogadása'
+  - ' &e/k claim &8/ &e/k unclaim &8- &7chunk foglalása / elengedése'
+  - ' &e/k home &8/ &e/k sethome &8- &7otthon'
+  - ' &e/k map &8- &7térkép a környékről'
+  - ' &e/k info [név] &8- &7infó egy királyságról'
+  - ' &e/k list &8/ &e/k top &8- &7királyságok listája'
+  - ' &e/k chat &8- &7királysági chat (vagy írj ! jelet az üzenet elé)'
+  - ' &e/k kick, promote, demote, king, leave, disband'
+  - ' &e/k spawn &8- &7vissza a városba'
+- file: kingdoms
+  path: admin-help
+  old:
+  - '&6&lKingdoms admin'
+  - ' &e/ka reload &8- &7config újratöltése'
+  - ' &e/ka disband <név> &8- &7királyság feloszlatása'
+  - ' &e/ka unclaim &8- &7a chunk felszabadítása, ahol állsz'
+  - ' &e/ka rebuild &8- &7a spawn város újraépítése'
+  - ' &8Kreatív módban, adminként mindenhol építhetsz.'
+- file: kingdoms
+  path: messages.no-kingdoms
+  old: '&7Még egy királyság sincs. Legyél te az első: &f/k create <név>'
+- file: kingdoms
+  path: messages.bad-name
+  old: '&cA név 3-16 karakter lehet, csak betű, szám és alsóvonal (ékezet nélkül).'
+- file: kingdoms
+  path: messages.name-taken
+  old: '&cIlyen nevű királyság már van.'
+- file: kingdoms
+  path: messages.created
+  old: 'Kész, megvan a királyságod: &6%kingdom%&7! Most foglalj földet: &f/k claim'
+- file: kingdoms
+  path: messages.created-broadcast
+  old: '&f%player% &7új királyságot alapított: &6%kingdom%'
+- file: kingdoms
+  path: messages.not-manager
+  old: '&cEhhez legalább lovagnak kell lenned.'
+- file: kingdoms
+  path: messages.need-player
+  old: '&cÍrd mögé a játékos nevét is.'
+- file: kingdoms
+  path: messages.invite-received
+  old: '&f%player% &7meghívott a királyságába (&6%kingdom%&7). Elfogadás: &f/k join %kingdom%'
+- file: kingdoms
+  path: messages.no-invite
+  old: '&cNincs meghívód ebbe a királyságba.'
+- file: kingdoms
+  path: messages.cant-kick
+  old: '&cŐt nem tudod kirúgni, nála nagyobb rang kell.'
+- file: kingdoms
+  path: messages.you-were-kicked
+  old: '&cKirúgtak a királyságból (%kingdom%).'
+- file: kingdoms
+  path: messages.promoted
+  old: '&f%player% &7mostantól &6lovag&7.'
+- file: kingdoms
+  path: messages.demoted
+  old: '&f%player% &7mostantól sima tag.'
+- file: kingdoms
+  path: messages.already-knight
+  old: '&c%player% már lovag.'
+- file: kingdoms
+  path: messages.not-knight
+  old: '&c%player% nem lovag.'
+- file: kingdoms
+  path: messages.disband-confirm
+  old: '&cBiztos? Minden földetek felszabadul. Ha igen, írd be még egyszer 15 mp-en belül: &f/k disband'
+- file: kingdoms
+  path: messages.disbanded
+  old: '&7Feloszlott a királyság: &6%kingdom%'
+- file: kingdoms
+  path: messages.claim-taken
+  old: '&cEz a föld már foglalt, &6%kingdom% &cbirtoka.'
+- file: kingdoms
+  path: messages.claim-limit
+  old: '&cElértétek a maximumot (&f%max% &cchunk). Minden új taggal több földet foglalhattok.'
+- file: kingdoms
+  path: messages.claimed
+  old: Ez a chunk mostantól a tiétek &8(%claims%/%max%)
+- file: kingdoms
+  path: messages.unclaimed
+  old: Elengedtétek ezt a chunkot.
+- file: kingdoms
+  path: messages.home-not-set
+  old: '&cMég nincs otthon. Király vagy lovag be tudja állítani: &f/k sethome'
+- file: kingdoms
+  path: messages.claim-protected
+  old: '&cEz &6%kingdom% &cföldje, itt nem nyúlhatsz semmihez.'
+- file: kingdoms
+  path: messages.not-found
+  old: '&cNincs ilyen királyság.'
+- file: kingdoms
+  path: messages.admin-disbanded
+  old: 'Feloszlattad: &6%kingdom%'
+- file: kingdoms
+  path: messages.admin-unclaimed
+  old: Felszabadítva.

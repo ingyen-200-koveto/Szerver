@@ -46,9 +46,10 @@ public final class MenuListener implements Listener {
         }
         lastClick.put(who.getUniqueId(), now);
         Player player = (Player) who;
+        boolean right = event.isRightClick();
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             if (player.isOnline()) {
-                menu.click(player, slot);
+                menu.click(player, slot, right);
             }
         });
     }

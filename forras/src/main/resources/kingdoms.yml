@@ -1,6 +1,15 @@
 # IceMine Kingdoms
 # Színkódok: &a, &l stb., vagy hex: &#55FF88
 # Ha átírsz valamit: /ka reload
+#
+# Röviden, hogy működik:
+#  - /k create <név>: királyság alapítása. /k: a királyság menü (minden innen elérhető).
+#  - Földfoglalás chunkonként (/k claim). A földeken csak a tagok építhetnek, a rangjuk jogai szerint.
+#  - A Nexus a királyság szíve (/k nexus adja a blokkot). Nélküle nincs építmény és torony.
+#  - Resource Point (RP): tárgyak beadásával (/k rp) vagy pénzért. Ebből vannak a fejlesztések, tornyok, építmények.
+#  - Királysági XP és szint: RP beadás, foglalás, ölés és invázió után. Szintenként több föld és tag.
+#  - Háború: ellenséges királyság földjén /k invade -> megjelenik a bajnokuk. Ha legyőzitek, a föld a tiétek.
+#  - Nemzet: több királyság szövetsége, közös kapcsolatokkal és kasszával.
 
 # A Kingdoms a lobby szerveren fut, ebben a külön (normál, generált) világban.
 world: kingdoms
@@ -18,15 +27,6 @@ border-size: 6000
 # itt a plugin visszakapcsolja őket.
 spawn-monsters: true
 spawn-animals: true
-
-claims:
-  # Ennyi chunkot foglalhat bármelyik királyság...
-  base: 6
-  # ...és minden tag után még ennyit.
-  per-member: 4
-max-members: 20
-# Ha true, a saját királyságod tagjait is meg tudod ütni.
-friendly-fire: false
 # /k home és /k spawn ennyi másodperc után teleportál (ha közben nem mozogsz).
 teleport-delay: 3
 
@@ -54,18 +54,24 @@ no-kingdom: "&8nincs"
 areas:
   spawn: "&b✦ Királyi város"
   wild: "&2Vadon"
-  kingdom: "&6%kingdom% &7földje"
+  # %color%: a kapcsolat színe (zöld saját, rózsaszín szövetséges, piros ellenség...)
+  kingdom: "%color%%kingdom% &7földje"
 
+# Változók: %kingdom% %rank% %members% %kmonline% %claims% %maxclaims% %level% %rp% %bank% %power% %kpower% %here% %online%
+# A %masswar% sor csak masswar alatt látszik.
 sidebar:
   title: "&6&l♛ Kingdoms ♛"
   lines:
     - ""
     - "&7Királyság: %kingdom%"
-    - "&7Rang: &f%role%"
+    - "&7Rang: %rank%"
+    - "&7Szint: &f%level% &8| &7RP: &e%rp%"
     - "&7Tagok: &a%kmonline%&7/&f%members% &8online"
     - "&7Terület: &f%claims%&7/&f%maxclaims% &8chunk"
+    - "&7Power: &f%power%"
     - ""
     - "&7Itt: %here%"
+    - "%masswar%"
     - ""
     - "&bplay.icemine.hu"
 
@@ -84,38 +90,774 @@ tablist:
 chat:
   # Sima chat formátum. %tag% a királyság neve, ha van, %prefix% a rang (IceMineCore-ból).
   format: "%tag%%prefix%&f%player%&8: &7"
-  tag: "&8[&6%kingdom%&8] "
+  tag: "&8[%color%%kingdom%&8] "
   no-tag: ""
   # Királysági chat (/k chat, vagy ha !-lel kezded az üzenetet).
   kingdom: "&8[&6♛ %kingdom%&8] &e%player%&8: &f"
 
 map:
   header: "&6&lTérkép &8(te vagy a sárga pötty, észak felfelé)"
-  legend: " &a■ &7tiétek  &c■ &7másé  &b■ &7spawn  &8■ &7szabad"
+  legend: " &a■ &7tiétek  &b■ &7nemzet  &d■ &7szövetséges  &e■ &7fegyverszünet  &c■ &7ellenség  &f■ &7más  &8■ &7szabad"
 
-info:
-  - "&8&m        &r &6&l%kingdom% &8&m        "
-  - " &7Király: &f%king%"
-  - " &7Alapítva: &f%date%"
-  - " &7Tagok (&f%members%&7): %list%"
-  - " &7Terület: &f%claims%&7/&f%max% &7chunk"
+# ---------------------------------------------------------------------------------------------------------------
+# Királyságok
+# ---------------------------------------------------------------------------------------------------------------
 
-list-header: "&6&lKirályságok &8(%count% db)"
-top-header: "&6&lLegnagyobb területek"
-list-line: " &7%place%. &6%kingdom% &8- &f%members% &7tag, &f%claims% &7chunk &8(király: %king%)"
+name:
+  min: 3
+  max: 16
+
+# Ennyi tag fér egy királyságba: alap + szintenként ennyivel több (+ a "Nagyobb létszám" fejlesztés).
+members:
+  base: 10
+  per-level: 2
+
+# A bank pénzneme (economy.yml). Üresen: az alap pénznem.
+bank:
+  currency: ""
+
+# Ennyi másodpercig él egy meghívó.
+invite-seconds: 300
+# Ha true, a saját királyságod tagjait is meg tudod ütni.
+friendly-fire: false
+# Az átnevezés ára a bankból.
+rename-cost: 5000
+
+# Királysági szintek: ennyi XP kell az egyes szintekhez (az első mindig 0).
+levels:
+  xp: [0, 1000, 3000, 7000, 15000, 30000, 60000, 100000, 160000, 250000]
+  xp-per-resource-point: 1
+  xp-per-claim: 10
+  xp-per-kill: 20
+  xp-per-invasion: 500
+
+# Földek (chunkok).
+# Max föld = base + per-member × tagok + per-level × (szint - 1) + per-upgrade × "Több föld" fejlesztés + Nexus szint bónusz
+# Ha a power be van kapcsolva, a királyság powere is korlátozza: power × claims-per-power (de legalább a free).
+claims:
+  base: 6
+  per-member: 2
+  per-level: 3
+  per-upgrade: 5
+  # Az első ennyi föld ingyenes.
+  free: 3
+  cost:
+    resource-points: 25
+    bank: 0
+  # Csak a meglévő földek mellé lehet foglalni.
+  adjacent: true
+  # Más királyság földjétől legalább ennyi chunk távolság kell (szövetségesnél és nemzettársnál nem).
+  buffer: 1
+  # Elengedéskor a foglalási RP ennyi %-át visszakapjátok.
+  unclaim-refund-percent: 50
+  # A földeken nem robban szét semmi (invázió közben igen, hacsak nincs Robbanásvédelem fejlesztés).
+  protect-explosions: true
+  # Földre lépéskor cím jelenik meg a királyság nevével.
+  titles: true
+
+# Power (mint a Factionsben): online töltődik, halálkor csökken. A királyság powere a tagjaié összesen.
+power:
+  enabled: true
+  max: 10
+  min: -5
+  initial: 5
+  regen-minutes: 10
+  regen-amount: 1
+  death-loss: 2
+  claims-per-power: 2
+
+# Resource Point: ezeket a tárgyakat lehet beváltani (ANYAG: RP darabonként).
+# Egyedi nevű, leírású vagy varázsolt tárgyat nem vált be.
+resource-points:
+  # Halálkor ennyi RP-t veszít a királyság.
+  death-penalty: 10
+  # A bankban ennyi pénz = 1 RP.
+  money-per-point: 10
+  items:
+    COAL: 2
+    CHARCOAL: 1
+    COPPER_INGOT: 3
+    IRON_INGOT: 10
+    GOLD_INGOT: 15
+    LAPIS_LAZULI: 4
+    REDSTONE: 2
+    DIAMOND: 50
+    EMERALD: 60
+    NETHERITE_SCRAP: 150
+    NETHERITE_INGOT: 650
+    AMETHYST_SHARD: 3
+    QUARTZ: 3
+    BLAZE_ROD: 25
+    ENDER_PEARL: 15
+    COAL_BLOCK: 18
+    IRON_BLOCK: 90
+    GOLD_BLOCK: 135
+    LAPIS_BLOCK: 36
+    REDSTONE_BLOCK: 18
+    DIAMOND_BLOCK: 450
+    EMERALD_BLOCK: 540
+    COPPER_BLOCK: 27
+    WHEAT: 1
+    BONE: 1
+    GUNPOWDER: 2
+    STRING: 1
+    LEATHER: 2
+    SLIME_BALL: 3
+
+# ---------------------------------------------------------------------------------------------------------------
+# Háború
+# ---------------------------------------------------------------------------------------------------------------
+
+invasions:
+  # Az invázió ára RP-ben (masswar alatt ingyenes, lásd lent).
+  cost: 50
+  # Ennyi idő alatt kell legyőzni a bajnokot.
+  time-seconds: 300
+  # Ha az indító ennyi másodpercnél tovább nincs a környéken (vagy meghal), az invázió elbukik.
+  leave-seconds: 20
+  # Legalább ennyi védőnek fent kell lennie (0 = mindegy).
+  min-online-defenders: 0
+  cooldown-failed-seconds: 300
+  cooldown-success-seconds: 0
+  # Vesztes védőknek ennyi perc pajzs jár, hogy ne lehessen egymás után az összes földjüket elvenni.
+  defeat-shield-minutes: 30
+  # Zsákmány a győztesnek: a vesztes RP-jének és bankjának ennyied része.
+  loot:
+    land:
+      resource-points: 0.05
+      bank: 0.05
+    nexus:
+      resource-points: 0.30
+      bank: 0.25
+  champion:
+    entity: ZOMBIE
+    health: 100
+    damage: 6
+    speed: 0.25
+
+# Pacifista királyságot nem lehet megtámadni és ellenségnek nyilvánítani, de ő sem támadhat.
+pacifism:
+  enabled: true
+  cooldown-hours: 24
+  # A pacifisták nem PvP-zhetnek (nem üthetnek és nem üthetők).
+  disable-pvp: true
+
+# Pajzsok: óra: RP ár. A pajzs alatt nem támadhatnak meg, de ha ti támadtok, eltűnik.
+shields:
+  6: 300
+  12: 550
+  24: 1000
+
+# Masswar: interval-hours óránként minutes percig mindenki támadhat mindenkit (a semlegeseket is), ingyen.
+masswar:
+  enabled: true
+  interval-hours: 24
+  minutes: 60
+  neutral-invade: true
+  free-invasions: true
+
+nations:
+  # Alapítás ára a bankból.
+  cost: 50000
+  min-level: 3
+  max-kingdoms: 8
+  # A főváros pajzsa a nemzet minden tagját védi.
+  shared-shield: true
+
+# Kapcsolatok jogai. build: építhet a másik földjén | interact: ajtó, kapu, kapcsoló | home: mehet az otthonukba
+# ceasefire: nem sebezhetik egymást | turret-ceasefire: a tornyok nem lőnek rá | invade: megtámadhatja
+relations:
+  limits:
+    ally: 10
+    truce: 10
+  nation:
+    color: "&b"
+    name: "Nemzettárs"
+    build: false
+    interact: true
+    home: true
+    ceasefire: true
+    turret-ceasefire: true
+    invade: false
+  ally:
+    color: "&d"
+    name: "Szövetséges"
+    build: false
+    interact: true
+    home: true
+    ceasefire: true
+    turret-ceasefire: true
+    invade: false
+  truce:
+    color: "&e"
+    name: "Fegyverszünet"
+    build: false
+    interact: false
+    home: false
+    ceasefire: true
+    turret-ceasefire: false
+    invade: false
+  neutral:
+    color: "&f"
+    name: "Semleges"
+    build: false
+    interact: false
+    home: false
+    ceasefire: false
+    turret-ceasefire: false
+    invade: false
+  enemy:
+    color: "&c"
+    name: "Ellenség"
+    build: false
+    interact: false
+    home: false
+    ceasefire: false
+    turret-ceasefire: false
+    invade: true
+
+turret-settings:
+  # Földenként ennyi torony (+ a "Több torony" fejlesztés).
+  per-land: 4
+  # A tornyok a szörnyekre is lőnek.
+  target-monsters: true
+  # Lőszer: egy feltöltés ennyi lövés, lövésenként ennyi RP.
+  ammo-per-refill: 64
+  ammo-cost: 1
+
+# ---------------------------------------------------------------------------------------------------------------
+# Fejlesztések (RP-ért). cost: első szint | cost-multiplier: szintenként ennyiszer drágább | per-level: szintenként ennyit ad
+# min-level: ennyi királysági szint kell hozzá | enabled: false = kikapcsolva
+# ---------------------------------------------------------------------------------------------------------------
+
+misc-upgrades:
+  max-claims:
+    name: "&a&lTöbb föld"
+    icon: GRASS_BLOCK
+    max: 10
+    cost: 300
+    cost-multiplier: 1.6
+    per-level: 1
+    min-level: 1
+    description:
+      - "&7Szintenként +5 foglalható chunk."
+  max-members:
+    name: "&b&lNagyobb létszám"
+    icon: PLAYER_HEAD
+    max: 5
+    cost: 500
+    cost-multiplier: 1.8
+    per-level: 2
+    min-level: 2
+    description:
+      - "&7Szintenként +2 tag fér be."
+  max-turrets:
+    name: "&c&lTöbb torony"
+    icon: DISPENSER
+    max: 5
+    cost: 400
+    cost-multiplier: 1.7
+    per-level: 2
+    min-level: 2
+    description:
+      - "&7Szintenként +2 torony földenként."
+  anti-explosion:
+    name: "&6&lRobbanásvédelem"
+    icon: TNT
+    max: 1
+    cost: 800
+    min-level: 2
+    description:
+      - "&7A földjeiteken semmi nem robban szét,"
+      - "&7még invázió közben sem."
+  anti-trample:
+    name: "&e&lTaposásvédelem"
+    icon: FARMLAND
+    max: 1
+    cost: 150
+    min-level: 1
+    description:
+      - "&7Senki nem tapossa le a szántóföldet."
+  nexus-guards:
+    name: "&4&lNexus őrök"
+    icon: IRON_SWORD
+    max: 3
+    cost: 600
+    cost-multiplier: 1.9
+    per-level: 1
+    min-level: 3
+    description:
+      - "&7Invázió közben a Nexus földjén"
+      - "&7szintenként +1 őr segít a bajnoknak."
+  glory:
+    name: "&d&lDicsőség"
+    icon: EXPERIENCE_BOTTLE
+    max: 5
+    cost: 350
+    cost-multiplier: 1.7
+    per-level: 10
+    min-level: 1
+    description:
+      - "&7Szintenként +10% királysági XP."
+  invasion-alert:
+    name: "&f&lRiadó"
+    icon: BELL
+    max: 1
+    cost: 200
+    min-level: 1
+    description:
+      - "&7Ha valaki inváziót indít ellenetek,"
+      - "&7minden tag címet és hangot kap."
+
+# Erősítések: csak a saját földeteken hatnak (per-level: százalék szintenként).
+powerups:
+  damage-boost:
+    name: "&c&lErősebb ütés"
+    icon: DIAMOND_SWORD
+    max: 20
+    cost: 100
+    cost-multiplier: 1.25
+    per-level: 1
+    description:
+      - "&7Szintenként +1% sebzés a saját földeteken."
+  damage-reduction:
+    name: "&9&lVastagabb bőr"
+    icon: DIAMOND_CHESTPLATE
+    max: 20
+    cost: 100
+    cost-multiplier: 1.25
+    per-level: 1
+    description:
+      - "&7Szintenként -1% kapott sebzés"
+      - "&7a saját földeteken."
+  arrow-boost:
+    name: "&e&lÉles nyílvessző"
+    icon: BOW
+    max: 20
+    cost: 70
+    cost-multiplier: 1.25
+    per-level: 1
+    description:
+      - "&7Szintenként +1% íjsebzés a saját földeteken."
+  regeneration-boost:
+    name: "&d&lGyors gyógyulás"
+    icon: GOLDEN_APPLE
+    max: 20
+    cost: 70
+    cost-multiplier: 1.25
+    per-level: 2
+    description:
+      - "&7Szintenként +2% életerő visszatöltés"
+      - "&7a saját földeteken."
+
+# A bajnok fejlesztései (ő védi a földeket inváziókor).
+champion-upgrades:
+  health:
+    name: "&c&lÉleterő"
+    icon: RED_DYE
+    max: 20
+    cost: 80
+    cost-multiplier: 1.22
+    per-level: 15
+    description:
+      - "&7Szintenként +15 életerő a bajnoknak."
+  damage:
+    name: "&4&lSebzés"
+    icon: IRON_SWORD
+    max: 15
+    cost: 100
+    cost-multiplier: 1.25
+    per-level: 1
+    description:
+      - "&7Szintenként +1 sebzés."
+  armor:
+    name: "&7&lPáncél"
+    icon: IRON_CHESTPLATE
+    max: 5
+    cost: 250
+    cost-multiplier: 1.8
+    per-level: 1
+    description:
+      - "&7Bőr, lánc, vas, gyémánt, végül netherit."
+  speed:
+    name: "&b&lGyorsaság"
+    icon: SUGAR
+    max: 5
+    cost: 200
+    cost-multiplier: 1.6
+    per-level: 0.02
+    min-level: 2
+    description:
+      - "&7Szintenként gyorsabb a bajnok."
+  resistance:
+    name: "&8&lHátrálás ellen"
+    icon: SHIELD
+    max: 5
+    cost: 180
+    cost-multiplier: 1.6
+    per-level: 0.2
+    min-level: 2
+    description:
+      - "&7Szintenként 20%-kal kevésbé lökhető."
+  thor:
+    name: "&e&lVillám"
+    icon: LIGHTNING_ROD
+    max: 3
+    cost: 500
+    cost-multiplier: 1.8
+    per-level: 1
+    min-level: 3
+    description:
+      - "&7Néha villámot szór a közelben"
+      - "&7lévő támadókra."
+  reinforcements:
+    name: "&2&lErősítés"
+    icon: ZOMBIE_HEAD
+    max: 3
+    cost: 450
+    cost-multiplier: 1.8
+    per-level: 1
+    min-level: 3
+    description:
+      - "&7Ha megsebesül, segítőket hív."
+  drag:
+    name: "&5&lVisszarántás"
+    icon: LEAD
+    max: 3
+    cost: 300
+    cost-multiplier: 1.7
+    per-level: 1
+    min-level: 2
+    description:
+      - "&7Aki elfut tőle, azt visszarántja."
+  determination:
+    name: "&6&lElszántság"
+    icon: TOTEM_OF_UNDYING
+    max: 5
+    cost: 400
+    cost-multiplier: 1.7
+    per-level: 3
+    min-level: 4
+    description:
+      - "&7Egy ütés legfeljebb ennyit sebez rajta:"
+      - "&7szintenként egyre kevesebbet."
+  mock:
+    name: "&f&lGúny"
+    icon: COBWEB
+    max: 1
+    cost: 350
+    min-level: 2
+    description:
+      - "&7A közelében a támadók nem rakhatnak blokkot."
+
+# ---------------------------------------------------------------------------------------------------------------
+# Építmények és tornyok. price: vételár RP | max-level | upgrade-cost: az első fejlesztés ára | upgrade-multiplier
+# min-level: királysági szint | limit: ennyi lehet egy királyságnak (0 = korlátlan) | block: a lerakott blokk
+# values: a fajta számai; "<kulcs>-per-level" szintenként ennyivel nő (vagy csökken, ha negatív)
+# ---------------------------------------------------------------------------------------------------------------
+
+structures:
+  nexus:
+    name: "&b&lNexus"
+    block: BEACON
+    max-level: 10
+    upgrade-cost: 500
+    upgrade-multiplier: 1.6
+    limit: 1
+    values:
+      claims-per-level: 2
+      champion-health-per-level: 10
+    description:
+      - "&7A királyság szíve. Jobb klikkre itt van minden menü."
+      - "&7Ha elfoglalják, sok pénz és RP elvész."
+  powercell:
+    name: "&e&lErőmag"
+    block: RESPAWN_ANCHOR
+    price: 300
+    max-level: 5
+    upgrade-cost: 250
+    upgrade-multiplier: 1.6
+    min-level: 2
+    limit: 6
+    values:
+      radius: 1
+      radius-per-level: 0.5
+    description:
+      - "&7A körülötte lévő földeket csak akkor"
+      - "&7lehet megtámadni, ha előbb az Erőmag"
+      - "&7földjét foglalják el."
+  extractor:
+    name: "&6&lKitermelő"
+    block: BLAST_FURNACE
+    price: 250
+    max-level: 5
+    upgrade-cost: 200
+    upgrade-multiplier: 1.6
+    min-level: 1
+    limit: 4
+    values:
+      points: 5
+      points-per-level: 4
+      minutes: 10
+      capacity: 100
+      capacity-per-level: 80
+    description:
+      - "&7Magától Resource Pointot termel."
+      - "&7Jobb klikkel szeded be."
+  regenerator:
+    name: "&d&lGyógyforrás"
+    block: CONDUIT
+    price: 350
+    max-level: 5
+    upgrade-cost: 250
+    upgrade-multiplier: 1.6
+    min-level: 2
+    limit: 3
+    values:
+      radius: 8
+      radius-per-level: 2
+      heal: 1
+      heal-per-level: 0.5
+    description:
+      - "&7A közelében a tagok és a szövetségesek"
+      - "&7lassan visszagyógyulnak."
+  bastion:
+    name: "&8&lBástya"
+    block: LODESTONE
+    price: 400
+    max-level: 5
+    upgrade-cost: 300
+    upgrade-multiplier: 1.7
+    min-level: 3
+    limit: 3
+    values:
+      radius: 10
+      radius-per-level: 2
+      strength: 0
+      strength-per-level: 0.25
+    description:
+      - "&7A közelében az ellenség lassul és gyengül,"
+      - "&7a tagok pedig ellenállóbbak lesznek."
+  outpost:
+    name: "&a&lKereskedőház"
+    block: BARREL
+    price: 300
+    max-level: 1
+    min-level: 2
+    limit: 2
+    description:
+      - "&7Itt Resource Pointért vásárolhattok"
+      - "&7hasznos tárgyakat."
+  warppad:
+    name: "&5&lTeleportkapu"
+    block: END_PORTAL_FRAME
+    price: 200
+    max-level: 1
+    min-level: 2
+    limit: 6
+    values:
+      cooldown: 30
+    description:
+      - "&7A királyság kapui között lehet vele"
+      - "&7teleportálni."
+
+turrets:
+  arrow:
+    name: "&f&lÍjásztorony"
+    block: SKELETON_SKULL
+    price: 120
+    max-level: 10
+    upgrade-cost: 80
+    upgrade-multiplier: 1.35
+    min-level: 1
+    values:
+      range: 12
+      range-per-level: 0.5
+      damage: 4
+      damage-per-level: 0.5
+      cooldown: 20
+      cooldown-per-level: -1
+    description:
+      - "&7Nyilakat lő az ellenségre."
+  flame:
+    name: "&6&lLángszóró"
+    block: PIGLIN_HEAD
+    price: 200
+    max-level: 10
+    upgrade-cost: 120
+    upgrade-multiplier: 1.35
+    min-level: 2
+    values:
+      range: 8
+      range-per-level: 0.4
+      fire: 60
+      fire-per-level: 10
+      damage: 2
+      damage-per-level: 0.3
+      cooldown: 30
+      cooldown-per-level: -1
+    description:
+      - "&7Felgyújtja a közelben lévő ellenséget."
+  cannon:
+    name: "&c&lÁgyú"
+    block: CREEPER_HEAD
+    price: 350
+    max-level: 10
+    upgrade-cost: 200
+    upgrade-multiplier: 1.4
+    min-level: 3
+    values:
+      range: 16
+      range-per-level: 0.5
+      power: 1.5
+      power-per-level: 0.15
+      cooldown: 80
+      cooldown-per-level: -3
+    description:
+      - "&7Robbanó lövedékkel lő (a blokkokat nem bántja)."
+  magic:
+    name: "&5&lVarázstorony"
+    block: WITHER_SKELETON_SKULL
+    price: 400
+    max-level: 10
+    upgrade-cost: 220
+    upgrade-multiplier: 1.4
+    min-level: 4
+    values:
+      range: 14
+      range-per-level: 0.5
+      damage: 3
+      damage-per-level: 0.4
+      cooldown: 50
+      cooldown-per-level: -2
+    description:
+      - "&7Lassít, gyengít és sebez."
+  soldier:
+    name: "&2&lKaszárnya"
+    block: ZOMBIE_HEAD
+    price: 300
+    max-level: 10
+    upgrade-cost: 180
+    upgrade-multiplier: 1.4
+    min-level: 3
+    values:
+      range: 14
+      range-per-level: 0.5
+      soldiers: 1
+      soldiers-per-level: 0.34
+      cooldown: 200
+      cooldown-per-level: -8
+    description:
+      - "&7Katonákat küld az ellenségre."
+  healing:
+    name: "&a&lGyógytorony"
+    block: DRAGON_HEAD
+    price: 250
+    max-level: 10
+    upgrade-cost: 150
+    upgrade-multiplier: 1.35
+    min-level: 2
+    values:
+      range: 8
+      range-per-level: 0.5
+      heal: 2
+      heal-per-level: 0.3
+      cooldown: 40
+      cooldown-per-level: -1
+    description:
+      - "&7Gyógyítja a közelben lévő tagokat"
+      - "&7és szövetségeseket."
+  mine:
+    name: "&7&lAkna"
+    block: STONE_PRESSURE_PLATE
+    price: 80
+    max-level: 5
+    upgrade-cost: 60
+    upgrade-multiplier: 1.4
+    min-level: 1
+    values:
+      power: 2
+      power-per-level: 0.3
+    description:
+      - "&7Felrobban, ha ellenség lép rá"
+      - "&7(a blokkokat nem bántja)."
+
+# A Kereskedőház kínálata (ANYAG: RP ár darabonként).
+outpost:
+  GOLDEN_APPLE: 60
+  ENDER_PEARL: 40
+  EXPERIENCE_BOTTLE: 20
+  ARROW: 2
+  TNT: 30
+  COBWEB: 15
+  OBSIDIAN: 12
+  IRON_INGOT: 25
+  BLAZE_ROD: 45
+  SADDLE: 80
+
+# Az új királyságok rangjai. A "king" kötelező. priority: sorrend (0 a király, minél nagyobb, annál lejjebb).
+# max-claims: ennyi chunkot foglalhat egy ilyen rangú tag (-1 = korlátlan). A rangokat a királyságok a menüben átírhatják.
+# Jogok: BUILD INTERACT USE NEXUS NEXUS_BUILD CLAIM UNCLAIM INVITE KICK SET_RANKS MANAGE_RANKS HOME SET_HOME WITHDRAW
+#        UPGRADE STRUCTURES TURRETS RELATIONS INVADE NATION SETTINGS BROADCAST
+default-ranks:
+  king:
+    name: "Király"
+    color: "&c"
+    symbol: "♚"
+    material: EMERALD_BLOCK
+    priority: 0
+    max-claims: -1
+  prince:
+    name: "Trónörökös"
+    color: "&6"
+    symbol: "♛"
+    material: DIAMOND_BLOCK
+    priority: 1
+    max-claims: -1
+    permissions: [BUILD, INTERACT, USE, NEXUS, NEXUS_BUILD, CLAIM, UNCLAIM, INVITE, KICK, SET_RANKS, HOME, SET_HOME, WITHDRAW,
+                  UPGRADE, STRUCTURES, TURRETS, RELATIONS, INVADE, NATION, SETTINGS, BROADCAST]
+  duke:
+    name: "Herceg"
+    color: "&d"
+    symbol: "❖"
+    material: GOLD_BLOCK
+    priority: 2
+    max-claims: 30
+    permissions: [BUILD, INTERACT, USE, NEXUS, NEXUS_BUILD, CLAIM, UNCLAIM, INVITE, KICK, SET_RANKS, HOME, SET_HOME, WITHDRAW,
+                  UPGRADE, STRUCTURES, TURRETS, INVADE, BROADCAST]
+  knight:
+    name: "Lovag"
+    color: "&e"
+    symbol: "♜"
+    material: IRON_BLOCK
+    priority: 3
+    max-claims: 10
+    permissions: [BUILD, INTERACT, USE, NEXUS, NEXUS_BUILD, CLAIM, INVITE, HOME, STRUCTURES, TURRETS, INVADE]
+  member:
+    name: "Tag"
+    color: "&7"
+    symbol: "♟"
+    material: COPPER_BLOCK
+    priority: 4
+    max-claims: 0
+    permissions: [BUILD, INTERACT, USE, NEXUS, HOME, INVADE]
 
 help:
   - "&8&m          &r &6&lKingdoms &8&m          "
+  - " &e/k &8- &7a királyság menü (minden innen elérhető)"
   - " &e/k create <név> &8- &7királyság alapítása"
-  - " &e/k invite <játékos> &8- &7meghívás"
-  - " &e/k join <királyság> &8- &7meghívás elfogadása"
-  - " &e/k claim &8/ &e/k unclaim &8- &7chunk foglalása / elengedése"
-  - " &e/k home &8/ &e/k sethome &8- &7otthon"
+  - " &e/k invite <játékos> &8/ &e/k join <királyság> &8- &7meghívás, belépés"
+  - " &e/k claim &8/ &e/k unclaim &8/ &e/k autoclaim &8- &7földek"
   - " &e/k map &8- &7térkép a környékről"
-  - " &e/k info [név] &8- &7infó egy királyságról"
-  - " &e/k list &8/ &e/k top &8- &7királyságok listája"
+  - " &e/k nexus &8- &7a Nexus blokk (a királyság szíve)"
+  - " &e/k rp &8- &7tárgyak beadása Resource Pointért"
+  - " &e/k bank &8/ &e/k deposit <összeg> &8- &7királysági bank"
+  - " &e/k home &8/ &e/k sethome &8- &7otthon"
+  - " &e/k ally, truce, neutral, enemy <királyság> &8- &7kapcsolatok"
+  - " &e/k invade &8- &7invázió (ellenséges földön állva)"
+  - " &e/k nation &8- &7nemzet ügyei"
+  - " &e/k top &8- &7a legerősebb királyságok"
   - " &e/k chat &8- &7királysági chat (vagy írj ! jelet az üzenet elé)"
-  - " &e/k kick, promote, demote, king, leave, disband"
   - " &e/k spawn &8- &7vissza a városba"
 
 admin-help:
@@ -123,6 +865,13 @@ admin-help:
   - " &e/ka reload &8- &7config újratöltése"
   - " &e/ka disband <név> &8- &7királyság feloszlatása"
   - " &e/ka unclaim &8- &7a chunk felszabadítása, ahol állsz"
+  - " &e/ka give <structure|turret> <fajta> [szint] &8- &7építmény vagy torony tárgy"
+  - " &e/ka rp|bank|xp <királyság> <+/-szám> &8- &7RP, pénz, XP állítása"
+  - " &e/ka level <királyság> <szint> &8- &7szint beállítása"
+  - " &e/ka setking <királyság> <játékos> &8- &7új király"
+  - " &e/ka join <királyság> &8- &7belépés meghívó nélkül"
+  - " &e/ka masswar [stop] &8- &7masswar indítása vagy leállítása"
+  - " &e/ka stopinvasion &8- &7az invázió leállítása ott, ahol állsz"
   - " &e/ka rebuild &8- &7a spawn város újraépítése"
   - " &8Kreatív módban, adminként mindenhol építhetsz."
 
@@ -138,62 +887,215 @@ messages:
   only-players: "&cEzt csak játékból tudod használni."
   only-in-kingdoms: "&cEzt csak a Kingdoms világban tudod használni."
   no-permission: "Ehhez nincs jogod!"
-  no-kingdom: "&cMég nem vagy királyság tagja. Alapíts egyet: &f/k create <név>"
-  no-kingdoms: "&7Még egy királyság sincs. Legyél te az első: &f/k create <név>"
-  already-in-kingdom: "&cMár tagja vagy egy királyságnak."
-  bad-name: "&cA név 3-16 karakter lehet, csak betű, szám és alsóvonal (ékezet nélkül)."
-  name-taken: "&cIlyen nevű királyság már van."
-  created: "Kész, megvan a királyságod: &6%kingdom%&7! Most foglalj földet: &f/k claim"
-  created-broadcast: "&f%player% &7új királyságot alapított: &6%kingdom%"
-  not-manager: "&cEhhez legalább lovagnak kell lenned."
-  not-king: "&cEzt csak a király teheti meg."
-  need-player: "&cÍrd mögé a játékos nevét is."
+  usage: "Használat: &f%usage%"
+  bad-amount: "&cEz nem értelmes összeg. Írj egy számot (pl. 1500 vagy 2k)."
   no-player: "&cNincs ilyen játékos, vagy nincs fent."
+  no-such-kingdom: "&cNincs ilyen királyság."
+  no-kingdom: "&cMég nem vagy királyság tagja. Alapíts egyet: &f/k create <név>"
+  no-kingdom-permission: "&cA rangodnak ehhez nincs joga: &f%permission%"
+  already-in-kingdom: "&cMár tagja vagy egy királyságnak."
+  bad-name: "&cA név %min%-%max% karakter lehet, csak betű, szám és alsóvonal (ékezet nélkül)."
+  name-taken: "&cIlyen nevű már van."
+  created: "Kész, megvan a királyságod: %kingdom%&7! Most foglalj földet (&f/k claim&7), aztán rakd le a Nexust (&f/k nexus&7)."
+  created-broadcast: "&f%player% &7új királyságot alapított: %kingdom%"
+  not-king: "&cEzt csak a király teheti meg."
   player-has-kingdom: "&c%player% már egy másik királyság tagja."
   kingdom-full: "&cA királyság megtelt (&f%max% &cfő)."
   invited: "Elküldted a meghívót neki: &f%player%"
-  invite-received: "&f%player% &7meghívott a királyságába (&6%kingdom%&7). Elfogadás: &f/k join %kingdom%"
-  no-invite: "&cNincs meghívód ebbe a királyságba."
+  invite-received: "&f%player% &7meghívott a királyságába: %kingdom%&7. [[&a&l[Elfogadom]|run:/k join %name%]]"
+  no-invite: "&cIde nincs meghívód, és nem is nyitott királyság."
   joined: "&f%player% &7csatlakozott a királysághoz. Üdv a csapatban!"
   left: "&f%player% &7kilépett a királyságból."
   you-left: "Kiléptél a királyságból."
   king-cant-leave: "&cKirályként nem léphetsz ki. Add át a trónt (&f/k king <név>&c) vagy oszlasd fel (&f/k disband&c)."
   not-member: "&c%player% nem tagja a királyságodnak."
-  cant-kick: "&cŐt nem tudod kirúgni, nála nagyobb rang kell."
+  cant-kick: "&cŐt nem tudod kirúgni, nála magasabb rang kell."
   kicked: "&f%player% &7ki lett rúgva a királyságból."
-  you-were-kicked: "&cKirúgtak a királyságból (%kingdom%)."
-  promoted: "&f%player% &7mostantól &6lovag&7."
-  demoted: "&f%player% &7mostantól sima tag."
-  already-knight: "&c%player% már lovag."
-  not-knight: "&c%player% nem lovag."
+  you-were-kicked: "&cKirúgtak a királyságból (%kingdom%&c)."
+  rank-set: "&f%player% &7új rangja: %rank%"
+  rank-too-high: "&cEhhez a ranghoz nem nyúlhatsz, a tiédnél nem lehet magasabb."
+  use-king-command: "&cA trónt a &f/k king <név> &cparanccsal tudod átadni."
+  already-highest: "&c%player% már a legmagasabb rangon van, amit adhatsz."
+  already-lowest: "&c%player% már a legalsó rangon van."
   new-king: "&6%player% &7lett a királyság új királya!"
-  disband-confirm: "&cBiztos? Minden földetek felszabadul. Ha igen, írd be még egyszer 15 mp-en belül: &f/k disband"
-  disbanded: "&7Feloszlott a királyság: &6%kingdom%"
+  disband-confirm: "&cBiztos? Minden föld, építmény és torony elvész. Ha igen, csináld meg még egyszer 15 mp-en belül."
+  disbanded: "&7Feloszlott a királyság: %kingdom%"
+  renamed: "&f%old% &7mostantól így hívják: %kingdom%"
+  rank-limit: "&cLegfeljebb 15 rang lehet."
+  rank-bad-name: "&cA rang neve 1-16 karakter lehet (és ilyen még ne legyen)."
+  rank-created: "Új rang: %rank%"
+  rank-deleted: "Törölve: %rank%&7. A tagjai ezt a rangot kapták: %fallback%"
+  rank-renamed: "A rang új neve: %rank%"
+  rank-min: "&cLegalább két rang kell (király és még egy)."
+  rank-cant-give: "&cOlyan jogot nem adhatsz, ami neked sincs: &f%permission%"
+  rank-cant-here: "&cA rangodnak ehhez nincs joga ezen a földön."
   claim-spawn: "&cA város közelében nem lehet foglalni, menj kicsit messzebb."
   claim-border: "&cEz már a világ szélén van, itt nem lehet foglalni."
-  claim-taken: "&cEz a föld már foglalt, &6%kingdom% &cbirtoka."
+  claim-taken: "&cEz a föld már foglalt, %kingdom% &cbirtoka."
   claim-own: "&cEz már a tiétek."
-  claim-limit: "&cElértétek a maximumot (&f%max% &cchunk). Minden új taggal több földet foglalhattok."
+  claim-limit: "&cElértétek a maximumot (&f%max% &cchunk). Több tag, magasabb szint, fejlesztés vagy power kell hozzá."
+  claim-rank-limit: "&cA rangoddal legfeljebb &f%max% &cchunkot foglalhatsz."
   claim-adjacent: "&cCsak a meglévő földetek mellé foglalhattok."
-  claimed: "Ez a chunk mostantól a tiétek &8(%claims%/%max%)"
+  claim-buffer: "&cTúl közel van %kingdom% &cföldjéhez, hagyjatok egy kis helyet."
+  claimed: "Ez a chunk mostantól a tiétek &8(%claims%/%max%, -%rp% RP)"
+  claimed-free: "Ez a chunk mostantól a tiétek &8(%claims%/%max%, ingyenes)"
   not-your-claim: "&cEz nem a ti földetek."
-  unclaimed: "Elengedtétek ezt a chunkot."
-  home-not-set: "&cMég nincs otthon. Király vagy lovag be tudja állítani: &f/k sethome"
+  not-claimed: "&cEz a föld nincs lefoglalva."
+  unclaimed: "Elengedtétek ezt a chunkot &8(%claims%/%max%)"
+  unclaimed-all: "Elengedtetek &f%count% &7földet."
+  unclaimall-confirm: "&cBiztos? Minden föld elvész (a Nexusé és az építményeseké nem). Ha igen, csináld meg még egyszer 15 mp-en belül."
+  unclaim-nexus: "&cA Nexus földjét nem lehet elengedni. Előbb helyezd át a Nexust."
+  unclaim-structures: "&cEzen a földön építmény vagy torony van, előbb vegyétek fel."
+  autoclaim-on: "Automata foglalás &abekapcsolva&7: minden chunkot lefoglalsz, ahova belépsz."
+  autoclaim-off: "Automata foglalás &ckikapcsolva&7."
+  home-not-set: "&cMég nincs otthon. Akinek van rá joga, beállíthatja: &f/k sethome"
   home-set: "Itt lesz a királyság otthona."
   home-outside: "&cOtthont csak a saját földeteken lehet beállítani."
+  home-no-access: "&c%kingdom% &cotthonába csak a szövetségeseik mehetnek."
+  in-combat: "&cHarc közben nem teleportálhatsz."
   teleporting: "Teleport &f%seconds% &7mp múlva, addig ne mozogj."
   teleport-cancelled: "&cMegmozdultál, a teleport elmaradt."
   teleported: "Megérkeztél."
   no-portal: "&cA Netherbe és az Endbe innen még nem lehet átmenni."
   chat-on: "Királysági chat &abekapcsolva&7, most csak a tieid látják, amit írsz."
   chat-off: "Királysági chat &ckikapcsolva&7."
+  announcement: "&6&lKÖRÜZENET &8| &f%player%&7: &e%message%"
   spawn-protected: "&cA város védett, itt nem tudsz építeni."
-  claim-protected: "&cEz &6%kingdom% &cföldje, itt nem nyúlhatsz semmihez."
+  claim-protected: "&cEz %kingdom% &cföldje, itt nem nyúlhatsz semmihez."
   no-pvp-spawn: "&cA városban nincs PvP."
   friendly-fire: "&cA saját embereidet nem bánthatod."
-  not-found: "&cNincs ilyen királyság."
+  ceasefire: "&cVele nem harcolhatsz, a kapcsolatotok: %relation%"
+  pacifist-pvp: "&cPacifista királyság tagjával nem lehet harcolni (és pacifistaként te sem harcolhatsz)."
+  no-money: "&cNincs elég pénzed. Kell: &f%price%"
+  not-enough-rp: "&cNincs elég Resource Pointotok. Kell: &e%need% RP"
+  not-enough-bank: "&cNincs elég pénz a bankban. Kell: &f%need%"
+  bank-error: "&cNem sikerült kivenni, próbáld újra."
+  deposited: "Befizettél &f%money%&7-t. A bankban most: &f%bank%"
+  withdrew: "Kivettél &f%money%&7-t. A bankban most: &f%bank%"
+  converted: "Vettetek &e%points% RP&7-t &f%money%&7-ért a bankból."
+  donated: "Beadtál &e%points% RP&7-t. A királyságnak most &e%total% RP&7-je van."
+  donate-nothing: "&7Ezekért nem jár RP, visszakaptad őket."
+  donate-title: "&8Tedd bele, amit beadnál"
+  level-up: "&6&lSZINTLÉPÉS! &7A királyság &f%level%. &7szintű lett: több föld és tag fér bele."
+  upgrade-max: "%name% &7már a legmagasabb szinten van."
+  need-level: "&cEhhez &f%level%. &ckirálysági szint kell."
+  upgraded: "Fejlesztve: %name% &8(%level%/%max%, -%price% RP)"
+  shield-bought: "&f%player% &7pajzsot vett: &b%hours% &7óráig nem támadhatnak meg titeket."
+  pacifism-disabled: "&cA pacifizmus ki van kapcsolva a szerveren."
+  pacifism-cooldown: "&cMég &f%time% &cmúlva válthattok újra."
+  pacifist-on: "&a☮ &f%player% &7pacifistává tette a királyságot: nem támadhattok és titeket sem támadhatnak."
+  pacifist-off: "&f%player% &7kikapcsolta a pacifizmust, mostantól újra lehet háborúzni."
+  you-are-pacifist: "&cPacifista királyságként nem háborúzhattok."
+  target-pacifist: "&c%kingdom% &cpacifista, őket nem lehet megtámadni."
+  open-on: "Mostantól bárki beléphet a királyságba."
+  open-off: "Mostantól csak meghívással lehet belépni."
+  description-set: "Kész, megvan az új leírás."
+  same-nation: "&cEgy nemzetben vagytok, köztetek nincs ilyen kapcsolat."
+  already-relation: "&cMár ez a kapcsolatotok: %relation%"
+  relation-limit: "&cElértétek a maximumot ebből: %relation% &8(%max%)"
+  relation-requested: "Elküldtétek a kérést: %relation% &7-> %kingdom%"
+  relation-made: "Új kapcsolat: %kingdom% &7- %relation%"
+  ally-request: "%kingdom% &7szövetséget ajánl. [[&a&l[Elfogadom]|run:/k ally %name%]]"
+  truce-request: "%kingdom% &7fegyverszünetet ajánl. [[&e&l[Elfogadom]|run:/k truce %name%]]"
+  peace-offer: "%kingdom% &7békét szeretne. [[&f&l[Béke]|run:/k neutral %name%]]"
+  enemy-declared: "&cHadat üzentetek: %kingdom%"
+  enemy-declared-you: "&c&lHÁBORÚ! %kingdom% &cellenségnek nyilvánított titeket."
+  now-neutral: "Mostantól semlegesek vagytok: %kingdom%"
+  still-enemy: "&7Ti békét kötnétek, de %kingdom% &7még ellenségnek tart. Nekik is el kell fogadniuk."
+  already-in-nation: "&cMár egy nemzet tagjai vagytok."
+  no-nation: "&cNem vagytok nemzet tagjai."
+  not-nation-leader: "&cEzt csak a főváros királya teheti meg."
+  nation-created: "&9Új nemzet született: &f%nation% &7(főváros: %kingdom%&7)"
+  kingdom-in-nation: "&c%kingdom% &cmár egy másik nemzet tagja."
+  nation-full: "&cA nemzet megtelt (&f%max% &ckirályság)."
+  nation-invited: "Meghívtátok a nemzetbe: %kingdom%"
+  nation-invite-received: "&9A(z) &f%nation% &9nemzet meghívta a királyságotokat. [[&a&l[Csatlakozunk]|run:/k nation join %name%]]"
+  no-nation-invite: "&cIde nincs meghívótok."
+  nation-joined: "%kingdom% &7csatlakozott a nemzethez: &f%nation%"
+  nation-left: "%kingdom% &7kilépett a nemzetből: &f%nation%"
+  nation-kicked: "%kingdom% &7ki lett rúgva a nemzetből: &f%nation%"
+  capital-cant-leave: "&cA főváros nem léphet ki, csak feloszlathatja a nemzetet."
+  not-in-your-nation: "&cEz a királyság nem tagja a nemzeteteknek (vagy ez a főváros)."
+  nation-disband-confirm: "&cBiztos? A nemzet megszűnik, a közös kassza a fővárosé lesz. Ha igen, csináld meg még egyszer."
+  nation-disbanded: "&9Megszűnt a(z) &f%nation% &9nemzet."
+  nation-donated: "%kingdom% &7beadott &e%points% RP&7-t a nemzet kasszájába."
+  nation-shield: "&bNemzeti pajzs: &f%hours% &bóráig senkit nem támadhatnak meg a nemzetből."
+  item-structure-hint: "&b▶ Rakd le a saját földeteken"
+  item-turret-hint: "&b▶ Rakd le a saját földeteken"
+  need-nexus: "&cElőbb rakjátok le a Nexust (&f/k nexus&c)."
+  nexus-exists: "&cMár van Nexusotok."
+  nexus-in-inventory: "&cMár nálad van a Nexus, rakd le a saját földeteken."
+  nexus-given: "Megkaptad a Nexust! Rakd le a saját földeteken, ez lesz a királyság szíve."
+  nexus-placed: "&b&lNEXUS! &f%player% &7lerakta a királyság Nexusát. Jobb klikkre ott minden menü elérhető."
+  nexus-break-own: "&cA Nexust a menüjéből lehet áthelyezni (jobb klikk rá)."
+  nexus-fallen: "&4&lELESETT EGY NEXUS! %attacker% &7elfoglalta %kingdom% &7Nexusát!"
+  inventory-full: "&cTele van a táskád."
+  bought-placeable: "Megvetted: %name% &8(-%price% RP)&7. Rakd le a saját földeteken."
+  placed: "Lerakva: %name%"
+  place-own-land: "&cEzt csak a saját földeteken rakhatod le."
+  place-limit: "&cEbből már nem rakhattok le többet &8(max %max%)."
+  turret-land-limit: "&cEgy földre legfeljebb &f%max% &ctornyot rakhattok."
+  picked-up: "Felvetted: %name%"
+  structure-protected: "&cEz egy királyság építménye, nem nyúlhatsz hozzá."
+  structure-destroyed: "&c%player% lerombolta: %name%"
+  refilled: "Lőszer feltöltve: &f%ammo% &8(-%price% RP)"
+  nothing-to-collect: "&7Még nincs mit begyűjteni."
+  collected: "Begyűjtöttél &e%points% RP&7-t."
+  warppad-cooldown: "&cA kapu még töltődik, &f%seconds% &cmp."
+  outpost-bought: "Megvetted: &f%item% &8(-%price% RP)"
+  soldier-name: "&2Katona &8(%kingdom%&8)"
+  champion-name: "%kingdom% &cbajnoka"
+  guard-name: "&4Nexus őr &8(%kingdom%&8)"
+  champion-bar: "%kingdom% &cbajnoka"
+  champion-drag: "&5A bajnok visszarántott!"
+  champion-mock: "&cA bajnok közelében nem rakhatsz le blokkot."
+  invade-stand: "&cÁllj egy másik királyság földjére, ott indíthatsz inváziót."
+  invade-not-enemy: "&c%kingdom% &cnem ellenségetek. Előbb üzenjetek hadat: &f/k enemy <név>"
+  invade-shielded: "&c%kingdom% &cpajzs alatt áll még &f%time%&c-ig."
+  invade-cooldown: "&cMég &f%time% &cmúlva támadhattok újra."
+  invade-one-at-a-time: "&cEgyszerre csak egy inváziótok lehet."
+  invade-already: "&cEzt a földet már megtámadták."
+  invade-powercell: "&cEzt a földet egy Erőmag védi. Előbb az Erőmag földjét foglaljátok el."
+  invade-few-defenders: "&cLegalább &f%min% &cvédőnek fent kell lennie."
+  invasion-started: "&c&lINVÁZIÓ! &f%player% &7megtámadta %kingdom% &7földjét. Győzzétek le a bajnokukat &f%time% &7alatt!"
+  invasion-defend: "&c&lTÁMADÁS! %kingdom% &cmegtámadta a földeteket itt: &f%x%, %z%&c. Védjétek meg a bajnokot!"
+  invasion-nexus-defend: "&4&lA NEXUST TÁMADJÁK! %kingdom% &cbetört a Nexus földjére (&f%x%, %z%&c). Mindenki oda!"
+  invasion-alert-title: "&c&lTÁMADÁS!"
+  invasion-alert-subtitle: "%kingdom% &7megtámadott titeket"
+  invasion-come-back: "&cMenj vissza a bajnokhoz! &f%seconds% &cmp után elbukik az invázió."
+  invasion-timeout: "&cLejárt az idő, %kingdom% &cbajnoka kitartott. Az invázió elbukott."
+  invasion-starter-left: "&cAz invázió indítója elhagyta a csatát, az invázió elbukott."
+  invasion-cancelled: "&7Az invázió véget ért."
+  invasion-surrendered: "&7Feladtátok az inváziót."
+  invasion-defended: "&a&lGYŐZELEM! &7Visszavertétek %kingdom% &7támadását."
+  invasion-won: "&a&lELFOGLALVA! &7Megszereztétek %kingdom% &7földjét. Zsákmány: &e%rp% RP &7és &f%money%"
+  invasion-won-nexus: "&a&lA NEXUS ELESETT! &7Legyőztétek %kingdom% &7Nexusát. Zsákmány: &e%rp% RP &7és &f%money%"
+  invasion-lost: "&c&lELVESZETT EGY FÖLD! %kingdom% &celfoglalta. Elvittek &e%rp% RP&c-t és &f%money%&c-t."
+  invasion-lost-nexus: "&4&lELESETT A NEXUS! %kingdom% &celvitte &e%rp% RP&c-t és &f%money%&c-t. Rakjátok le újra a Nexust!"
+  invasion-running: "&cMost invázió zajlik, ezt nem lehet."
+  no-invasion: "&cNincs futó inváziótok."
+  war-line-attacking: "&c⚔ Támadás: %kingdom% &8(%chunk%) &7- még &f%time%"
+  war-line-defending: "&4⛨ Védekezés: %kingdom% &8(%chunk%) &7- még &f%time%"
+  masswar-started: "&4&lMASSWAR! &7A következő &f%minutes% &7percben bárki megtámadhat bárkit, ingyen!"
+  masswar-ended: "&7Vége a masswarnak."
+  masswar-bar: "&4&lMASSWAR &8| &7még &f%time%"
+  masswar-running: "&4&lMASSWAR VAN!"
+  click-again: "&eKattints újra a megerősítéshez (10 mp)."
+  prompt-cancel-hint: "&8(Ha mégsem, írd be: mégse)"
+  prompt-cancelled: "Rendben, nem változott semmi."
+  prompt-kingdom-name: "Írd be a chatbe a királyság nevét:"
+  prompt-rank-name: "Írd be a chatbe az új rang nevét:"
+  prompt-rank-rename: "Írd be a chatbe a rang új nevét:"
+  prompt-amount: "Írd be a chatbe az összeget (pl. 1500 vagy 2k):"
+  prompt-description: "Írd be a chatbe a királyság leírását (legfeljebb 60 karakter):"
+  prompt-announcement: "Írd be a chatbe az üzenetet, amit minden tag megkap:"
+  prompt-nation-name: "Írd be a chatbe a nemzet nevét:"
+  prompt-nation-join: "Írd be a chatbe a nemzet nevét, ahova meghívtak:"
+  prompt-kingdom-invite: "Írd be a chatbe a királyság nevét, akit meghívnál:"
+  prompt-warp-name: "Írd be a chatbe a kapu nevét:"
+  unknown-type: "&cIlyen fajta nincs."
   reloaded: "Újratöltve."
-  admin-disbanded: "Feloszlattad: &6%kingdom%"
-  admin-unclaimed: "Felszabadítva."
+  admin-unclaimed: "Felszabadítva (%kingdom%&7)."
+  admin-changed: "Kész: %kingdom%"
   rebuilding: "Újraépítem a várost, ez eltarthat pár másodpercig..."
   rebuilt: "Kész, a város újra áll."
