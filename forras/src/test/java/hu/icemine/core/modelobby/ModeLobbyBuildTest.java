@@ -54,4 +54,28 @@ class ModeLobbyBuildTest {
         assertNull(ModeLobbies.modeOf(null));
         assertTrue(ModeLobbies.PREFIX.endsWith("_"));
     }
+
+    @org.junit.jupiter.api.Test
+    void everyThemeKeepsTheSameImportantSpots() {
+        String[] themes = {"kitpvp", "skypvp", "combofly", "gens", "kingdoms", "duels", "snow"};
+        java.util.Map<String, hu.icemine.core.build.Layout.Point> reference = null;
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (String theme : themes) {
+            java.util.Map<String, String> blocks = new java.util.HashMap<>();
+            ModeLobbyBuild build = new ModeLobbyBuild((x, y, z, data) -> blocks.put(x + "," + y + "," + z, data), 0, 0, 0, "red", "TEST", 0, theme);
+            build.build();
+            if (reference == null) {
+                reference = build.layout().points;
+            }
+            org.junit.jupiter.api.Assertions.assertEquals(reference.keySet(), build.layout().points.keySet(), theme);
+            org.junit.jupiter.api.Assertions.assertEquals("nether_portal[axis=x]", blocks.get("0,3," + ModeLobbyBuild.PORTAL_Z), theme + ": van portál");
+            String ground = blocks.get("0,0," + ModeLobbyBuild.SPAWN_Z);
+            org.junit.jupiter.api.Assertions.assertNotNull(ground, theme + ": van talaj a spawn alatt");
+            org.junit.jupiter.api.Assertions.assertFalse(ground.startsWith("air"), theme);
+            String above = blocks.get("0,1," + ModeLobbyBuild.SPAWN_Z);
+            org.junit.jupiter.api.Assertions.assertTrue(above == null || above.equals("air"), theme + ": a spawn fölött szabad hely");
+            seen.add(blocks.get("5,0,20"));
+        }
+        org.junit.jupiter.api.Assertions.assertTrue(seen.size() >= 5, "a témák tényleg különböző anyagból vannak");
+    }
 }

@@ -154,6 +154,8 @@ Ezeket az IceMine hozza létre és építi fel magától:
 - a lobby (a fő világ), `ice_kitpvp`, `ice_skypvp`, `combofly_map`, gens, `kingdoms`
 - minden játékmódnak külön lobby világ: `lobby_kitpvp`, `lobby_skypvp`, `lobby_combofly`,
   `lobby_gens`, `lobby_kingdoms`, `lobby_duels` (beállítás: `plugins/IceMine/modelobbies.yml`)
+- minden mód lobbyjának saját témája van: KitPvP gladiátor aréna, SkyPvP felhők fölött, ComboFly ametiszt kristályok,
+  Gens farm és bánya, Kingdoms vár udvar, Duels párbaj csarnok (`theme:` a `modelobbies.yml`-ben)
 
 ## Duels
 

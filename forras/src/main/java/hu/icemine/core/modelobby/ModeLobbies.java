@@ -274,7 +274,8 @@ public final class ModeLobbies implements Listener {
         Placer placer = new Placer(world, core.getLogger());
         placer.clear(x - ModeLobbyBuild.CLEAR, y - 30, z - ModeLobbyBuild.CLEAR, x + ModeLobbyBuild.CLEAR, y + 30, z + ModeLobbyBuild.CLEAR);
         ModeLobbyBuild build = new ModeLobbyBuild(placer, x, y, z, entry.getString("color", "light_blue"),
-                entry.getString("title", entry.getName().toUpperCase(Locale.ROOT)), entry.getInt("title-split", 0));
+                entry.getString("title", entry.getName().toUpperCase(Locale.ROOT)), entry.getInt("title-split", 0),
+                entry.getString("theme", entry.getName()));
         build.build();
         Layout layout = build.layout();
         Layout.Point spawnPoint = layout.points.get("spawn");

@@ -5,6 +5,8 @@
 #
 # world: a lobby világ neve | color: a téma színe (red, light_blue, purple, lime, yellow, orange...)
 # title: a lebegő felirat (A-Z betűk) | title-split: ennyi betű lesz színes, a többi fehér (0 = mind)
+# theme: a lobby témája: kitpvp (gladiátor aréna), skypvp (felhők fölött), combofly (ametiszt kristályok),
+#        gens (farm és bánya), kingdoms (vár udvar), duels (párbaj csarnok), snow (havas sziget)
 # play-command: ha meg van adva, a portál ezt a parancsot futtatja a játékos nevében (pl. Bedwars)
 # holograms: a "Játék" (play), az "Infó" és a toplisták (toplist: a config.yml toplista neve)
 #   action: mit csináljon kattintásra (play | info:<szöveg> | menu:<menü> | command:<parancs> | mode:<mód>)
@@ -15,6 +17,7 @@ enabled: true
 lobbies:
   kitpvp:
     world: lobby_kitpvp
+    theme: kitpvp
     built: false
     color: red
     title: "KITPVP"
@@ -35,6 +38,7 @@ lobbies:
         lines: []
   skypvp:
     world: lobby_skypvp
+    theme: skypvp
     built: false
     color: light_blue
     title: "SKYPVP"
@@ -55,6 +59,7 @@ lobbies:
         lines: []
   combofly:
     world: lobby_combofly
+    theme: combofly
     built: false
     color: purple
     title: "COMBOFLY"
@@ -75,6 +80,7 @@ lobbies:
         lines: []
   gens:
     world: lobby_gens
+    theme: gens
     built: false
     color: lime
     title: "GENS"
@@ -92,6 +98,7 @@ lobbies:
         lines: []
   kingdoms:
     world: lobby_kingdoms
+    theme: kingdoms
     built: false
     color: yellow
     title: "KINGDOMS"
@@ -106,6 +113,7 @@ lobbies:
         action: "info:mode_kingdoms"
   duels:
     world: lobby_duels
+    theme: duels
     built: false
     color: yellow
     title: "DUELS"
