@@ -394,6 +394,9 @@ public final class KingdomManager {
         store.save(kingdom);
         store.save(data);
         plugin.send(player, "created", "%kingdom%", kingdom.display());
+        if (cfg().giveNexusOnCreate) {
+            plugin.structures().giveNexus(player);
+        }
         plugin.broadcast("created-broadcast", "%player%", player.getName(), "%kingdom%", kingdom.display());
         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.8f, 1.1f);
         return kingdom;
@@ -842,6 +845,11 @@ public final class KingdomManager {
 
     public boolean claim(Player player, boolean quiet) {
         Location at = player.getLocation();
+        return claim(player, at, quiet);
+    }
+
+    /** A megadott hely chunkjának foglalása (a Nexus lerakásakor is ezt használjuk). */
+    public boolean claim(Player player, Location at, boolean quiet) {
         if (at.getWorld() != plugin.world()) {
             plugin.send(player, "only-in-kingdoms");
             return false;

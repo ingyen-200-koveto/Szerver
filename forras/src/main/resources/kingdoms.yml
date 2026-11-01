@@ -556,6 +556,13 @@ champion-upgrades:
 # values: a fajta számai; "<kulcs>-per-level" szintenként ennyivel nő (vagy csökken, ha negatív)
 # ---------------------------------------------------------------------------------------------------------------
 
+# Lerakott építmények és tornyok fölötti felirat (név, szint, lőszer).
+structure-labels: true
+
+structures-settings:
+  # Királyság alapításakor a király megkapja a Nexus tárgyat.
+  give-nexus-on-create: true
+
 structures:
   nexus:
     name: "&b&lNexus"
@@ -896,7 +903,7 @@ messages:
   already-in-kingdom: "&cMár tagja vagy egy királyságnak."
   bad-name: "&cA név %min%-%max% karakter lehet, csak betű, szám és alsóvonal (ékezet nélkül)."
   name-taken: "&cIlyen nevű már van."
-  created: "Kész, megvan a királyságod: %kingdom%&7! Most foglalj földet (&f/k claim&7), aztán rakd le a Nexust (&f/k nexus&7)."
+  created: "Kész, megvan a királyságod: %kingdom%&7! Rakd le a Nexust ott, ahol a királyságod kezdődjön (&f/k nexus&7), azt a földet is elfoglalja."
   created-broadcast: "&f%player% &7új királyságot alapított: %kingdom%"
   not-king: "&cEzt csak a király teheti meg."
   player-has-kingdom: "&c%player% már egy másik királyság tagja."
@@ -1021,11 +1028,13 @@ messages:
   nation-donated: "%kingdom% &7beadott &e%points% RP&7-t a nemzet kasszájába."
   nation-shield: "&bNemzeti pajzs: &f%hours% &bóráig senkit nem támadhatnak meg a nemzetből."
   item-structure-hint: "&b▶ Rakd le a saját földeteken"
+  item-nexus-hint: "&b▶ Rakd le, ahol a királyságod legyen (a szabad földet el is foglalja)"
   item-turret-hint: "&b▶ Rakd le a saját földeteken"
   need-nexus: "&cElőbb rakjátok le a Nexust (&f/k nexus&c)."
   nexus-exists: "&cMár van Nexusotok."
   nexus-in-inventory: "&cMár nálad van a Nexus, rakd le a saját földeteken."
-  nexus-given: "Megkaptad a Nexust! Rakd le a saját földeteken, ez lesz a királyság szíve."
+  nexus-given: "Megkaptad a Nexust! Rakd le, ahol a királyságod legyen: ha az a föld még szabad, egyben el is foglalod."
+  nexus-no-spot: "&cElőtted nincs hely a Nexusnak, ezért odaadtam a kezedbe. Rakd le oda, ahova szeretnéd."
   nexus-placed: "&b&lNEXUS! &f%player% &7lerakta a királyság Nexusát. Jobb klikkre ott minden menü elérhető."
   nexus-break-own: "&cA Nexust a menüjéből lehet áthelyezni (jobb klikk rá)."
   nexus-fallen: "&4&lELESETT EGY NEXUS! %attacker% &7elfoglalta %kingdom% &7Nexusát!"

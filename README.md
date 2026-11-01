@@ -227,7 +227,9 @@ Minden menüből elérhető, a `/k` megnyitja a főmenüt.
 - Földek: chunk foglalás (az első néhány ingyen, utána pénzbe kerül), térkép (`/k map`, auto map, auto foglalás),
   a határ részecskékkel látszik, a földet a hatalom és a szint korlátozza.
 - Bank és erőforrás pont (RP): pénz be és ki, tárgyak leadása RP-ért (`/k rp`), banki napló.
-- Nexus: a királyság szíve (`/k nexus`), innen lehet fejleszteni, építményeket és tornyokat venni.
+- Nexus: a királyság szíve (jeladó blokk, fölötte "Nexus" felirattal). Alapításkor megkapod, bárhova lerakhatod, és ha
+  az a föld még szabad, egyben el is foglalja. A `/k nexus` egyből lerakja eléd. Jobb klikkre innen lehet fejleszteni,
+  építményeket és tornyokat venni.
 - Fejlesztések: 8 általános, 4 erősítés és 10 bajnok fejlesztés, mind szintekkel.
 - Építmények: erőmű cella, kitermelő, regeneráló, bástya, előőrs, warp pad. Tornyok: íjász, láng, ágyú, mágia,
   katona, gyógyító és akna. Lerakás után rájuk kattintva fejleszthetők, tölthetők, ki-be kapcsolhatók.

@@ -157,6 +157,7 @@ public final class IceMineKingdoms extends Module {
         }
         if (structures != null) {
             structures.removeSoldiers();
+            structures.removeLabels();
         }
         if (world != null && inventories != null) {
             for (Player player : world.getPlayers()) {

@@ -121,6 +121,7 @@ public final class KConfig {
     public long claimCostRp = 25;
     public long claimCostMoney = 0;
     public boolean claimAdjacent = true;
+    public boolean giveNexusOnCreate = true;
     public int claimBuffer = 1;
     public long unclaimRefundPercent = 50;
     public boolean protectExplosions = true;
@@ -221,6 +222,7 @@ public final class KConfig {
         claimCostRp = Math.max(0, root.getLong("claims.cost.resource-points", 25));
         claimCostMoney = Math.max(0, root.getLong("claims.cost.bank", 0));
         claimAdjacent = root.getBoolean("claims.adjacent", true);
+        giveNexusOnCreate = root.getBoolean("structures-settings.give-nexus-on-create", true);
         claimBuffer = clamp(root.getInt("claims.buffer", 1), 0, 10);
         unclaimRefundPercent = Math.max(0, Math.min(100, root.getLong("claims.unclaim-refund-percent", 50)));
         protectExplosions = root.getBoolean("claims.protect-explosions", true);

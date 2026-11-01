@@ -1,6 +1,7 @@
 package hu.icemine.kingdoms;
 
 import hu.icemine.core.util.Items;
+import hu.icemine.core.util.Text;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +23,8 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -60,6 +63,7 @@ public final class Structures implements Listener {
     private final Map<Long, Placed> index = new HashMap<>();
     private final Map<UUID, UUID> owners = new HashMap<>();
     private final Map<UUID, Long> soldierUntil = new HashMap<>();
+    private final Map<UUID, Label> labels = new HashMap<>();
     private final NamespacedKey soldierKey;
     private int ticks;
 
@@ -74,6 +78,12 @@ public final class Structures implements Listener {
 
     private KConfig cfg() {
         return plugin.settings();
+    }
+
+    /** A lerakott dolog fölötti felirat (nem mentődik, induláskor és chunk betöltéskor újra megjelenik). */
+    private static final class Label {
+        TextDisplay entity;
+        String text = "";
     }
 
     static long blockKey(int x, int y, int z) {
@@ -124,7 +134,7 @@ public final class Structures implements Listener {
         List<String> lore = new ArrayList<>(def.description);
         lore.add("");
         lore.add("&7Szint: &f" + level + "&7/&f" + def.max);
-        lore.add(plugin.text(kind.equals("turret") ? "item-turret-hint" : "item-structure-hint"));
+        lore.add(plugin.text(kind.equals("turret") ? "item-turret-hint" : type.equals("nexus") ? "item-nexus-hint" : "item-structure-hint"));
         return Items.of(Items.material(def.block, Material.STONE)).name(def.name).lore(lore).glow().tag(TAG + kind + ":" + type).value(level).build();
     }
 
@@ -227,6 +237,11 @@ public final class Structures implements Listener {
             return;
         }
         int level = Math.max(1, Math.min(def.max, Items.valueOf(event.getItemInHand())));
+        register(player, kingdom, kind, type, block, level);
+    }
+
+    private void register(Player player, Kingdom kingdom, String kind, String type, Block block, int level) {
+        KConfig.Placeable def = def(kind, type);
         Placed placed = new Placed(UUID.randomUUID(), kind, type, block.getX(), block.getY(), block.getZ(), level);
         placed.last = System.currentTimeMillis();
         if (kind.equals("turret")) {
@@ -246,6 +261,168 @@ public final class Structures implements Listener {
         kingdom.dirty = true;
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 0.8f, 1.4f);
         block.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, block.getLocation().add(0.5, 1, 0.5), 20, 0.4, 0.4, 0.4, 0);
+        label(block.getWorld(), kingdom, placed, def);
+    }
+
+    /**
+     * /k nexus, ha még nincs Nexus: lerakja a játékos elé (2 blokkra, a talajra), és ha kell, el is foglalja azt a földet.
+     * Ha ott nincs hely, a Nexus tárgyat adja oda, hogy a játékos maga rakja le.
+     */
+    public void placeNexus(Player player) {
+        Kingdom kingdom = km().allowed(player, KPerm.STRUCTURES);
+        if (kingdom == null) {
+            return;
+        }
+        if (kingdom.hasNexus()) {
+            plugin.send(player, "nexus-exists");
+            return;
+        }
+        if (player.getWorld() != plugin.world()) {
+            plugin.send(player, "only-in-kingdoms");
+            return;
+        }
+        Block spot = nexusSpot(player);
+        if (spot == null) {
+            plugin.send(player, "nexus-no-spot");
+            giveNexus(player);
+            return;
+        }
+        String problem = placeProblem(player, spot, "structure", "nexus");
+        if (problem != null) {
+            if (!problem.isEmpty()) {
+                plugin.send(player, problem);
+            }
+            return;
+        }
+        int level = Math.max(1, kingdom.misc.getOrDefault("nexus-level", 1));
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length; i++) {
+            String[] parsed = parse(contents[i]);
+            if (parsed != null && parsed[1].equals("nexus")) {
+                level = Math.max(level, Items.valueOf(contents[i]));
+                player.getInventory().setItem(i, null);
+            }
+        }
+        KConfig.Placeable def = def("structure", "nexus");
+        spot.setType(Items.material(def == null ? "BEACON" : def.block, Material.BEACON), false);
+        register(player, kingdom, "structure", "nexus", spot, level);
+    }
+
+    private Block nexusSpot(Player player) {
+        BlockFace facing = player.getFacing();
+        if (facing != BlockFace.NORTH && facing != BlockFace.SOUTH && facing != BlockFace.EAST && facing != BlockFace.WEST) {
+            facing = BlockFace.SOUTH;
+        }
+        Block front = player.getLocation().getBlock().getRelative(facing, 2);
+        for (int dy : new int[]{0, 1, -1, 2, -2, -3}) {
+            Block candidate = front.getRelative(0, dy, 0);
+            Block below = candidate.getRelative(BlockFace.DOWN);
+            if ((candidate.getType().isAir() || candidate.isReplaceable()) && !candidate.isLiquid() && below.getType().isSolid() && at(below) == null) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    // ---- feliratok ----
+
+    private boolean labelsEnabled() {
+        return plugin.getConfig().getBoolean("structure-labels", true);
+    }
+
+    private String labelText(Kingdom kingdom, Placed placed, KConfig.Placeable def) {
+        StringBuilder text = new StringBuilder(def.name);
+        if (placed.type.equals("nexus") && !placed.turret()) {
+            text.append("\n").append(kingdom.display());
+        }
+        text.append("\n&7Szint &f").append(placed.level).append("&7/&f").append(def.max);
+        if (placed.turret()) {
+            text.append(placed.enabled ? "  &7Lőszer &f" + placed.ammo : "  &cKikapcsolva");
+        } else if (!placed.enabled) {
+            text.append("  &cKikapcsolva");
+        }
+        return Text.color(text.toString());
+    }
+
+    private void label(World world, Kingdom kingdom, Placed placed, KConfig.Placeable def) {
+        if (!labelsEnabled() || def == null) {
+            return;
+        }
+        Label label = labels.computeIfAbsent(placed.id, id -> new Label());
+        if (label.entity == null || !label.entity.isValid()) {
+            boolean nexus = placed.type.equals("nexus") && !placed.turret();
+            Location at = new Location(world, placed.x + 0.5, placed.y + (nexus ? 1.45 : 1.15), placed.z + 0.5);
+            TextDisplay display = world.spawn(at, TextDisplay.class);
+            display.setPersistent(false);
+            display.addScoreboardTag("icemine_kingdoms_label");
+            display.setBillboard(Display.Billboard.CENTER);
+            display.setDefaultBackground(false);
+            display.setBackgroundColor(org.bukkit.Color.fromARGB(0, 0, 0, 0));
+            display.setShadowed(true);
+            display.setAlignment(TextDisplay.TextAlignment.CENTER);
+            display.setViewRange(0.5f);
+            if (nexus) {
+                scale(display, 1.4f);
+            }
+            label.entity = display;
+            label.text = "";
+        }
+        String text = labelText(kingdom, placed, def);
+        if (!text.equals(label.text)) {
+            label.entity.setText(text);
+            label.text = text;
+        }
+    }
+
+    /** A felirat nagyítása (a JOML vektort reflexióval állítjuk, hogy ne kelljen külön függőség). */
+    private static void scale(TextDisplay display, float size) {
+        try {
+            org.bukkit.util.Transformation transformation = display.getTransformation();
+            Object vector = org.bukkit.util.Transformation.class.getMethod("getScale").invoke(transformation);
+            vector.getClass().getMethod("set", float.class).invoke(vector, size);
+            display.setTransformation(transformation);
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            // ha nem sikerül, marad az alap méret
+        }
+    }
+
+    private void unlabel(UUID id) {
+        Label label = labels.remove(id);
+        if (label != null && label.entity != null) {
+            label.entity.remove();
+        }
+    }
+
+    private void updateLabels(World world) {
+        java.util.Set<UUID> alive = new java.util.HashSet<>();
+        for (Kingdom kingdom : km().all()) {
+            for (Placed placed : kingdom.placed) {
+                if (!world.isChunkLoaded(placed.x >> 4, placed.z >> 4)) {
+                    continue;
+                }
+                alive.add(placed.id);
+                label(world, kingdom, placed, def(placed));
+            }
+        }
+        for (UUID id : new ArrayList<>(labels.keySet())) {
+            if (!alive.contains(id)) {
+                unlabel(id);
+            }
+        }
+    }
+
+    void removeLabels() {
+        for (UUID id : new ArrayList<>(labels.keySet())) {
+            unlabel(id);
+        }
+        World world = plugin.world();
+        if (world != null) {
+            for (TextDisplay display : world.getEntitiesByClass(TextDisplay.class)) {
+                if (display.getScoreboardTags().contains("icemine_kingdoms_label")) {
+                    display.remove();
+                }
+            }
+        }
     }
 
     private int limitFor(Player player, String kind, String type) {
@@ -274,11 +451,19 @@ public final class Structures implements Listener {
             return "";
         }
         long chunk = Lands.key(block.getX() >> 4, block.getZ() >> 4);
+        if (type.equals("nexus")) {
+            if (kingdom.hasNexus()) {
+                return "nexus-exists";
+            }
+            Kingdom owner = km().owner(chunk);
+            if (owner == null) {
+                // A Nexus lerakása egyben foglalás is: ha még szabad a föld, megpróbáljuk elfoglalni.
+                return km().claim(player, block.getLocation(), false) ? null : "";
+            }
+            return owner == kingdom ? null : "place-own-land";
+        }
         if (km().owner(chunk) != kingdom) {
             return "place-own-land";
-        }
-        if (type.equals("nexus")) {
-            return kingdom.hasNexus() ? "nexus-exists" : null;
         }
         if (!kingdom.hasNexus()) {
             return "need-nexus";
@@ -359,6 +544,7 @@ public final class Structures implements Listener {
 
     /** Eltávolítás a világból és a királyságból (a Nexusnál a királyság Nexusa is törlődik). */
     public void remove(Kingdom kingdom, Placed placed, boolean effect) {
+        unlabel(placed.id);
         index.remove(blockKey(placed.x, placed.y, placed.z));
         owners.remove(placed.id);
         if (kingdom != null) {
@@ -628,6 +814,13 @@ public final class Structures implements Listener {
         if (ticks % 20 == 0) {
             checkBlocks(world);
         }
+        if (ticks % 2 == 0) {
+            if (labelsEnabled()) {
+                updateLabels(world);
+            } else if (!labels.isEmpty()) {
+                removeLabels();
+            }
+        }
     }
 
     /**
@@ -647,6 +840,7 @@ public final class Structures implements Listener {
                 String expected = def.block.toUpperCase(java.util.Locale.ROOT).replace("_WALL_", "_");
                 String actual = world.getBlockAt(placed.x, placed.y, placed.z).getType().name().replace("_WALL_", "_");
                 if (!actual.equals(expected)) {
+                    unlabel(placed.id);
                     index.remove(blockKey(placed.x, placed.y, placed.z));
                     owners.remove(placed.id);
                     kingdom.placed.remove(placed);

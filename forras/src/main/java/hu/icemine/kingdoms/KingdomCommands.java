@@ -103,7 +103,7 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
             case "nexus" -> {
                 Kingdom kingdom = km().mine(player);
                 if (kingdom != null && !kingdom.hasNexus()) {
-                    plugin.structures().giveNexus(player);
+                    plugin.structures().placeNexus(player);
                 } else if (kingdom != null) {
                     plugin.menus().main(player);
                 }

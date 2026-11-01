@@ -1,0 +1,10 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.10.1 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.10.1
+changes:
+- file: kingdoms
+  path: messages.created
+  old: 'Kész, megvan a királyságod: %kingdom%&7! Most foglalj földet (&f/k claim&7), aztán rakd le a Nexust (&f/k nexus&7).'
+- file: kingdoms
+  path: messages.nexus-given
+  old: Megkaptad a Nexust! Rakd le a saját földeteken, ez lesz a királyság szíve.
