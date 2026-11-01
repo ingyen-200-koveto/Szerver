@@ -97,16 +97,16 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
                 kit(player);
                 break;
             case "arena":
-                if (core.kitpvp().inWorld(player)) {
-                    core.kitpvp().openArenas(player);
-                } else {
-                    core.messages().send(player, "arena.only-kitpvp");
-                }
+                core.messages().send(player, "arena.none");
                 break;
             case "gens":
                 gens(player, args);
                 break;
             case "elad":
+                if (core.fyland().inWorld(player)) {
+                    core.fyland().sell(player, null);
+                    break;
+                }
                 core.gens().sellAll(player);
                 break;
             default:
@@ -359,8 +359,7 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
     }
 
     private void kit(Player player) {
-        PvpMode mode = core.kitpvp().inWorld(player) ? core.kitpvp() : (core.skypvp().inWorld(player) ? core.skypvp()
-                : (core.comboArena().inWorld(player) ? core.comboArena() : null));
+        PvpMode mode = core.pvpModeOf(player);
         if (mode == null) {
             core.messages().send(player, "kit.only-pvp");
             return;

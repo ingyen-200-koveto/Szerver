@@ -236,10 +236,10 @@ kit:
   bad-id: "A kit neve 2-20 karakter lehet: kisbetű, szám és alsóvonal (ékezet nélkül)."
   bad-rank: "Ilyen rang nincs. Lehet: &f%ranks%"
   create-empty: "Nincs nálad semmi. Vedd fel a kit tárgyait és a páncélt, aztán írd be újra."
-  created: "Elmentve az új kit: &f%kit% &8(rang: %rank%&8)&7. A kitpvp.yml-ben tudod finomítani (név, leírás, képesség)."
+  created: "Elmentve az új FullPvP kit: &f%kit% &8(rang: %rank%&8)&7. A fullpvp.yml-ben tudod finomítani (név, leírás, várakozás)."
   deleted: "Törölve: &f%kit%"
   only-safe: "Kitet csak a biztonságos zónában választhatsz."
-  only-pvp: "Kitet csak a PvP módokban választhatsz (KitPvP, SkyPvP, ComboFly)."
+  only-pvp: "Kitet csak a PvP módokban választhatsz (FullPvP, ComboFly)."
   selected: "Kiválasztva: %kit%&7. Sok sikert!"
   auto: "Nem választottál kitet, ezt kaptad: %kit%"
   menu-title: "&3[IceMine] &8Kitek"
@@ -267,22 +267,14 @@ arena:
   current: "&a✔ Itt vagy most"
   click: "&b▶ Kattints az átlépéshez"
   only-safe: "Arénát csak a biztonságos zónából válthatsz."
-  only-kitpvp: "Arénát csak KitPvP-ben választhatsz."
+  none: "Most egyik játékmódban sincs arénaválasztó."
   switched: "Átléptél ide: %arena%"
-
-kitpvp:
-  welcome: "Üdv a KitPvP-ben! Aréna: %arena%&7. Válassz kitet, és ugrás a harcba!"
 
 comboarena:
   welcome: "Üdv a ComboFly arénában! Válassz kitet, irány a pálya, és tartsd a levegőben a többieket!"
   no-pearl-spawn: "A spawn platformra nem lehet felpearlözni."
   streak-title: "&b&l⚔ Legtöbb ölés most"
   streak-empty: "&7Még senki nem ölt."
-
-skypvp:
-  welcome: "Üdv a SkyPvP-ben! Válassz kitet, aztán le a lépcsőn, a szigetekre!"
-  refilled: "&bA ládák újratöltődtek a szigeteken!"
-  chest-locked: "A ládákat csak kittel, a biztonságos zónán kívül nyithatod ki."
 
 gens:
   welcome: "Üdv a Gensben! Arass a kapáddal, a menüt a &f/gens &7paranccsal nyitod meg."
@@ -570,7 +562,7 @@ admin:
     - " &b/icem admin mode <játékos> <mód|lobby> [-f] &8- &7játékos átküldése"
     - " &b/icem admin maintenance <mód> <on|off|closed>"
     - " &b/icem admin hologram <list|move <id>> &8| &b/icem admin npc <list|move <id>>"
-    - " &b/icem admin rebuild <lobby|skypvp|kitpvp|combofly|gens> confirm"
+    - " &b/icem admin rebuild <lobby|fullpvp|combofly|gens> confirm"
     - " &b/icem admin combattag clear <játékos> &8| &b/icem admin info"
   info:
     - "&b[IceMine] &fÁllapot"
@@ -599,7 +591,6 @@ admin:
   rebuild-confirm: "&eBiztos? Ez újraépíti ezt: &f%target%&e. Írd mögé: &fconfirm"
   rebuilding: "Építem: &f%target%&7, ez eltarthat pár másodpercig..."
   rebuilt: "Kész: &f%target%"
-  arena-reset: "A SkyPvP aréna visszaállítva, a ládák újratöltve."
   combat-cleared: "&f%player% &7kikerült a harcból."
   stats-header: "&b[IceMine] &f&l%player% &8(%rank%&8)"
 
@@ -708,8 +699,8 @@ icem:
   help:
     help: ["/icem help", "ez a lista"]
     stats: ["/icem stats [játékos]", "profil és statisztikák"]
-    kit: ["/icem kit [kit]", "kit választó (KitPvP, SkyPvP, ComboFly)"]
-    arena: ["/icem arena", "KitPvP aréna választó"]
+    kit: ["/icem kit [kit]", "kitek (FullPvP, ComboFly)"]
+    arena: ["/icem arena", "aréna választó"]
     rank: ["/icem rank [játékos]", "rangok és amit adnak"]
     setspawn: ["/icem setspawn <mód> [aréna]", "játékmód spawn ide"]
     reload: ["/icem reload [fájl]", "configok újratöltése"]
@@ -773,12 +764,12 @@ mainmenu:
   selector:
     name: "&b&lJátékmódok"
     lore:
-      - "&7KitPvP, SkyPvP, ComboFly, Gens,"
-      - "&7Kingdoms és Duels."
+      - "&7FullPvP, Fyland, ComboFly, Gens,"
+      - "&7Kingdoms, Duels és BedWars."
   kits:
     name: "&6&lKitek"
     lore:
-      - "&7Kit választó (KitPvP, SkyPvP, ComboFly)."
+      - "&7Kitek (FullPvP, ComboFly)."
   duels:
     name: "&e&lDuels"
     lore:

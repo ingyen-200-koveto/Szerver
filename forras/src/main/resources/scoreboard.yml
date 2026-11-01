@@ -1,6 +1,7 @@
 # Scoreboard, tablista és chat
 # Placeholderek: %player% %rank% (LuckPerms előtag) %rank_name% (LuckPerms csoport) %icecoin% (a weboldalas egyenleg) %money% %gens_money% %online% %max% %mode% %discord% %combat%
-#   PvP módokban: %kills% %deaths% %kd% %streak% %best_streak% %kit% (KitPvP: %arena%, SkyPvP: %refill%)
+#   PvP módokban: %kills% %deaths% %kd% %streak% %best_streak% (FullPvP: %bounty% %fp_money%)
+#   Fyland: %fy_phase% %fy_progress% %fy_blocks% %fy_level% %fy_members% %fy_cycle% %fy_money% %fy_island%
 #   ComboFly arénában még: %combo% (a mostani kombó), %combo_best% (rekord)
 #   Bárhol: %combat_time% (combat hátralévő ideje, pl. 29.4s), %pearl% (enderpearl várakozás, pl. 4.4s)
 #   Ha egy táblán ezek közül valamelyik szerepel, az a tábla másodpercenként 10-szer frissül.
@@ -29,7 +30,7 @@ boards:
     - "&7Idő: &f%duel_time%"
     - ""
     - "&bplay.icemine.hu"
-  # A játékmódok saját lobbyjában (lobby_kitpvp, lobby_skypvp...). Külön is megadhatod, pl. lobby_kitpvp:
+  # A játékmódok saját lobbyjában (lobby_fullpvp, lobby_fyland...). Külön is megadhatod, pl. lobby_fullpvp:
   modelobby:
     - "&8&m                    "
     - "&7Játékos: &f%player%"
@@ -52,30 +53,29 @@ boards:
     - ""
     - "&9%discord%"
     - "&bplay.icemine.hu"
-  kitpvp:
+  fullpvp:
     - "&8&m                    "
-    - "&7Mód: &c&lKitPvP &8(%arena%&8)"
-    - "&7Kit: %kit%"
-    - "&7Képesség: &f%ability%"
+    - "&7Mód: &c&lFullPvP"
     - ""
     - "&7Ölés: &a%kills% &8| &7Halál: &c%deaths%"
     - "&7K/D: &f%kd%"
     - "&7Sorozat: &e%streak% &8(legjobb: %best_streak%)"
+    - "&7Fejpénz rajtad: &e%bounty%"
     - "&7Harc: %combat%"
     - ""
-    - "&7IceCoin: &b%icecoin%"
+    - "&7Kristály: %fp_money%"
     - "&bplay.icemine.hu"
-  skypvp:
+  fyland:
     - "&8&m                    "
-    - "&7Mód: &b&lSkyPvP"
-    - "&7Kit: %kit%"
+    - "&7Mód: &a&lFyland"
     - ""
-    - "&7Ölés: &a%kills% &8| &7Halál: &c%deaths%"
-    - "&7K/D: &f%kd%"
-    - "&7Sorozat: &e%streak% &8(legjobb: %best_streak%)"
-    - "&7Ládák: &f%refill%"
+    - "&7Fázis: %fy_phase%"
+    - "&7Haladás: &f%fy_progress%"
+    - "&7Kibányászva: &f%fy_blocks%"
+    - "&7Szint: &f%fy_level% &8| &7Kör: &f%fy_cycle%"
+    - "&7Csapat: &f%fy_members%"
     - ""
-    - "&7IceCoin: &b%icecoin%"
+    - "&7Pénz: %fy_money%"
     - "&bplay.icemine.hu"
   combofly:
     - "&7&m                         "

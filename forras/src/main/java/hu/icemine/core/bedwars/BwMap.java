@@ -100,10 +100,11 @@ public final class BwMap extends Build {
     }
 
     /**
-     * A pálya elrendezésének verziója. 1: az első (közelebbi szigetek), 2: nagyobb távolság a szigetek között.
+     * A pálya elrendezésének verziója. 1: az első (közelebbi szigetek), 2: nagyobb távolság a szigetek között,
+     * 3: még messzebb egymástól a csapat szigetek és a gyémánt szigetek.
      * Ha változik, a már felépített arénák egyszer újraépülnek (a régi elrendezést blokkra pontosan eltakarítjuk).
      */
-    public static final int LAYOUT = 2;
+    public static final int LAYOUT = 3;
 
     private final Theme theme;
     private final int layout;
@@ -136,7 +137,10 @@ public final class BwMap extends Build {
         if (layout <= 1) {
             return teams > 4 ? 80 : 64;
         }
-        return teams > 4 ? 92 : 76;
+        if (layout == 2) {
+            return teams > 4 ? 92 : 76;
+        }
+        return teams > 4 ? 114 : 96;
     }
 
     public static List<Slot> slots(int teams) {
@@ -146,10 +150,9 @@ public final class BwMap extends Build {
     public static List<Slot> slots(int teams, int layout) {
         List<Slot> result = new ArrayList<>();
         int[][] sides = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
-        boolean old = layout <= 1;
         if (teams > 4) {
-            int distance = old ? 60 : 74;
-            int offset = old ? 20 : 24;
+            int distance = layout <= 1 ? 60 : (layout == 2 ? 74 : 94);
+            int offset = layout <= 1 ? 20 : (layout == 2 ? 24 : 36);
             for (int[] side : sides) {
                 int rx = -side[1];
                 int rz = side[0];
@@ -157,7 +160,7 @@ public final class BwMap extends Build {
                 result.add(new Slot(side[0] * distance + rx * offset, side[1] * distance + rz * offset, side[0], side[1]));
             }
         } else {
-            int distance = old ? 46 : 60;
+            int distance = layout <= 1 ? 46 : (layout == 2 ? 60 : 80);
             for (int[] side : sides) {
                 result.add(new Slot(side[0] * distance, side[1] * distance, side[0], side[1]));
             }
@@ -170,7 +173,7 @@ public final class BwMap extends Build {
     }
 
     public static int[][] diamonds(int teams, int layout) {
-        int d = layout <= 1 ? (teams > 4 ? 40 : 26) : (teams > 4 ? 50 : 34);
+        int d = layout <= 1 ? (teams > 4 ? 40 : 26) : (layout == 2 ? (teams > 4 ? 50 : 34) : (teams > 4 ? 64 : 46));
         return new int[][]{{-d, -d}, {d, -d}, {d, d}, {-d, d}};
     }
 

@@ -5,7 +5,7 @@ import hu.icemine.core.build.Title;
 import java.util.Locale;
 
 /**
- * Egy játékmód saját lobbyja. Minden módnak saját témája van (KitPvP: gladiátor aréna, SkyPvP: felhők fölötti sziget,
+ * Egy játékmód saját lobbyja. Minden módnak saját témája van (FullPvP: gladiátor aréna, Fyland: felhők fölötti szigetek,
  * ComboFly: ametiszt kristályok, Gens: farm és bánya, Kingdoms: vár udvar, Duels: párbaj csarnok), de a fontos pontok
  * (spawn, portál, hologramok, toplisták) mindenhol ugyanott vannak, így a config és a hologramok témától függetlenek.
  */
@@ -23,8 +23,16 @@ public final class ModeLobbyBuild extends Build {
             if (text == null) {
                 return SNOW;
             }
+            String key = text.trim().toLowerCase(Locale.ROOT);
+            // a FullPvP a gladiátor arénát, a Fyland a felhők fölötti szigeteket kapja
+            if (key.equals("fullpvp") || key.equals("arena")) {
+                return KITPVP;
+            }
+            if (key.equals("fyland") || key.equals("oneblock") || key.equals("sky")) {
+                return SKYPVP;
+            }
             try {
-                return valueOf(text.trim().toUpperCase(Locale.ROOT));
+                return valueOf(key.toUpperCase(Locale.ROOT));
             } catch (IllegalArgumentException exception) {
                 return SNOW;
             }

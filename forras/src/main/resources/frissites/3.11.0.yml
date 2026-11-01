@@ -1,0 +1,398 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.11.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.11.0
+changes:
+- file: config
+  path: leaderboards.boards.kitpvp.title
+  old: '&c&l⚔ KitPvP ölések'
+- file: config
+  path: leaderboards.boards.kitpvp.source
+  old: stat
+- file: config
+  path: leaderboards.boards.kitpvp.key
+  old: kitpvp.kills
+- file: config
+  path: leaderboards.boards.skypvp.title
+  old: '&b&l☁ SkyPvP ölések'
+- file: config
+  path: leaderboards.boards.skypvp.source
+  old: stat
+- file: config
+  path: leaderboards.boards.skypvp.key
+  old: skypvp.kills
+- file: config
+  path: leaderboards.boards.streak.title
+  old: '&e&l⚡ Legjobb sorozat'
+- file: config
+  path: leaderboards.boards.streak.key
+  old: kitpvp.best_streak
+- file: lobby
+  path: menus.stats.icons.kitpvp
+  old: DIAMOND_SWORD
+- file: lobby
+  path: menus.stats.icons.skypvp
+  old: FEATHER
+- file: lobby
+  path: info-texts.mode_kitpvp
+  old:
+  - '&8&m                                             '
+  - ' &c&lKitPvP &8- &7hogyan játszd?'
+  - ' &7Válassz kitet a hotbar ládájával, aztán ugorj le'
+  - ' &7a kiemelt lobbyból a lapos jégmezőre.'
+  - ' &7Minden ölés pénzt ér, a sorozatokért extra jár.'
+  - ' &7Harc közben nem mehetsz vissza a védett részre.'
+  - ' &7Vissza a kezdőpontra: /spawn'
+  - '&8&m                                             '
+- file: lobby
+  path: info-texts.mode_skypvp
+  old:
+  - '&8&m                                             '
+  - ' &b&lSkyPvP &8- &7hogyan játszd?'
+  - ' &7Lebegő jégszigeteken játszol, a ládákban cuccot találsz.'
+  - ' &7A ládák időnként újratöltődnek, a közép a legjobb.'
+  - ' &7Mindenki mindenki ellen, minden ölés pénzt ér.'
+  - ' &7Vissza a kezdőpontra: /spawn'
+  - '&8&m                                             '
+- file: messages_hu
+  path: kit.created
+  old: 'Elmentve az új kit: &f%kit% &8(rang: %rank%&8)&7. A kitpvp.yml-ben tudod finomítani (név, leírás, képesség).'
+- file: messages_hu
+  path: kit.only-pvp
+  old: Kitet csak a PvP módokban választhatsz (KitPvP, SkyPvP, ComboFly).
+- file: messages_hu
+  path: arena.only-kitpvp
+  old: Arénát csak KitPvP-ben választhatsz.
+- file: messages_hu
+  path: kitpvp.welcome
+  old: 'Üdv a KitPvP-ben! Aréna: %arena%&7. Válassz kitet, és ugrás a harcba!'
+- file: messages_hu
+  path: skypvp.welcome
+  old: Üdv a SkyPvP-ben! Válassz kitet, aztán le a lépcsőn, a szigetekre!
+- file: messages_hu
+  path: skypvp.refilled
+  old: '&bA ládák újratöltődtek a szigeteken!'
+- file: messages_hu
+  path: skypvp.chest-locked
+  old: A ládákat csak kittel, a biztonságos zónán kívül nyithatod ki.
+- file: messages_hu
+  path: admin.help
+  old:
+  - '&b[IceMine] &fAdmin parancsok &8(/icem admin ...)'
+  - ' &b/icem admin setlobby &8- &7lobby spawn ide'
+  - ' &b/icem admin setportal <mód> [sugár] [magasság] &8- &7portál ide'
+  - ' &b/icem admin givecurrency|takecurrency|setcurrency <játékos> <összeg> [pénznem]'
+  - ' &b/icem admin parkour <start|checkpoint|finish|clear|fail>'
+  - ' &b/icem admin combofly <reload|on|off>'
+  - ' &b/icem admin mode <játékos> <mód|lobby> [-f] &8- &7játékos átküldése'
+  - ' &b/icem admin maintenance <mód> <on|off|closed>'
+  - ' &b/icem admin hologram <list|move <id>> &8| &b/icem admin npc <list|move <id>>'
+  - ' &b/icem admin rebuild <lobby|skypvp|kitpvp|combofly|gens> confirm'
+  - ' &b/icem admin combattag clear <játékos> &8| &b/icem admin info'
+- file: messages_hu
+  path: admin.arena-reset
+  old: A SkyPvP aréna visszaállítva, a ládák újratöltve.
+- file: messages_hu
+  path: icem.help.kit
+  old:
+  - /icem kit [kit]
+  - kit választó (KitPvP, SkyPvP, ComboFly)
+- file: messages_hu
+  path: icem.help.arena
+  old:
+  - /icem arena
+  - KitPvP aréna választó
+- file: messages_hu
+  path: mainmenu.selector.lore
+  old:
+  - '&7KitPvP, SkyPvP, ComboFly, Gens,'
+  - '&7Kingdoms és Duels.'
+- file: messages_hu
+  path: mainmenu.kits.lore
+  old:
+  - '&7Kit választó (KitPvP, SkyPvP, ComboFly).'
+- file: modelobbies
+  path: lobbies.kitpvp.world
+  old: lobby_kitpvp
+- file: modelobbies
+  path: lobbies.kitpvp.theme
+  old: kitpvp
+- file: modelobbies
+  path: lobbies.kitpvp.built
+  old: false
+- file: modelobbies
+  path: lobbies.kitpvp.color
+  old: red
+- file: modelobbies
+  path: lobbies.kitpvp.title
+  old: KITPVP
+- file: modelobbies
+  path: lobbies.kitpvp.title-split
+  old: 3
+- file: modelobbies
+  path: lobbies.kitpvp.center.x
+  old: 0
+- file: modelobbies
+  path: lobbies.kitpvp.center.y
+  old: 100
+- file: modelobbies
+  path: lobbies.kitpvp.center.z
+  old: 0
+- file: modelobbies
+  path: lobbies.kitpvp.holograms.play.lines
+  old:
+  - '&a&lJÁTÉK'
+  - '&7Kattints rám, vagy lépj'
+  - '&7be a portálba!'
+- file: modelobbies
+  path: lobbies.kitpvp.holograms.play.action
+  old: play
+- file: modelobbies
+  path: lobbies.kitpvp.holograms.info.lines
+  old:
+  - '&e&lHogyan játszd?'
+  - '&7Kattints rám!'
+- file: modelobbies
+  path: lobbies.kitpvp.holograms.info.action
+  old: info:mode_kitpvp
+- file: modelobbies
+  path: lobbies.kitpvp.holograms.top1.toplist
+  old: kitpvp
+- file: modelobbies
+  path: lobbies.kitpvp.holograms.top1.lines
+  old: []
+- file: modelobbies
+  path: lobbies.kitpvp.holograms.top2.toplist
+  old: streak
+- file: modelobbies
+  path: lobbies.kitpvp.holograms.top2.lines
+  old: []
+- file: modelobbies
+  path: lobbies.skypvp.world
+  old: lobby_skypvp
+- file: modelobbies
+  path: lobbies.skypvp.theme
+  old: skypvp
+- file: modelobbies
+  path: lobbies.skypvp.built
+  old: false
+- file: modelobbies
+  path: lobbies.skypvp.color
+  old: light_blue
+- file: modelobbies
+  path: lobbies.skypvp.title
+  old: SKYPVP
+- file: modelobbies
+  path: lobbies.skypvp.title-split
+  old: 3
+- file: modelobbies
+  path: lobbies.skypvp.center.x
+  old: 0
+- file: modelobbies
+  path: lobbies.skypvp.center.y
+  old: 100
+- file: modelobbies
+  path: lobbies.skypvp.center.z
+  old: 0
+- file: modelobbies
+  path: lobbies.skypvp.holograms.play.lines
+  old:
+  - '&a&lJÁTÉK'
+  - '&7Kattints rám, vagy lépj'
+  - '&7be a portálba!'
+- file: modelobbies
+  path: lobbies.skypvp.holograms.play.action
+  old: play
+- file: modelobbies
+  path: lobbies.skypvp.holograms.info.lines
+  old:
+  - '&e&lHogyan játszd?'
+  - '&7Kattints rám!'
+- file: modelobbies
+  path: lobbies.skypvp.holograms.info.action
+  old: info:mode_skypvp
+- file: modelobbies
+  path: lobbies.skypvp.holograms.top1.toplist
+  old: skypvp
+- file: modelobbies
+  path: lobbies.skypvp.holograms.top1.lines
+  old: []
+- file: modelobbies
+  path: lobbies.skypvp.holograms.top2.toplist
+  old: streak
+- file: modelobbies
+  path: lobbies.skypvp.holograms.top2.lines
+  old: []
+- file: modes
+  path: modes.skypvp.name
+  old: '&b&lSkyPvP'
+- file: modes
+  path: modes.skypvp.icon
+  old: HONEY_BOTTLE
+- file: modes
+  path: modes.skypvp.slot
+  old: 10
+- file: modes
+  path: modes.skypvp.color
+  old: '&b'
+- file: modes
+  path: modes.skypvp.status
+  old: open
+- file: modes
+  path: modes.skypvp.combat-tag
+  old: true
+- file: modes
+  path: modes.skypvp.combofly
+  old: false
+- file: modes
+  path: modes.skypvp.description
+  old:
+  - '&7Lebegő jégszigetek, ládák,'
+  - '&7és mindenki mindenki ellen.'
+  - '&7Gyűjts cuccot, és élj túl!'
+- file: modes
+  path: modes.kitpvp.name
+  old: '&c&lKitPvP'
+- file: modes
+  path: modes.kitpvp.icon
+  old: MACE
+- file: modes
+  path: modes.kitpvp.icon-fallback
+  old: IRON_AXE
+- file: modes
+  path: modes.kitpvp.slot
+  old: 12
+- file: modes
+  path: modes.kitpvp.color
+  old: '&c'
+- file: modes
+  path: modes.kitpvp.status
+  old: open
+- file: modes
+  path: modes.kitpvp.combat-tag
+  old: true
+- file: modes
+  path: modes.kitpvp.combofly
+  old: false
+- file: modes
+  path: modes.kitpvp.description
+  old:
+  - '&7Válassz kitet, válassz arénát,'
+  - '&7és mutasd meg, ki a legjobb!'
+  - '&7Lapos jégmező, 11 kit, sorozatjutalmak.'
+- file: ranks
+  path: ranks.default.kits
+  old:
+  - harcos
+  - ijasz
+  - tank
+- file: ranks
+  path: ranks.default.perks
+  old:
+  - '&7Három ingyenes kit'
+  - '&7Hónyom és jégszilánk effekt'
+- file: ranks
+  path: ranks.vip.kits
+  old:
+  - orgyilkos
+- file: ranks
+  path: ranks.vip.perks
+  old:
+  - '&7Orgyilkos kit'
+  - '&7Felhő nyomvonal'
+  - '&710% pénz bónusz'
+- file: ranks
+  path: ranks.vipplus.kits
+  old:
+  - berserker
+  - vadasz
+- file: ranks
+  path: ranks.vipplus.perks
+  old:
+  - '&7Berserker és Vadász kit'
+  - '&7Gens: automatikus eladás'
+  - '&7Szívek ölés effekt'
+  - '&7Színes chat'
+  - '&720% pénz bónusz'
+- file: ranks
+  path: ranks.mvp.kits
+  old:
+  - fagylovag
+  - ugro
+- file: ranks
+  path: ranks.mvp.permissions
+  old:
+  - icemine.cosmetic.fly
+  - icemine.gens.backpack.large
+- file: ranks
+  path: ranks.mvp.perks
+  old:
+  - '&7Fagylovag és Ugró kit'
+  - '&7Gens: nagy hátizsák'
+  - '&7Fagy nyomvonal'
+  - '&7Repülés a lobbyban'
+  - '&730% pénz bónusz'
+- file: ranks
+  path: ranks.mvpplus.kits
+  old:
+  - nindzsa
+- file: ranks
+  path: ranks.mvpplus.perks
+  old:
+  - '&7Nindzsa kit'
+  - '&7Lélek ölés effekt'
+  - '&740% pénz bónusz'
+- file: ranks
+  path: ranks.elite.kits
+  old:
+  - piroman
+  - villammago
+- file: ranks
+  path: ranks.elite.perks
+  old:
+  - '&7Piromán és Villámmágus kit'
+  - '&7Gens: +20% esély extra termésre'
+  - '&7Kristály nyomvonal, tűzijáték effekt'
+  - '&750% pénz bónusz'
+- file: ranks
+  path: ranks.legend.kits
+  old:
+  - halasz
+  - alkimista
+  - poszeidon
+  - jegkiraly
+- file: ranks
+  path: ranks.legend.perks
+  old:
+  - '&7Halász, Alkimista, Poszeidón és Jégkirály kit'
+  - '&7Gens: +40% esély extra termésre'
+  - '&7Minden kozmetika'
+  - '&775% pénz bónusz'
+- file: scoreboard
+  path: boards.kitpvp
+  old:
+  - '&8&m                    '
+  - '&7Mód: &c&lKitPvP &8(%arena%&8)'
+  - '&7Kit: %kit%'
+  - '&7Képesség: &f%ability%'
+  - ''
+  - '&7Ölés: &a%kills% &8| &7Halál: &c%deaths%'
+  - '&7K/D: &f%kd%'
+  - '&7Sorozat: &e%streak% &8(legjobb: %best_streak%)'
+  - '&7Harc: %combat%'
+  - ''
+  - '&7IceCoin: &b%icecoin%'
+  - '&bplay.icemine.hu'
+- file: scoreboard
+  path: boards.skypvp
+  old:
+  - '&8&m                    '
+  - '&7Mód: &b&lSkyPvP'
+  - '&7Kit: %kit%'
+  - ''
+  - '&7Ölés: &a%kills% &8| &7Halál: &c%deaths%'
+  - '&7K/D: &f%kd%'
+  - '&7Sorozat: &e%streak% &8(legjobb: %best_streak%)'
+  - '&7Ládák: &f%refill%'
+  - ''
+  - '&7IceCoin: &b%icecoin%'
+  - '&bplay.icemine.hu'

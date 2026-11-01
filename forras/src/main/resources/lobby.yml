@@ -198,8 +198,8 @@ menus:
   stats:
     title: "&3[IceMine] &8Toplisták"
     icons:
-      kitpvp: DIAMOND_SWORD
-      skypvp: FEATHER
+      fullpvp: DIAMOND_SWORD
+      fyland: GRASS_BLOCK
       streak: BLAZE_POWDER
       gens: EMERALD
       parkour: LEATHER_BOOTS
@@ -284,22 +284,23 @@ info-texts:
     - " &f/kozmetika &8- &7nyomvonalak és ölés effektek"
     - " &f/kapcsolat &8- &7elérhetőségeink"
     - "&8&m                                             "
-  mode_kitpvp:
+  mode_fullpvp:
     - "&8&m                                             "
-    - " &c&lKitPvP &8- &7hogyan játszd?"
-    - " &7Válassz kitet a hotbar ládájával, aztán ugorj le"
-    - " &7a kiemelt lobbyból a lapos jégmezőre."
-    - " &7Minden ölés pénzt ér, a sorozatokért extra jár."
-    - " &7Harc közben nem mehetsz vissza a védett részre."
-    - " &7Vissza a kezdőpontra: /spawn"
+    - " &c&lFullPvP &8- &7hogyan játszd?"
+    - " &7A felszerelésed a tiéd: megmarad, ha kilépsz, de halálkor"
+    - " &7kiesik, és aki megölt, felveheti."
+    - " &7Ölésért kristály jár, abból a vár udvarán lévő boltban veszel."
+    - " &7Kitek várakozással, széf, varázsasztal és fejpénz is van."
+    - " &7Menü: /fullpvp &8| &7Vissza a vár udvarára: /spawn"
     - "&8&m                                             "
-  mode_skypvp:
+  mode_fyland:
     - "&8&m                                             "
-    - " &b&lSkyPvP &8- &7hogyan játszd?"
-    - " &7Lebegő jégszigeteken játszol, a ládákban cuccot találsz."
-    - " &7A ládák időnként újratöltődnek, a közép a legjobb."
-    - " &7Mindenki mindenki ellen, minden ölés pénzt ér."
-    - " &7Vissza a kezdőpontra: /spawn"
+    - " &a&lFyland &8- &7hogyan játszd?"
+    - " &7Egyetlen blokkon kezdesz a semmi közepén. Bányászd ki,"
+    - " &7és a helyén mindig jön egy új: fű és fa, kő, jég, homok,"
+    - " &7egészen a Netherig és az Endig. Néha láda vagy mob is jön."
+    - " &7Add el a piacon, amit bányásztál, és fejleszd a szigeted."
+    - " &7Hívd meg a barátaidat is! Menü: /fy"
     - "&8&m                                             "
   mode_combofly:
     - "&8&m                                             "

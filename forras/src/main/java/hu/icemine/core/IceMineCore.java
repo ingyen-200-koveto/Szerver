@@ -20,7 +20,6 @@ import hu.icemine.core.duels.DuelsCommand;
 import hu.icemine.core.economy.Economy;
 import hu.icemine.core.gens.GensMenu;
 import hu.icemine.core.gens.GensMode;
-import hu.icemine.core.kitpvp.KitPvpMode;
 import hu.icemine.core.lobby.ContactBook;
 import hu.icemine.core.lobby.Cosmetics;
 import hu.icemine.core.lobby.Holograms;
@@ -36,7 +35,6 @@ import hu.icemine.core.mode.ModeService;
 import hu.icemine.core.mode.TeleportGuard;
 import hu.icemine.core.parkour.ParkourService;
 import hu.icemine.core.rank.Prefixes;
-import hu.icemine.core.skypvp.SkyPvpMode;
 import hu.icemine.core.util.Items;
 import hu.icemine.core.util.Locs;
 import hu.icemine.kingdoms.IceMineKingdoms;
@@ -93,8 +91,8 @@ public final class IceMineCore extends JavaPlugin {
     private BoardService boards;
     private Leaderboards leaderboards;
     private InventoryStore inventories;
-    private SkyPvpMode skypvp;
-    private KitPvpMode kitpvp;
+    private hu.icemine.core.fullpvp.FullPvpMode fullpvp;
+    private hu.icemine.core.fyland.FylandMode fyland;
     private ComboArenaMode comboArena;
     private GensMode gens;
     private hu.icemine.core.lobby.LobbyClicks lobbyClicks;
@@ -129,6 +127,7 @@ public final class IceMineCore extends JavaPlugin {
     public void onEnable() {
         instance = this;
         Items.init(this);
+        safely("régi módok takarítása", () -> hu.icemine.core.config.OldModes.run(getDataFolder(), Bukkit.getWorldContainer(), getLogger()));
         configs = new ConfigFiles(this);
         List<String> problems = configs.loadAll();
         safely("config frissítés", () -> {
@@ -187,8 +186,8 @@ public final class IceMineCore extends JavaPlugin {
         boards = new BoardService(this);
         leaderboards = new Leaderboards(this);
         inventories = new InventoryStore(new File(getDataFolder(), "inventories"), getLogger());
-        skypvp = new SkyPvpMode(this);
-        kitpvp = new KitPvpMode(this);
+        fullpvp = new hu.icemine.core.fullpvp.FullPvpMode(this);
+        fyland = new hu.icemine.core.fyland.FylandMode(this);
         comboArena = new ComboArenaMode(this);
         gens = new GensMode(this);
         gensMenu = new GensMenu(this, gens);
@@ -210,13 +209,13 @@ public final class IceMineCore extends JavaPlugin {
         safely("toplisták", () -> leaderboards.load(main, problems));
         safely("IceCoin", () -> iceCoins.load(main, problems));
         safely("névtáblák", () -> nameTags.load(main));
-        safely("SkyPvP", () -> {
-            skypvp.load(configs.get("skypvp"), problems);
-            modes.register(skypvp);
+        safely("FullPvP", () -> {
+            fullpvp.load(configs.get(hu.icemine.core.fullpvp.FullPvpMode.FILE), problems);
+            modes.register(fullpvp);
         });
-        safely("KitPvP", () -> {
-            kitpvp.load(configs.get("kitpvp"), problems);
-            modes.register(kitpvp);
+        safely("Fyland", () -> {
+            fyland.load(configs.get(hu.icemine.core.fyland.FylandMode.FILE), problems);
+            modes.register(fyland);
         });
         safely("ComboFly aréna", () -> {
             comboArena.load(configs.get(ComboArenaMode.FILE), problems);
@@ -250,7 +249,7 @@ public final class IceMineCore extends JavaPlugin {
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
         registerListeners(new CoreListener(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
-                skypvp, kitpvp, comboArena, gens, new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), nameTags);
+                fullpvp, fyland, comboArena, gens, new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
@@ -264,6 +263,10 @@ public final class IceMineCore extends JavaPlugin {
         register("duels", duelsCommand, duelsCommand);
         hu.icemine.core.bedwars.BwCommand bwCommand = new hu.icemine.core.bedwars.BwCommand(bedwars);
         register("bw", bwCommand, bwCommand);
+        hu.icemine.core.fyland.FyCommand fyCommand = new hu.icemine.core.fyland.FyCommand(fyland);
+        register("fyland", fyCommand, fyCommand);
+        hu.icemine.core.fullpvp.FpCommand fpCommand = new hu.icemine.core.fullpvp.FpCommand(fullpvp);
+        register("fullpvp", fpCommand, fpCommand);
         safely("jogosultságok", () -> permissions.load(configs.get("permissions"), problems));
         startTasks();
         kingdoms = new IceMineKingdoms(this);
@@ -350,9 +353,8 @@ public final class IceMineCore extends JavaPlugin {
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, boards::fastTick, 3L, 2L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, () -> {
             gens.tick();
-            skypvp.tick();
-            kitpvp.tickAbilities();
-            skypvp.tickAbilities();
+            fullpvp.tick();
+            fyland.tick();
             comboArena.tickAbilities();
         }, 20L, 20L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, () -> {
@@ -363,6 +365,7 @@ public final class IceMineCore extends JavaPlugin {
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, () -> {
             profiles.saveDirty();
             gens.saveAll();
+            fyland.saveAll();
         }, autosave, autosave));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, leaderboards::refresh, 200L, 1200L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, duels::tick, 20L, 20L));
@@ -459,11 +462,11 @@ public final class IceMineCore extends JavaPlugin {
             safely("IceCoin", () -> iceCoins.load(main, problems));
             safely("névtáblák", () -> nameTags.load(main));
         }
-        if (all || file.equals("skypvp")) {
-            safely("SkyPvP", () -> skypvp.load(configs.get("skypvp"), problems));
+        if (all || file.equals(hu.icemine.core.fullpvp.FullPvpMode.FILE)) {
+            safely("FullPvP", () -> fullpvp.load(configs.get(hu.icemine.core.fullpvp.FullPvpMode.FILE), problems));
         }
-        if (all || file.equals("kitpvp")) {
-            safely("KitPvP", () -> kitpvp.load(configs.get("kitpvp"), problems));
+        if (all || file.equals(hu.icemine.core.fyland.FylandMode.FILE)) {
+            safely("Fyland", () -> fyland.load(configs.get(hu.icemine.core.fyland.FylandMode.FILE), problems));
         }
         if (all || file.equals(ComboArenaMode.FILE)) {
             safely("ComboFly aréna", () -> comboArena.load(configs.get(ComboArenaMode.FILE), problems));
@@ -501,11 +504,8 @@ public final class IceMineCore extends JavaPlugin {
                 npcs.despawn();
                 lobby.rebuild();
                 break;
-            case "skypvp":
-                skypvp.rebuild();
-                break;
-            case "kitpvp":
-                kitpvp.rebuild();
+            case "fullpvp":
+                fullpvp.rebuild();
                 break;
             case "combofly":
                 comboArena.rebuild();
@@ -528,23 +528,11 @@ public final class IceMineCore extends JavaPlugin {
         Location location = player.getLocation();
         YamlConfiguration config;
         switch (mode) {
-            case "skypvp":
-                if (player.getWorld() != skypvp.world()) {
+            case "fullpvp":
+                if (player.getWorld() != fullpvp.world()) {
                     return false;
                 }
-                config = configs.get("skypvp");
-                Locs.write(config, "spawn", location);
-                configs.save("skypvp");
-                reloadConfigs("skypvp");
-                return true;
-            case "kitpvp":
-                if (player.getWorld() != kitpvp.world() || extra == null || !kitpvp.arenas().containsKey(extra)) {
-                    return false;
-                }
-                config = configs.get("kitpvp");
-                Locs.write(config, "arenas." + extra + ".spawn", location);
-                configs.save("kitpvp");
-                reloadConfigs("kitpvp");
+                fullpvp.setSpawn(location);
                 return true;
             case "combofly":
                 if (player.getWorld() != comboArena.world()) {
@@ -592,7 +580,7 @@ public final class IceMineCore extends JavaPlugin {
         }
         boolean inLobby = lobby.inLobby(player);
         boolean inModeLobby = modeLobbies != null && modeLobbies.isLobbyWorld(player.getWorld());
-        boolean inPvp = skypvp.inWorld(player) || kitpvp.inWorld(player) || comboArena.inWorld(player);
+        boolean inPvp = fullpvp.inWorld(player) || comboArena.inWorld(player);
         PlayerInventory inventory = player.getInventory();
         ItemStack[] contents = inventory.getContents();
         for (int i = 0; i < contents.length; i++) {
@@ -642,13 +630,10 @@ public final class IceMineCore extends JavaPlugin {
         return permissions;
     }
 
-    /** A PvP mód (KitPvP, SkyPvP, ComboFly aréna), ahol a játékos most van, vagy null. */
+    /** A PvP mód (FullPvP, ComboFly aréna), ahol a játékos most van, vagy null. */
     public hu.icemine.core.kitpvp.PvpMode pvpModeOf(Player player) {
-        if (kitpvp != null && kitpvp.inWorld(player)) {
-            return kitpvp;
-        }
-        if (skypvp != null && skypvp.inWorld(player)) {
-            return skypvp;
+        if (fullpvp != null && fullpvp.inWorld(player)) {
+            return fullpvp;
         }
         if (comboArena != null && comboArena.inWorld(player)) {
             return comboArena;
@@ -724,12 +709,12 @@ public final class IceMineCore extends JavaPlugin {
         return inventories;
     }
 
-    public SkyPvpMode skypvp() {
-        return skypvp;
+    public hu.icemine.core.fullpvp.FullPvpMode fullpvp() {
+        return fullpvp;
     }
 
-    public KitPvpMode kitpvp() {
-        return kitpvp;
+    public hu.icemine.core.fyland.FylandMode fyland() {
+        return fyland;
     }
 
     public ComboArenaMode comboArena() {

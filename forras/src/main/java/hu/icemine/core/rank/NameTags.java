@@ -28,12 +28,13 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 /**
- * A játékosok feje fölött: a név előtt a rang, a név alatt az életerő (pl. "20 ❤").
+ * A játékosok feje fölött: a név előtt a rang, a név mellett (vagy beállítástól függően alatta) az életerő.
  *
  * A rang: a LuckPerms előtag, ha be van állítva, különben az IceMine rang neve (ranks.yml), alap rangnál semmi.
  * BedWars meccsben a rang helyett a csapat színe és betűje látszik.
- * Ha a TAB plugin kezeli a névtáblákat (ez az alap), a rangot a TAB API-n keresztül adjuk át neki, mert a TAB
- * más pluginok csapatait nem engedi. Az életerőt mindig mi írjuk ki (a TAB alapból nem csinálja).
+ * Ha a TAB plugin kezeli a névtáblákat (ez az alap), a rangot és az életerőt a TAB API-n keresztül adjuk át neki
+ * (előtag és utótag), mert a TAB más pluginok csapatait nem engedi. TAB nélkül minden játékosnak saját csapata van,
+ * annak az elő- és utótagját írjuk.
  */
 public final class NameTags implements Listener {
 
@@ -42,10 +43,13 @@ public final class NameTags implements Listener {
 
     private final IceMineCore core;
     private final Map<UUID, String> sentToTab = new HashMap<>();
+    private final Map<UUID, String> suffixToTab = new HashMap<>();
     private boolean enabled = true;
     private boolean showHealth = true;
+    private boolean besideName = true;
     private boolean showRank = true;
     private String healthTitle = "&c❤";
+    private String healthFormat = " &c%hp%&4❤";
     private Set<String> disabledWorlds = new HashSet<>();
     private Tab tab;
     private boolean tabChecked;
@@ -60,11 +64,14 @@ public final class NameTags implements Listener {
         showHealth = config.getBoolean("nametags.health", true);
         showRank = config.getBoolean("nametags.rank", true);
         healthTitle = config.getString("nametags.health-title", "&c❤");
+        besideName = !config.getString("nametags.health-position", "beside").trim().equalsIgnoreCase("below");
+        healthFormat = config.getString("nametags.health-format", " &c%hp%&4❤");
         disabledWorlds = new HashSet<>();
         for (String world : config.getStringList("nametags.disabled-worlds")) {
             disabledWorlds.add(world.toLowerCase(Locale.ROOT));
         }
         sentToTab.clear();
+        suffixToTab.clear();
         if (!enabled) {
             cleanup();
         }
@@ -100,6 +107,14 @@ public final class NameTags implements Listener {
         return (int) Math.ceil(Math.max(0.0, player.getHealth() + player.getAbsorptionAmount()));
     }
 
+    /** A név mögé írt életerő (pl. " 20❤"), vagy üres, ha nem a név mellett mutatjuk. */
+    String suffix(Player player) {
+        if (!showHealth || !besideName || !active(player)) {
+            return "";
+        }
+        return healthFormat.replace("%hp%", String.valueOf(health(player)));
+    }
+
     /** Negyed másodpercenként: minden játékos scoreboardjára felírjuk a többiek rangját és életerejét. */
     public void tick() {
         if (!enabled) {
@@ -123,8 +138,10 @@ public final class NameTags implements Listener {
             }
         }
         Map<String, String> prefixes = new HashMap<>();
+        Map<String, String> suffixes = new HashMap<>();
         for (Player player : online) {
             prefixes.put(player.getName(), active(player) ? prefix(player) : "");
+            suffixes.put(player.getName(), suffix(player));
         }
         boolean tabTeams = tabTeams();
         if (tabTeams) {
@@ -132,6 +149,10 @@ public final class NameTags implements Listener {
                 String prefix = prefixes.get(player.getName());
                 if (!prefix.equals(sentToTab.get(player.getUniqueId())) && tab.setPrefix(player, prefix)) {
                     sentToTab.put(player.getUniqueId(), prefix);
+                }
+                String suffix = suffixes.get(player.getName());
+                if (!suffix.equals(suffixToTab.get(player.getUniqueId())) && tab.setSuffix(player, suffix)) {
+                    suffixToTab.put(player.getUniqueId(), suffix);
                 }
             }
         }
@@ -141,11 +162,20 @@ public final class NameTags implements Listener {
             if (seen.put(board, Boolean.TRUE) != null) {
                 continue;
             }
-            if (showHealth) {
-                health(board, online);
-            }
+            boolean owned = false;
             if (!tabTeams) {
-                teams(board, online, prefixes);
+                owned = teams(board, online, prefixes, suffixes);
+            }
+            // a név alatti életerő csak akkor kell, ha úgy van beállítva, vagy ha a név mellé nem tudjuk kiírni
+            // (TAB nélkül egy másik rendszer, pl. a BedWars csapatai foglalják a névtáblát)
+            boolean below = showHealth && (!besideName || owned || (tabTeams && !tab.suffixWorks()));
+            if (below) {
+                health(board, online);
+            } else {
+                Objective objective = board.getObjective(HEALTH);
+                if (objective != null) {
+                    objective.unregister();
+                }
             }
         }
     }
@@ -169,40 +199,57 @@ public final class NameTags implements Listener {
         }
     }
 
-    private void teams(Scoreboard board, List<Player> online, Map<String, String> prefixes) {
+    /**
+     * TAB nélkül: minden játékosnak saját csapata van ezen a scoreboardon, az előtag a rang, az utótag az életerő.
+     * Igazat ad vissza, ha valakinek a névtábláját egy másik rendszer (pl. a BedWars csapatai) foglalja.
+     */
+    private boolean teams(Scoreboard board, List<Player> online, Map<String, String> prefixes, Map<String, String> suffixes) {
         boolean bedwars = board.getObjective("icemine_bw") != null;
+        boolean owned = bedwars;
         for (Player player : online) {
             String name = player.getName();
             String prefix = prefixes.get(name);
+            String suffix = suffixes.get(name);
             Team current = board.getEntryTeam(name);
             if (current != null && !current.getName().startsWith(TEAM)) {
                 // egy másik rendszer (pl. a BedWars csapatszínek) már beosztotta, azt nem bántjuk
+                owned = true;
                 continue;
             }
-            if (bedwars || prefix.isEmpty()) {
+            if (bedwars || (prefix.isEmpty() && suffix.isEmpty())) {
                 if (current != null) {
                     current.removeEntry(name);
                 }
                 continue;
             }
-            String teamName = TEAM + Integer.toHexString(prefix.hashCode());
-            if (current != null && current.getName().equals(teamName)) {
-                continue;
-            }
-            if (current != null) {
+            String teamName = teamName(name);
+            if (current != null && !current.getName().equals(teamName)) {
                 current.removeEntry(name);
             }
             Team team = board.getTeam(teamName);
             if (team == null) {
                 team = board.registerNewTeam(teamName);
-                team.setPrefix(Text.color(prefix));
-                ChatColor color = lastColor(Text.color(prefix));
-                if (color != null) {
-                    team.setColor(color);
-                }
             }
-            team.addEntry(name);
+            String colored = Text.color(prefix);
+            if (!team.getPrefix().equals(colored)) {
+                team.setPrefix(colored);
+                ChatColor color = lastColor(colored);
+                team.setColor(color == null ? ChatColor.RESET : color);
+            }
+            String coloredSuffix = Text.color(suffix);
+            if (!team.getSuffix().equals(coloredSuffix)) {
+                team.setSuffix(coloredSuffix);
+            }
+            if (!team.hasEntry(name)) {
+                team.addEntry(name);
+            }
         }
+        return owned;
+    }
+
+    /** A játékos saját csapatának neve (rövid, hogy a régi kliensek is elfogadják). */
+    static String teamName(String player) {
+        return TEAM + Integer.toHexString(player.toLowerCase(Locale.ROOT).hashCode());
     }
 
     static ChatColor lastColor(String text) {
@@ -246,11 +293,15 @@ public final class NameTags implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         sentToTab.remove(event.getPlayer().getUniqueId());
+        suffixToTab.remove(event.getPlayer().getUniqueId());
         Scoreboard main = Bukkit.getScoreboardManager().getMainScoreboard();
         main.resetScores(event.getPlayer().getName());
         Team team = main.getEntryTeam(event.getPlayer().getName());
         if (team != null && team.getName().startsWith(TEAM)) {
             team.removeEntry(event.getPlayer().getName());
+            if (team.getEntries().isEmpty() && team.getName().length() <= 10) {
+                team.unregister();
+            }
         }
     }
 
@@ -261,6 +312,8 @@ public final class NameTags implements Listener {
         private final Method getNameTagManager;
         private final IceMineCore core;
         private Method setPrefix;
+        private Method setSuffix;
+        private boolean suffixBroken;
         private boolean warned;
 
         private Tab(IceMineCore core, Object api, Method getPlayer, Method getNameTagManager) {
@@ -297,6 +350,44 @@ public final class NameTags implements Listener {
 
         boolean teamsEnabled() {
             return manager() != null;
+        }
+
+        /** A TAB elfogadja-e az utótagot (ha egyszer nem sikerült, a név alatti életerőre váltunk). */
+        boolean suffixWorks() {
+            return !suffixBroken;
+        }
+
+        boolean setSuffix(Player player, String suffix) {
+            if (suffixBroken) {
+                return false;
+            }
+            Object manager = manager();
+            if (manager == null) {
+                return false;
+            }
+            try {
+                Object tabPlayer = getPlayer.invoke(api, player.getUniqueId());
+                if (tabPlayer == null) {
+                    return false;
+                }
+                if (setSuffix == null) {
+                    for (Method method : manager.getClass().getMethods()) {
+                        if (method.getName().equals("setSuffix") && method.getParameterCount() == 2 && method.getParameterTypes()[1] == String.class) {
+                            setSuffix = method;
+                            break;
+                        }
+                    }
+                    if (setSuffix == null) {
+                        throw new NoSuchMethodException("NameTagManager.setSuffix");
+                    }
+                }
+                setSuffix.invoke(manager, tabPlayer, suffix.isEmpty() ? null : suffix);
+                return true;
+            } catch (Throwable error) {
+                suffixBroken = true;
+                core.getLogger().warning("Nem sikerült az életerőt a TAB-nak átadni, a név alatt mutatom: " + error);
+                return false;
+            }
         }
 
         boolean setPrefix(Player player, String prefix) {

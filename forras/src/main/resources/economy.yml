@@ -1,6 +1,6 @@
 # Pénzrendszer
 # A kristály a közös pénz (PvP, parkour, napi jutalom).
-# A Gens saját pénzt használ, hogy a farmolás ne borítsa fel a PvP módokat.
+# A Gens és a Fyland saját pénzt használ, hogy a farmolás ne borítsa fel a PvP módokat.
 # Ez NEM ugyanaz, mint a weboldal IceCoinja.
 
 default-currency: kristaly
@@ -15,6 +15,13 @@ currencies:
     name: "Gens érme"
     symbol: "⛃"
     color: "&e"
+    start: 0
+    max: 1000000000000000
+  # A Fyland saját pénze (a bányászott dolgok eladásából), hogy ne borítsa fel a PvP módokat
+  fyland:
+    name: "Szigetérme"
+    symbol: "✿"
+    color: "&a"
     start: 0
     max: 1000000000000000
 

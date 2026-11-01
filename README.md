@@ -46,8 +46,7 @@ elmenti. Ha ezt nem kéred: `plugins/IceMine/config.yml` -> `kulso-uzenetek: fal
 |---|---|---|
 | `/icem help` | a parancsok listája (csak az látszik, amihez jogod van) | mindenki |
 | `/icem stats [játékos]` | profil és statisztikák | mindenki |
-| `/icem kit [kit]` | kit választó (KitPvP, SkyPvP, ComboFly) | mindenki |
-| `/icem arena` | KitPvP aréna választó | mindenki |
+| `/icem kit [kit]` | kitek (FullPvP, ComboFly) | mindenki |
 | `/icem rank [játékos]` | rangok és amit adnak | mindenki |
 | `/icem setspawn <mód> [aréna]` | játékmód spawn ide | OP |
 | `/icem reload [fájl]` | configok újratöltése | OP |
@@ -59,9 +58,8 @@ A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `
 (minden mód statisztikájával), toplisták, rangok, napi jutalom, kozmetikák, beállítások, kapcsolatok, információk,
 parkour és Gens. Minden menüben van "Vissza" gomb a főmenübe.
 
-**Játékmód választó** (iránytű a hotbaron): Gens (gyémánt kapa), SkyPvP (mézes üveg), KitPvP (buzogány),
+**Játékmód választó** (iránytű a hotbaron): Fyland (fűblokk), FullPvP (gyémántkard), Gens (gyémánt kapa),
 Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly, és a Creative "Hamarosan" felirattal.
-A buzogány csak 1.21-től létezik, ezért amíg a lobby 1.20.6, vasbalta látszik helyette (`modes.yml`: `icon-fallback`).
 Ha a Creative elkészül, a `modes.yml`-ben a `status: soon` helyett `open` kell.
 
 **Kozmetikák:** a nyomvonalak és az ölés effektek csak a lobbyban (és a játékmódok lobbyjaiban) látszanak,
@@ -84,15 +82,16 @@ az `essentials.<parancs>` joga.
   lekérdezi a weboldaltól (https://icemine.hu/api/mc/coins), beállítás: `config.yml` -> `icecoin`.
   Ha nem akarod, hogy bárki lekérdezhesse az egyenlegeket, írj a weboldal `.env` fájljába egy `MC_API_KEY=...` sort,
   és ugyanezt a `config.yml`-ben az `icecoin.api-key`-hez.
-- A játékosok feje fölött a név előtt a rang (LuckPerms előtag, ha nincs, az IceMine rang), alatta az életerő (pl. `20 ❤`).
-  BedWarsban a rang helyett a csapat színe. Beállítás: `config.yml` -> `nametags`.
+- A játékosok feje fölött a név előtt a rang (LuckPerms előtag, ha nincs, az IceMine rang), a név mellett az életerő
+  (pl. `Peti 20❤`). BedWarsban a rang helyett a csapat színe. Beállítás: `config.yml` -> `nametags`
+  (`health-position: below` esetén a név alatt látszik, mint régen).
 
 ### Rangok
 
 A rang nevét, előtagját és chat színét a LuckPerms adja (ezt te írod meg). Hogy melyik rang mit kap
 az IceMine-ban (kitek, kozmetikák, pénz szorzó, egyéb jogok), azt a `plugins/IceMine/ranks.yml`-ben
 állítod. Rangok: Default, VIP, VIP+, MVP, MVP+, ELITE, LEGEND, YOUTUBER, HELPER, MODERATOR, ADMIN, OWNER.
-Mindegyik megkapja a gyengébbek jutalmait is. A KitPvP-ben 3 kit ingyenes (Harcos, Íjász, Tank), a többi rangokhoz kötött.
+Mindegyik megkapja a gyengébbek jutalmait is. A FullPvP-ben a Kezdő, Harcos, Íjász és Napi kit ingyenes, minden rangnak saját kitje van.
 
 A LuckPerms csoport neve kisbetűs, `+` jel nélkül: `default`, `vip`, `vipplus`, `mvp`, `mvpplus`, `elite`,
 `legend`, `youtuber`, `helper`, `moderator`, `admin`, `owner`. Példa (konzolba):
@@ -106,36 +105,40 @@ lp user Jatekosnev parent add vip
 
 A rangváltás fél percen belül életbe lép, újrabelépés nélkül is.
 
-### KitPvP
+### FullPvP
 
-15 kit, mindegyiknek saját képessége van. A képesség tárgy a hotbar utolsó helyén van, jobb klikkel
-használod, utána újratöltődik (a scoreboardon látszik, mennyi van még hátra). A biztonságos zónában nem működik.
+Egy nagy pálya (dombos rét fákkal, romokkal, őrtornyokkal, tóval, körben kőfal), középen kiemelt vár udvarral.
+A vár udvara a biztonságos zóna, harc közben nem lehet visszamenni. Négy lépcső vezet le a rétre.
 
-| Kit | Képesség | Rang |
-|---|---|---|
-| Harcos | Csatakiáltás (erő + gyorsaság) | ingyenes |
-| Íjász | Nyílzápor (5 nyíl egyszerre) | ingyenes |
-| Tank | Kőbőr (ellenállás) | ingyenes |
-| Orgyilkos | Árnyéklépés (láthatatlanság) | VIP |
-| Berserker | Vérszomj (Erő II) | VIP+ |
-| Vadász | Füstbomba (vakítás a közelben) | VIP+ |
-| Fagylovag | Jégvihar (lassítás a közelben) | MVP |
-| Ugró | Nagy ugrás | MVP |
-| Nindzsa | Villanás (előrelendülés) | MVP+ |
-| Piromán | Tűzgolyó | ELITE |
-| Villámmágus | Villámcsapás arra, akire nézel | ELITE |
-| Halász | Horog (magadhoz rántod, akire nézel) | LEGEND |
-| Alkimista | Gyógyfőzet (+4 szív) | LEGEND |
-| Poszeidón | Szökőár (lökéshullám) | LEGEND |
-| Jégkirály | Örök tél (erős lassítás + sebzés) | LEGEND |
+- A felszerelés a tiéd: kilépéskor megmarad, halálkor kiesik, és aki megölt, felveheti. Halál után a Kezdő kitet kapod
+  (ez nem esik ki).
+- Ölésért kristály jár (sorozatért extra, napi korláttal és farmolás elleni védelemmel), plusz 3 XP szint.
+- Bolt a vár udvarán (smaragdblokk): fegyverek, páncél, íjak, étel, bájitalok, pearl, lazurit, totem.
+- Kitek (láda): Harcos, Íjász (10 perc), Napi (naponta), és rangonként egy (VIP, VIP+, MVP, MVP+, ELITE, LEGEND, óránként).
+- Széf (enderláda): saját tároló, 3 sor (MVP-től 6).
+- Varázsasztal és üllő a vár udvarán, sorozat jutalmak (aranyalma, varázsalma, sorozatkard, totem), fejpénz.
 
-Fejlesztések (kristályért, minden kitre érvényes): Élesség, Védelem, Extra élet, Gyorsabb képesség,
-Kincsvadász (több pénz ölésért). A kit menü alján és a hotbaron (tapasztalat üveg) éred el.
-Beállítás: `plugins/IceMine/kitpvp.yml` -> `kits` (képesség: `ability`) és `upgrades`.
+Parancsok: `/fullpvp` (menü, vagy `/fp`), `/fullpvp bolt`, `/kit`, `/fullpvp szef`, `/fullpvp fejpenz <játékos> <összeg>`.
+Új kitet játékban is csinálhatsz: vedd fel a tárgyakat és a páncélt, aztán `/icem kit create <név> [rang]`
+(törlés: `/icem kit delete <név>`). Beállítás: `plugins/IceMine/fullpvp.yml` (kitek, bolt, jutalmak, feliratok, üzenetek).
+Újraépítés: `/icem admin rebuild fullpvp confirm`.
 
-Új kitet játékban is csinálhatsz: vedd fel a tárgyakat és a páncélt, aztán
-`/icem kit create <név> [rang]` (törlés: `/icem kit delete <név>`). A név, a leírás és a képesség utána
-a `kitpvp.yml`-ben finomítható.
+### Fyland (OneBlock)
+
+Mindenki kap egy saját szigetet a semmi közepén, ami egyetlen blokkból áll. Ha kibányászod, a helyén azonnal új blokk
+jelenik meg, a blokkok 11 fázisban jönnek: Síkság, Föld alatt, Fagyos tundra, Óceán, Dzsungel, Mocsár, Mélység,
+Sivatag, Nether, Virágos rét, End. Néha láda vagy mob is jön, minden fázis végén jutalom láda jár, az End után új kör
+kezdődik. A fázis és a haladás fent a bossbaron látszik.
+
+- Csapat: meghívás, kirúgás, tulajdon átadása, látogatók be- és kikapcsolása, otthon beállítása, újrakezdés.
+- Piac: amit kibányásztál, eladod (Szigetérme, a rang pénz szorzójával), és vehetsz vizet, lávát, csemetét, magokat, tojásokat.
+- Fejlesztések: sziget méret (51x51-től 201x201-ig), csapat méret (2-8 fő), szerencse (több láda).
+- Ha leesel, visszahoz a szigetedre, halálkor megmaradnak a tárgyak. Enderláda és portál itt nem használható.
+
+Parancsok: `/fy` (menü, vagy `/fyland`, `/is`), `/fy haza`, `/fy piac`, `/fy elad` (vagy `/elad`), `/fy meghiv <játékos>`,
+`/fy elfogad`, `/fy latogat <játékos>`, `/fy fejlesztes`, `/fy fazisok`, `/fy top`, `/fy help` a teljes listához.
+Admin (`icemine.admin.fyland`): `/fy admin fazis <játékos> <fázis>`, `/fy admin torol <játékos>`, `/fy admin tp <játékos>`.
+Beállítás: `plugins/IceMine/fyland.yml` (fázisok, blokkok, ládák, mobok, árak, fejlesztések, üzenetek).
 
 ### Gens
 
@@ -181,10 +184,10 @@ A szerver nem használja, csak megőrzésre van itt.
 
 Ezeket az IceMine hozza létre és építi fel magától:
 
-- a lobby (a fő világ), `ice_kitpvp`, `ice_skypvp`, `combofly_map`, gens, `kingdoms`, `duels`, `ice_bedwars`
-- minden játékmódnak külön lobby világ: `lobby_kitpvp`, `lobby_skypvp`, `lobby_combofly`,
+- a lobby (a fő világ), `ice_fullpvp`, `fyland`, `combofly_map`, gens, `kingdoms`, `duels`, `ice_bedwars`
+- minden játékmódnak külön lobby világ: `lobby_fullpvp`, `lobby_fyland`, `lobby_combofly`,
   `lobby_gens`, `lobby_kingdoms`, `lobby_duels`, `lobby_bedwars` (beállítás: `plugins/IceMine/modelobbies.yml`)
-- minden mód lobbyjának saját témája van: KitPvP gladiátor aréna, SkyPvP felhők fölött, ComboFly ametiszt kristályok,
+- minden mód lobbyjának saját témája van: FullPvP gladiátor aréna, Fyland felhők fölötti szigetek, ComboFly ametiszt kristályok,
   Gens farm, Kingdoms vár udvar, Duels párbaj csarnok, BedWars tábor ágyakkal (`theme:` a `modelobbies.yml`-ben)
 
 ## Duels
@@ -203,6 +206,7 @@ Parancsok: `/duels`, `/duel <név> [mód] [bo3]`, `/duel accept`, `/duel rematch
 4 mód: Solo (8 csapat, 1 fő), Duó (8 csapat, 2 fő), 3v3v3v3 és 4v4v4v4. Négy saját pálya:
 Jégcsúcs és Tölgyes (8 csapatos), Sziklavár és Homokkő (4 csapatos). A pályákat az IceMine építi fel az `ice_bedwars`
 világban, az első indításkor egyesével (pár másodperc pályánként), a saját lobbyja a `lobby_bedwars`.
+A csapat szigetek és a gyémánt szigetek messze vannak egymástól, hídépítés nélkül nem lehet átjutni.
 
 Benne van: csapatválasztás, generátorok (vas, arany, gyémánt, smaragd, szintlépés időre), bolt 8 kategóriával,
 csapatfejlesztések (élesség, védelem, sietség, kovácsműhely, gyógyító kút), 4 féle csapda (sorban 3 db),

@@ -5,7 +5,7 @@
 #
 # world: a lobby világ neve | color: a téma színe (red, light_blue, purple, lime, yellow, orange...)
 # title: a lebegő felirat (A-Z betűk) | title-split: ennyi betű lesz színes, a többi fehér (0 = mind)
-# theme: a lobby témája: kitpvp (gladiátor aréna), skypvp (felhők fölött), combofly (ametiszt kristályok),
+# theme: a lobby témája: fullpvp (gladiátor aréna), fyland (felhők fölötti szigetek), combofly (ametiszt kristályok),
 #        gens (farm és bánya), kingdoms (vár udvar), duels (párbaj csarnok), snow (havas sziget)
 # play-command: ha meg van adva, a portál ezt a parancsot futtatja a játékos nevében (pl. Bedwars)
 # holograms: a "Játék" (play), az "Infó" és a toplisták (toplist: a config.yml toplista neve)
@@ -15,13 +15,13 @@
 enabled: true
 
 lobbies:
-  kitpvp:
-    world: lobby_kitpvp
-    theme: kitpvp
+  fullpvp:
+    world: lobby_fullpvp
+    theme: fullpvp
     built: false
     color: red
-    title: "KITPVP"
-    title-split: 3
+    title: "FULLPVP"
+    title-split: 4
     center: {x: 0, y: 100, z: 0}
     holograms:
       play:
@@ -29,20 +29,20 @@ lobbies:
         action: play
       info:
         lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
-        action: "info:mode_kitpvp"
+        action: "info:mode_fullpvp"
       top1:
-        toplist: kitpvp
+        toplist: fullpvp
         lines: []
       top2:
         toplist: streak
         lines: []
-  skypvp:
-    world: lobby_skypvp
-    theme: skypvp
+  fyland:
+    world: lobby_fyland
+    theme: fyland
     built: false
-    color: light_blue
-    title: "SKYPVP"
-    title-split: 3
+    color: lime
+    title: "FYLAND"
+    title-split: 2
     center: {x: 0, y: 100, z: 0}
     holograms:
       play:
@@ -50,12 +50,9 @@ lobbies:
         action: play
       info:
         lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
-        action: "info:mode_skypvp"
+        action: "info:mode_fyland"
       top1:
-        toplist: skypvp
-        lines: []
-      top2:
-        toplist: streak
+        toplist: fyland
         lines: []
   combofly:
     world: lobby_combofly

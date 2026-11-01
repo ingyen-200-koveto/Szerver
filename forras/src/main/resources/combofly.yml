@@ -1,7 +1,7 @@
 # ComboFly - saját IceMine kombó rendszer
 # Egymás utáni találatokkal kombót építesz, az ellenfelet a levegőben tartod.
 # Alapból csak a saját arénájában működik (ice_combofly világ, beállítások: comboarena.yml).
-# A SkyPvP-ben és a KitPvP-ben sima PvP van.
+# A FullPvP-ben és a többi módban sima PvP van.
 # Újratöltés: /combofly reload vagy /icem reload combofly
 
 enabled: true

@@ -34,6 +34,8 @@ commands:
   duel:      {permission: icemine.command.duel, default: true}
   duels:     {permission: icemine.command.duels, default: true}
   bw:        {permission: icemine.command.bedwars, default: true}
+  fullpvp:   {permission: icemine.command.fullpvp, default: true}
+  fyland:    {permission: icemine.command.fyland, default: true}
   k:         {permission: icemine.command.kingdoms, default: true}
   kadmin:    {permission: icemine.kingdoms.admin, default: op}
 

@@ -1,0 +1,937 @@
+# Fyland (OneBlock)
+# Mindenki kap egy saját szigetet a semmi közepén, ami egyetlen blokkból áll. Ha kibányászod, a helyén azonnal új
+# blokk jelenik meg. A blokkok fázisokban jönnek (Síkság, Föld alatt, Tél, Óceán... egészen az Endig), néha láda
+# vagy mob is. A fázis végén jutalom láda jár. Az utolsó fázis után újra az elsővel kezdődik (egy új körben).
+#
+# Parancs: /fyland (vagy /fy, /sziget). Admin: /fy admin fazis <játékos> <fázis> | /fy admin torol <játékos> | /fy admin tp <játékos>
+# A szigetek az IceMine adatbázisában vannak (SQLite vagy MySQL), a tárgyakat kilépéskor mentjük.
+
+world: fyland
+hub-built: false
+# A szigetek pénzneme (economy.yml). Külön pénz, hogy a bányászat ne borítsa fel a PvP módokat.
+currency: fyland
+
+island:
+  # Két sziget között ennyi blokk van (ne legyen kevesebb, mint a legnagyobb sziget méret kétszerese)
+  spacing: 400
+  # A varázsblokk magassága
+  y: 100
+  # Sziget szint: ennyi kibányászott blokkonként eggyel nő
+  level-blocks: 200
+  # A sziget újrakezdése között ennyi percet kell várni
+  reset-cooldown-minutes: 60
+  # Ha valaki ez alá esik, visszavisszük a szigetére (nem hal meg)
+  void-y: 40
+  # Halálkor megmaradnak a tárgyak
+  keep-inventory: true
+
+# Az új sziget mellé ezt kapja a tulajdonos
+starter-items: ["BREAD 5"]
+
+# Fejlesztések: values = az érték szintenként (az első az alap), prices = az ár a következő szintre.
+# size: a sziget fél szélessége blokkban, members: hány fő lehet a csapatban, luck: plusz láda esély.
+upgrades:
+  size:
+    name: "&a&lSziget méret"
+    icon: GRASS_BLOCK
+    description:
+      - "&7Nagyobb területen építhetsz"
+      - "&7a varázsblokk körül."
+    values: [25, 40, 60, 80, 100]
+    prices: [2500, 8000, 25000, 60000]
+    format: "%size%x%size% blokk"
+  members:
+    name: "&b&lCsapat méret"
+    icon: PLAYER_HEAD
+    description:
+      - "&7Több barátodat hívhatod meg"
+      - "&7a szigetedre."
+    values: [2, 4, 6, 8]
+    prices: [4000, 12000, 30000]
+    format: "%value% fő"
+  luck:
+    name: "&e&lSzerencse"
+    icon: RABBIT_FOOT
+    description:
+      - "&7Gyakrabban jön láda"
+      - "&7a varázsblokkból."
+    values: [0, 0.01, 0.02, 0.04]
+    prices: [3000, 10000, 30000]
+    format: "+%percent%% láda esély"
+
+# Piac: sell = mennyit kapsz darabonként (csak sima, varázslat és név nélküli tárgyért), buy = mit lehet venni.
+# A rang pénz szorzója (ranks.yml coin-multiplier) az eladásra is érvényes.
+market:
+  sell:
+    COBBLESTONE: 1
+    STONE: 1
+    COBBLED_DEEPSLATE: 1
+    DEEPSLATE: 1
+    DIRT: 1
+    SAND: 1
+    RED_SAND: 1
+    GRAVEL: 1
+    ANDESITE: 1
+    DIORITE: 1
+    GRANITE: 1
+    TUFF: 1
+    NETHERRACK: 1
+    END_STONE: 2
+    OAK_LOG: 3
+    BIRCH_LOG: 3
+    SPRUCE_LOG: 3
+    JUNGLE_LOG: 3
+    MANGROVE_LOG: 3
+    CHERRY_LOG: 3
+    CRIMSON_STEM: 4
+    WARPED_STEM: 4
+    ICE: 2
+    PACKED_ICE: 4
+    BLUE_ICE: 15
+    SNOW_BLOCK: 2
+    CLAY_BALL: 1
+    COAL: 4
+    RAW_COPPER: 3
+    COPPER_INGOT: 4
+    RAW_IRON: 8
+    IRON_INGOT: 10
+    RAW_GOLD: 12
+    GOLD_INGOT: 15
+    REDSTONE: 3
+    LAPIS_LAZULI: 4
+    QUARTZ: 4
+    AMETHYST_SHARD: 6
+    DIAMOND: 80
+    EMERALD: 60
+    OBSIDIAN: 10
+    ANCIENT_DEBRIS: 400
+    NETHERITE_SCRAP: 400
+    WHEAT: 2
+    CARROT: 1
+    POTATO: 1
+    MELON_SLICE: 1
+    PUMPKIN: 4
+    SUGAR_CANE: 2
+    CACTUS: 2
+    BAMBOO: 1
+    COCOA_BEANS: 2
+    NETHER_WART: 3
+    KELP: 1
+    PRISMARINE_SHARD: 4
+    PRISMARINE_CRYSTALS: 6
+    SLIME_BALL: 6
+    STRING: 2
+    BONE: 2
+    ROTTEN_FLESH: 1
+    GUNPOWDER: 4
+    LEATHER: 4
+    GLOWSTONE_DUST: 3
+    ENDER_PEARL: 15
+    BLAZE_ROD: 15
+    HONEYCOMB: 5
+    SHULKER_SHELL: 200
+    ECHO_SHARD: 100
+  buy:
+    - {item: "WATER_BUCKET", price: 300}
+    - {item: "LAVA_BUCKET", price: 600}
+    - {item: "OAK_SAPLING", price: 50}
+    - {item: "WHEAT_SEEDS 4", price: 20}
+    - {item: "BONE_MEAL 8", price: 40}
+    - {item: "SUGAR_CANE", price: 60}
+    - {item: "CACTUS", price: 60}
+    - {item: "TORCH 16", price: 40}
+    - {item: "GLASS 16", price: 80}
+    - {item: "CHEST", price: 30}
+    - {item: "HOPPER", price: 250}
+    - {item: "COW_SPAWN_EGG", price: 1500}
+    - {item: "SHEEP_SPAWN_EGG", price: 1500}
+    - {item: "CHICKEN_SPAWN_EGG", price: 800}
+
+# A piaci üzenetekben a tárgyak magyar neve
+item-names:
+  cobblestone: "Zúzottkő"
+  stone: "Kő"
+  cobbled_deepslate: "Zúzott mélypala"
+  deepslate: "Mélypala"
+  dirt: "Föld"
+  sand: "Homok"
+  red_sand: "Vörös homok"
+  gravel: "Kavics"
+  andesite: "Andezit"
+  diorite: "Diorit"
+  granite: "Gránit"
+  tuff: "Tufa"
+  netherrack: "Netherkő"
+  end_stone: "Endkő"
+  oak_log: "Tölgyfarönk"
+  birch_log: "Nyírfarönk"
+  spruce_log: "Fenyőrönk"
+  jungle_log: "Dzsungelfarönk"
+  mangrove_log: "Mangrovefarönk"
+  cherry_log: "Cseresznyefarönk"
+  crimson_stem: "Karmazsin szár"
+  warped_stem: "Torz szár"
+  ice: "Jég"
+  packed_ice: "Tömörített jég"
+  blue_ice: "Kék jég"
+  snow_block: "Hótömb"
+  clay_ball: "Agyag"
+  coal: "Szén"
+  raw_copper: "Nyers réz"
+  copper_ingot: "Rézrúd"
+  raw_iron: "Nyers vas"
+  iron_ingot: "Vasrúd"
+  raw_gold: "Nyers arany"
+  gold_ingot: "Aranyrúd"
+  redstone: "Vöröskő"
+  lapis_lazuli: "Lazurit"
+  quartz: "Kvarc"
+  amethyst_shard: "Ametiszt szilánk"
+  diamond: "Gyémánt"
+  emerald: "Smaragd"
+  obsidian: "Obszidián"
+  ancient_debris: "Ősi törmelék"
+  netherite_scrap: "Netherit törmelék"
+  wheat: "Búza"
+  carrot: "Répa"
+  potato: "Krumpli"
+  melon_slice: "Dinnyeszelet"
+  pumpkin: "Tök"
+  sugar_cane: "Cukornád"
+  cactus: "Kaktusz"
+  bamboo: "Bambusz"
+  cocoa_beans: "Kakaóbab"
+  nether_wart: "Netherbibircs"
+  kelp: "Hínár"
+  prismarine_shard: "Prizmarin szilánk"
+  prismarine_crystals: "Prizmarin kristály"
+  slime_ball: "Nyálkagolyó"
+  string: "Fonal"
+  bone: "Csont"
+  rotten_flesh: "Rothadt hús"
+  gunpowder: "Puskapor"
+  leather: "Bőr"
+  glowstone_dust: "Izzókőpor"
+  ender_pearl: "Enderpearl"
+  blaze_rod: "Őrlángrúd"
+  honeycomb: "Lép"
+  shulker_shell: "Shulker páncél"
+  echo_shard: "Visszhang szilánk"
+  water_bucket: "Vizesvödör"
+  lava_bucket: "Lávásvödör"
+  oak_sapling: "Tölgyfacsemete"
+  wheat_seeds: "Búzamag"
+  bone_meal: "Csontliszt"
+  torch: "Fáklya"
+  glass: "Üveg"
+  chest: "Láda"
+  hopper: "Tölcsér"
+  cow_spawn_egg: "Tehén tojás"
+  sheep_spawn_egg: "Bárány tojás"
+  chicken_spawn_egg: "Csirke tojás"
+
+# Fázisok sorrendben. blocks: hány blokkig tart | blocks-pool: milyen blokkok jönnek (súllyal, nagyobb = gyakoribb)
+# chest-chance: láda esély blokkonként | chest: a láda tartalma ("ANYAG min-max esély") | reward: a fázis végi jutalom láda
+# mob-chance: mob esély blokkonként | mobs: milyen mobok jönnek (súllyal)
+phases:
+  siksag:
+    name: "&a&lSíkság"
+    icon: GRASS_BLOCK
+    blocks: 300
+    description:
+      - "&7Fű, föld és tölgyfa: itt kezdődik"
+      - "&7minden. Ültesd el az első csemetét!"
+    blocks-pool:
+      GRASS_BLOCK: 30
+      DIRT: 20
+      OAK_LOG: 18
+      OAK_LEAVES: 8
+      BIRCH_LOG: 6
+      STONE: 8
+      COARSE_DIRT: 4
+      MOSS_BLOCK: 3
+      PUMPKIN: 1
+      MELON: 1
+      HAY_BLOCK: 1
+    chest-chance: 0.03
+    chest:
+      - "OAK_SAPLING 1-2 0.8"
+      - "BIRCH_SAPLING 1 0.4"
+      - "WHEAT_SEEDS 2-6 0.8"
+      - "BREAD 1-3 0.6"
+      - "BONE_MEAL 2-5 0.5"
+      - "CARROT 1-2 0.3"
+      - "POTATO 1-2 0.3"
+      - "SUGAR_CANE 1-2 0.3"
+      - "APPLE 1-2 0.4"
+      - "LEATHER 1-3 0.3"
+      - "DIRT 4-8 0.5"
+      - "WATER_BUCKET 1 0.15"
+    mob-chance: 0.04
+    mobs:
+      COW: 3
+      SHEEP: 3
+      PIG: 3
+      CHICKEN: 3
+    reward:
+      - "WATER_BUCKET 1"
+      - "OAK_SAPLING 3"
+      - "BONE_MEAL 8"
+      - "BREAD 6"
+      - "IRON_INGOT 3"
+  foldalatt:
+    name: "&7&lFöld alatt"
+    icon: STONE
+    blocks: 500
+    description:
+      - "&7Kő, szén, vas és réz."
+      - "&7Ideje egy rendes csákánynak."
+    blocks-pool:
+      STONE: 35
+      COBBLESTONE: 20
+      ANDESITE: 6
+      DIORITE: 6
+      GRANITE: 6
+      GRAVEL: 6
+      COAL_ORE: 10
+      IRON_ORE: 6
+      COPPER_ORE: 6
+      TUFF: 3
+      CLAY: 2
+      MOSSY_COBBLESTONE: 2
+    chest-chance: 0.03
+    chest:
+      - "TORCH 4-12 0.7"
+      - "COAL 3-8 0.6"
+      - "IRON_INGOT 1-4 0.5"
+      - "BUCKET 1 0.25"
+      - "IRON_PICKAXE 1 0.1"
+      - "STRING 2-5 0.4"
+      - "BONE 2-5 0.4"
+      - "ARROW 4-12 0.3"
+      - "RAIL 2-6 0.2"
+      - "REDSTONE 2-6 0.3"
+    mob-chance: 0.04
+    mobs:
+      ZOMBIE: 3
+      SKELETON: 2
+      SPIDER: 2
+      CAVE_SPIDER: 1
+      BAT: 1
+    reward:
+      - "IRON_INGOT 8"
+      - "BUCKET 1"
+      - "COAL 16"
+      - "TORCH 16"
+      - "IRON_PICKAXE 1"
+  tel:
+    name: "&f&lFagyos tundra"
+    icon: SNOW_BLOCK
+    blocks: 500
+    description:
+      - "&7Hó, jég és fenyő. A jégből"
+      - "&7olvasztással víz is lesz!"
+    blocks-pool:
+      SNOW_BLOCK: 20
+      ICE: 12
+      PACKED_ICE: 10
+      SPRUCE_LOG: 15
+      SPRUCE_LEAVES: 6
+      STONE: 8
+      DIRT: 5
+      BLUE_ICE: 2
+      CALCITE: 3
+      GRAVEL: 3
+      IRON_ORE: 3
+    chest-chance: 0.03
+    chest:
+      - "SPRUCE_SAPLING 1-3 0.6"
+      - "SNOWBALL 4-16 0.6"
+      - "LEATHER 2-5 0.4"
+      - "SWEET_BERRIES 2-6 0.5"
+      - "RABBIT_HIDE 1-3 0.3"
+      - "COOKED_SALMON 1-3 0.4"
+      - "IRON_INGOT 1-3 0.4"
+      - "LEATHER_BOOTS 1 0.15"
+      - "POWDER_SNOW_BUCKET 1 0.1"
+    mob-chance: 0.04
+    mobs:
+      FOX: 2
+      RABBIT: 3
+      POLAR_BEAR: 1
+      STRAY: 2
+      WOLF: 1
+      GOAT: 1
+    reward:
+      - "SPRUCE_SAPLING 4"
+      - "LEATHER 8"
+      - "IRON_INGOT 6"
+      - "BLUE_ICE 4"
+      - "SWEET_BERRIES 8"
+  ocean:
+    name: "&3&lÓceán"
+    icon: PRISMARINE
+    blocks: 600
+    description:
+      - "&7Homok, agyag, prizmarin és korall."
+      - "&7Szerencsével a tenger szíve is."
+    blocks-pool:
+      SAND: 25
+      GRAVEL: 12
+      CLAY: 10
+      PRISMARINE: 10
+      PRISMARINE_BRICKS: 6
+      DARK_PRISMARINE: 4
+      SEA_LANTERN: 3
+      SANDSTONE: 8
+      WET_SPONGE: 1
+      DRIED_KELP_BLOCK: 4
+      TUBE_CORAL_BLOCK: 2
+      BRAIN_CORAL_BLOCK: 2
+      HORN_CORAL_BLOCK: 2
+    chest-chance: 0.03
+    chest:
+      - "PRISMARINE_SHARD 2-8 0.6"
+      - "PRISMARINE_CRYSTALS 1-4 0.4"
+      - "COD 1-4 0.5"
+      - "SALMON 1-3 0.4"
+      - "KELP 2-6 0.5"
+      - "FISHING_ROD 1 0.3"
+      - "NAUTILUS_SHELL 1 0.08"
+      - "HEART_OF_THE_SEA 1 0.02"
+      - "TURTLE_EGG 1-2 0.1"
+      - "INK_SAC 1-4 0.4"
+      - "LILY_PAD 1-3 0.4"
+      - "SEA_PICKLE 1-3 0.3"
+    mob-chance: 0.03
+    mobs:
+      DROWNED: 3
+      TURTLE: 2
+    reward:
+      - "NAUTILUS_SHELL 2"
+      - "PRISMARINE_SHARD 16"
+      - "SPONGE 2"
+      - "FISHING_ROD 1"
+      - "KELP 16"
+  dzsungel:
+    name: "&2&lDzsungel"
+    icon: JUNGLE_LOG
+    blocks: 600
+    description:
+      - "&7Dzsungelfa, moha, dinnye és bambusz."
+    blocks-pool:
+      JUNGLE_LOG: 25
+      JUNGLE_LEAVES: 10
+      MOSS_BLOCK: 10
+      MELON: 6
+      PODZOL: 6
+      MUD: 4
+      MOSSY_COBBLESTONE: 6
+      BAMBOO_BLOCK: 4
+      GRASS_BLOCK: 8
+      ROOTED_DIRT: 3
+      COBBLESTONE: 5
+    chest-chance: 0.03
+    chest:
+      - "JUNGLE_SAPLING 1-3 0.6"
+      - "COCOA_BEANS 2-5 0.5"
+      - "BAMBOO 2-6 0.5"
+      - "MELON_SEEDS 1-3 0.5"
+      - "PUMPKIN_SEEDS 1-3 0.4"
+      - "VINE 2-5 0.4"
+      - "GLOW_BERRIES 1-4 0.3"
+      - "EMERALD 1-2 0.15"
+      - "GOLD_INGOT 1-3 0.3"
+      - "SADDLE 1 0.1"
+    mob-chance: 0.04
+    mobs:
+      PARROT: 2
+      OCELOT: 2
+      PANDA: 2
+      CHICKEN: 2
+      CREEPER: 1
+    reward:
+      - "JUNGLE_SAPLING 4"
+      - "COCOA_BEANS 8"
+      - "MELON_SEEDS 4"
+      - "EMERALD 3"
+      - "GOLD_INGOT 4"
+  mocsar:
+    name: "&8&lMocsár"
+    icon: MUD
+    blocks: 600
+    description:
+      - "&7Iszap, mangrove és nyálka."
+    blocks-pool:
+      MUD: 18
+      MANGROVE_LOG: 15
+      MANGROVE_ROOTS: 8
+      MUDDY_MANGROVE_ROOTS: 5
+      MANGROVE_LEAVES: 6
+      CLAY: 10
+      DIRT: 8
+      SLIME_BLOCK: 2
+      MOSS_BLOCK: 6
+      PACKED_MUD: 6
+      MUD_BRICKS: 4
+    chest-chance: 0.03
+    chest:
+      - "MANGROVE_PROPAGULE 1-3 0.6"
+      - "SLIME_BALL 1-4 0.5"
+      - "LILY_PAD 1-3 0.5"
+      - "BLUE_ORCHID 1-2 0.3"
+      - "GLASS_BOTTLE 1-3 0.4"
+      - "REDSTONE 2-6 0.4"
+      - "BROWN_MUSHROOM 1-3 0.4"
+      - "RED_MUSHROOM 1-3 0.4"
+      - "SPIDER_EYE 1-3 0.4"
+      - "GLOWSTONE_DUST 1-4 0.3"
+    mob-chance: 0.04
+    mobs:
+      SLIME: 3
+      WITCH: 1
+      FROG: 3
+      ZOMBIE: 2
+    reward:
+      - "SLIME_BALL 8"
+      - "MANGROVE_PROPAGULE 4"
+      - "BROWN_MUSHROOM 4"
+      - "RED_MUSHROOM 4"
+      - "REDSTONE 16"
+  melyseg:
+    name: "&9&lMélység"
+    icon: DEEPSLATE
+    blocks: 800
+    description:
+      - "&7Mélypala, arany, lazurit, vöröskő"
+      - "&7és végre gyémánt is."
+    blocks-pool:
+      DEEPSLATE: 30
+      COBBLED_DEEPSLATE: 10
+      TUFF: 10
+      CALCITE: 4
+      DRIPSTONE_BLOCK: 6
+      DEEPSLATE_IRON_ORE: 6
+      DEEPSLATE_GOLD_ORE: 4
+      DEEPSLATE_REDSTONE_ORE: 5
+      DEEPSLATE_LAPIS_ORE: 4
+      DEEPSLATE_DIAMOND_ORE: 1.2
+      DEEPSLATE_COPPER_ORE: 4
+      AMETHYST_BLOCK: 2
+      SMOOTH_BASALT: 3
+      OBSIDIAN: 0.6
+      SCULK: 2
+    chest-chance: 0.03
+    chest:
+      - "DIAMOND 1-2 0.15"
+      - "GOLD_INGOT 2-5 0.5"
+      - "LAPIS_LAZULI 4-10 0.5"
+      - "REDSTONE 4-12 0.5"
+      - "AMETHYST_SHARD 2-6 0.4"
+      - "POINTED_DRIPSTONE 1-3 0.3"
+      - "NAME_TAG 1 0.05"
+      - "IRON_SWORD 1 0.2"
+      - "EXPERIENCE_BOTTLE 2-6 0.3"
+      - "ECHO_SHARD 1 0.03"
+    mob-chance: 0.04
+    mobs:
+      ZOMBIE: 3
+      SKELETON: 3
+      CREEPER: 2
+      SPIDER: 2
+      ENDERMAN: 1
+    reward:
+      - "DIAMOND 3"
+      - "GOLD_INGOT 8"
+      - "LAPIS_LAZULI 16"
+      - "EXPERIENCE_BOTTLE 8"
+      - "NAME_TAG 1"
+  sivatag:
+    name: "&e&lSivatag"
+    icon: SAND
+    blocks: 700
+    description:
+      - "&7Homok, homokkő és terrakotta,"
+      - "&7a ládákban arany és smaragd."
+    blocks-pool:
+      SAND: 25
+      SANDSTONE: 15
+      RED_SAND: 10
+      RED_SANDSTONE: 8
+      TERRACOTTA: 8
+      ORANGE_TERRACOTTA: 5
+      YELLOW_TERRACOTTA: 4
+      WHITE_TERRACOTTA: 3
+      BROWN_TERRACOTTA: 3
+      SMOOTH_SANDSTONE: 4
+      GOLD_ORE: 3
+      CHISELED_SANDSTONE: 1
+    chest-chance: 0.03
+    chest:
+      - "CACTUS 1-3 0.6"
+      - "DEAD_BUSH 1-3 0.4"
+      - "GOLD_INGOT 2-5 0.5"
+      - "EMERALD 1-3 0.3"
+      - "RABBIT_FOOT 1 0.1"
+      - "BONE 2-6 0.4"
+      - "GUNPOWDER 1-4 0.4"
+      - "TNT 1 0.1"
+      - "DIAMOND 1 0.05"
+      - "ROTTEN_FLESH 2-6 0.4"
+    mob-chance: 0.04
+    mobs:
+      HUSK: 3
+      RABBIT: 2
+      CAMEL: 1
+      CREEPER: 1
+    reward:
+      - "CACTUS 4"
+      - "EMERALD 6"
+      - "GOLD_INGOT 8"
+      - "TNT 2"
+      - "DIAMOND 1"
+  nether:
+    name: "&c&lNether"
+    icon: NETHERRACK
+    blocks: 1000
+    description:
+      - "&7Netherkő, kvarc, lélekhomok és izzókő."
+      - "&7Ritkán ősi törmelék is jön!"
+    blocks-pool:
+      NETHERRACK: 30
+      NETHER_QUARTZ_ORE: 8
+      NETHER_GOLD_ORE: 6
+      SOUL_SAND: 6
+      SOUL_SOIL: 6
+      MAGMA_BLOCK: 4
+      GLOWSTONE: 4
+      BASALT: 6
+      BLACKSTONE: 8
+      CRIMSON_STEM: 5
+      WARPED_STEM: 5
+      NETHER_WART_BLOCK: 4
+      WARPED_WART_BLOCK: 3
+      NETHER_BRICKS: 4
+      CRIMSON_NYLIUM: 2
+      WARPED_NYLIUM: 2
+      ANCIENT_DEBRIS: 0.3
+      GILDED_BLACKSTONE: 1
+    chest-chance: 0.03
+    chest:
+      - "NETHER_WART 1-4 0.6"
+      - "BLAZE_ROD 1-2 0.3"
+      - "GOLD_INGOT 2-6 0.5"
+      - "QUARTZ 4-10 0.5"
+      - "GHAST_TEAR 1 0.1"
+      - "MAGMA_CREAM 1-3 0.3"
+      - "CRIMSON_FUNGUS 1-2 0.3"
+      - "WARPED_FUNGUS 1-2 0.3"
+      - "OBSIDIAN 1-4 0.3"
+      - "FLINT_AND_STEEL 1 0.2"
+      - "NETHERITE_SCRAP 1 0.03"
+    mob-chance: 0.05
+    mobs:
+      ZOMBIFIED_PIGLIN: 3
+      MAGMA_CUBE: 2
+      BLAZE: 2
+      WITHER_SKELETON: 1
+      STRIDER: 1
+    reward:
+      - "BLAZE_ROD 4"
+      - "NETHER_WART 6"
+      - "GOLD_INGOT 12"
+      - "OBSIDIAN 8"
+      - "NETHERITE_SCRAP 1"
+  idill:
+    name: "&d&lVirágos rét"
+    icon: CHERRY_LOG
+    blocks: 800
+    description:
+      - "&7Cseresznyefa, virágok és méz."
+      - "&7Pihenő a nagy kaland előtt."
+    blocks-pool:
+      CHERRY_LOG: 20
+      CHERRY_LEAVES: 10
+      GRASS_BLOCK: 15
+      FLOWERING_AZALEA_LEAVES: 6
+      AZALEA_LEAVES: 4
+      MOSS_BLOCK: 8
+      HONEYCOMB_BLOCK: 3
+      HONEY_BLOCK: 2
+      OAK_LOG: 6
+      BIRCH_LOG: 6
+      PINK_WOOL: 2
+      HAY_BLOCK: 3
+    chest-chance: 0.03
+    chest:
+      - "CHERRY_SAPLING 1-3 0.6"
+      - "PINK_PETALS 1-4 0.5"
+      - "HONEYCOMB 1-4 0.4"
+      - "HONEY_BOTTLE 1-2 0.3"
+      - "POPPY 1-3 0.4"
+      - "DANDELION 1-3 0.4"
+      - "CORNFLOWER 1-2 0.3"
+      - "AZURE_BLUET 1-2 0.3"
+      - "SUNFLOWER 1 0.2"
+    mob-chance: 0.04
+    mobs:
+      BEE: 2
+      RABBIT: 2
+      HORSE: 1
+      SHEEP: 2
+      DONKEY: 1
+      FOX: 1
+    reward:
+      - "CHERRY_SAPLING 4"
+      - "HONEYCOMB 8"
+      - "GOLDEN_APPLE 2"
+      - "SADDLE 1"
+  end:
+    name: "&5&lEnd"
+    icon: END_STONE
+    blocks: 1500
+    description:
+      - "&7Endkő, purpur és obszidián."
+      - "&7A ládákban akár elytra is lehet!"
+    blocks-pool:
+      END_STONE: 40
+      END_STONE_BRICKS: 12
+      PURPUR_BLOCK: 10
+      PURPUR_PILLAR: 4
+      OBSIDIAN: 6
+      CRYING_OBSIDIAN: 2
+    chest-chance: 0.03
+    chest:
+      - "ENDER_PEARL 1-4 0.6"
+      - "ENDER_EYE 1-2 0.2"
+      - "CHORUS_FRUIT 2-6 0.5"
+      - "SHULKER_SHELL 1 0.08"
+      - "POPPED_CHORUS_FRUIT 1-4 0.3"
+      - "DIAMOND 1-3 0.2"
+      - "EXPERIENCE_BOTTLE 4-10 0.4"
+      - "OBSIDIAN 2-6 0.4"
+      - "ELYTRA 1 0.01"
+      - "DRAGON_HEAD 1 0.01"
+    mob-chance: 0.05
+    mobs:
+      ENDERMAN: 4
+      ENDERMITE: 2
+      SHULKER: 1
+    reward:
+      - "SHULKER_SHELL 2"
+      - "ENDER_PEARL 8"
+      - "DIAMOND 5"
+      - "EXPERIENCE_BOTTLE 16"
+      - "ELYTRA 1"
+
+messages:
+  island-created: "Megkaptad a saját szigeted! Bányászd ki a blokkot, a helyén mindig jön egy új."
+  welcome: "Üdv újra a Fylandon! Menü: &f/fy"
+  first-join:
+    - "&8&m                                             "
+    - " &a&lFyland &8- &7üdv, &f%player%&7!"
+    - " &7Egyetlen blokkon állsz a semmi közepén. Bányászd ki,"
+    - " &7és a helyén mindig jön egy új: előbb fű és fa, aztán kő,"
+    - " &7jég, homok... egészen az Endig. Néha láda vagy mob is jön."
+    - " &7A blokk alá ne ess le, de ha mégis, visszahozunk."
+    - " [[&f/fy|run:/fy]] &8- &7menü  [[&f/fy piac|run:/fy piac]] &8- &7eladás"
+    - "&8&m                                             "
+  bossbar: "%phase% &8| &f%done%&7/&f%total% &8| &7Szint: &f%level%"
+  phase-next: "&a&lÚj fázis! &7Végeztetek ezzel: %done%&7, most jön: %phase%&7. A következő blokk egy jutalom láda!"
+  phase-cycle: "&a&lÚj kör! &7Minden fázison túl vagytok, kezdődik a(z) &f%cycle%. &7kör: %phase%"
+  phase-title: "&7Új fázis kezdődött"
+  no-build: "&cEz nem a te szigeted, vagy már kívül vagy a határán."
+  no-enderchest: "&cEnderládát itt nem lehet használni."
+  no-portal: "&cA Fylandon nem lehet portált használni."
+  void: "&eLeestél, visszahoztunk a szigetre."
+  home: "Itthon vagy."
+  no-island: "Még nincs szigeted. Lépj be a Fylandra, és kapsz egyet."
+  only-here: "Ezt csak a Fylandon tudod használni."
+  sethome-bad: "Az otthon csak a szigeted határán belül, szilárd blokkon lehet."
+  sethome: "Az otthonod mostantól itt van."
+  owner-only: "Ezt csak a sziget tulajdonosa teheti meg."
+  player-offline: "&f%player% &7most nincs fent."
+  already-member: "&f%player% &7már a szigeted tagja."
+  team-full: "Megtelt a csapat (%max% fő). Nagyobbat a fejlesztéseknél tudsz venni."
+  invite-sent: "Elküldtem a meghívást: &f%player%&7. 5 perce van elfogadni."
+  invite-received: "&f%player% &7meghívott a szigetére! [[&a&l[ELFOGADOM]|run:/fy elfogad]]"
+  invite-how: "Írd be: [[&f/fy meghiv <játékos>|suggest:/fy meghiv ]]"
+  no-invite: "Nincs érvényes meghívód."
+  accept-owner-team: "A saját szigetednek vannak tagjai. Előbb add át valamelyiküknek (&f/fy atad <játékos>&7)."
+  accept-confirm: "&eFigyelem: &7ha elfogadod, a mostani szigeted megszűnik. Ha biztos vagy benne, írd be újra: &f/fy elfogad"
+  joined: "&f%player% &7csatlakozott a szigethez!"
+  owner-cant-leave: "A tulajdonos nem léphet ki. Add át a szigetet (&f/fy atad <játékos>&7), vagy kezdd újra (&f/fy reset&7)."
+  leave-confirm: "Biztosan kilépsz a szigetről? Ha igen, írd be újra: &f/fy kilep"
+  left: "&f%player% &7kilépett a szigetről."
+  you-left: "Kiléptél a szigetről. Kapsz egy újat."
+  not-member: "&f%player% &7nem tagja a szigetnek."
+  kick-confirm: "Biztosan kirúgod &f%player% &7játékost? Kattints rá újra (vagy írd be újra a parancsot)."
+  kicked: "&f%player% &7már nem tagja a szigetnek."
+  you-kicked: "&f%owner% &7kirúgott a szigetéről. Kapsz egy újat."
+  transfer-confirm: "Biztosan átadod a szigetet &f%player% &7játékosnak? Kattints rá jobb klikkel újra (vagy írd be újra a parancsot)."
+  transferred: "A sziget új tulajdonosa: &f%player%"
+  reset-cooldown: "A szigetet legközelebb &f%time% &7múlva kezdheted újra."
+  reset-confirm: "&cFigyelem: &7az újrakezdéssel a sziget és a haladás elveszik (a fejlesztések megmaradnak). Ha biztos vagy benne, írd be újra: &f/fy reset"
+  reset-done: "A sziget újrakezdődött. Sok sikert!"
+  visitors-on: "A szigetedre mostantól bárki átnézhet."
+  visitors-off: "A szigetedre mostantól csak a tagok jöhetnek."
+  visit-closed-kicked: "Ez a sziget bezárt a látogatók előtt, visszahoztunk a sajátodra."
+  visit-none: "&f%player% &7nevű játékosnak nincs szigete."
+  visit-closed: "&f%player% &7szigetére most nem lehet átmenni."
+  visiting: "Átjöttél &f%player% &7szigetére."
+  upgrade-max: "Ez a fejlesztés már a legmagasabb szinten van."
+  not-enough-money: "Nincs elég pénzed, ez %price% &7lenne."
+  upgraded: "&f%player% &7fejlesztett: %upgrade% &7(%level%. szint)"
+  sell-nothing: "Nincs nálad semmi, amit el lehetne adni."
+  sold: "Eladtál &f%amount% &7tárgyat, kaptál érte: %money%"
+  inventory-full: "Nincs elég hely az inventorydban."
+  bought: "Megvetted: &f%amount%x %item% &8(%price%&8)"
+  usage: "Használat: &f%usage%"
+  admin-usage: "Admin: &f/fy admin fazis <játékos> <fázis> &8| &f/fy admin torol <játékos> &8| &f/fy admin tp <játékos>"
+  admin-phases: "Ilyen fázis nincs. Lehet: &f%phases%"
+  admin-phase-set: "&f%player% &7szigete mostantól itt tart: %phase%"
+  admin-deleted: "Törölve: &f%player% &7szigete."
+  help:
+    - "&8&m                                             "
+    - " &a&lFyland &8- &7parancsok &8(kattints rájuk!)"
+    - " [[&f/fy|run:/fy]] &8- &7menü"
+    - " [[&f/fy haza|run:/fy haza]] &8- &7vissza a szigetedre"
+    - " [[&f/fy piac|run:/fy piac]] &8- &7eladás és vásárlás"
+    - " [[&f/fy elad|run:/fy elad]] &8- &7minden eladható eladása"
+    - " [[&f/fy meghiv <játékos>|suggest:/fy meghiv ]] &8- &7barát meghívása"
+    - " [[&f/fy latogat <játékos>|suggest:/fy latogat ]] &8- &7átnézés más szigetére"
+    - " [[&f/fy fejlesztes|run:/fy fejlesztes]] &8- &7fejlesztések"
+    - " [[&f/fy fazisok|run:/fy fazisok]] &8- &7a fázisok"
+    - " [[&f/fy sethome|run:/fy sethome]] &8- &7otthon beállítása"
+    - "&8&m                                             "
+  menu:
+    back: "&7« Vissza"
+    lobby: "&cVissza a lobbyba"
+    balance: "&7Pénzed: %money%"
+    main-title: "&3[IceMine] &8Fyland"
+    island-name: "&a&l%owner% szigete"
+    island-lore:
+      - "&7Fázis: %phase% &8(%done%/%total%)"
+      - "&7Kibányászva: &f%blocks% &7blokk"
+      - "&7Szint: &f%level% &8| &7Kör: &f%cycle%"
+      - "&7Csapat: &f%members%"
+      - "&7Méret: &f%size%x%size%"
+      - ""
+      - "&7Pénzed: %money%"
+    home: "&c&lHaza"
+    home-lore:
+      - "&7Vissza a szigeted otthonára."
+    phases: "&a&lFázisok"
+    phases-lore:
+      - "&7Most: %phase%"
+      - "&7Nézd meg, mi jön még!"
+    upgrades: "&6&lFejlesztések"
+    upgrades-lore:
+      - "&7Nagyobb sziget, több tag,"
+      - "&7több láda."
+    market: "&2&lPiac"
+    market-lore:
+      - "&7Add el, amit kibányásztál,"
+      - "&7vagy vegyél hasznos dolgokat."
+    members: "&b&lCsapat"
+    members-lore:
+      - "&7Tagok: &f%members%"
+      - "&7Hívd meg a barátaidat!"
+    settings: "&7&lBeállítások"
+    settings-lore:
+      - "&7Látogatók, otthon, újrakezdés."
+    top: "&e&lToplista"
+    top-lore:
+      - "&7A legtöbbet bányászott szigetek."
+    visit: "&d&lLátogatás"
+    visit-lore:
+      - "&7Nézz át a többiek szigetére!"
+    phases-title: "&3[IceMine] &8Fázisok"
+    phase-blocks: "&7Hossza: &f%blocks% &7blokk"
+    phase-done: "&a✔ Kész"
+    phase-now: "&e▶ Most itt tartotok: &f%done%&7/&f%total%"
+    phase-locked: "&8Még zárva"
+    upgrades-title: "&3[IceMine] &8Fejlesztések"
+    upgrade-level: "&7Szint: &f%level%&7/&f%max%"
+    upgrade-now: "&7Most: &f%value%"
+    upgrade-next: "&7Következő: &a%value%"
+    upgrade-price: "&7Ár: %price%"
+    upgrade-click: "&b▶ Kattints a fejlesztéshez"
+    upgrade-maxed: "&a✔ Elérted a legmagasabb szintet"
+    market-title: "&3[IceMine] &8Piac"
+    sell-lore:
+      - "&7Ár: %price% &7/ db"
+      - "&7Nálad: &f%count% db &8(%total%&8)"
+      - ""
+      - "&b▶ Kattints, és mindet eladod"
+    sell-empty: "&7Nincs nálad eladható tárgy"
+    sell-empty-lore:
+      - "&7Bányássz, aztán gyere vissza!"
+    sell-all: "&a&lMindet eladom"
+    sell-all-lore:
+      - "&7Minden eladható tárgyat"
+      - "&7egyszerre eladsz."
+    buy: "&e&lVásárlás"
+    buy-lore:
+      - "&7Víz, láva, csemeték, magok..."
+    buy-title: "&3[IceMine] &8Piac: vásárlás"
+    buy-offer:
+      - "&7Ár: %price%"
+      - ""
+      - "&b▶ Kattints a vásárláshoz"
+    buy-offer-stack:
+      - "&7Ár: %price%"
+      - ""
+      - "&b▶ Bal klikk: 1x &8| &bJobb klikk: %amount% db"
+    members-title: "&3[IceMine] &8Csapat"
+    member-owner: "&6&l%player% &8(tulajdonos)"
+    member-owner-lore:
+      - "&7A sziget gazdája."
+    member-online:
+      - "&aFent van"
+    member-offline:
+      - "&8Nincs fent"
+    member-manage:
+      - ""
+      - "&cBal klikk kétszer: kirúgás"
+      - "&eJobb klikk kétszer: tulajdon átadása"
+    invite: "&a&lMeghívás"
+    invite-lore:
+      - "&7Tagok: &f%members%"
+      - "&b▶ Kattints, és a chatben"
+      - "&b  megmutatom a parancsot"
+    leave: "&c&lKilépés a szigetről"
+    leave-lore:
+      - "&7Ha kilépsz, saját szigetet kapsz."
+    settings-title: "&3[IceMine] &8Beállítások"
+    visitors-open: "&a&lLátogatók: be lehet jönni"
+    visitors-closed: "&c&lLátogatók: zárva"
+    visitors-lore:
+      - "&7Kattints az átállításhoz."
+    owner-only-lore:
+      - "&7Ezt csak a tulajdonos állíthatja."
+    sethome: "&c&lOtthon beállítása"
+    sethome-lore:
+      - "&7Ahol most állsz, az lesz az otthon."
+    reset: "&4&lÚjrakezdés"
+    reset-lore:
+      - "&7Új sziget, a haladás elölről indul."
+      - "&7A fejlesztések megmaradnak."
+      - "&cKétszer kell megerősíteni."
+    top-title: "&3[IceMine] &8Toplista"
+    top-entry: "&e#%place% &f%owner%"
+    top-entry-lore:
+      - "&7Kibányászva: &f%blocks% &7blokk"
+      - "&7Szint: &f%level% &8| &7Kör: &f%cycle%"
+      - "&7Fázis: %phase%"
+      - "&7Csapat: &f%members% fő"
+      - ""
+      - "&b▶ Kattints az átnézéshez"
+    top-empty: "&7Még nincs egy sziget sem."
+    visit-title: "&3[IceMine] &8Látogatás"
+    visit-entry-lore:
+      - "&7Fázis: %phase%"
+      - "&7Kibányászva: &f%blocks% &7blokk"
+      - ""
+      - "&b▶ Kattints az átnézéshez"
+    visit-empty: "&7Most nincs nyitott sziget, ahova átmehetnél."

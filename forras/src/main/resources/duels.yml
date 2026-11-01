@@ -12,7 +12,7 @@
 #   hit-delay: két találat közti sérthetetlenség tickben (vanilla 20, kombó 2-5)
 #   build: lehet-e építeni és bontani | hunger: éhezés | natural-regen: magától gyógyul-e
 #   ranked: lehet-e ranked sorban játszani | permission: csak ezzel a joggal választható
-#   Tárgy formátum ugyanaz, mint a KitPvP-ben (pl. "DIAMOND_SWORD 1 sharpness:3 unbreakable").
+#   Tárgy formátum ugyanaz, mint a FullPvP-ben (pl. "DIAMOND_SWORD 1 sharpness:3 unbreakable").
 
 world: duels
 # Ennyi perc után a meccs döntetlen

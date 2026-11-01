@@ -159,7 +159,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 2) {
-            core.messages().send(sender, "admin.usage", "%usage%", "/icem setspawn <skypvp|kitpvp <aréna>|combofly|gens>");
+            core.messages().send(sender, "admin.usage", "%usage%", "/icem setspawn <fullpvp|combofly|gens|lobby_<mód>>");
             return;
         }
         String mode = args[1].toLowerCase(Locale.ROOT);
@@ -243,12 +243,13 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         for (Economy.Currency currency : core.economy().currencies()) {
             sender.sendMessage(Text.color(" &7" + currency.name + ": " + core.economy().format(currency.id, profile.balance(currency.id))));
         }
-        for (String mode : new String[]{"kitpvp", "skypvp", "combofly"}) {
+        for (String mode : new String[]{"fullpvp", "combofly"}) {
             long kills = profile.stat(mode + ".kills");
             long deaths = profile.stat(mode + ".deaths");
             sender.sendMessage(Text.color(" &7" + mode + ": &a" + kills + " &7ölés, &c" + deaths + " &7halál, K/D &f" + Text.ratio(kills, deaths)
                     + "&7, sorozat &e" + profile.stat(mode + ".best_streak")));
         }
+        sender.sendMessage(Text.color(" &7Fyland: &a" + Text.number(profile.stat("fyland.blocks")) + " &7kibányászott blokk"));
         sender.sendMessage(Text.color(" &7Gens bevétel: &e" + Text.number(profile.stat("gens.earned")) + " &8| &7Parkour: &f"
                 + (profile.stat("parkour2.best_ms") > 0 ? Text.timer(profile.stat("parkour2.best_ms")) : "-") + " &8| &7Kombó: &b" + profile.stat("combofly.best") + "x"));
         sender.sendMessage(Text.color(" &7Játékidő: &f" + Text.duration(profile.playtime())));
@@ -460,8 +461,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if (!allowed(sender, "icemine.admin.rebuild")) {
             return;
         }
-        if (args.length < 2 || !Arrays.asList("lobby", "skypvp", "kitpvp", "combofly", "gens").contains(args[1].toLowerCase(Locale.ROOT))) {
-            core.messages().send(sender, "admin.usage", "%usage%", "/icem admin rebuild <lobby|skypvp|kitpvp|combofly|gens> confirm");
+        if (args.length < 2 || !Arrays.asList("lobby", "fullpvp", "combofly", "gens").contains(args[1].toLowerCase(Locale.ROOT))) {
+            core.messages().send(sender, "admin.usage", "%usage%", "/icem admin rebuild <lobby|fullpvp|combofly|gens> confirm");
             return;
         }
         if (args.length < 3 || !args[2].equalsIgnoreCase("confirm")) {
@@ -479,13 +480,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if (!allowed(sender, "icemine.admin.arena")) {
             return;
         }
-        if (args.length < 3 || !args[1].equalsIgnoreCase("reset") || !args[2].equalsIgnoreCase("skypvp")) {
-            core.messages().send(sender, "admin.usage", "%usage%", "/icem arena reset skypvp");
-            return;
-        }
-        core.skypvp().reset();
-        core.messages().send(sender, "admin.arena-reset");
-        log(sender, "arena", "skypvp", "reset");
+        core.messages().send(sender, "arena.none");
     }
 
     private void combatTag(CommandSender sender, String[] args) {
@@ -535,7 +530,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     files.add("all");
                     return filter(files, args[1]);
                 case "setspawn":
-                    return filter(Arrays.asList("skypvp", "kitpvp", "combofly", "gens"), args[1]);
+                    return filter(Arrays.asList("fullpvp", "combofly", "gens"), args[1]);
                 case "setportal":
                 case "maintenance":
                     return filter(core.modes().ids(), args[1]);
@@ -547,7 +542,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 case "npc":
                     return filter(Arrays.asList("list", "move"), args[1]);
                 case "rebuild":
-                    return filter(Arrays.asList("lobby", "skypvp", "kitpvp", "combofly", "gens"), args[1]);
+                    return filter(Arrays.asList("lobby", "fullpvp", "combofly", "gens"), args[1]);
                 case "arena":
                     return filter(Collections.singletonList("reset"), args[1]);
                 case "combattag":
@@ -568,8 +563,6 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     return filter(new ArrayList<>(core.holograms().all().keySet()), args[2]);
                 case "npc":
                     return filter(new ArrayList<>(core.npcs().all().keySet()), args[2]);
-                case "arena":
-                    return filter(Collections.singletonList("skypvp"), args[2]);
                 case "rebuild":
                     return filter(Collections.singletonList("confirm"), args[2]);
                 case "combattag":

@@ -23,27 +23,9 @@ class KitAbilityTest {
     }
 
     @Test
-    void everyShippedKitHasAWorkingAbility() {
-        YamlConfiguration config = resource("kitpvp.yml");
-        ConfigurationSection kits = config.getConfigurationSection("kits");
-        List<String> problems = new ArrayList<>();
-        Set<KitAbility.Type> types = new HashSet<>();
-        for (String id : kits.getKeys(false)) {
-            KitAbility ability = KitAbility.read("kits." + id + ".ability", kits.getConfigurationSection(id + ".ability"), problems);
-            assertNotNull(ability, id + ": nincs képessége");
-            assertTrue(ability.cooldown >= 5, id + ": túl rövid cooldown");
-            assertTrue(!ability.description.isEmpty(), id + ": nincs leírás");
-            types.add(ability.type);
-        }
-        assertTrue(problems.isEmpty(), problems.toString());
-        assertEquals(15, kits.getKeys(false).size());
-        assertEquals(KitAbility.Type.values().length, types.size(), "minden képesség típus szerepel legalább egy kitben");
-    }
-
-    @Test
     void rankKitsExistInSomeMode() {
         Set<String> known = new HashSet<>();
-        for (String file : new String[]{"kitpvp.yml", "skypvp.yml", "comboarena.yml"}) {
+        for (String file : new String[]{"fullpvp.yml", "comboarena.yml"}) {
             ConfigurationSection kits = resource(file).getConfigurationSection("kits");
             if (kits != null) {
                 known.addAll(kits.getKeys(false));
@@ -57,8 +39,8 @@ class KitAbilityTest {
                 bound++;
             }
         }
-        assertTrue(bound >= 15);
-        assertEquals(3, ranks.getStringList("default.kits").size());
+        assertTrue(bound >= 6);
+        assertEquals(0, ranks.getStringList("default.kits").size());
     }
 
     @Test

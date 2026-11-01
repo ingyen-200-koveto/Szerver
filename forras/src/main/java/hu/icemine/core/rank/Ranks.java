@@ -260,6 +260,17 @@ public final class Ranks {
         return true;
     }
 
+    /** Ugyanaz, mint a {@link #canUse(Player, Kit)}, csak kit objektum nélkül (pl. a FullPvP kitjeinél). */
+    public boolean canUse(Player player, String kitId, String permission) {
+        if (permission != null && !permission.isBlank()) {
+            return player.hasPermission(permission);
+        }
+        if (requiredFor(kitId) != null) {
+            return player.hasPermission(KIT_PERMISSION + kitId.toLowerCase(Locale.ROOT));
+        }
+        return true;
+    }
+
     public String storeUrl() {
         return storeUrl;
     }

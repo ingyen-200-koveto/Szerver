@@ -33,25 +33,25 @@ class RanksTest {
     }
 
     @Test
-    void atLeastThreeFreeKitsAndTheRestNeedARank() {
+    void freeKitsAreNotBoundAndRankKitsAre() {
         Ranks ranks = shipped(new ArrayList<>());
-        assertTrue(ranks.base().kits.size() >= 3);
-        for (String free : ranks.base().kits) {
-            assertNull(ranks.requiredFor(free));
-        }
-        assertEquals("vip", ranks.requiredFor("orgyilkos").id);
-        assertEquals("legend", ranks.requiredFor("poszeidon").id);
+        assertTrue(ranks.base().kits.isEmpty());
+        assertNull(ranks.requiredFor("harcos"));
+        assertNull(ranks.requiredFor("kezdo"));
+        assertEquals("vip", ranks.requiredFor("vip").id);
+        assertEquals("legend", ranks.requiredFor("legend").id);
     }
 
     @Test
     void strongerRanksInheritEverything() {
         Ranks ranks = shipped(new ArrayList<>());
         Ranks.Rank legend = ranks.byId("legend");
-        assertTrue(legend.granted().contains("icemine.kit.orgyilkos"));
+        assertTrue(legend.granted().contains("icemine.kit.vip"));
+        assertTrue(legend.granted().contains("icemine.fullpvp.vault.large"));
         assertTrue(legend.granted().contains("icemine.cosmetic.trail.felho"));
         assertTrue(legend.granted().contains("icemine.cosmetic.fly"));
         assertTrue(ranks.byId("owner").granted().contains("icemine.admin.*"));
-        assertFalse(ranks.byId("vip").granted().contains("icemine.kit.fagylovag"));
+        assertFalse(ranks.byId("vip").granted().contains("icemine.kit.mvp"));
         assertTrue(ranks.byId("mvpplus").multiplier > ranks.byId("vip").multiplier);
     }
 

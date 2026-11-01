@@ -28,8 +28,8 @@ public final class LobbyBuild extends Build {
     private static final String[] N = {"#...#", "##..#", "#.#.#", "#.#.#", "#..##", "#...#", "#...#"};
 
     static final String[][] SLOTS = {
-            {"kitpvp", "-20", "red"},
-            {"skypvp", "20", "light_blue"},
+            {"fullpvp", "-20", "red"},
+            {"fyland", "20", "lime"},
             {"combofly", "-41", "purple"},
             {"kingdoms", "41", "yellow"},
             {"gens", "-62", "lime"},

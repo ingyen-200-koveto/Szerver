@@ -238,8 +238,12 @@ public final class LobbyMenus {
         }
         menu.set(15, Items.of(Material.GOLD_INGOT).name(core.messages().raw("mainmenu.stats.name")).lore(core.messages().list("mainmenu.stats.lore")).hideAll().build(),
                 this::stats);
-        menu.set(29, pvpItem(Material.DIAMOND_SWORD, "&c&lKitPvP", profile, "kitpvp"));
-        menu.set(31, pvpItem(Material.FEATHER, "&b&lSkyPvP", profile, "skypvp"));
+        menu.set(29, pvpItem(Material.DIAMOND_SWORD, "&c&lFullPvP", profile, "fullpvp"));
+        List<String> fyland = new ArrayList<>();
+        fyland.add("&7Kibányászott blokkok: &f" + Text.number(profile.stat("fyland.blocks")));
+        fyland.add("&7Egyenleg: " + core.economy().format(core.economy().currency("fyland") == null ? core.economy().defaultCurrency() : "fyland",
+                profile.balance(core.economy().currency("fyland") == null ? core.economy().defaultCurrency() : "fyland")));
+        menu.set(31, Items.of(Material.GRASS_BLOCK).name("&a&lFyland").lore(fyland).hideAll().build());
         List<String> gens = new ArrayList<>();
         gens.add("&7Egyenleg: " + core.economy().format("gens", profile.balance("gens")));
         gens.add("&7Összes bevétel: &e" + Text.number(profile.stat("gens.earned")));

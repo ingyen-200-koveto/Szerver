@@ -212,9 +212,6 @@ public final class Migrations {
             if (!modes.isSet("modes.creative")) {
                 copyDefault(modes, "modes.creative");
             }
-            if (modes.getString("modes.kitpvp.icon", "").equalsIgnoreCase("MACE") && !modes.isSet("modes.kitpvp.icon-fallback")) {
-                modes.set("modes.kitpvp.icon-fallback", "IRON_AXE");
-            }
             modes.set("migrated.creative-v1", true);
             files.save("modes");
             notes.add("modes.yml: a játékmód választóba bekerült a Creative (hamarosan), új ikonok");
@@ -280,28 +277,6 @@ public final class Migrations {
             lobbies.set("migrated.bedwars-statues-v1", true);
             files.save("modelobbies");
             notes.add("modelobbies.yml: a BedWars lobbyban négy szobor van (Solo, Duó, 3v3v3v3, 4v4v4v4), a lobby most újraépül");
-        }
-        if (resetIfContains(files, "modes", "modes.kitpvp.description", "öt kit")) {
-            notes.add("modes.yml: új KitPvP leírás");
-        }
-        YamlConfiguration kitpvp = files.get("kitpvp");
-        if (kitpvp != null && kitpvp.getDefaults() != null && kitpvp.isSet("kits") && !kitpvp.getBoolean("migrated.abilities-v1", false)) {
-            ConfigurationSection defaultKits = kitpvp.getDefaults().getConfigurationSection("kits");
-            if (defaultKits != null) {
-                for (String id : defaultKits.getKeys(false)) {
-                    if (!kitpvp.isSet("kits." + id)) {
-                        copyDefault(kitpvp, "kits." + id);
-                    } else if (!kitpvp.isSet("kits." + id + ".ability") && defaultKits.isSet(id + ".ability")) {
-                        copyDefault(kitpvp, "kits." + id + ".ability");
-                    }
-                }
-            }
-            if (!kitpvp.isSet("upgrades")) {
-                copyDefault(kitpvp, "upgrades");
-            }
-            kitpvp.set("migrated.abilities-v1", true);
-            files.save("kitpvp");
-            notes.add("kitpvp.yml: kit képességek, 4 új kit (Vadász, Ugró, Villámmágus, Jégkirály) és fejlesztések");
         }
         YamlConfiguration gensFile = files.get("gens");
         if (gensFile != null && gensFile.getDefaults() != null && gensFile.isSet("tiers") && !gensFile.getBoolean("migrated.progress-v1", false)) {
@@ -382,7 +357,7 @@ public final class Migrations {
         YamlConfiguration modeLobbies = files.get("modelobbies");
         if (modeLobbies != null && modeLobbies.isSet("lobbies") && !modeLobbies.getBoolean("migrated.unique-v1", false)) {
             ConfigurationSection section = modeLobbies.getConfigurationSection("lobbies");
-            java.util.Set<String> themes = java.util.Set.of("kitpvp", "skypvp", "combofly", "gens", "kingdoms", "duels");
+            java.util.Set<String> themes = java.util.Set.of("fullpvp", "fyland", "combofly", "gens", "kingdoms", "duels");
             for (String key : section.getKeys(false)) {
                 if (!modeLobbies.isSet("lobbies." + key + ".theme")) {
                     modeLobbies.set("lobbies." + key + ".theme", themes.contains(key) ? key : "snow");
@@ -414,6 +389,155 @@ public final class Migrations {
                 "hit-delay-ticks", "damage-multiplier", "modes.combofly")) {
             files.save("combofly");
             notes.add("combofly.yml: kombós lökés, gyorsabb ütések (4 tick) és erősebb sebzés az arénában");
+        }
+        notes.addAll(newModes(files));
+        return notes;
+    }
+
+    /** A régi azonosító, és ami helyette jön: a KitPvP helyén FullPvP, a SkyPvP helyén Fyland. */
+    static final String[][] REPLACED = {{"kitpvp", "fullpvp"}, {"skypvp", "fyland"}};
+
+    /**
+     * 3.11: a KitPvP és a SkyPvP kikerült, helyettük FullPvP és Fyland (OneBlock) van. Minden configban kicseréljük
+     * a régi módokat az újakra (játékmód választó, mód lobbyk, főlobby szobrok, toplisták, scoreboard, rang kitek, pénznem).
+     */
+    static List<String> newModes(ConfigFiles files) {
+        return newModes(files::get, files::save);
+    }
+
+    static List<String> newModes(java.util.function.Function<String, YamlConfiguration> get, java.util.function.Consumer<String> save) {
+        List<String> notes = new ArrayList<>();
+        YamlConfiguration modes = get.apply("modes");
+        if (modes != null && modes.isSet("modes") && !modes.getBoolean("migrated.fullpvp-fyland-v1", false)) {
+            for (String[] pair : REPLACED) {
+                int slot = modes.getInt("modes." + pair[0] + ".slot", -1);
+                modes.set("modes." + pair[0], null);
+                if (!modes.isSet("modes." + pair[1])) {
+                    copyDefault(modes, "modes." + pair[1]);
+                    if (slot >= 0) {
+                        modes.set("modes." + pair[1] + ".slot", slot);
+                    }
+                }
+            }
+            modes.set("migrated.fullpvp-fyland-v1", true);
+            save.accept("modes");
+            notes.add("modes.yml: a KitPvP és a SkyPvP helyén mostantól FullPvP és Fyland van");
+        }
+        YamlConfiguration lobbies = get.apply("modelobbies");
+        if (lobbies != null && lobbies.isSet("lobbies") && !lobbies.getBoolean("migrated.fullpvp-fyland-v1", false)) {
+            for (String[] pair : REPLACED) {
+                lobbies.set("lobbies." + pair[0], null);
+                if (!lobbies.isSet("lobbies." + pair[1])) {
+                    copyDefault(lobbies, "lobbies." + pair[1]);
+                }
+            }
+            lobbies.set("migrated.fullpvp-fyland-v1", true);
+            save.accept("modelobbies");
+            notes.add("modelobbies.yml: új lobby a FullPvP-nek és a Fylandnak");
+        }
+        YamlConfiguration lobby = get.apply("lobby");
+        if (lobby != null && !lobby.getBoolean("migrated.fullpvp-fyland-v1", false)) {
+            for (String[] pair : REPLACED) {
+                String oldNpc = "npcs.mode_" + pair[0];
+                String newNpc = "npcs.mode_" + pair[1];
+                if (lobby.isSet(oldNpc + ".location") && !lobby.isSet(newNpc)) {
+                    Object location = lobby.get(oldNpc + ".location");
+                    ConfigurationSection where = location instanceof ConfigurationSection section ? section : null;
+                    if (where != null) {
+                        for (String key : where.getKeys(false)) {
+                            lobby.set(newNpc + ".location." + key, where.get(key));
+                        }
+                    }
+                    hu.icemine.core.lobby.LobbyDefaults.npc(lobby, "mode_" + pair[1]);
+                }
+                lobby.set(oldNpc, null);
+                ConfigurationSection holograms = lobby.isSet("holograms") ? lobby.getConfigurationSection("holograms") : null;
+                if (holograms != null) {
+                    for (String key : holograms.getKeys(false)) {
+                        if (key.equals("portal_" + pair[0])) {
+                            lobby.set("holograms." + key, null);
+                        } else if (pair[0].equals(lobby.getString("holograms." + key + ".target"))) {
+                            lobby.set("holograms." + key + ".target", pair[1]);
+                        }
+                    }
+                }
+                lobby.set("portals." + pair[0], null);
+                if (lobby.isSet("menus.stats.icons")) {
+                    lobby.set("menus.stats.icons." + pair[0], null);
+                    copyDefault(lobby, "menus.stats.icons." + pair[1]);
+                }
+                if (lobby.isSet("info-texts")) {
+                    lobby.set("info-texts.mode_" + pair[0], null);
+                    copyDefault(lobby, "info-texts.mode_" + pair[1]);
+                }
+            }
+            lobby.set("migrated.fullpvp-fyland-v1", true);
+            save.accept("lobby");
+            notes.add("lobby.yml: a főlobby szobrai mostantól a FullPvP-be és a Fylandra visznek");
+        }
+        YamlConfiguration main = get.apply("config");
+        if (main != null && main.isSet("leaderboards.boards") && !main.getBoolean("migrated.fullpvp-fyland-v1", false)) {
+            for (String[] pair : REPLACED) {
+                main.set("leaderboards.boards." + pair[0], null);
+                if (!main.isSet("leaderboards.boards." + pair[1])) {
+                    copyDefault(main, "leaderboards.boards." + pair[1]);
+                }
+            }
+            if ("kitpvp.best_streak".equals(main.getString("leaderboards.boards.streak.key"))) {
+                main.set("leaderboards.boards.streak", null);
+                copyDefault(main, "leaderboards.boards.streak");
+            }
+            main.set("migrated.fullpvp-fyland-v1", true);
+            save.accept("config");
+            notes.add("config.yml: új toplisták (FullPvP ölések, Fyland blokkok)");
+        }
+        YamlConfiguration board = get.apply("scoreboard");
+        if (board != null && board.isSet("boards") && !board.getBoolean("migrated.fullpvp-fyland-v1", false)) {
+            for (String[] pair : REPLACED) {
+                board.set("boards." + pair[0], null);
+                if (!board.isSet("boards." + pair[1])) {
+                    copyDefault(board, "boards." + pair[1]);
+                }
+            }
+            board.set("migrated.fullpvp-fyland-v1", true);
+            save.accept("scoreboard");
+            notes.add("scoreboard.yml: új tábla a FullPvP-nek és a Fylandnak");
+        }
+        YamlConfiguration economy = get.apply("economy");
+        if (economy != null && economy.isSet("currencies") && !economy.isSet("currencies.fyland")) {
+            copyDefault(economy, "currencies.fyland");
+            save.accept("economy");
+            notes.add("economy.yml: új pénznem a Fylandnak (Szigetérme)");
+        }
+        YamlConfiguration ranks = get.apply("ranks");
+        if (ranks != null && ranks.isSet("ranks") && ranks.getDefaults() != null && !ranks.getBoolean("migrated.fullpvp-kits-v1", false)) {
+            java.util.Set<String> keep = new java.util.HashSet<>();
+            for (String file : new String[]{"fullpvp", "comboarena"}) {
+                YamlConfiguration config = get.apply(file);
+                if (config == null) {
+                    continue;
+                }
+                if (config.isSet("kits")) {
+                    keep.addAll(config.getConfigurationSection("kits").getKeys(false));
+                }
+                if (config.getDefaults() != null && config.getDefaults().isConfigurationSection("kits")) {
+                    keep.addAll(config.getDefaults().getConfigurationSection("kits").getKeys(false));
+                }
+            }
+            ConfigurationSection section = ranks.getConfigurationSection("ranks");
+            for (String rank : section.getKeys(false)) {
+                List<String> kits = new ArrayList<>(ranks.getStringList("ranks." + rank + ".kits"));
+                kits.removeIf(kit -> !keep.contains(kit));
+                for (String kit : ranks.getDefaults().getStringList("ranks." + rank + ".kits")) {
+                    if (!kits.contains(kit)) {
+                        kits.add(kit);
+                    }
+                }
+                ranks.set("ranks." + rank + ".kits", kits);
+            }
+            ranks.set("migrated.fullpvp-kits-v1", true);
+            save.accept("ranks");
+            notes.add("ranks.yml: a rangok kitjei mostantól a FullPvP kitek");
         }
         return notes;
     }

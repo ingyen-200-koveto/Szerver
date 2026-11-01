@@ -24,13 +24,18 @@ icecoin:
   # Ennyi másodpercenként frissül
   refresh-seconds: 30
 
-# A játékosok feje fölött: a név előtt a rang, a név alatt az életerő (pl. "20 ❤").
+# A játékosok feje fölött: a név előtt a rang, a név mellett az életerő (pl. "Peti 20❤").
 # A rang a LuckPerms előtag, ha be van állítva, különben az IceMine rang neve (ranks.yml). Alap rangnál nem ír ki semmit.
 # BedWars meccsben a rang helyett a csapat színe látszik. Ha a TAB fent van, a rangot a TAB-on keresztül írja ki.
 nametags:
   enabled: true
   rank: true
   health: true
+  # beside: a név mellett | below: a név alatt
+  health-position: beside
+  # A név mögé írt életerő, %hp% = az életerő (20 = tele)
+  health-format: " &c%hp%&4❤"
+  # A név alatti kijelzés felirata (csak health-position: below esetén)
   health-title: "&c❤"
   disabled-worlds: []
 
@@ -60,18 +65,18 @@ quit-message: "&8[&c-&8] %prefix%%player%"
 leaderboards:
   size: 10
   boards:
-    kitpvp:
-      title: "&c&l⚔ KitPvP ölések"
+    fullpvp:
+      title: "&c&l⚔ FullPvP ölések"
       source: stat
-      key: kitpvp.kills
-    skypvp:
-      title: "&b&l☁ SkyPvP ölések"
+      key: fullpvp.kills
+    fyland:
+      title: "&a&l⛏ Fyland blokkok"
       source: stat
-      key: skypvp.kills
+      key: fyland.blocks
     streak:
-      title: "&e&l⚡ Legjobb sorozat"
+      title: "&e&l⚡ Legjobb FullPvP sorozat"
       source: stat
-      key: kitpvp.best_streak
+      key: fullpvp.best_streak
     gens:
       title: "&a&l⛃ Gens bevétel"
       source: stat
