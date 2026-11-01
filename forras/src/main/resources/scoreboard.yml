@@ -92,6 +92,7 @@ boards:
     - "&7Generátorok: &f%generators%&7/&f%slots%"
     - "&7Szint: &f%plot_level% &8(%multiplier%)"
     - "&7Termelés: &f%production%&7/perc"
+    - "&7Prestige: &d%prestige% &8| &7Rebirth: &5%rebirth%"
     - "&7Összes bevétel: &e%earned%"
     - ""
     - "&7Sziget: &f%plot%"

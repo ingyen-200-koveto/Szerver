@@ -31,6 +31,7 @@ public final class GensMenu {
             return;
         }
         String currency = gens.currency();
+        GensProgress progress = gens.progress();
         Menu menu = new Menu("gens", 5, core.messages().raw("gens.menu.title"));
         menu.frame(Material.LIME_STAINED_GLASS_PANE, null);
         GensData.Tier first = gens.tiers().isEmpty() ? null : gens.tiers().firstEntry().getValue();
@@ -42,7 +43,7 @@ public final class GensMenu {
         GensData.Level level = gens.level(data);
         GensData.Level next = gens.nextLevel(data);
         List<String> levelLore = new ArrayList<>(core.messages().list("gens.menu.level.lore",
-                "%level%", String.valueOf(data.level), "%slots%", String.valueOf(level.slots),
+                "%level%", String.valueOf(data.level), "%slots%", String.valueOf(gens.slots(player, data)),
                 "%multiplier%", String.format(Locale.ROOT, "%.2fx", level.multiplier)));
         if (next == null) {
             levelLore.add(core.messages().raw("gens.menu.level.max"));
@@ -50,12 +51,37 @@ public final class GensMenu {
             levelLore.addAll(core.messages().list("gens.menu.level.next", "%level%", String.valueOf(next.level), "%slots%", String.valueOf(next.slots),
                     "%multiplier%", String.format(Locale.ROOT, "%.2fx", next.multiplier), "%price%", core.economy().format(currency, next.price)));
         }
-        menu.set(12, Items.of(Material.EXPERIENCE_BOTTLE).name(core.messages().raw("gens.menu.level.name")).lore(levelLore).build(), clicker -> {
+        menu.set(11, Items.of(Material.EXPERIENCE_BOTTLE).name(core.messages().raw("gens.menu.level.name")).lore(levelLore).build(), clicker -> {
             gens.upgradePlot(clicker);
             open(clicker);
         });
+        menu.set(12, Items.of(Material.ANVIL).name(core.messages().raw("gens.menu.upgrades.name"))
+                .lore(core.messages().list("gens.menu.upgrades.lore")).build(), this::upgrades);
+        menu.set(13, Items.head(player).name("&a&l" + player.getName()).lore(core.messages().list("gens.menu.info",
+                "%money%", core.economy().format(currency, core.economy().balance(player, currency)),
+                "%generators%", String.valueOf(data.generators.size()), "%slots%", String.valueOf(gens.slots(player, data)),
+                "%production%", Text.number(gens.productionPerMinute(data)), "%plot%", "#" + data.plot,
+                "%prestige%", String.valueOf(data.prestige), "%rebirth%", String.valueOf(data.rebirth),
+                "%multiplier%", String.format(Locale.ROOT, "%.2fx", gens.multiplier(data)))).build());
         menu.set(14, Items.of(Material.GOLD_INGOT).name(core.messages().raw("gens.menu.sell.name")).lore(core.messages().list("gens.menu.sell.lore")).build(), clicker -> {
             gens.sellAll(clicker);
+            open(clicker);
+        });
+        boolean unlocked = gens.autosellUnlocked(player, data);
+        List<String> autoLore = new ArrayList<>(core.messages().list("gens.menu.autosell.lore"));
+        autoLore.add("");
+        if (!unlocked) {
+            autoLore.add(core.messages().raw("gens.menu.autosell.buy").replace("%price%", core.economy().format(currency, progress.autosellPrice())));
+        } else {
+            autoLore.add(core.messages().raw(data.autosell ? "settings.on" : "settings.off"));
+            autoLore.add(core.messages().raw("gens.menu.toggle"));
+        }
+        Items auto = Items.of(Material.HOPPER).name(core.messages().raw("gens.menu.autosell.name")).lore(autoLore);
+        if (data.autosell) {
+            auto.glow();
+        }
+        menu.set(15, auto.build(), clicker -> {
+            gens.toggleAutosell(clicker);
             open(clicker);
         });
         boolean daily = gens.dailyAvailable(player);
@@ -68,6 +94,39 @@ public final class GensMenu {
             gens.daily(clicker);
             open(clicker);
         });
+        menu.set(19, prestigeItem(player, data), clicker -> {
+            gens.prestige(clicker);
+            if (clicker.getOpenInventory().getTopInventory().getHolder() instanceof Menu) {
+                open(clicker);
+            }
+        });
+        menu.set(20, rebirthItem(player, data), clicker -> {
+            gens.rebirth(clicker);
+            if (clicker.getOpenInventory().getTopInventory().getHolder() instanceof Menu) {
+                open(clicker);
+            }
+        });
+        boolean large = gens.largeBackpack(player, data);
+        List<String> packLore = new ArrayList<>(core.messages().list("gens.menu.backpack.lore", "%size%", String.valueOf(progress.backpackSize(large))));
+        menu.set(22, Items.of(Material.CHEST).name(core.messages().raw("gens.menu.backpack.name")).lore(packLore).build(), clicker -> {
+            clicker.closeInventory();
+            gens.openBackpack(clicker);
+        });
+        if (!large && progress.backpackPrice() > 0) {
+            menu.set(23, Items.of(Material.BARREL).name(core.messages().raw("gens.menu.backpack.upgrade-name"))
+                    .lore(core.messages().list("gens.menu.backpack.upgrade", "%price%", core.economy().format(currency, progress.backpackPrice()),
+                            "%size%", String.valueOf(progress.backpackSize(true)))).build(), clicker -> {
+                gens.buyLargeBackpack(clicker);
+                open(clicker);
+            });
+        }
+        menu.set(24, Items.of(Material.PLAYER_HEAD).name(core.messages().raw("gens.menu.members.name"))
+                .lore(core.messages().list("gens.menu.members.lore", "%count%", String.valueOf(data.trusted.size()))).build(), this::members);
+        menu.set(25, Items.of(data.locked ? Material.IRON_DOOR : Material.OAK_DOOR).name(core.messages().raw("gens.menu.lock.name"))
+                .lore(core.messages().list(data.locked ? "gens.menu.lock.locked" : "gens.menu.lock.open")).build(), clicker -> {
+            gens.toggleLock(clicker);
+            open(clicker);
+        });
         menu.set(28, Items.of(Material.WRITABLE_BOOK).name(core.messages().raw("gens.menu.quests.name")).lore(core.messages().list("gens.menu.quests.lore")).build(), this::quests);
         menu.set(30, Items.of(Material.EMERALD).name(core.messages().raw("gens.menu.shop.name")).lore(core.messages().list("gens.menu.shop.lore")).build(), this::shop);
         menu.set(32, Items.of(Material.RED_BED).name(core.messages().raw("gens.menu.home.name")).lore(core.messages().list("gens.menu.home.lore")).build(), clicker -> {
@@ -75,10 +134,151 @@ public final class GensMenu {
             gens.goHome(clicker);
         });
         menu.set(34, Items.of(Material.BOOK).name(core.messages().raw("gens.menu.tiers.name")).lore(tierLore()).build());
-        menu.set(22, Items.head(player).name("&a&l" + player.getName()).lore(core.messages().list("gens.menu.info",
-                "%money%", core.economy().format(currency, core.economy().balance(player, currency)),
-                "%generators%", String.valueOf(data.generators.size()), "%slots%", String.valueOf(level.slots),
-                "%production%", Text.number(gens.productionPerMinute(data)), "%plot%", "#" + data.plot)).build());
+        menu.open(player);
+    }
+
+    private ItemStack prestigeItem(Player player, GensData.Player data) {
+        GensProgress progress = gens.progress();
+        List<String> lore = new ArrayList<>(core.messages().list("gens.menu.prestige.lore", "%prestige%", String.valueOf(data.prestige),
+                "%max%", String.valueOf(progress.prestigeMax()), "%bonus%", Text.decimal(progress.prestigeBonus())));
+        lore.add("");
+        if (data.prestige >= progress.prestigeMax()) {
+            lore.add(core.messages().raw("gens.menu.prestige.maxed"));
+        } else {
+            lore.add(core.messages().raw("gens.menu.prestige.price").replace("%price%",
+                    core.economy().format(gens.currency(), progress.prestigeCost(data.prestige, data.rebirth))));
+            lore.add(core.messages().raw(progress.canPrestige(data.level, data.prestige) ? "gens.menu.prestige.ready" : "gens.menu.prestige.need")
+                    .replace("%level%", String.valueOf(progress.prestigeLevel())));
+        }
+        Items item = Items.of(Material.NETHER_STAR).name(core.messages().raw("gens.menu.prestige.name")).lore(lore);
+        if (progress.canPrestige(data.level, data.prestige)) {
+            item.glow();
+        }
+        return item.build();
+    }
+
+    private ItemStack rebirthItem(Player player, GensData.Player data) {
+        GensProgress progress = gens.progress();
+        List<String> lore = new ArrayList<>(core.messages().list("gens.menu.rebirth.lore", "%rebirth%", String.valueOf(data.rebirth),
+                "%bonus%", Text.decimal(progress.rebirthBonus()), "%slots%", String.valueOf(progress.rebirthSlots()),
+                "%need%", String.valueOf(progress.rebirthPrestige())));
+        lore.add("");
+        lore.add(core.messages().raw("gens.menu.rebirth.price").replace("%price%", core.economy().format(gens.currency(), progress.rebirthCost(data.rebirth))));
+        boolean ready = progress.canRebirth(data.prestige, data.rebirth);
+        lore.add(core.messages().raw(ready ? "gens.menu.rebirth.ready" : "gens.menu.rebirth.need").replace("%need%", String.valueOf(progress.rebirthPrestige())));
+        Items item = Items.of(Material.END_CRYSTAL).name(core.messages().raw("gens.menu.rebirth.name")).lore(lore);
+        if (ready) {
+            item.glow();
+        }
+        return item.build();
+    }
+
+    public void upgrades(Player player) {
+        GensData.Player data = gens.data(player);
+        if (data == null) {
+            return;
+        }
+        GensProgress progress = gens.progress();
+        Menu menu = new Menu("gens-upgrades", 3, core.messages().raw("gens.upgrade.title"));
+        menu.frame(Material.LIME_STAINED_GLASS_PANE, null);
+        int slot = 10;
+        for (GensProgress.IslandUpgrade upgrade : progress.upgrades().values()) {
+            if (slot > 16) {
+                break;
+            }
+            int level = data.upgrades.getOrDefault(upgrade.id, 0);
+            List<String> lore = new ArrayList<>(upgrade.description);
+            lore.add("");
+            lore.add(core.messages().raw("upgrade.level").replace("%level%", String.valueOf(level)).replace("%max%", String.valueOf(upgrade.maxLevel()))
+                    + " " + Text.bar(level / (double) upgrade.maxLevel(), Math.min(20, upgrade.maxLevel() * 2), "&a▌", "&8▌"));
+            long price = upgrade.priceFor(level);
+            if (price < 0) {
+                lore.add(core.messages().raw("upgrade.lore-max"));
+            } else {
+                lore.add(core.messages().raw("upgrade.price").replace("%price%", core.economy().format(gens.currency(), price)));
+                lore.add(core.messages().raw("upgrade.click"));
+            }
+            Items item = Items.of(Items.material(upgrade.icon, Material.ANVIL)).name(upgrade.name).lore(lore).hideAll();
+            if (level > 0) {
+                item.glow();
+            }
+            String id = upgrade.id;
+            menu.set(slot, item.build(), clicker -> {
+                gens.buyIslandUpgrade(clicker, id);
+                upgrades(clicker);
+            });
+            slot += 2;
+        }
+        menu.set(22, Items.of(Material.ARROW).name(core.messages().raw("menu.back")).build(), this::open);
+        menu.open(player);
+    }
+
+    public void members(Player player) {
+        GensData.Player data = gens.data(player);
+        if (data == null) {
+            return;
+        }
+        Menu menu = new Menu("gens-members", 4, core.messages().raw("gens.members.title"));
+        menu.frame(Material.LIME_STAINED_GLASS_PANE, null);
+        int slot = 10;
+        for (java.util.UUID member : data.trusted) {
+            if (slot % 9 == 8) {
+                slot += 2;
+            }
+            if (slot > 25) {
+                break;
+            }
+            String name = gens.nameOf(member);
+            List<String> lore = new ArrayList<>();
+            int flags = data.permissionsOf(member);
+            lore.add(flagLine("gens.members.build", (flags & GensData.BUILD) != 0));
+            lore.add(flagLine("gens.members.containers", (flags & GensData.CONTAINERS) != 0));
+            lore.add(flagLine("gens.members.collect", (flags & GensData.COLLECT) != 0));
+            lore.add(flagLine("gens.members.manage", (flags & GensData.MANAGE) != 0));
+            lore.add("");
+            lore.add(core.messages().raw("gens.members.click"));
+            menu.set(slot++, Items.head(org.bukkit.Bukkit.getOfflinePlayer(member)).name("&a" + name).lore(lore).build(), clicker -> member(clicker, member));
+        }
+        if (data.trusted.isEmpty()) {
+            menu.set(13, Items.of(Material.PAPER).name(core.messages().raw("gens.members.empty")).lore(core.messages().list("gens.members.hint")).build());
+        }
+        menu.set(31, Items.of(Material.ARROW).name(core.messages().raw("menu.back")).build(), this::open);
+        menu.open(player);
+    }
+
+    private String flagLine(String key, boolean on) {
+        return core.messages().raw(key) + " " + core.messages().raw(on ? "settings.on" : "settings.off");
+    }
+
+    private void member(Player player, java.util.UUID member) {
+        GensData.Player data = gens.data(player);
+        if (data == null || !data.trusted.contains(member)) {
+            members(player);
+            return;
+        }
+        Menu menu = new Menu("gens-member", 3, core.messages().raw("gens.members.title-one").replace("%player%", gens.nameOf(member)));
+        menu.frame(Material.LIME_STAINED_GLASS_PANE, null);
+        int flags = data.permissionsOf(member);
+        Object[][] toggles = {{10, GensData.BUILD, "gens.members.build", Material.BRICKS}, {11, GensData.CONTAINERS, "gens.members.containers", Material.CHEST},
+                {12, GensData.COLLECT, "gens.members.collect", Material.HOPPER}, {13, GensData.MANAGE, "gens.members.manage", Material.ANVIL}};
+        for (Object[] toggle : toggles) {
+            int flag = (Integer) toggle[1];
+            boolean on = (flags & flag) != 0;
+            Items item = Items.of((Material) toggle[3]).name(core.messages().raw((String) toggle[2]))
+                    .lore(core.messages().raw(on ? "settings.on" : "settings.off"), core.messages().raw("gens.menu.toggle"));
+            if (on) {
+                item.glow();
+            }
+            menu.set((Integer) toggle[0], item.build(), clicker -> {
+                gens.togglePermission(clicker, member, flag);
+                member(clicker, member);
+            });
+        }
+        menu.set(16, Items.of(Material.BARRIER).name(core.messages().raw("gens.members.remove")).build(), clicker -> {
+            gens.removeMember(clicker, member);
+            members(clicker);
+        });
+        menu.set(22, Items.of(Material.ARROW).name(core.messages().raw("menu.back")).build(), this::members);
         menu.open(player);
     }
 

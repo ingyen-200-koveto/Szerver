@@ -2,10 +2,21 @@
 # Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
 version: 3.3.0
 changes:
+- file: messages_hu
+  path: gens.menu.info
+  old:
+  - '&7Egyenleg: &f%money%'
+  - '&7Generátorok: &f%generators%&7/&f%slots%'
+  - '&7Termelés: &f%production% &7/ perc'
+  - '&7Sziget: &f%plot%'
 - file: ranks
   path: ranks.vipplus.kits
   old:
   - berserker
+- file: ranks
+  path: ranks.vipplus.permissions
+  old:
+  - icemine.chat.color
 - file: ranks
   path: ranks.vipplus.perks
   old:
@@ -18,6 +29,10 @@ changes:
   old:
   - fagylovag
 - file: ranks
+  path: ranks.mvp.permissions
+  old:
+  - icemine.cosmetic.fly
+- file: ranks
   path: ranks.mvp.perks
   old:
   - '&7Fagylovag kit'
@@ -28,6 +43,9 @@ changes:
   path: ranks.elite.kits
   old:
   - piroman
+- file: ranks
+  path: ranks.elite.permissions
+  old: []
 - file: ranks
   path: ranks.elite.perks
   old:
@@ -40,6 +58,9 @@ changes:
   - halasz
   - alkimista
   - poszeidon
+- file: ranks
+  path: ranks.legend.permissions
+  old: []
 - file: ranks
   path: ranks.legend.perks
   old:

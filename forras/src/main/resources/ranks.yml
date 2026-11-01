@@ -56,9 +56,10 @@ ranks:
     coin-multiplier: 1.2
     kits: [berserker, vadasz]
     cosmetics: [kill.szivek]
-    permissions: [icemine.chat.color]
+    permissions: [icemine.chat.color, icemine.gens.autosell]
     perks:
       - "&7Berserker és Vadász kit"
+      - "&7Gens: automatikus eladás"
       - "&7Szívek ölés effekt"
       - "&7Színes chat"
       - "&720% pénz bónusz"
@@ -69,9 +70,10 @@ ranks:
     coin-multiplier: 1.3
     kits: [fagylovag, ugro]
     cosmetics: [trail.fagy]
-    permissions: [icemine.cosmetic.fly]
+    permissions: [icemine.cosmetic.fly, icemine.gens.backpack.large]
     perks:
       - "&7Fagylovag és Ugró kit"
+      - "&7Gens: nagy hátizsák"
       - "&7Fagy nyomvonal"
       - "&7Repülés a lobbyban"
       - "&730% pénz bónusz"
@@ -94,9 +96,10 @@ ranks:
     coin-multiplier: 1.5
     kits: [piroman, villammago]
     cosmetics: [trail.kristaly, kill.tuzijatek]
-    permissions: []
+    permissions: [icemine.gens.extraslots.2]
     perks:
       - "&7Piromán és Villámmágus kit"
+      - "&7Gens: +2 generátorhely"
       - "&7Kristály nyomvonal, tűzijáték effekt"
       - "&750% pénz bónusz"
   legend:
@@ -106,9 +109,10 @@ ranks:
     coin-multiplier: 1.75
     kits: [halasz, alkimista, poszeidon, jegkiraly]
     cosmetics: [trail.szikra, kill.villam, kill.robbanas]
-    permissions: []
+    permissions: [icemine.gens.extraslots.4]
     perks:
       - "&7Halász, Alkimista, Poszeidón és Jégkirály kit"
+      - "&7Gens: +4 generátorhely"
       - "&7Minden kozmetika"
       - "&775% pénz bónusz"
   youtuber:

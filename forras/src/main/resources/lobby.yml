@@ -208,6 +208,7 @@ menus:
       parkour: LEATHER_BOOTS
       combo: PRISMARINE_SHARD
       combokills: AMETHYST_SHARD
+      gensprestige: NETHER_STAR
   cosmetics:
     title: "&3[IceMine] &8Kozmetikák"
   settings:

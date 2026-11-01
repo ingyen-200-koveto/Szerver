@@ -267,6 +267,25 @@ public final class Migrations {
             files.save("kitpvp");
             notes.add("kitpvp.yml: kit képességek, 4 új kit (Vadász, Ugró, Villámmágus, Jégkirály) és fejlesztések");
         }
+        YamlConfiguration gensFile = files.get("gens");
+        if (gensFile != null && gensFile.getDefaults() != null && gensFile.isSet("tiers") && !gensFile.getBoolean("migrated.progress-v1", false)) {
+            for (String section : new String[]{"island-upgrades", "prestige", "rebirth", "autosell", "backpack"}) {
+                if (!gensFile.isSet(section)) {
+                    copyDefault(gensFile, section);
+                }
+            }
+            gensFile.set("migrated.progress-v1", true);
+            files.save("gens");
+            notes.add("gens.yml: prestige, rebirth, sziget fejlesztések, automatikus eladás, hátizsák");
+        }
+        if (main.isSet("leaderboards.boards") && !main.isSet("leaderboards.boards.gensprestige")) {
+            copyDefault(main, "leaderboards.boards.gensprestige");
+            files.save("config");
+        }
+        if (lobbyFile != null && lobbyFile.isSet("menus.stats.icons") && !lobbyFile.isSet("menus.stats.icons.gensprestige")) {
+            lobbyFile.set("menus.stats.icons.gensprestige", "NETHER_STAR");
+            files.save("lobby");
+        }
         YamlConfiguration combofly = files.get("combofly");
         if (refresh(combofly, "migrated.combo-v2", "knockback-horizontal", "knockback-vertical", "combo-scaling", "max-vertical", "max-height",
                 "hit-delay-ticks", "damage-multiplier", "modes.combofly")) {

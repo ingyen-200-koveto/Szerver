@@ -144,6 +144,68 @@ tiers:
     capacity: 192
     upgrade: 0
 
+# Sziget fejlesztések (a menüben az üllő). effect: capacity (+% tároló), speed (-% termelési idő), value (+% eladási ár)
+# per-level: ennyi százalék szintenként | prices: szintenként az ár (ahány ár, annyi szint)
+island-upgrades:
+  tarolo:
+    name: "&6&lNagyobb tároló"
+    icon: CHEST
+    effect: capacity
+    per-level: 25
+    prices: [3000, 12000, 40000, 120000, 350000]
+    description:
+      - "&7+25% hely minden generátorban szintenként."
+      - "&7Ritkábban kell begyűjteni."
+  sebesseg:
+    name: "&b&lGyorsabb termelés"
+    icon: CLOCK
+    effect: speed
+    per-level: 8
+    prices: [6000, 25000, 90000, 300000, 900000]
+    description:
+      - "&7-8% termelési idő szintenként."
+  ertek:
+    name: "&e&lJobb ár"
+    icon: GOLD_NUGGET
+    effect: value
+    per-level: 6
+    prices: [5000, 20000, 75000, 250000, 750000]
+    description:
+      - "&7+6% pénz minden eladásnál szintenként."
+
+# Prestige: ha a szigeted elérte a required-level szintet (0 = a legmagasabbat), pénzért újrakezdheted.
+# A generátorok és a Gens pénz elvesznek, a sziget szint 1 lesz, cserébe tartósan többet termelsz (bonus % / prestige).
+# Az ár minden prestige után a price-multiplier szorosára nő.
+prestige:
+  max: 10
+  required-level: 0
+  price: 2000000
+  price-multiplier: 1.8
+  bonus: 15
+
+# Rebirth: ha megvan a required-prestige, még nagyobb újrakezdés: a prestige és a sziget fejlesztések is nullázódnak,
+# de nagy bónusz (bonus % / rebirth) és extra generátorhely (extra-slots) jár. max: 0 = nincs felső határ.
+rebirth:
+  required-prestige: 10
+  price: 100000000
+  price-multiplier: 2.5
+  bonus: 75
+  extra-slots: 3
+  max: 0
+
+# Automatikus eladás: a generátorok termését rögtön eladja (10 mp-enként jön meg a pénz).
+# Megvásárolható, vagy a rang adja (icemine.gens.autosell). rate: a teljes ár hányad része (1.0 = teljes ár).
+autosell:
+  price: 250000
+  rate: 1.0
+
+# Hátizsák (/gens backpack): ide megy a termés, ha tele a táskád, és a "Mindent elad" ezt is eladja.
+# A nagy hátizsák megvásárolható, vagy a rang adja (icemine.gens.backpack.large).
+backpack:
+  size: 27
+  large-size: 54
+  large-price: 150000
+
 # Egyéb eladható tárgyak (ANYAG: ár)
 sell-prices:
   WHEAT: 1

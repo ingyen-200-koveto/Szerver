@@ -78,7 +78,7 @@ commands:
     aliases: [arenak, arenas]
   gens:
     description: Gens menü és parancsok
-    usage: /gens [home|visit|trust|untrust|sell|daily|quests|shop]
+    usage: /gens [home|visit|trust|untrust|sell|daily|quests|shop|backpack|autosell|prestige|rebirth|members|upgrades|lock]
     aliases: [gen, sziget]
   elad:
     description: Gens termés eladása

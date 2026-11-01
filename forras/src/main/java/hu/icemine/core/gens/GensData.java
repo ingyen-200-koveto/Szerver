@@ -73,11 +73,28 @@ public final class GensData {
         }
     }
 
+    /** Sziget tag jogai (bitek). */
+    public static final int BUILD = 1;
+    public static final int CONTAINERS = 2;
+    public static final int COLLECT = 4;
+    public static final int MANAGE = 8;
+    public static final int DEFAULT_MEMBER = BUILD | CONTAINERS | COLLECT;
+
     public static final class Player {
         public final UUID uuid;
         public int plot;
         public int level;
         public final Set<UUID> trusted = new HashSet<>();
+        /** Tagonként a jogok (ha nincs benne, akkor DEFAULT_MEMBER). */
+        public final Map<UUID, Integer> permissions = new LinkedHashMap<>();
+        /** Ezeket a profil tárolja (gens.prestige, gens.rebirth, gens.up.*, gens.autosell...), belépéskor töltjük be. */
+        public int prestige;
+        public int rebirth;
+        public final Map<String, Integer> upgrades = new LinkedHashMap<>();
+        public boolean autosellOwned;
+        public boolean autosell;
+        public boolean backpackLarge;
+        public boolean locked;
         public long daily;
         public String questDay = "";
         public final Map<String, Long> progress = new LinkedHashMap<>();
@@ -130,6 +147,18 @@ public final class GensData {
             }
         }
 
+        public int permissionsOf(UUID member) {
+            return permissions.getOrDefault(member, DEFAULT_MEMBER);
+        }
+
+        public boolean can(UUID player, int flag) {
+            if (uuid.equals(player)) {
+                return true;
+            }
+            return trusted.contains(player) && (permissionsOf(player) & flag) != 0;
+        }
+
+        /** "uuid" (alap jogok) vagy "uuid:jogok" vesszővel elválasztva; a régi, csak uuid-s formát is olvassa. */
         public String encodeTrusted() {
             StringBuilder out = new StringBuilder();
             for (UUID id : trusted) {
@@ -137,19 +166,30 @@ public final class GensData {
                     out.append(',');
                 }
                 out.append(id);
+                int flags = permissionsOf(id);
+                if (flags != DEFAULT_MEMBER) {
+                    out.append(':').append(flags);
+                }
             }
             return out.toString();
         }
 
         public void decodeTrusted(String text) {
             trusted.clear();
+            permissions.clear();
             if (text == null || text.isEmpty()) {
                 return;
             }
             for (String part : text.split(",")) {
+                String[] pieces = part.trim().split(":");
                 try {
-                    trusted.add(UUID.fromString(part.trim()));
+                    UUID id = UUID.fromString(pieces[0]);
+                    trusted.add(id);
+                    if (pieces.length > 1) {
+                        permissions.put(id, Integer.parseInt(pieces[1]) & (BUILD | CONTAINERS | COLLECT | MANAGE));
+                    }
                 } catch (IllegalArgumentException ignored) {
+                    // sérült bejegyzés: kihagyjuk
                 }
             }
         }

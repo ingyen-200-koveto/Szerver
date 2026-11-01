@@ -116,6 +116,21 @@ Beállítás: `plugins/IceMine/kitpvp.yml` -> `kits` (képesség: `ability`) és
 `/icem kit create <név> [rang]` (törlés: `/icem kit delete <név>`). A név, a leírás és a képesség utána
 a `kitpvp.yml`-ben finomítható.
 
+### Gens
+
+A `/gens` menüben minden elérhető:
+- **Sziget fejlesztések:** nagyobb tároló, gyorsabb termelés, jobb ár.
+- **Prestige:** ha a sziget elérte a legmagasabb szintet, pénzért újrakezded, cserébe örökre +15% termelés.
+- **Rebirth:** 10 prestige után a prestige is nullázódik, de +75% termelés és +3 generátorhely jár.
+- **Automatikus eladás:** megvehető, vagy a VIP+ rang adja.
+- **Hátizsák:** ide megy a termés, ha tele a táskád. A nagy hátizsák megvehető, vagy az MVP rang adja.
+- **Sziget tagok:** tagonként állítható, mit csinálhat: építés, ládák, generátor begyűjtés, generátor fejlesztés.
+- **Sziget bezárása:** ha be van zárva, csak a tagjaid látogathatnak meg.
+- **ELITE és LEGEND rang:** +2 / +4 generátorhely.
+
+Parancsok: `/gens backpack`, `/gens autosell`, `/gens prestige`, `/gens rebirth`, `/gens members`, `/gens upgrades`,
+`/gens lock`. Beállítás: `plugins/IceMine/gens.yml`. Új toplista: Gens prestige.
+
 ### ComboFly lökés
 
 `plugins/IceMine/combofly.yml`: a lökés öt része külön állítható: Horizontal (`knockback-horizontal`),

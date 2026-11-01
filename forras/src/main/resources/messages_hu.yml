@@ -318,6 +318,47 @@ gens:
   untrusted: "&f%player% &7már nem építhet a szigeteden."
   trust-limit: "Legfeljebb 10 embert engedhetsz be."
   inventory-full: "Tele van a táskád."
+  autosold: "&7Automatikus eladás: &a+%money%"
+  locked-visit: "&f%player% &7bezárta a szigetét, most nem lehet meglátogatni."
+  lock:
+    on: "Bezártad a szigeted: csak a tagjaid látogathatnak meg."
+    off: "Kinyitottad a szigeted: bárki meglátogathat."
+  autosell:
+    bought: "Megvetted az automatikus eladást!"
+    on: "Automatikus eladás &abekapcsolva&7. A termés rögtön pénzzé válik."
+    off: "Automatikus eladás &ckikapcsolva&7."
+  backpack:
+    title: "&3[IceMine] &8Hátizsák (%size%)"
+    already: "Már a nagy hátizsákod van."
+    bought: "Megvetted a nagy hátizsákot: &f%size% &7hely."
+  upgrade:
+    title: "&3[IceMine] &8Sziget fejlesztések"
+    bought: "Fejlesztve: %name% &8(%level%/%max%)"
+    max: "%name% &7már a legmagasabb szinten van."
+  prestige:
+    max: "Elérted a legmagasabb prestige-t. Jöhet a rebirth: &f/gens rebirth"
+    need-level: "A prestige-hez a szigetednek &f%level%. &7szintűnek kell lennie."
+    confirm: "&eBiztos? &7A generátoraid és a Gens pénzed elvesznek, a sziget 1. szintre áll vissza. Cserébe: &d%next%. prestige &7(+%bonus%% termelés). Ár: &f%price%&7. Kattints újra 10 mp-en belül!"
+    done: "&d&lPRESTIGE %prestige%! &7Mostantól ennyit termelsz: &f%multiplier%"
+    broadcast: "&f%player% &7elérte a &d%prestige%. prestige&7-t!"
+  rebirth:
+    need-prestige: "A rebirth-höz &f%prestige% &7prestige kell."
+    confirm: "&eBiztos? &7A prestige, a fejlesztések, a generátorok és a Gens pénz is nullázódnak. Cserébe: &5%next%. rebirth &7(+%bonus%% termelés, +%slots% generátorhely). Ár: &f%price%&7. Kattints újra 10 mp-en belül!"
+    done: "&5&lREBIRTH %rebirth%! &7Mostantól ennyit termelsz: &f%multiplier%"
+    broadcast: "&f%player% &7újjászületett a Gensben: &5%rebirth%. rebirth&7!"
+  members:
+    title: "&3[IceMine] &8Sziget tagok"
+    title-one: "&3[IceMine] &8%player% jogai"
+    build: "&fÉpítés és bontás"
+    containers: "&fLádák használata"
+    collect: "&fGenerátorok begyűjtése"
+    manage: "&fGenerátorok fejlesztése"
+    click: "&b▶ Kattints a jogok állításához"
+    remove: "&c&lTag eltávolítása"
+    empty: "&7Még nincs tagod"
+    hint:
+      - "&7Hívj meg valakit: &f/gens trust <név>"
+      - "&7Utána itt állíthatod, mit csinálhat."
   item:
     name: "&a&l%tier% generátor"
     lore:
@@ -331,7 +372,8 @@ gens:
     info:
       - "&7Egyenleg: &f%money%"
       - "&7Generátorok: &f%generators%&7/&f%slots%"
-      - "&7Termelés: &f%production% &7/ perc"
+      - "&7Termelés: &f%production% &7/ perc &8(%multiplier%&8)"
+      - "&7Prestige: &d%prestige% &8| &7Rebirth: &5%rebirth%"
       - "&7Sziget: &f%plot%"
     buy:
       name: "&a&lGenerátor vásárlása"
@@ -380,6 +422,62 @@ gens:
       name: "&c&lHaza"
       lore:
         - "&7Vissza a saját szigetedre."
+    toggle: "&b▶ Kattints a váltáshoz"
+    upgrades:
+      name: "&6&lSziget fejlesztések"
+      lore:
+        - "&7Nagyobb tároló, gyorsabb termelés,"
+        - "&7jobb ár minden eladásnál."
+    autosell:
+      name: "&e&lAutomatikus eladás"
+      lore:
+        - "&7A termés rögtön pénzzé válik,"
+        - "&7nem kell begyűjteni és eladni."
+      buy: "&7Ár: &f%price% &8(vagy a rangod adja)"
+    prestige:
+      name: "&d&lPrestige"
+      lore:
+        - "&7Prestige: &d%prestige%&7/&d%max%"
+        - "&7Minden prestige: &a+%bonus%% &7termelés, örökre."
+        - "&8A generátorok és a pénz elvesznek."
+      price: "&7Ár: &f%price%"
+      ready: "&a▶ Kattints (kétszer) a prestige-hez"
+      need: "&8✖ Ehhez %level%. szintű sziget kell"
+      maxed: "&a✔ Maximum prestige, jöhet a rebirth"
+    rebirth:
+      name: "&5&lRebirth"
+      lore:
+        - "&7Rebirth: &5%rebirth%"
+        - "&7Minden rebirth: &a+%bonus%% &7termelés"
+        - "&7és &a+%slots% &7generátorhely, örökre."
+        - "&8Minden nullázódik, a prestige is."
+      price: "&7Ár: &f%price%"
+      ready: "&a▶ Kattints (kétszer) a rebirth-höz"
+      need: "&8✖ Ehhez %need% prestige kell"
+    backpack:
+      name: "&6&lHátizsák"
+      lore:
+        - "&7%size% hely a termésnek."
+        - "&7Ide kerül, ha tele a táskád,"
+        - "&7és a Mindent elad ezt is eladja."
+      upgrade-name: "&6&lNagyobb hátizsák"
+      upgrade:
+        - "&7%size% hely a hátizsákban."
+        - "&7Ár: &f%price% &8(vagy a rangod adja)"
+        - "&b▶ Kattints a vásárláshoz"
+    members:
+      name: "&a&lSziget tagok"
+      lore:
+        - "&7Tagok: &f%count%"
+        - "&7Állítsd be, ki mit csinálhat a szigeteden."
+    lock:
+      name: "&f&lLátogatók"
+      open:
+        - "&7Most bárki meglátogathat."
+        - "&b▶ Kattints a bezáráshoz"
+      locked:
+        - "&7Most csak a tagjaid jöhetnek."
+        - "&b▶ Kattints a kinyitáshoz"
     tiers:
       name: "&f&lGenerátor szintek"
       line: "&8%level%. &f%tier% &8- &7%value%/db, %interval% mp &8(fejlesztés: %upgrade%&8)"

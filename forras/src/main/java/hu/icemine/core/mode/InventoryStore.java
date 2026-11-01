@@ -127,6 +127,36 @@ public final class InventoryStore {
         return true;
     }
 
+    /** Tetszőleges tárgylista mentése (pl. a Gens hátizsák), ugyanabba a mappaszerkezetbe, aszinkron írással. */
+    public void saveItems(String mode, UUID id, ItemStack[] items) {
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.set("contents", new ArrayList<>(Arrays.asList(items)));
+        String data = yaml.saveToString();
+        String key = mode + "/" + id;
+        cache.put(key, data);
+        File target = file(mode, id);
+        writer.execute(() -> {
+            write(target, data);
+            cache.remove(key, data);
+        });
+    }
+
+    public ItemStack[] loadItems(String mode, UUID id, int size) {
+        ItemStack[] contents = new ItemStack[size];
+        YamlConfiguration yaml = read(mode, id);
+        if (yaml == null) {
+            return contents;
+        }
+        List<?> list = yaml.getList("contents");
+        if (list != null) {
+            for (int i = 0; i < list.size() && i < size; i++) {
+                Object value = list.get(i);
+                contents[i] = value instanceof ItemStack ? (ItemStack) value : null;
+            }
+        }
+        return contents;
+    }
+
     public Location location(String mode, UUID id, World world) {
         YamlConfiguration yaml = read(mode, id);
         if (yaml == null || !world.getName().equals(yaml.getString("location.world", ""))) {

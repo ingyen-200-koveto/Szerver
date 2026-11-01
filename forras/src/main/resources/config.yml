@@ -82,3 +82,7 @@ leaderboards:
       title: "&d&l✦ ComboFly ölések"
       source: stat
       key: combofly.kills
+    gensprestige:
+      title: "&d&l✦ Gens prestige"
+      source: stat
+      key: gens.prestige_score

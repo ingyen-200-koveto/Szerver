@@ -1,0 +1,65 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.4.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.4.0
+changes:
+- file: messages_hu
+  path: gens.menu.info
+  old:
+  - '&7Egyenleg: &f%money%'
+  - '&7Generátorok: &f%generators%&7/&f%slots%'
+  - '&7Termelés: &f%production% &7/ perc'
+  - '&7Sziget: &f%plot%'
+- file: ranks
+  path: ranks.vipplus.permissions
+  old:
+  - icemine.chat.color
+- file: ranks
+  path: ranks.vipplus.perks
+  old:
+  - '&7Berserker és Vadász kit'
+  - '&7Szívek ölés effekt'
+  - '&7Színes chat'
+  - '&720% pénz bónusz'
+- file: ranks
+  path: ranks.mvp.permissions
+  old:
+  - icemine.cosmetic.fly
+- file: ranks
+  path: ranks.mvp.perks
+  old:
+  - '&7Fagylovag és Ugró kit'
+  - '&7Fagy nyomvonal'
+  - '&7Repülés a lobbyban'
+  - '&730% pénz bónusz'
+- file: ranks
+  path: ranks.elite.permissions
+  old: []
+- file: ranks
+  path: ranks.elite.perks
+  old:
+  - '&7Piromán és Villámmágus kit'
+  - '&7Kristály nyomvonal, tűzijáték effekt'
+  - '&750% pénz bónusz'
+- file: ranks
+  path: ranks.legend.permissions
+  old: []
+- file: ranks
+  path: ranks.legend.perks
+  old:
+  - '&7Halász, Alkimista, Poszeidón és Jégkirály kit'
+  - '&7Minden kozmetika'
+  - '&775% pénz bónusz'
+- file: scoreboard
+  path: boards.gens
+  old:
+  - '&8&m                    '
+  - '&7Mód: &a&lGens'
+  - ''
+  - '&7Pénz: %gens_money%'
+  - '&7Generátorok: &f%generators%&7/&f%slots%'
+  - '&7Szint: &f%plot_level% &8(%multiplier%)'
+  - '&7Termelés: &f%production%&7/perc'
+  - '&7Összes bevétel: &e%earned%'
+  - ''
+  - '&7Sziget: &f%plot%'
+  - '&bplay.icemine.hu'

@@ -67,7 +67,12 @@ public final class GensMode implements ModeHandler, Listener {
     private final TreeMap<Integer, GensData.Level> levels = new TreeMap<>();
     private final Map<Material, Long> prices = new HashMap<>();
     private final QuestBook quests = new QuestBook();
+    private final GensProgress progress = new GensProgress();
     private final Map<UUID, Long> warned = new HashMap<>();
+    private final Map<UUID, ItemStack[]> backpacks = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> autosold = new HashMap<>();
+    private final Map<UUID, Long> confirm = new HashMap<>();
+    private long autosellFlush;
     private World world;
     private Location hub;
     private int spacing = 96;
@@ -100,6 +105,10 @@ public final class GensMode implements ModeHandler, Listener {
 
     public QuestBook quests() {
         return quests;
+    }
+
+    public GensProgress progress() {
+        return progress;
     }
 
     public String currency() {
@@ -151,6 +160,7 @@ public final class GensMode implements ModeHandler, Listener {
         problems.addAll(values.problems());
         loadTiers(config, problems);
         loadLevels(config, problems);
+        progress.load(config, levels.lastKey(), problems);
         loadQuests(config, problems);
         prices.clear();
         for (GensData.Tier tier : tiers.values()) {
@@ -328,16 +338,63 @@ public final class GensMode implements ModeHandler, Listener {
             }
         }
         players.put(player.getUniqueId(), data);
+        readProfile(player, data);
+        backpacks.put(player.getUniqueId(), core.inventories().loadItems("gens_backpack", player.getUniqueId(), progress.backpackMax()));
         long now = System.currentTimeMillis();
         for (GensData.Generator generator : data.generators) {
-            generator.next = now + interval(generator) * 1000L;
+            generator.next = now + intervalMillis(data, generator);
             generators.put(generator.key(), generator);
         }
+    }
+
+    /** A prestige, rebirth, fejlesztések és kapcsolók a játékos profiljában vannak. */
+    private void readProfile(Player player, GensData.Player data) {
+        PlayerProfile profile = core.profiles().profile(player);
+        if (profile == null) {
+            return;
+        }
+        data.prestige = (int) profile.stat("gens.prestige");
+        data.rebirth = (int) profile.stat("gens.rebirth");
+        data.upgrades.clear();
+        for (String id : progress.upgrades().keySet()) {
+            try {
+                data.upgrades.put(id, Integer.parseInt(profile.setting("gens.up." + id, "0")));
+            } catch (NumberFormatException ignored) {
+                data.upgrades.put(id, 0);
+            }
+        }
+        data.autosellOwned = profile.flag("gens.autosell.owned", false);
+        data.autosell = profile.flag("gens.autosell", false);
+        data.backpackLarge = profile.flag("gens.backpack.large", false);
+        data.locked = profile.flag("gens.locked", false);
+    }
+
+    private void writeProfile(Player player, GensData.Player data) {
+        PlayerProfile profile = core.profiles().profile(player);
+        if (profile == null) {
+            return;
+        }
+        profile.setStat("gens.prestige", data.prestige);
+        profile.setStat("gens.rebirth", data.rebirth);
+        profile.setStat("gens.prestige_score", data.rebirth * 1000L + data.prestige);
+        for (Map.Entry<String, Integer> entry : data.upgrades.entrySet()) {
+            profile.put("gens.up." + entry.getKey(), String.valueOf(entry.getValue()));
+        }
+        profile.putFlag("gens.autosell.owned", data.autosellOwned);
+        profile.putFlag("gens.autosell", data.autosell);
+        profile.putFlag("gens.backpack.large", data.backpackLarge);
+        profile.putFlag("gens.locked", data.locked);
     }
 
     public void detach(UUID uuid) {
         GensData.Player data = players.remove(uuid);
         warned.remove(uuid);
+        confirm.remove(uuid);
+        flushAutosell(uuid);
+        ItemStack[] pack = backpacks.remove(uuid);
+        if (pack != null) {
+            core.inventories().saveItems("gens_backpack", uuid, pack);
+        }
         if (data == null) {
             return;
         }
@@ -438,9 +495,36 @@ public final class GensMode implements ModeHandler, Listener {
         return tiers;
     }
 
-    private int interval(GensData.Generator generator) {
+    private long intervalMillis(GensData.Player data, GensData.Generator generator) {
         GensData.Tier tier = tiers.get(generator.tier);
-        return tier == null ? 10 : tier.interval;
+        return progress.intervalMillis(tier == null ? 10 : tier.interval, data == null ? Map.of() : data.upgrades);
+    }
+
+    /** Termelési szorzó: sziget szint × prestige × rebirth. */
+    public double multiplier(GensData.Player data) {
+        return level(data).multiplier * progress.productionMultiplier(data.prestige, data.rebirth);
+    }
+
+    public long capacity(GensData.Player data, GensData.Tier tier) {
+        return progress.capacity(tier.capacity, data == null ? Map.of() : data.upgrades);
+    }
+
+    /** Generátorhelyek: sziget szint + rebirth + rang (icemine.gens.extraslots.N). */
+    public int slots(Player player, GensData.Player data) {
+        int extra = 0;
+        for (int n = 20; n >= 1; n--) {
+            if (player.hasPermission("icemine.gens.extraslots." + n)) {
+                extra = n;
+                break;
+            }
+        }
+        return level(data).slots + progress.extraSlots(data.rebirth) + extra;
+    }
+
+    /** Eladási szorzó: a sziget "érték" fejlesztése, a rang pénz szorzója erre jön rá. */
+    public long sellBoost(Player player, GensData.Player data, long amount) {
+        double value = data == null ? 1.0 : progress.valueMultiplier(data.upgrades);
+        return core.ranks().boost(player, Math.round(amount * value));
     }
 
     public int[] plotCenter(int plot) {
@@ -562,23 +646,24 @@ public final class GensMode implements ModeHandler, Listener {
         if (data == null) {
             return;
         }
-        GensData.Level level = level(data);
         values.put("%generators%", String.valueOf(data.generators.size()));
-        values.put("%slots%", String.valueOf(level.slots));
+        values.put("%slots%", String.valueOf(slots(player, data)));
         values.put("%plot_level%", String.valueOf(data.level));
-        values.put("%multiplier%", String.format(Locale.ROOT, "%.2fx", level.multiplier));
+        values.put("%multiplier%", String.format(Locale.ROOT, "%.2fx", multiplier(data)));
+        values.put("%prestige%", String.valueOf(data.prestige));
+        values.put("%rebirth%", String.valueOf(data.rebirth));
         values.put("%production%", Text.number(productionPerMinute(data)));
         values.put("%plot%", "#" + data.plot);
         values.put("%earned%", Text.number(profile == null ? 0 : profile.stat("gens.earned")));
     }
 
     public long productionPerMinute(GensData.Player data) {
-        double multiplier = level(data).multiplier;
         long total = 0;
         for (GensData.Generator generator : data.generators) {
             GensData.Tier tier = tiers.get(generator.tier);
             if (tier != null) {
-                total += Math.round(tier.value * tier.amount * multiplier * 60.0 / tier.interval);
+                long produced = Math.max(1L, Math.round(tier.amount * multiplier(data)));
+                total += Math.round(tier.value * produced * progress.valueMultiplier(data.upgrades) * 60000.0 / intervalMillis(data, generator));
             }
         }
         return total;
@@ -594,10 +679,16 @@ public final class GensMode implements ModeHandler, Listener {
     }
 
     public void tick() {
+        long now = System.currentTimeMillis();
+        if (now >= autosellFlush) {
+            autosellFlush = now + 10_000L;
+            for (UUID uuid : new ArrayList<>(autosold.keySet())) {
+                flushAutosell(uuid);
+            }
+        }
         if (generators.isEmpty()) {
             return;
         }
-        long now = System.currentTimeMillis();
         for (GensData.Generator generator : generators.values()) {
             if (now < generator.next) {
                 continue;
@@ -607,12 +698,17 @@ public final class GensMode implements ModeHandler, Listener {
             if (tier == null || data == null) {
                 continue;
             }
-            generator.next = now + tier.interval * 1000L;
+            generator.next = now + intervalMillis(data, generator);
             if (!world.isChunkLoaded(generator.x >> 4, generator.z >> 4)) {
                 continue;
             }
             long before = generator.stored;
-            generator.stored = GenMath.produce(generator.stored, tier.capacity, tier.amount, level(data).multiplier);
+            generator.stored = GenMath.produce(generator.stored, capacity(data, tier), tier.amount, multiplier(data));
+            if (data.autosell && generator.stored > 0) {
+                long made = generator.stored;
+                generator.stored = 0;
+                autosold.merge(data.uuid, Math.round(GenMath.sellValue(made, tier.value) * progress.autosellRate()), Long::sum);
+            }
             if (generator.stored != before) {
                 generator.dirty = true;
                 Player owner = Bukkit.getPlayer(generator.owner);
@@ -623,8 +719,25 @@ public final class GensMode implements ModeHandler, Listener {
         }
     }
 
-    private boolean member(GensData.Player owner, Player player) {
-        return owner.uuid.equals(player.getUniqueId()) || owner.trusted.contains(player.getUniqueId());
+    /** Az automatikus eladás pénze tíz másodpercenként egyben jön meg (így nem pörög az egyenleg minden tickben). */
+    private void flushAutosell(UUID uuid) {
+        Long amount = autosold.remove(uuid);
+        Player player = Bukkit.getPlayer(uuid);
+        if (amount == null || amount <= 0 || player == null) {
+            return;
+        }
+        GensData.Player data = players.get(uuid);
+        long total = sellBoost(player, data, amount);
+        if (core.economy().deposit(player, currency, total, "gens:autosell") == Ledger.Result.OK) {
+            PlayerProfile profile = core.profiles().profile(player);
+            if (profile != null) {
+                profile.addStat("gens.earned", total);
+            }
+            progress(player, "earn", total);
+            if (player.getWorld() == world) {
+                core.messages().actionBar(player, "gens.autosold", "%money%", core.economy().format(currency, total));
+            }
+        }
     }
 
     private boolean admin(Player player) {
@@ -632,6 +745,11 @@ public final class GensMode implements ModeHandler, Listener {
     }
 
     private boolean canBuild(Player player, Location location) {
+        return canDo(player, location, GensData.BUILD);
+    }
+
+    /** Szabad-e ezt a szigeten: a tulajdonos mindent, a tag a neki megadott jogokkal (építés, ládák, generátorok). */
+    private boolean canDo(Player player, Location location, int flag) {
         if (admin(player)) {
             return true;
         }
@@ -647,7 +765,7 @@ public final class GensMode implements ModeHandler, Listener {
             return true;
         }
         GensData.Player owner = ownerOf(plot);
-        return owner != null && owner.trusted.contains(player.getUniqueId());
+        return owner != null && owner.can(player.getUniqueId(), flag);
     }
 
     private void deny(Player player) {
@@ -704,20 +822,20 @@ public final class GensMode implements ModeHandler, Listener {
             core.messages().send(player, "gens.only-own-plot");
             return;
         }
-        GensData.Level level = level(data);
-        if (data.generators.size() >= level.slots) {
+        int slots = slots(player, data);
+        if (data.generators.size() >= slots) {
             event.setCancelled(true);
-            core.messages().send(player, "gens.limit", "%slots%", String.valueOf(level.slots));
+            core.messages().send(player, "gens.limit", "%slots%", String.valueOf(slots));
             return;
         }
         GensData.Generator generator = new GensData.Generator(player.getUniqueId(), block.getX(), block.getY(), block.getZ(), tier.level, 0);
-        generator.next = System.currentTimeMillis() + tier.interval * 1000L;
+        generator.next = System.currentTimeMillis() + intervalMillis(data, generator);
         generator.dirty = true;
         data.generators.add(generator);
         generators.put(generator.key(), generator);
         updateStats(player, data);
         save(data, false);
-        core.messages().send(player, "gens.placed", "%tier%", tier.name, "%count%", String.valueOf(data.generators.size()), "%slots%", String.valueOf(level.slots));
+        core.messages().send(player, "gens.placed", "%tier%", tier.name, "%count%", String.valueOf(data.generators.size()), "%slots%", String.valueOf(slots));
         progress(player, "place_gen", 1);
     }
 
@@ -786,6 +904,14 @@ public final class GensMode implements ModeHandler, Listener {
                 break;
             }
         }
+        ItemStack[] pack = backpacks.get(player.getUniqueId());
+        GensData.Player clicker = players.get(player.getUniqueId());
+        if (amount > 0 && pack != null) {
+            int size = progress.backpackSize(clicker != null && (clicker.backpackLarge || player.hasPermission("icemine.gens.backpack.large")));
+            long before = amount;
+            amount = stash(pack, size, tier.drop, amount);
+            given += before - amount;
+        }
         generator.stored = amount;
         generator.dirty = true;
         if (given > 0) {
@@ -819,7 +945,11 @@ public final class GensMode implements ModeHandler, Listener {
         GensData.Generator generator = generators.get(GensData.key(block.getX(), block.getY(), block.getZ()));
         if (generator != null) {
             event.setCancelled(true);
-            if (!generator.owner.equals(player.getUniqueId())) {
+            GensData.Player owner = players.get(generator.owner);
+            boolean own = generator.owner.equals(player.getUniqueId());
+            boolean mayCollect = own || (owner != null && owner.can(player.getUniqueId(), GensData.COLLECT));
+            boolean mayManage = own || (owner != null && owner.can(player.getUniqueId(), GensData.MANAGE));
+            if (!(player.isSneaking() ? mayManage : mayCollect)) {
                 deny(player);
                 return;
             }
@@ -833,15 +963,16 @@ public final class GensMode implements ModeHandler, Listener {
                 long given = collect(player, generator, tier);
                 if (given > 0) {
                     core.messages().actionBar(player, "gens.collected", "%amount%", String.valueOf(given), "%stored%", String.valueOf(generator.stored),
-                            "%capacity%", String.valueOf(tier.capacity));
+                            "%capacity%", String.valueOf(capacity(owner, tier)));
                 } else {
                     core.messages().actionBar(player, "gens.info", "%tier%", tier.name, "%stored%", String.valueOf(generator.stored),
-                            "%capacity%", String.valueOf(tier.capacity));
+                            "%capacity%", String.valueOf(capacity(owner, tier)));
                 }
             }
             return;
         }
-        if (!canBuild(player, block.getLocation())) {
+        int flag = block.getState() instanceof org.bukkit.block.Container ? GensData.CONTAINERS : GensData.BUILD;
+        if (!canDo(player, block.getLocation(), flag)) {
             event.setCancelled(true);
             deny(player);
         }
@@ -889,10 +1020,27 @@ public final class GensMode implements ModeHandler, Listener {
             count += item.getAmount();
             player.getInventory().setItem(i, null);
         }
+        ItemStack[] pack = backpacks.get(player.getUniqueId());
+        if (pack != null && !(player.getOpenInventory().getTopInventory().getHolder() instanceof GensBackpack)) {
+            for (int i = 0; i < pack.length; i++) {
+                ItemStack item = pack[i];
+                if (item == null || item.hasItemMeta() && Items.tagOf(item) != null) {
+                    continue;
+                }
+                Long price = prices.get(item.getType());
+                if (price == null || price <= 0) {
+                    continue;
+                }
+                total += GenMath.sellValue(item.getAmount(), price);
+                count += item.getAmount();
+                pack[i] = null;
+            }
+        }
         if (total <= 0) {
             core.messages().send(player, "gens.nothing-to-sell");
             return 0;
         }
+        total = sellBoost(player, players.get(player.getUniqueId()), total);
         Ledger.Result result = core.economy().deposit(player, currency, total, "gens:sell");
         if (result != Ledger.Result.OK) {
             core.messages().send(player, "gens.sell-limit");
@@ -1018,6 +1166,13 @@ public final class GensMode implements ModeHandler, Listener {
             core.messages().send(player, "gens.only-in-gens");
             return;
         }
+        GensData.Player target = ownerOf(plot);
+        GensData.Player self = players.get(player.getUniqueId());
+        if (target != null && target.locked && !target.trusted.contains(player.getUniqueId()) && (self == null || self.plot != plot)
+                && !player.hasPermission("icemine.admin.build")) {
+            core.messages().send(player, "gens.locked-visit", "%player%", owner);
+            return;
+        }
         int[] center = plotCenter(plot);
         Layout.Point spawn = GensBuild.plotSpawn();
         core.guard().allowNext(player);
@@ -1041,10 +1196,12 @@ public final class GensMode implements ModeHandler, Listener {
                 return;
             }
             data.trusted.add(target.getUniqueId());
+            data.permissions.remove(target.getUniqueId());
             core.messages().send(player, "gens.trusted", "%player%", target.getName());
             core.messages().send(target, "gens.trusted-you", "%player%", player.getName());
         } else {
             data.trusted.remove(target.getUniqueId());
+            data.permissions.remove(target.getUniqueId());
             core.messages().send(player, "gens.untrusted", "%player%", target.getName());
         }
         data.dirty = true;
@@ -1133,6 +1290,312 @@ public final class GensMode implements ModeHandler, Listener {
         for (UUID uuid : new ArrayList<>(players.keySet())) {
             detach(uuid);
         }
+    }
+
+    // ---- hátizsák ----
+
+    /** Betesz egy adag terméket a hátizsákba (a látható részbe), és visszaadja, mennyi nem fért el. */
+    static long stash(ItemStack[] pack, int size, Material material, long amount) {
+        int max = material.getMaxStackSize();
+        for (int i = 0; i < size && i < pack.length && amount > 0; i++) {
+            ItemStack item = pack[i];
+            if (item != null && item.getType() == material && !item.hasItemMeta() && item.getAmount() < max) {
+                int add = (int) Math.min(amount, max - item.getAmount());
+                item.setAmount(item.getAmount() + add);
+                amount -= add;
+            }
+        }
+        for (int i = 0; i < size && i < pack.length && amount > 0; i++) {
+            if (pack[i] == null || pack[i].getType().isAir()) {
+                int add = (int) Math.min(amount, max);
+                pack[i] = new ItemStack(material, add);
+                amount -= add;
+            }
+        }
+        return amount;
+    }
+
+    public boolean largeBackpack(Player player, GensData.Player data) {
+        return data.backpackLarge || player.hasPermission("icemine.gens.backpack.large");
+    }
+
+    public void openBackpack(Player player) {
+        GensData.Player data = players.get(player.getUniqueId());
+        ItemStack[] pack = backpacks.get(player.getUniqueId());
+        if (data == null || pack == null) {
+            return;
+        }
+        int size = progress.backpackSize(largeBackpack(player, data));
+        player.openInventory(new GensBackpack(player.getUniqueId(), core.messages().raw("gens.backpack.title")
+                .replace("%size%", String.valueOf(size)), pack, size).getInventory());
+        player.playSound(player.getLocation(), "minecraft:item.armor.equip_leather", 0.8f, 1.0f);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onBackpackClose(org.bukkit.event.inventory.InventoryCloseEvent event) {
+        if (!(event.getInventory().getHolder() instanceof GensBackpack backpack)) {
+            return;
+        }
+        ItemStack[] pack = backpacks.get(backpack.owner());
+        if (pack == null) {
+            return;
+        }
+        backpack.copyInto(pack);
+        core.inventories().saveItems("gens_backpack", backpack.owner(), pack);
+    }
+
+    public void buyLargeBackpack(Player player) {
+        GensData.Player data = players.get(player.getUniqueId());
+        if (data == null) {
+            return;
+        }
+        if (largeBackpack(player, data)) {
+            core.messages().send(player, "gens.backpack.already");
+            return;
+        }
+        if (!pay(player, progress.backpackPrice(), "gens:backpack")) {
+            return;
+        }
+        data.backpackLarge = true;
+        writeProfile(player, data);
+        core.messages().send(player, "gens.backpack.bought", "%size%", String.valueOf(progress.backpackSize(true)));
+    }
+
+    private boolean pay(Player player, long price, String reason) {
+        if (price <= 0) {
+            return true;
+        }
+        if (core.economy().withdraw(player, currency, price, reason) != Ledger.Result.OK) {
+            core.messages().send(player, "gens.no-money", "%price%", core.economy().format(currency, price));
+            return false;
+        }
+        return true;
+    }
+
+    // ---- automatikus eladás ----
+
+    public boolean autosellUnlocked(Player player, GensData.Player data) {
+        return data.autosellOwned || player.hasPermission("icemine.gens.autosell");
+    }
+
+    public void toggleAutosell(Player player) {
+        GensData.Player data = players.get(player.getUniqueId());
+        if (data == null) {
+            return;
+        }
+        if (!autosellUnlocked(player, data)) {
+            if (!pay(player, progress.autosellPrice(), "gens:autosell")) {
+                return;
+            }
+            data.autosellOwned = true;
+            core.messages().send(player, "gens.autosell.bought");
+        }
+        data.autosell = !data.autosell;
+        writeProfile(player, data);
+        core.messages().send(player, data.autosell ? "gens.autosell.on" : "gens.autosell.off");
+    }
+
+    // ---- sziget fejlesztések ----
+
+    public void buyIslandUpgrade(Player player, String id) {
+        GensData.Player data = players.get(player.getUniqueId());
+        GensProgress.IslandUpgrade upgrade = progress.upgrades().get(id);
+        if (data == null || upgrade == null) {
+            return;
+        }
+        int level = data.upgrades.getOrDefault(id, 0);
+        long price = upgrade.priceFor(level);
+        if (price < 0) {
+            core.messages().send(player, "gens.upgrade.max", "%name%", upgrade.name);
+            return;
+        }
+        if (!pay(player, price, "gens:island:" + id)) {
+            return;
+        }
+        data.upgrades.put(id, level + 1);
+        writeProfile(player, data);
+        core.messages().send(player, "gens.upgrade.bought", "%name%", upgrade.name, "%level%", String.valueOf(level + 1),
+                "%max%", String.valueOf(upgrade.maxLevel()));
+        player.playSound(player.getLocation(), "minecraft:block.anvil.use", 0.6f, 1.3f);
+    }
+
+    // ---- prestige és rebirth ----
+
+    /** Két kattintás kell (10 mp-en belül), mert mindkettő törli a generátorokat és a pénzt. */
+    private boolean confirmed(Player player, String what) {
+        long now = System.currentTimeMillis();
+        Long last = confirm.get(player.getUniqueId());
+        String key = what + ":" + player.getUniqueId();
+        if (last != null && now - last < 10_000L && key.equals(confirmKey.get(player.getUniqueId()))) {
+            confirm.remove(player.getUniqueId());
+            confirmKey.remove(player.getUniqueId());
+            return true;
+        }
+        confirm.put(player.getUniqueId(), now);
+        confirmKey.put(player.getUniqueId(), key);
+        return false;
+    }
+
+    private final Map<UUID, String> confirmKey = new HashMap<>();
+
+    public void prestige(Player player) {
+        GensData.Player data = players.get(player.getUniqueId());
+        if (data == null || player.getWorld() != world) {
+            return;
+        }
+        if (data.prestige >= progress.prestigeMax()) {
+            core.messages().send(player, "gens.prestige.max");
+            return;
+        }
+        if (!progress.canPrestige(data.level, data.prestige)) {
+            core.messages().send(player, "gens.prestige.need-level", "%level%", String.valueOf(progress.prestigeLevel()));
+            return;
+        }
+        long price = progress.prestigeCost(data.prestige, data.rebirth);
+        if (core.economy().balance(player, currency) < price) {
+            core.messages().send(player, "gens.no-money", "%price%", core.economy().format(currency, price));
+            return;
+        }
+        if (!confirmed(player, "prestige")) {
+            core.messages().send(player, "gens.prestige.confirm", "%price%", core.economy().format(currency, price),
+                    "%next%", String.valueOf(data.prestige + 1), "%bonus%", Text.decimal(progress.prestigeBonus()));
+            return;
+        }
+        if (!pay(player, price, "gens:prestige")) {
+            return;
+        }
+        data.prestige++;
+        resetIsland(player, data);
+        writeProfile(player, data);
+        core.messages().send(player, "gens.prestige.done", "%prestige%", String.valueOf(data.prestige),
+                "%multiplier%", String.format(Locale.ROOT, "%.2fx", progress.productionMultiplier(data.prestige, data.rebirth)));
+        for (Player other : world.getPlayers()) {
+            if (!other.equals(player)) {
+                core.messages().send(other, "gens.prestige.broadcast", "%player%", player.getName(), "%prestige%", String.valueOf(data.prestige));
+            }
+        }
+        player.playSound(player.getLocation(), "minecraft:ui.toast.challenge_complete", 1.0f, 1.0f);
+        world.spawnParticle(Particle.TOTEM_OF_UNDYING, player.getLocation().add(0, 1, 0), 60, 0.6, 1.0, 0.6, 0.3);
+    }
+
+    public void rebirth(Player player) {
+        GensData.Player data = players.get(player.getUniqueId());
+        if (data == null || player.getWorld() != world) {
+            return;
+        }
+        if (!progress.canRebirth(data.prestige, data.rebirth)) {
+            core.messages().send(player, "gens.rebirth.need-prestige", "%prestige%", String.valueOf(progress.rebirthPrestige()));
+            return;
+        }
+        long price = progress.rebirthCost(data.rebirth);
+        if (core.economy().balance(player, currency) < price) {
+            core.messages().send(player, "gens.no-money", "%price%", core.economy().format(currency, price));
+            return;
+        }
+        if (!confirmed(player, "rebirth")) {
+            core.messages().send(player, "gens.rebirth.confirm", "%price%", core.economy().format(currency, price),
+                    "%next%", String.valueOf(data.rebirth + 1), "%bonus%", Text.decimal(progress.rebirthBonus()),
+                    "%slots%", String.valueOf(progress.rebirthSlots()));
+            return;
+        }
+        if (!pay(player, price, "gens:rebirth")) {
+            return;
+        }
+        data.rebirth++;
+        data.prestige = 0;
+        for (String id : new ArrayList<>(data.upgrades.keySet())) {
+            data.upgrades.put(id, 0);
+        }
+        resetIsland(player, data);
+        writeProfile(player, data);
+        core.messages().send(player, "gens.rebirth.done", "%rebirth%", String.valueOf(data.rebirth),
+                "%multiplier%", String.format(Locale.ROOT, "%.2fx", progress.productionMultiplier(data.prestige, data.rebirth)));
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            if (!other.equals(player)) {
+                core.messages().send(other, "gens.rebirth.broadcast", "%player%", player.getName(), "%rebirth%", String.valueOf(data.rebirth));
+            }
+        }
+        player.playSound(player.getLocation(), "minecraft:entity.ender_dragon.growl", 0.7f, 1.2f);
+        world.spawnParticle(Particle.END_ROD, player.getLocation().add(0, 1, 0), 120, 1.0, 1.5, 1.0, 0.15);
+    }
+
+    /**
+     * Újrakezdés: a generátorok (a lerakottak, a táskában és a hátizsákban lévők is) és a Gens pénz eltűnnek,
+     * a sziget szint visszaáll 1-re, és újra jár a kezdő generátor. Az épített blokkok maradnak.
+     */
+    private void resetIsland(Player player, GensData.Player data) {
+        for (GensData.Generator generator : new ArrayList<>(data.generators)) {
+            world.getBlockAt(generator.x, generator.y, generator.z).setType(Material.AIR, false);
+            generators.remove(generator.key());
+            deleteGenerator(generator);
+        }
+        data.generators.clear();
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length; i++) {
+            if ("gens:generator".equals(Items.tagOf(contents[i]))) {
+                player.getInventory().setItem(i, null);
+            }
+        }
+        ItemStack[] pack = backpacks.get(player.getUniqueId());
+        if (pack != null) {
+            for (int i = 0; i < pack.length; i++) {
+                if ("gens:generator".equals(Items.tagOf(pack[i]))) {
+                    pack[i] = null;
+                }
+            }
+        }
+        autosold.remove(player.getUniqueId());
+        core.economy().set(player, currency, 0, "gens:reset");
+        data.level = 1;
+        data.dirty = true;
+        for (int i = 0; i < starterGenerators; i++) {
+            give(player, generatorItem(tiers.isEmpty() ? null : tiers.firstEntry().getValue()));
+        }
+        updateStats(player, data);
+        save(data, true);
+    }
+
+    // ---- tagok és sziget beállítások ----
+
+    public void togglePermission(Player owner, UUID member, int flag) {
+        GensData.Player data = players.get(owner.getUniqueId());
+        if (data == null || !data.trusted.contains(member)) {
+            return;
+        }
+        int flags = data.permissionsOf(member) ^ flag;
+        if (flags == GensData.DEFAULT_MEMBER) {
+            data.permissions.remove(member);
+        } else {
+            data.permissions.put(member, flags);
+        }
+        data.dirty = true;
+        save(data, false);
+    }
+
+    public void removeMember(Player owner, UUID member) {
+        GensData.Player data = players.get(owner.getUniqueId());
+        if (data == null || !data.trusted.remove(member)) {
+            return;
+        }
+        data.permissions.remove(member);
+        data.dirty = true;
+        save(data, false);
+        core.messages().send(owner, "gens.untrusted", "%player%", nameOf(member));
+    }
+
+    public String nameOf(UUID uuid) {
+        org.bukkit.OfflinePlayer offline = Bukkit.getOfflinePlayer(uuid);
+        return offline.getName() == null ? uuid.toString().substring(0, 8) : offline.getName();
+    }
+
+    public void toggleLock(Player player) {
+        GensData.Player data = players.get(player.getUniqueId());
+        if (data == null) {
+            return;
+        }
+        data.locked = !data.locked;
+        writeProfile(player, data);
+        core.messages().send(player, data.locked ? "gens.lock.on" : "gens.lock.off");
     }
 
     public Location hub() {
