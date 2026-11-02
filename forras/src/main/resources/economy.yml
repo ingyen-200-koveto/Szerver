@@ -17,6 +17,13 @@ currencies:
     color: "&e"
     start: 0
     max: 1000000000000000
+  # A Kingdoms pénze (bank, bolt, aukciósház, eladó láda)
+  dollar:
+    name: "Dollár"
+    symbol: "$"
+    color: "&a"
+    start: 0
+    max: 1000000000000000
   # A Fyland saját pénze (a bányászott dolgok eladásából), hogy ne borítsa fel a PvP módokat
   fyland:
     name: "Szigetérme"

@@ -1,0 +1,395 @@
+# Piac: aukciósház (/ah), csere (/trade), dinamikus bolt (/shopgui), eladás (/sell ha, /sell all), pénz toplista (/baltop),
+# lottó (/lottery), kulcsok (lootbox, /kulcs), eladó láda, craftoló, farm blokk.
+# Minden piaconként külön működik: a Kingdoms és a Fyland saját pénzzel, saját aukciókkal és saját árakkal.
+# Admin: /market give <játékos> <sellchest|crafter|farmblock|key:<kulcs>> [db] | /market draw <piac> (lottó sorsolás most)
+#
+# Tárgy formátum: ANYAG [darab] [varázslat:szint ...] [name=Név_szóközök_helyett], pl. "DIAMOND_SWORD sharpness:5"
+
+# A piacok: world = a mód világa, currency = a pénznem (economy.yml)
+scopes:
+  kingdoms:
+    world: kingdoms
+    currency: dollar
+    name: "&6Kingdoms"
+  fyland:
+    world: fyland
+    currency: fyland
+    name: "&aFyland"
+
+auction:
+  # Egyszerre ennyi tárgyat tehet ki valaki (icemine.market.ah.extra joggal kétszer ennyit)
+  max-listings: 5
+  # Ennyi óra után lejár a hirdetés, és visszakérhető a "Lejárt tárgyaim" menüben
+  duration-hours: 48
+  # Ennyi százalékot levonunk az eladótól
+  tax-percent: 5
+  min-price: 1
+  max-price: 1000000000
+
+# Dinamikus bolt: buy = vételár, sell = eladási ár egy kötegért (az item darabszáma a köteg).
+# Ha valamiből sokat vesznek, drágul, ha sokat adnak el, olcsóbb lesz (legfeljebb min-factor és max-factor között),
+# és óránként recovery-per-hour részével visszaáll az alapár felé. elasticity: ennyi köteg után 2x (vagy 0x) lenne az ár.
+# scopes: ha meg van adva, csak ezekben a piacokban látszik. special: eladó láda, craftoló, farm blokk.
+shop:
+  elasticity: 5000
+  min-factor: 0.5
+  max-factor: 2.0
+  recovery-per-hour: 0.1
+  categories:
+    blokkok:
+      name: "&7&lBlokkok"
+      icon: STONE_BRICKS
+      slot: 10
+      items:
+        - {item: "COBBLESTONE 16", buy: 32, sell: 8}
+        - {item: "STONE 16", buy: 48, sell: 12}
+        - {item: "DIRT 16", buy: 16, sell: 4}
+        - {item: "GRAVEL 16", buy: 32, sell: 8}
+        - {item: "SAND 16", buy: 48, sell: 12}
+        - {item: "GLASS 16", buy: 96, sell: 24}
+        - {item: "OAK_LOG 16", buy: 96, sell: 32}
+        - {item: "SPRUCE_LOG 16", buy: 96, sell: 32}
+        - {item: "BIRCH_LOG 16", buy: 96, sell: 32}
+        - {item: "BRICKS 16", buy: 160, sell: 40}
+        - {item: "QUARTZ_BLOCK 16", buy: 400, sell: 100}
+        - {item: "OBSIDIAN", buy: 120, sell: 30}
+    farm:
+      name: "&a&lFarm"
+      icon: WHEAT
+      slot: 12
+      items:
+        - {item: "WHEAT_SEEDS 16", buy: 32, sell: 0}
+        - {item: "WHEAT 16", buy: 64, sell: 24}
+        - {item: "CARROT 16", buy: 48, sell: 16}
+        - {item: "POTATO 16", buy: 48, sell: 16}
+        - {item: "BEETROOT 16", buy: 64, sell: 24}
+        - {item: "PUMPKIN 16", buy: 160, sell: 64}
+        - {item: "MELON_SLICE 64", buy: 128, sell: 48}
+        - {item: "SUGAR_CANE 16", buy: 96, sell: 32}
+        - {item: "BAMBOO 64", buy: 96, sell: 32}
+        - {item: "CACTUS 16", buy: 96, sell: 32}
+        - {item: "COCOA_BEANS 16", buy: 96, sell: 32}
+        - {item: "NETHER_WART 16", buy: 128, sell: 48}
+        - {item: "KELP 64", buy: 64, sell: 16}
+    ercek:
+      name: "&b&lÉrcek"
+      icon: DIAMOND
+      slot: 14
+      items:
+        - {item: "COAL 16", buy: 160, sell: 64}
+        - {item: "COPPER_INGOT 16", buy: 256, sell: 96}
+        - {item: "IRON_INGOT 16", buy: 640, sell: 240}
+        - {item: "GOLD_INGOT 16", buy: 960, sell: 360}
+        - {item: "REDSTONE 16", buy: 160, sell: 48}
+        - {item: "LAPIS_LAZULI 16", buy: 192, sell: 64}
+        - {item: "QUARTZ 16", buy: 192, sell: 64}
+        - {item: "DIAMOND", buy: 400, sell: 150}
+        - {item: "EMERALD", buy: 300, sell: 110}
+        - {item: "NETHERITE_INGOT", buy: 20000, sell: 7000}
+        - {item: "IRON_BLOCK", buy: 360, sell: 135}
+        - {item: "GOLD_BLOCK", buy: 540, sell: 203}
+        - {item: "DIAMOND_BLOCK", buy: 3600, sell: 1350}
+        - {item: "EMERALD_BLOCK", buy: 2700, sell: 990}
+    mobdrop:
+      name: "&c&lMob dropok"
+      icon: BONE
+      slot: 16
+      items:
+        - {item: "ROTTEN_FLESH 16", buy: 32, sell: 8}
+        - {item: "BONE 16", buy: 64, sell: 24}
+        - {item: "STRING 16", buy: 96, sell: 32}
+        - {item: "SPIDER_EYE 16", buy: 96, sell: 32}
+        - {item: "GUNPOWDER 16", buy: 192, sell: 64}
+        - {item: "SLIME_BALL 16", buy: 192, sell: 64}
+        - {item: "LEATHER 16", buy: 192, sell: 64}
+        - {item: "FEATHER 16", buy: 64, sell: 16}
+        - {item: "ENDER_PEARL 4", buy: 240, sell: 80}
+        - {item: "BLAZE_ROD 4", buy: 320, sell: 100}
+        - {item: "COOKED_BEEF 16", buy: 192, sell: 48}
+    kulonleges:
+      name: "&d&lKülönleges"
+      icon: CHEST
+      slot: 22
+      items:
+        - {special: sellchest, buy: 250000}
+        - {special: crafter, buy: 150000, scopes: [fyland]}
+        - {special: farmblock, buy: 300000, scopes: [fyland]}
+        - {item: "HOPPER", buy: 500, sell: 0}
+
+specials:
+  sellchest:
+    name: "&6&lEladó láda"
+    lore:
+      - "&7Eladja, amit beleteszel, és felszívja"
+      - "&7és eladja, ami a közelébe esik."
+      - "&7A pénz a tiéd, akkor is, ha nem vagy fent."
+    # Ennyi másodpercenként adja el a tartalmát, és ekkora sugárban szívja fel a leesett tárgyakat
+    interval-seconds: 10
+    pickup-radius: 2.5
+    scopes: [kingdoms, fyland]
+  crafter:
+    name: "&b&lCraftoló"
+    lore:
+      - "&7A beletett vasat, aranyat, gyémántot,"
+      - "&7szenet, vöröskövet... blokká tömöríti."
+      - "&7Tölcsérrel is tölthető és üríthető."
+    interval-seconds: 5
+    scopes: [fyland]
+  farmblock:
+    name: "&a&lFarm blokk"
+    lore:
+      - "&7Betöltve tartja a körülötte lévő chunkokat,"
+      - "&7így a farmjaid akkor is mennek, ha nem vagy ott."
+    # 1 = 3x3 chunk, 2 = 5x5 chunk
+    radius: 1
+    max-per-player: 2
+    scopes: [fyland]
+
+lottery:
+  ticket-price: 10000
+  max-tickets: 3
+  # Ennyi óránként van sorsolás
+  draw-hours: 24
+  # A nyertes ennyi kulcsot is kap
+  reward-key: galactic
+  reward-keys: 2
+
+# Kulcsok (lootbox). weight: esély súly (nagyobb = gyakoribb). announce-below: az ennél kisebb súlyú nyereményt mindenki látja.
+keys:
+  galactic:
+    name: "&5&lGalactic kulcs"
+    material: TRIPWIRE_HOOK
+    lore:
+      - "&7Mindenféle jó dolog lehet benne."
+    announce-below: 5
+    rewards:
+      - {item: "DIAMOND 8", weight: 20}
+      - {item: "IRON_BLOCK 4", weight: 20}
+      - {item: "GOLDEN_APPLE 4", weight: 15}
+      - {money: 5000, weight: 20}
+      - {money: 20000, weight: 8}
+      - {item: "ENCHANTED_GOLDEN_APPLE", weight: 5}
+      - {item: "DIAMOND_PICKAXE efficiency:4 unbreaking:3", weight: 5}
+      - {key: legendas, amount: 1, weight: 3}
+      - {item: "NETHERITE_INGOT", weight: 2}
+  legendas:
+    name: "&6&lLegendás kulcs"
+    material: TRIPWIRE_HOOK
+    lore:
+      - "&7Ritka és erős nyeremények."
+    announce-below: 10
+    rewards:
+      - {item: "DIAMOND_BLOCK 4", weight: 20}
+      - {money: 50000, weight: 20}
+      - {item: "NETHERITE_INGOT 2", weight: 15}
+      - {item: "DIAMOND_SWORD sharpness:5 unbreaking:3", weight: 12}
+      - {item: "DIAMOND_CHESTPLATE protection:4 unbreaking:3", weight: 12}
+      - {item: "ENCHANTED_GOLDEN_APPLE 3", weight: 10}
+      - {item: "TOTEM_OF_UNDYING", weight: 8}
+      - {item: "ELYTRA", weight: 3}
+
+# A rangok heti kulcs csomagja (/kulcs), piaconként egyszer. A rang azonosítója a ranks.yml-ből.
+rank-keys:
+  cooldown-days: 7
+  ranks:
+    bronz: {galactic: 1}
+    wizard: {galactic: 2}
+    iceking: {galactic: 3, legendas: 1}
+    yeti: {galactic: 4, legendas: 2}
+
+item-names:
+  cobblestone: "Zúzottkő"
+  stone: "Kő"
+  dirt: "Föld"
+  gravel: "Kavics"
+  sand: "Homok"
+  glass: "Üveg"
+  oak_log: "Tölgyfarönk"
+  spruce_log: "Fenyőrönk"
+  birch_log: "Nyírfarönk"
+  bricks: "Tégla"
+  quartz_block: "Kvarcblokk"
+  obsidian: "Obszidián"
+  wheat_seeds: "Búzamag"
+  wheat: "Búza"
+  carrot: "Répa"
+  potato: "Krumpli"
+  beetroot: "Cékla"
+  pumpkin: "Tök"
+  melon_slice: "Dinnyeszelet"
+  sugar_cane: "Cukornád"
+  bamboo: "Bambusz"
+  cactus: "Kaktusz"
+  cocoa_beans: "Kakaóbab"
+  nether_wart: "Netherbibircs"
+  kelp: "Hínár"
+  coal: "Szén"
+  copper_ingot: "Rézrúd"
+  iron_ingot: "Vasrúd"
+  gold_ingot: "Aranyrúd"
+  redstone: "Vöröskő"
+  lapis_lazuli: "Lazurit"
+  quartz: "Kvarc"
+  diamond: "Gyémánt"
+  emerald: "Smaragd"
+  netherite_ingot: "Netheritrúd"
+  iron_block: "Vasblokk"
+  gold_block: "Aranyblokk"
+  diamond_block: "Gyémántblokk"
+  emerald_block: "Smaragdblokk"
+  rotten_flesh: "Rothadt hús"
+  bone: "Csont"
+  string: "Fonal"
+  spider_eye: "Pókszem"
+  gunpowder: "Puskapor"
+  slime_ball: "Nyálkagolyó"
+  leather: "Bőr"
+  feather: "Toll"
+  ender_pearl: "Enderpearl"
+  blaze_rod: "Őrlángrúd"
+  cooked_beef: "Sült marhahús"
+  hopper: "Tölcsér"
+  golden_apple: "Aranyalma"
+  enchanted_golden_apple: "Varázsalma"
+  diamond_pickaxe: "Gyémántcsákány"
+  diamond_sword: "Gyémántkard"
+  diamond_chestplate: "Gyémánt mellvért"
+  totem_of_undying: "Életmentő totem"
+  elytra: "Elytra"
+
+messages:
+  not-ready: "A piac most nem elérhető, szólj egy adminnak."
+  only-in-scope: "Ezt csak a Kingdomsban és a Fylandon tudod használni."
+  inventory-full: "Nincs elég hely az inventorydban."
+  not-enough-money: "Nincs elég pénzed, ez %price% &7lenne."
+  balance: "&7Pénzed: %money%"
+  back: "&7« Vissza"
+  prev: "&7« Előző oldal"
+  next: "&7Következő oldal »"
+  sold: "Eladtál &f%amount% &7tárgyat, kaptál érte: %money%"
+  sell-nothing: "Nincs nálad semmi, amit el lehetne adni."
+  sell-not-sellable: "Ezt a tárgyat nem lehet eladni."
+  sell-usage: "Használat: &f/sell ha &7(a kezedben lévő) vagy &f/sell all &7(minden eladható)"
+  # aukciósház
+  ah-title: "&3[IceMine] &8Aukciósház &7(%page%/%pages%)"
+  ah-usage: "Használat: &f/ah sell <ár> &7(a kezedben lévő tárgyat teszi ki)"
+  ah-price-range: "Az ár %min% &7és %max% &7között lehet."
+  ah-empty-hand: "Vedd a kezedbe, amit el akarsz adni."
+  ah-not-allowed: "Ezt a tárgyat nem lehet kitenni."
+  ah-limit: "Egyszerre legfeljebb &f%max% &7tárgyat tehetsz ki."
+  ah-listed: "Kitetted: &f%amount%x %item% &7- %price% &8(%hours% óráig)"
+  ah-gone: "Ezt a tárgyat már megvették, vagy lejárt."
+  ah-confirm: "Biztosan megveszed? &f%item% &8- %price%&7. Kattints rá újra."
+  ah-bought: "Megvetted: &f%item% &8(%price%, eladó: %seller%&8)"
+  ah-sold: "Elkelt: &f%item% &7(vevő: &f%buyer%&7), kaptál érte: %money%"
+  ah-cancelled: "Visszavetted: &f%item%"
+  ah-claimed: "Visszakaptad: &f%item%"
+  ah-mine: "&e&lHirdetéseim"
+  ah-mine-lore:
+    - "&7Most kint: &f%count%"
+    - "&b▶ Kattints"
+  ah-mine-title: "&3[IceMine] &8Hirdetéseim"
+  ah-expired: "&c&lLejárt tárgyaim"
+  ah-expired-lore:
+    - "&7Visszakérhető: &f%count%"
+    - "&b▶ Kattints"
+  ah-expired-title: "&3[IceMine] &8Lejárt tárgyaim"
+  ah-help: "&f&lHogyan működik?"
+  ah-help-lore:
+    - "&7Vedd a kezedbe a tárgyat, és írd be:"
+    - "&f/ah sell <ár>"
+    - "&7Adó: &f%tax%% &8| &7Lejárat: &f%hours% óra"
+  ah-lore-buy:
+    - ""
+    - "&7Eladó: &f%seller%"
+    - "&7Ár: %price%"
+    - "&7Lejár: &f%time% &7múlva"
+    - "&b▶ Kattints kétszer a vásárláshoz"
+  ah-lore-own:
+    - ""
+    - "&7Ár: %price%"
+    - "&7Lejár: &f%time% &7múlva"
+    - "&c▶ Kattints a visszavételhez"
+  ah-lore-claim:
+    - ""
+    - "&a▶ Kattints, és visszakapod"
+  # csere
+  trade-usage: "Használat: &f/trade <játékos>"
+  trade-title: "&8Csere: %a% - %b%"
+  trade-not-here: "&f%player% &7nincs fent, vagy nem ugyanabban a módban van, mint te."
+  trade-busy: "Valamelyikőtök már cserél valakivel."
+  trade-sent: "Cserét ajánlottál neki: &f%player%&7. Egy perce van elfogadni."
+  trade-received: "&f%player% &7cserélne veled! [[&a&l[ELFOGADOM]|run:/trade elfogad]]"
+  trade-no-request: "Nincs érvényes csere ajánlatod."
+  trade-waiting: "&7Várakozás, amíg mindketten készen vagytok"
+  trade-countdown: "&eCsere &f%seconds% &emásodperc múlva..."
+  trade-help:
+    - "&7Tedd a tárgyaidat a saját oldaladra,"
+    - "&7állítsd be a pénzt, aztán kattints a Kész-re."
+    - "&7Ha bárki változtat, a Kész visszaáll."
+  trade-ready: "&a&l%player%: KÉSZ"
+  trade-not-ready: "&c&l%player%: még nem kész"
+  trade-ready-lore:
+    - "&7Kattints a saját gombodra!"
+  trade-money: "&6%player% pénze: %money%"
+  trade-money-lore:
+    - "&7Bal klikk: +100 &8| &7Jobb klikk: -100"
+    - "&7Shift: 10 000 &8| &7Középső klikk: +1000"
+  trade-money-missing: "Valakinek már nincs meg a pénz, amit felajánlott. Állítsátok be újra."
+  trade-done: "A csere kész &f%player% &7játékossal."
+  trade-cancelled: "A csere megszakadt."
+  # bolt
+  shop-title: "&3[IceMine] &8Bolt"
+  shop-category-title: "&3[IceMine] &8Bolt: %category%"
+  shop-category-lore:
+    - "&7%count% tétel &8| &b▶ Kattints!"
+  shop-buy: "&7Vétel: %price% &8(%amount% db)"
+  shop-sell: "&7Eladás: %price% &8(%amount% db)"
+  shop-trend-up: "&c▲ %percent%%-kal drágább a szokásosnál"
+  shop-trend-down: "&a▼ %percent%%-kal olcsóbb a szokásosnál"
+  shop-trend-flat: "&7Normál ár"
+  shop-click-both: "&b▶ Bal klikk: vétel &8| &bJobb klikk: mindet eladod"
+  shop-click-buy: "&b▶ Kattints a vásárláshoz"
+  shop-bought: "Megvetted: &f%amount%x %item% &8(%price%&8)"
+  # különleges blokkok
+  special-wrong-place: "Ezt itt nem rakhatod le."
+  farmblock-limit: "Legfeljebb &f%max% &7farm blokkod lehet."
+  special-placed-sellchest: "Eladó láda lerakva! Ami belekerül vagy a közelébe esik, azt eladja neked."
+  special-placed-crafter: "Craftoló lerakva! A beletett érceket és rudakat blokká tömöríti."
+  special-placed-farmblock: "Farm blokk lerakva! Mostantól %radius%x%radius% chunkot betöltve tart."
+  sellchest-earned: "&6Eladó láda: &a+%money%"
+  # lottó
+  lottery-usage: "Használat: &f/lottery buy <db>"
+  lottery-max: "Egy sorsoláson legfeljebb &f%max% &7szelvényed lehet (most &f%have%&7)."
+  lottery-bought: "Vettél &f%amount% &7szelvényt (%price%&7). A nyeremény most: %pot%"
+  lottery-winner: "&6&lLOTTÓ! &f%player% &7nyerte a sorsolást: %pot% &7és &f%keys%x %key%&7!"
+  lottery-pending-given: "Megkaptad a lottón nyert kulcsokat!"
+  lottery-status:
+    - "&8&m                                             "
+    - " &6&lLottó"
+    - " &7Nyeremény most: %pot% &7+ &f%keys%x %key%"
+    - " &7Szelvények: &f%tickets% &8(%players% játékos)"
+    - " &7A tiéd: &f%mine%&7/&f%max%"
+    - " &7Sorsolás: &f%time% &7múlva"
+    - " &7Egy szelvény: %price% &8- [[&a&l[VESZEK EGYET]|run:/lottery buy 1]]"
+    - "&8&m                                             "
+  # kulcsok
+  key-lore:
+    - ""
+    - "&b▶ Jobb klikk: kinyitás &8| &7Bal klikk: mi van benne"
+  key-opened: "Kinyitottad: %key%&7, ezt kaptad: &f%reward%"
+  key-rare: "&d&lSZERENCSE! &f%player% &7nagyot nyert (%key%&7): &f%reward%"
+  key-preview-title: "&3[IceMine] &8%key%"
+  key-chance: "&7Esély: &f%chance%%"
+  kulcs-no-rank: "A rangodhoz nem jár kulcs csomag. Rangokat itt nézhetsz: &f/shop"
+  kulcs-cooldown: "A következő csomagot &f%time% &7múlva kérheted."
+  kulcs-claimed: "Megkaptad a(z) %rank% &7heti csomagját: &f%keys%"
+  # pénz toplista
+  baltop-header: "&b[IceMine] &fLeggazdagabbak &8(%scope%&8)"
+  baltop-line: " &e#%place% &f%player% &8- %money%"
+  baltop-empty: "Még senkinek nincs pénze itt."
+  # admin
+  admin-usage: "Admin: &f/market give <játékos> <sellchest|crafter|farmblock|key:<kulcs>> [db] &8| &f/market draw <piac>"
+  admin-offline: "&f%player% &7nincs fent."
+  admin-given: "Odaadva: &f%item% &7- &f%player%"
+  admin-unknown: "Ismeretlen: &f%item%"

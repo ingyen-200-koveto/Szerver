@@ -86,8 +86,20 @@ commands:
     aliases: [arenak, arenas]
   fyland:
     description: Fyland (OneBlock) sziget parancsok
-    usage: /fyland [haza|piac|elad|meghiv|elfogad|kilep|kirug|atad|latogat|top|fazisok|fejlesztes|tagok|beallitasok|reset]
+    usage: /fyland [haza|piac|elad|meghiv|info|szint|coop|ban|lock|setwarp|warp|csatater|enchanter|...]
     aliases: [fy, is, oneblock]
+  pw:
+    description: Fyland játékos warpok
+    usage: /pw [set <név>|del|rate <warp> <1-5>|<warp>]
+    aliases: [playerwarp, pwarp]
+  enchanter:
+    description: Fyland egyedi varázslatok
+    usage: /enchanter
+    aliases: [varazslo]
+  fywarp:
+    description: Fyland warp menü (központ, csatatér, játékos warpok)
+    usage: /fywarp
+    aliases: [fwarp]
   gens:
     description: Gens menü és parancsok
     usage: /gens [home|kapa|fold|visit|trust|untrust|sell|daily|quests|shop|backpack|autosell|prestige|rebirth|members|upgrades|lock]
@@ -95,7 +107,39 @@ commands:
   elad:
     description: Eladás (Gens termés, Fyland bányászat)
     usage: /elad
-    aliases: [sell, sellall]
+    aliases: [sellall]
+  ah:
+    description: Aukciósház (Kingdoms, Fyland)
+    usage: /ah [sell <ár>|lejart]
+    aliases: [auction, aukcio]
+  trade:
+    description: Biztonságos csere egy játékossal
+    usage: /trade <játékos> | /trade elfogad
+    aliases: [csere]
+  shopgui:
+    description: Dinamikus bolt (Kingdoms, Fyland)
+    usage: /shopgui
+    aliases: [dinbolt]
+  shop:
+    description: Rangok és a webshop
+    usage: /shop
+  sell:
+    description: Eladás a bolt árán
+    usage: /sell <ha|all>
+  baltop:
+    description: A leggazdagabb játékosok
+    usage: /baltop
+    aliases: [penztop]
+  lottery:
+    description: Lottó
+    usage: /lottery [buy <db>|status]
+    aliases: [lotto]
+  kulcs:
+    description: A rangod heti kulcs csomagja
+    usage: /kulcs
+  market:
+    description: Piac admin
+    usage: /market <give|draw>
 
 permissions:
   icemine.admin.duels:
@@ -107,6 +151,12 @@ permissions:
   icemine.kingdoms.admin:
     default: op
   icemine.kingdoms.bypass:
+    default: op
+  icemine.kingdoms.fly:
+    description: /k fly - repülés a saját királyság földjén
+    default: op
+  icemine.kingdoms.extractor:
+    description: /k extractor - az összes Kitermelő begyűjtése
     default: op
   icemine.player.balance.others:
     description: Más játékos egyenlegének megnézése
@@ -214,6 +264,15 @@ permissions:
   icemine.admin.fyland:
     description: Fyland admin (/fy admin fazis|torol|tp) és belépés a zárt szigetekre
     default: op
+  icemine.admin.market:
+    description: Piac admin (/market give, /market draw)
+    default: op
+  icemine.market.ah.extra:
+    description: Kétszer annyi hirdetés az aukciósházban
+    default: false
+  icemine.market.farmblock.unlimited:
+    description: Akárhány farm blokk
+    default: op
   icemine.admin.commands:
     description: Használhatja a config.yml blocked-commands részében tiltott parancsokat (pl. /plugins)
     default: op
@@ -239,4 +298,5 @@ permissions:
       icemine.admin.build: true
       icemine.admin.kit: true
       icemine.admin.fyland: true
+      icemine.admin.market: true
       icemine.admin.commands: true

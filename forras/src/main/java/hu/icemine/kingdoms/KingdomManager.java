@@ -16,7 +16,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 /**
- * A királyságok logikája: alapítás, tagok, rangok, földek, bank, Resource Point, szintek, power, kapcsolatok, nemzetek,
+ * A királyságok logikája: alapítás, tagok, rangok, földek, bank, Nexuspont, szintek, power, kapcsolatok, nemzetek,
  * fejlesztések. Az üzeneteket is ez küldi, a parancsok és a menük csak meghívják.
  */
 public final class KingdomManager {
@@ -434,6 +434,7 @@ public final class KingdomManager {
             KPlayer data = player(member);
             data.kingdom = null;
             data.kingdomChat = false;
+            data.allyChat = false;
             data.autoClaim = false;
             data.dirty = true;
         }
@@ -577,6 +578,7 @@ public final class KingdomManager {
         KPlayer data = player(member);
         data.kingdom = null;
         data.kingdomChat = false;
+        data.allyChat = false;
         data.autoClaim = false;
         data.dirty = true;
     }
@@ -1069,7 +1071,7 @@ public final class KingdomManager {
         plugin.teleport(player, new Location(plugin.world(), target.home[0], target.home[1], target.home[2], (float) target.home[3], 0f));
     }
 
-    // ---- bank és Resource Point ----
+    // ---- bank és Nexuspont ----
 
     public void deposit(Player player, long amount) {
         Kingdom kingdom = mine(player);
@@ -1103,7 +1105,7 @@ public final class KingdomManager {
         plugin.send(player, "withdrew", "%money%", plugin.money(amount), "%bank%", plugin.money(kingdom.bank));
     }
 
-    /** Bankpénz átváltása Resource Pointra (money-per-point pénz = 1 RP). */
+    /** Bankpénz átváltása nexuspontra (money-per-point pénz = 1 NP). */
     public void convert(Player player, long points) {
         Kingdom kingdom = allowed(player, KPerm.WITHDRAW);
         if (kingdom == null || points <= 0) {
@@ -1116,11 +1118,11 @@ public final class KingdomManager {
         }
         kingdom.bank -= cost;
         kingdom.resourcePoints += points;
-        kingdom.bankLog(player.getName(), -cost, points + " RP vásárlás");
+        kingdom.bankLog(player.getName(), -cost, points + " NP vásárlás");
         plugin.send(player, "converted", "%points%", String.valueOf(points), "%money%", plugin.money(cost));
     }
 
-    /** Beadott tárgyak RP-re váltva (a menü hívja, a maradékot visszaadja). Visszaadja az RP-t. */
+    /** Beadott tárgyak NP-re váltva (a menü hívja, a maradékot visszaadja). Visszaadja az NP-t. */
     public long donate(Player player, Kingdom kingdom, long points) {
         if (points <= 0) {
             return 0;
@@ -1658,7 +1660,7 @@ public final class KingdomManager {
         store.deleteNation(nation.id);
     }
 
-    /** Resource Point beadása a nemzet közös kasszájába. */
+    /** Nexuspont beadása a nemzet közös kasszájába. */
     public void donateToNation(Player player, long points) {
         Kingdom kingdom = allowed(player, KPerm.NATION);
         Nation nation = nationOf(kingdom);
@@ -1725,7 +1727,7 @@ public final class KingdomManager {
         }
     }
 
-    /** Halál PvP-ben: power vesztés, a királyság RP-t veszít, a gyilkos királysága XP-t kap. */
+    /** Halál PvP-ben: power vesztés, a királyság NP-t veszít, a gyilkos királysága XP-t kap. */
     void death(Player victim, Player killer) {
         KPlayer data = player(victim);
         data.deaths++;

@@ -38,7 +38,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 /**
  * A Kingdoms mód: saját (generált) világ, királyi város a spawnon, királyságok rangokkal, földekkel, Nexusszal, bankkal,
- * Resource Pointtal, kapcsolatokkal, nemzetekkel, inváziókkal, tornyokkal és építményekkel. Az adatok az IceMine
+ * nexusponttal, kapcsolatokkal, nemzetekkel, inváziókkal, tornyokkal és építményekkel. Az adatok az IceMine
  * adatbázisában vannak (SQLite vagy MySQL).
  */
 public final class IceMineKingdoms extends Module {
@@ -59,6 +59,7 @@ public final class IceMineKingdoms extends Module {
     private Borders borders;
     private KingdomMenus menus;
     private Donations donations;
+    private KingdomFly fly;
     private World world;
     private Location spawn;
     private int townX;
@@ -109,6 +110,7 @@ public final class IceMineKingdoms extends Module {
         borders = new Borders(this);
         menus = new KingdomMenus(this);
         donations = new Donations(this);
+        fly = new KingdomFly(this);
         try {
             store.init();
             KingdomStore.Loaded loaded = store.loadAll(settings.defaultRanks);
@@ -135,7 +137,7 @@ public final class IceMineKingdoms extends Module {
                 command.setTabCompleter(commands);
             }
         }
-        for (org.bukkit.event.Listener listener : new org.bukkit.event.Listener[]{new KingdomListener(this), structures, invasions, borders, donations}) {
+        for (org.bukkit.event.Listener listener : new org.bukkit.event.Listener[]{new KingdomListener(this), structures, invasions, borders, donations, fly, new Regulator(this)}) {
             getServer().getPluginManager().registerEvents(listener, plugin());
         }
         startTasks();
@@ -197,6 +199,15 @@ public final class IceMineKingdoms extends Module {
 
     public KingdomMenus menus() {
         return menus;
+    }
+
+    KingdomFly fly() {
+        return fly;
+    }
+
+    /** Rövid üzenet az action barra (kingdoms.yml: messages). */
+    public void actionBar(Player player, String key, String... pairs) {
+        player.sendActionBar(Text.color(replace(raw(key), pairs)));
     }
 
     public Donations donations() {
@@ -404,6 +415,7 @@ public final class IceMineKingdoms extends Module {
         tasks.add(Bukkit.getScheduler().runTaskTimer(plugin(), () -> {
             structures.tick();
             borders.tick();
+            fly.tick();
         }, 10L, 10L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(plugin(), () -> {
             manager.tickPower();
@@ -455,6 +467,7 @@ public final class IceMineKingdoms extends Module {
     }
 
     void leave(Player player) {
+        fly.forget(player);
         inventories.save(player);
         KPlayer data = manager.player(player);
         data.lastSeen = System.currentTimeMillis();

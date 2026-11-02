@@ -589,6 +589,25 @@ final class KingdomListener implements Listener {
         String message = event.getMessage();
         boolean quick = message.length() > 1 && message.startsWith("!");
         KPlayer data = km().player(player.getUniqueId());
+        if (kingdom != null && data.allyChat && !quick) {
+            event.setCancelled(true);
+            Rank rank = kingdom.rankOf(player.getUniqueId());
+            String line = Text.color(plugin.getConfig().getString("chat.ally", "&8[&d⚑ Szövetség&8] &8[%color%%kingdom%&8] &d%player%&8: &f")
+                    .replace("%color%", kingdom.color).replace("%kingdom%", kingdom.name)
+                    .replace("%player%", (rank == null ? "" : rank.color + rank.symbol + " ") + player.getName())) + message;
+            for (Player other : Bukkit.getOnlinePlayers()) {
+                Kingdom theirs = km().kingdomOf(other.getUniqueId());
+                if (theirs == null) {
+                    continue;
+                }
+                Relation relation = km().relation(kingdom, theirs);
+                if (relation == Relation.SELF || relation == Relation.NATION || relation == Relation.ALLY) {
+                    other.sendMessage(line);
+                }
+            }
+            plugin.getLogger().info("[Szövetség " + kingdom.name + "] " + player.getName() + ": " + message);
+            return;
+        }
         if (kingdom != null && (quick || data.kingdomChat)) {
             event.setCancelled(true);
             Rank rank = kingdom.rankOf(player.getUniqueId());

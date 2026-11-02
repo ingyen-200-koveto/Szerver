@@ -136,15 +136,68 @@ public final class FylandMode implements ModeHandler, Listener {
     private int nextIndex = 1;
     private int spacing = 400;
     private int islandY = 100;
-    private int levelBlocks = 200;
     private long resetCooldown = 3_600_000L;
     private double voidY = 40;
     private boolean keepInventory = true;
     private String currency = "fyland";
 
+    private final FyWorth worthTracker;
+    private final FySocial social;
+    private final FyBattle battle;
+    private final FyEnchants enchants;
+
     public FylandMode(IceMineCore core) {
         this.core = core;
         this.menus = new FyMenus(this);
+        this.worthTracker = new FyWorth(this);
+        this.social = new FySocial(this);
+        this.battle = new FyBattle(this);
+        this.enchants = new FyEnchants(this);
+    }
+
+    /** A Fyland további eseménykezelői (sziget érték, csatatér, varázslatok, coop). */
+    public List<org.bukkit.event.Listener> listeners() {
+        return List.of(worthTracker, social, battle, enchants);
+    }
+
+    FyWorth worth() {
+        return worthTracker;
+    }
+
+    FySocial social() {
+        return social;
+    }
+
+    public FyBattle battle() {
+        return battle;
+    }
+
+    public FyEnchants enchants() {
+        return enchants;
+    }
+
+    Random random() {
+        return random;
+    }
+
+    YamlConfiguration config() {
+        return config;
+    }
+
+    int islandY() {
+        return islandY;
+    }
+
+    FyStore store() {
+        return store;
+    }
+
+    boolean isBuilder(Player player) {
+        return builder(player);
+    }
+
+    void dropAt(Location at, ItemStack item) {
+        drop(at, item);
     }
 
     IceMineCore core() {
@@ -183,7 +236,6 @@ public final class FylandMode implements ModeHandler, Listener {
         }
         spacing = Math.max(150, config.getInt("island.spacing", 400));
         islandY = Math.max(world.getMinHeight() + 10, Math.min(world.getMaxHeight() - 40, config.getInt("island.y", 100)));
-        levelBlocks = Math.max(10, config.getInt("island.level-blocks", 200));
         resetCooldown = Math.max(0, config.getLong("island.reset-cooldown-minutes", 60)) * 60_000L;
         voidY = config.getDouble("island.void-y", islandY - 60);
         keepInventory = config.getBoolean("island.keep-inventory", true);
@@ -222,6 +274,9 @@ public final class FylandMode implements ModeHandler, Listener {
             }
         }
         buildHub();
+        worthTracker.load(config, problems);
+        battle.load(config, problems);
+        enchants.load(config, problems);
     }
 
     private World createWorld(String name) {
@@ -238,7 +293,8 @@ public final class FylandMode implements ModeHandler, Listener {
 
     private void prepareWorld() {
         world.setDifficulty(Difficulty.NORMAL);
-        world.setPVP(false);
+        // A PvP-t az onDamage engedi (csak a csatatéren), ezért a világ szintjén be kell kapcsolni.
+        world.setPVP(true);
         world.setSpawnFlags(false, true);
         world.setGameRuleValue("doMobSpawning", "false");
         world.setGameRuleValue("doFireTick", "false");
@@ -498,7 +554,7 @@ public final class FylandMode implements ModeHandler, Listener {
     }
 
     int level(FyIsland island) {
-        return (int) (island.blocks / levelBlocks) + 1;
+        return worthTracker.level(island);
     }
 
     List<UUID> allMembers(FyIsland island) {
@@ -517,7 +573,7 @@ public final class FylandMode implements ModeHandler, Listener {
             return true;
         }
         FyIsland island = islandAt(location);
-        return island != null && island.member(player.getUniqueId());
+        return island != null && island.trusted(player.getUniqueId());
     }
 
     Location home(FyIsland island) {
@@ -661,6 +717,7 @@ public final class FylandMode implements ModeHandler, Listener {
             values.put("%fy_members%", "-");
             values.put("%fy_cycle%", "1");
             values.put("%fy_island%", "-");
+            values.put("%fy_worth%", "0");
             return;
         }
         FyPhase phase = phase(island);
@@ -670,11 +727,13 @@ public final class FylandMode implements ModeHandler, Listener {
         values.put("%fy_level%", String.valueOf(level(island)));
         values.put("%fy_members%", island.size() + "/" + maxMembers(island));
         values.put("%fy_cycle%", String.valueOf(island.cycle));
-        values.put("%fy_island%", island.ownerName);
+        values.put("%fy_island%", island.display());
+        values.put("%fy_worth%", Text.number(island.worth));
     }
 
     @Override
     public void shutdown() {
+        battle.shutdown();
         saveAll();
         for (BossBar bar : bars.values()) {
             bar.removeAll();
@@ -704,6 +763,8 @@ public final class FylandMode implements ModeHandler, Listener {
         for (Player player : world.getPlayers()) {
             updatePlayer(player);
         }
+        battle.tick();
+        enchants.tick();
     }
 
     private void updatePlayer(Player player) {
@@ -794,12 +855,12 @@ public final class FylandMode implements ModeHandler, Listener {
             }
             return;
         }
-        if (!island.member(player.getUniqueId()) && !builder(player)) {
+        if (!island.trusted(player.getUniqueId()) && !builder(player)) {
             event.setCancelled(true);
             warn(player, "no-build");
             return;
         }
-        int exp = event.getExpToDrop();
+        int exp = enchants.experience(player, event.getExpToDrop());
         event.setCancelled(true);
         mine(player, island, block, exp);
     }
@@ -808,8 +869,10 @@ public final class FylandMode implements ModeHandler, Listener {
         Location top = block.getLocation().add(0.5, 1.05, 0.5);
         if (player.getGameMode() != GameMode.CREATIVE) {
             ItemStack tool = player.getInventory().getItemInMainHand();
-            for (ItemStack drop : block.getDrops(tool, player)) {
-                drop(top, drop);
+            for (ItemStack drop : enchants.drops(player, tool, block.getDrops(tool, player))) {
+                if (!enchants.telepathy(player, tool, drop)) {
+                    drop(top, drop);
+                }
             }
             BlockState state = block.getState();
             if (state instanceof Container container) {
@@ -969,6 +1032,9 @@ public final class FylandMode implements ModeHandler, Listener {
             return;
         }
         Player player = event.getPlayer();
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && battle.airdropAt(block)) {
+            return;
+        }
         if (block.getType() == Material.ENDER_CHEST && event.getAction() == Action.RIGHT_CLICK_BLOCK && !builder(player)) {
             event.setCancelled(true);
             warn(player, "no-enderchest");
@@ -1012,8 +1078,10 @@ public final class FylandMode implements ModeHandler, Listener {
         if (attacker == null) {
             return;
         }
-        if (event.getEntity() instanceof Player) {
-            event.setCancelled(true);
+        if (event.getEntity() instanceof Player victim) {
+            if (!battle.pvp(attacker, victim)) {
+                event.setCancelled(true);
+            }
             return;
         }
         if (!canBuild(attacker, event.getEntity().getLocation())) {
@@ -1172,7 +1240,7 @@ public final class FylandMode implements ModeHandler, Listener {
             return;
         }
         FyIsland island = cellAt(player.getLocation());
-        if (island == null || (!island.member(player.getUniqueId()) && !island.visitors)) {
+        if (island == null || (!island.member(player.getUniqueId()) && (!island.visitors || island.banned.containsKey(player.getUniqueId())))) {
             island = islandOf(player);
         }
         Location target = island == null ? world.getSpawnLocation().add(0.5, 0, 0.5) : home(island);
@@ -1194,6 +1262,10 @@ public final class FylandMode implements ModeHandler, Listener {
             return;
         }
         died.add(player.getUniqueId());
+        if (battle.inArena(player.getLocation())) {
+            battle.died(event);
+            return;
+        }
         if (keepInventory) {
             event.setKeepInventory(true);
             event.getDrops().clear();
@@ -1281,8 +1353,8 @@ public final class FylandMode implements ModeHandler, Listener {
             send(player, "no-island");
             return;
         }
-        if (!island.owner.equals(player.getUniqueId())) {
-            send(player, "owner-only");
+        if (!island.manager(player.getUniqueId())) {
+            send(player, "manager-only");
             return;
         }
         Player target = Bukkit.getPlayerExact(targetName);
@@ -1361,6 +1433,7 @@ public final class FylandMode implements ModeHandler, Listener {
             return;
         }
         island.members.remove(player.getUniqueId());
+        island.moderators.remove(player.getUniqueId());
         byPlayer.remove(player.getUniqueId(), island);
         island.dirty = true;
         store.save(island);
@@ -1375,8 +1448,8 @@ public final class FylandMode implements ModeHandler, Listener {
 
     public void kick(Player player, String targetName) {
         FyIsland island = islandOf(player);
-        if (island == null || !island.owner.equals(player.getUniqueId())) {
-            send(player, "owner-only");
+        if (island == null || !island.manager(player.getUniqueId())) {
+            send(player, "manager-only");
             return;
         }
         UUID target = null;
@@ -1389,11 +1462,16 @@ public final class FylandMode implements ModeHandler, Listener {
             send(player, "not-member", "%player%", targetName);
             return;
         }
+        if (!island.owner.equals(player.getUniqueId()) && island.moderators.contains(target)) {
+            send(player, "kick-moderator");
+            return;
+        }
         if (!confirmed(player, "kick:" + target)) {
             send(player, "kick-confirm", "%player%", island.members.get(target));
             return;
         }
         String name = island.members.remove(target);
+        island.moderators.remove(target);
         byPlayer.remove(target, island);
         island.dirty = true;
         store.save(island);
@@ -1430,6 +1508,7 @@ public final class FylandMode implements ModeHandler, Listener {
             return;
         }
         String newName = island.members.remove(target);
+        island.moderators.remove(target);
         island.members.put(island.owner, island.ownerName);
         island.owner = target;
         island.ownerName = newName;
@@ -1463,6 +1542,8 @@ public final class FylandMode implements ModeHandler, Listener {
         island.phaseBlocks = 0;
         island.cycle = 1;
         island.rewardPending = false;
+        island.worth = 0;
+        island.hasWarp = false;
         island.lastReset = System.currentTimeMillis();
         int[] grid = FyIsland.grid(index);
         byCell.put(cell(grid[0], grid[1]), island);
@@ -1483,11 +1564,15 @@ public final class FylandMode implements ModeHandler, Listener {
 
     public void toggleVisitors(Player player) {
         FyIsland island = islandOf(player);
-        if (island == null || !island.owner.equals(player.getUniqueId())) {
-            send(player, "owner-only");
+        if (island == null || !island.manager(player.getUniqueId())) {
+            send(player, "manager-only");
             return;
         }
-        island.visitors = !island.visitors;
+        setVisitors(player, island, !island.visitors);
+    }
+
+    void setVisitors(Player player, FyIsland island, boolean open) {
+        island.visitors = open;
         island.dirty = true;
         send(player, island.visitors ? "visitors-on" : "visitors-off");
         if (!island.visitors) {
@@ -1532,8 +1617,18 @@ public final class FylandMode implements ModeHandler, Listener {
             send(player, "visit-none", "%player%", label);
             return;
         }
-        if (!island.visitors && !island.member(player.getUniqueId()) && !player.hasPermission("icemine.admin.fyland")) {
-            send(player, "visit-closed", "%player%", island.ownerName);
+        boolean staff = player.hasPermission("icemine.admin.fyland");
+        if (!island.visitors && !island.member(player.getUniqueId()) && !staff) {
+            send(player, "visit-closed", "%player%", island.display());
+            return;
+        }
+        if (island.banned.containsKey(player.getUniqueId()) && !staff) {
+            send(player, "visit-banned", "%island%", island.display());
+            return;
+        }
+        Location arrival = island.member(player.getUniqueId()) ? home(island) : social.visitPoint(island);
+        if (arrival == null && !staff) {
+            send(player, "visit-no-warp", "%island%", island.display());
             return;
         }
         if (!inWorld(player)) {
@@ -1546,8 +1641,8 @@ public final class FylandMode implements ModeHandler, Listener {
             core.messages().send(player, "combat.blocked-generic");
             return;
         }
-        teleport(player, home(island));
-        send(player, "visiting", "%player%", island.ownerName);
+        teleport(player, arrival == null ? home(island) : arrival);
+        send(player, "visiting", "%player%", island.display());
     }
 
     public void buyUpgrade(Player player, String id) {
@@ -1670,7 +1765,7 @@ public final class FylandMode implements ModeHandler, Listener {
 
     List<FyIsland> top(int limit) {
         List<FyIsland> sorted = new ArrayList<>(islands.values());
-        sorted.sort(Comparator.comparingLong((FyIsland island) -> island.blocks).reversed());
+        sorted.sort(Comparator.comparingLong((FyIsland island) -> island.worth).thenComparingLong(island -> island.blocks).reversed());
         return sorted.subList(0, Math.min(limit, sorted.size()));
     }
 

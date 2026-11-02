@@ -148,7 +148,7 @@ public final class Structures implements Listener {
         return parts.length == 2 ? parts : null;
     }
 
-    /** Vásárlás a menüből: RP-t von le, és odaadja a lerakható tárgyat. */
+    /** Vásárlás a menüből: NP-t von le, és odaadja a lerakható tárgyat. */
     public void buy(Player player, String kind, String type) {
         KPerm perm = kind.equals("turret") ? KPerm.TURRETS : KPerm.STRUCTURES;
         Kingdom kingdom = km().allowed(player, perm);
@@ -437,7 +437,7 @@ public final class Structures implements Listener {
     private int turretsPerLand(Kingdom kingdom) {
         KConfig.Upgrade upgrade = cfg().misc.get("max-turrets");
         int extra = kingdom == null || upgrade == null ? 0 : (int) Math.round(upgrade.value(kingdom.level(kingdom.misc, "max-turrets")));
-        return plugin.getConfig().getInt("turret-settings.per-land", 4) + extra;
+        return plugin.getConfig().getInt("turret-settings.per-land", 5) + extra;
     }
 
     /** Miért nem rakható le (üzenet kulcs), "" ha az üzenetet már elküldtük, null ha rendben van. */
@@ -481,6 +481,24 @@ public final class Structures implements Listener {
             if (here >= turretsPerLand(kingdom)) {
                 return "turret-land-limit";
             }
+        } else if (type.equals("regulator")) {
+            if (regulatorAt(kingdom, chunk)) {
+                return "regulator-exists";
+            }
+        } else {
+            int perLand = plugin.getConfig().getInt("structures-settings.per-land", 1);
+            if (perLand > 0) {
+                int here = 0;
+                for (Placed other : kingdom.placed) {
+                    if (!other.turret() && !other.type.equals("nexus") && !other.type.equals("regulator") && other.chunk() == chunk) {
+                        here++;
+                    }
+                }
+                if (here >= perLand) {
+                    plugin.send(player, "structure-land-limit", "%max%", String.valueOf(perLand));
+                    return "";
+                }
+            }
         }
         return null;
     }
@@ -515,6 +533,10 @@ public final class Structures implements Listener {
             remove(owner, placed, false);
             return;
         }
+        if (placed.type.equals("nexus") && player.getInventory().getItemInMainHand().getType() == Material.DIAMOND_HOE) {
+            steal(player, owner, placed);
+            return;
+        }
         if (!placed.type.equals("nexus") && plugin.invasions().attackerHere(player, placed.chunk())) {
             KConfig.Placeable def = def(placed);
             remove(owner, placed, false);
@@ -524,6 +546,58 @@ public final class Structures implements Listener {
             return;
         }
         plugin.send(player, "structure-protected");
+    }
+
+    private final Map<UUID, Long> stolenAt = new HashMap<>();
+
+    /** Nexus lopás: ellenség gyémánt kapával üti a Nexust, és a királyság nexuspontjainak egy részét elviszi. */
+    private void steal(Player player, Kingdom owner, Placed placed) {
+        org.bukkit.configuration.ConfigurationSection config = plugin.getConfig().getConfigurationSection("nexus-steal");
+        if (config == null || !config.getBoolean("enabled", true)) {
+            plugin.send(player, "structure-protected");
+            return;
+        }
+        Kingdom thief = km().kingdomOf(player.getUniqueId());
+        if (thief == null || km().relation(thief, owner) != Relation.ENEMY) {
+            plugin.send(player, "steal-not-enemy");
+            return;
+        }
+        if (km().shielded(owner) || owner.pacifist) {
+            plugin.send(player, "steal-protected");
+            return;
+        }
+        if (km().online(owner).size() < config.getInt("min-online", 1)) {
+            plugin.send(player, "steal-offline", "%min%", String.valueOf(config.getInt("min-online", 1)));
+            return;
+        }
+        long now = System.currentTimeMillis();
+        long cooldown = Math.max(1, config.getLong("cooldown-minutes", 60)) * 60_000L;
+        Long last = stolenAt.get(owner.id);
+        if (last != null && now - last < cooldown) {
+            plugin.send(player, "steal-cooldown", "%time%", plugin.duration(last + cooldown - now));
+            return;
+        }
+        long amount = Math.min(owner.resourcePoints, Math.max(0, Math.round(owner.resourcePoints * config.getDouble("percent", 5) / 100.0)));
+        amount = Math.min(amount, Math.max(1, config.getLong("max", 2000)));
+        if (amount <= 0) {
+            plugin.send(player, "steal-empty");
+            return;
+        }
+        stolenAt.put(owner.id, now);
+        owner.resourcePoints -= amount;
+        thief.resourcePoints += amount;
+        owner.dirty = true;
+        thief.dirty = true;
+        ItemStack hoe = player.getInventory().getItemInMainHand();
+        hoe.setAmount(hoe.getAmount() - 1);
+        player.getInventory().setItemInMainHand(hoe.getAmount() <= 0 ? null : hoe);
+        owner.log(player.getName() + " (" + thief.name + ") ellopott " + amount + " NP-t a Nexusból.");
+        thief.log(player.getName() + " ellopott " + amount + " NP-t tőlük: " + owner.name + ".");
+        km().tell(owner, "steal-victim", "%player%", player.getName(), "%kingdom%", thief.display(), "%points%", String.valueOf(amount));
+        km().tell(thief, "steal-success", "%player%", player.getName(), "%kingdom%", owner.display(), "%points%", String.valueOf(amount));
+        Location at = location(placed);
+        at.getWorld().playSound(at, Sound.ENTITY_ITEM_BREAK, 1f, 0.6f);
+        at.getWorld().spawnParticle(Particle.ENCHANTED_HIT, at.clone().add(0, 0.6, 0), 30, 0.4, 0.4, 0.4, 0.2);
     }
 
     public void pickUp(Player player, Kingdom kingdom, Placed placed) {
@@ -688,7 +762,7 @@ public final class Structures implements Listener {
             plugin.send(player, "no-kingdom-permission", "%permission%", KPerm.TURRETS.title);
             return;
         }
-        long price = cfg().ammoCost * cfg().ammoPerRefill;
+        long price = refillPrice(def(placed));
         if (kingdom.resourcePoints < price) {
             plugin.send(player, "not-enough-rp", "%need%", String.valueOf(price));
             return;
@@ -697,6 +771,126 @@ public final class Structures implements Listener {
         placed.ammo += cfg().ammoPerRefill;
         kingdom.dirty = true;
         plugin.send(player, "refilled", "%ammo%", String.valueOf(placed.ammo), "%price%", String.valueOf(price));
+    }
+
+    /** Egy lőszer feltöltés ára: a torony saját "ammo-cost" értéke, vagy a közös lövésenkénti ár. */
+    public long refillPrice(KConfig.Placeable def) {
+        double perShot = def == null ? cfg().ammoCost : def.values.getOrDefault("ammo-cost", (double) cfg().ammoCost);
+        return Math.round(perShot * cfg().ammoPerRefill);
+    }
+
+    /** Ennyi NP-t ér eladáskor: a vételár és a fejlesztések árának ennyi %-a. */
+    public long sellValue(Placed placed) {
+        KConfig.Placeable def = def(placed);
+        if (def == null || placed.type.equals("nexus")) {
+            return 0;
+        }
+        long total = def.price;
+        for (int level = 1; level < placed.level; level++) {
+            long step = def.upgradePrice(level);
+            if (step > 0) {
+                total += step;
+            }
+        }
+        return total * Math.max(0, Math.min(100, plugin.getConfig().getInt("structures-settings.sell-percent", 50))) / 100;
+    }
+
+    /** /k sell: a nézett építmény vagy torony eladása nexuspontért. */
+    public void sell(Player player) {
+        Block block = player.getTargetBlockExact(6);
+        Placed placed = block == null ? null : at(block);
+        if (placed == null) {
+            plugin.send(player, "sell-look");
+            return;
+        }
+        Kingdom kingdom = ownerOf(placed);
+        if (kingdom == null || !kingdom.members.containsKey(player.getUniqueId())) {
+            plugin.send(player, "structure-protected");
+            return;
+        }
+        sellPlaced(player, kingdom, placed);
+    }
+
+    public void sellPlaced(Player player, Kingdom kingdom, Placed placed) {
+        KPerm perm = placed.turret() ? KPerm.TURRETS : KPerm.STRUCTURES;
+        if (!kingdom.can(player.getUniqueId(), perm)) {
+            plugin.send(player, "no-kingdom-permission", "%permission%", perm.title);
+            return;
+        }
+        if (placed.type.equals("nexus")) {
+            plugin.send(player, "sell-nexus");
+            return;
+        }
+        if (plugin.invasions().defending(kingdom)) {
+            plugin.send(player, "invasion-running");
+            return;
+        }
+        KConfig.Placeable def = def(placed);
+        long value = sellValue(placed);
+        remove(kingdom, placed, true);
+        kingdom.resourcePoints += value;
+        kingdom.dirty = true;
+        String name = def == null ? placed.type : def.name;
+        kingdom.log(player.getName() + " eladta: " + plugin.strip(name) + " (" + value + " NP).");
+        plugin.send(player, "sold-placeable", "%name%", name, "%points%", String.valueOf(value));
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 0.8f);
+    }
+
+    /** /k extractor: az összes Kitermelő begyűjtése egyszerre. */
+    public void collectAll(Player player) {
+        Kingdom kingdom = km().mine(player);
+        if (kingdom == null) {
+            return;
+        }
+        long points = 0;
+        int count = 0;
+        for (Placed placed : kingdom.placed) {
+            if (placed.type.equals("extractor") && placed.stored > 0) {
+                points += placed.stored;
+                placed.stored = 0;
+                count++;
+            }
+        }
+        if (points <= 0) {
+            plugin.send(player, "nothing-to-collect");
+            return;
+        }
+        kingdom.dirty = true;
+        km().donate(player, kingdom, points);
+        plugin.send(player, "collected-all", "%points%", String.valueOf(points), "%count%", String.valueOf(count));
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.2f);
+    }
+
+    private static boolean regulatorAt(Kingdom kingdom, long chunk) {
+        for (Placed placed : kingdom.placed) {
+            if (placed.type.equals("regulator") && placed.chunk() == chunk) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** A föld Szabályzója (ha van és be van kapcsolva), vagy null. */
+    public Placed regulator(long chunk) {
+        Kingdom kingdom = km().owner(chunk);
+        if (kingdom == null) {
+            return null;
+        }
+        for (Placed placed : kingdom.placed) {
+            if (placed.type.equals("regulator") && placed.enabled && placed.chunk() == chunk) {
+                return placed;
+            }
+        }
+        return null;
+    }
+
+    /** Igaz, ha a föld Szabályzója ezt a dolgot letiltotta (pl. "pvp", "monsters"). */
+    public boolean regulated(Location location, String flag) {
+        if (location.getWorld() != plugin.world()) {
+            return false;
+        }
+        Placed regulator = regulator(Lands.key(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+        return regulator != null && Regulator.off(regulator, flag);
     }
 
     public void toggle(Player player, Kingdom kingdom, Placed placed) {
@@ -946,12 +1140,12 @@ public final class Structures implements Listener {
         return !relation.turretCeasefire && relation == Relation.ENEMY;
     }
 
-    private LivingEntity target(World world, Kingdom kingdom, Location from, double range) {
+    private LivingEntity target(World world, Kingdom kingdom, Location from, double range, boolean throughWalls) {
         LivingEntity best = null;
         double bestDistance = range * range;
         for (Player player : world.getPlayers()) {
             double distance = player.getLocation().distanceSquared(from);
-            if (distance < bestDistance && hostile(kingdom, player) && visible(from, player.getEyeLocation())) {
+            if (distance < bestDistance && hostile(kingdom, player) && (throughWalls || visible(from, player.getEyeLocation()))) {
                 best = player;
                 bestDistance = distance;
             }
@@ -961,7 +1155,7 @@ public final class Structures implements Listener {
                 if (entity instanceof Monster monster && !monster.getPersistentDataContainer().has(soldierKey, PersistentDataType.STRING)
                         && !plugin.invasions().isChampion(monster)) {
                     double distance = monster.getLocation().distanceSquared(from);
-                    if (distance < bestDistance && visible(from, monster.getEyeLocation())) {
+                    if (distance < bestDistance && (throughWalls || visible(from, monster.getEyeLocation()))) {
                         best = monster;
                         bestDistance = distance;
                     }
@@ -1011,7 +1205,7 @@ public final class Structures implements Listener {
             }
             return;
         }
-        LivingEntity target = target(world, kingdom, from, range);
+        LivingEntity target = target(world, kingdom, from, range, def.values.getOrDefault("through-walls", 0.0) > 0);
         if (target == null) {
             return;
         }
@@ -1038,6 +1232,11 @@ public final class Structures implements Listener {
                 beam(world, from, eye, Particle.SMOKE);
                 Location boom = target.getLocation();
                 world.createExplosion(boom.getX(), boom.getY(), boom.getZ(), (float) def.get("power", placed.level), false, false);
+            }
+            case "laser" -> {
+                beam(world, from, eye, Particle.END_ROD);
+                damage(target, def.get("damage", placed.level), kingdom);
+                world.playSound(from, Sound.ENTITY_GUARDIAN_ATTACK, 0.8f, 1.6f);
             }
             case "magic" -> {
                 beam(world, from, eye, Particle.WITCH);

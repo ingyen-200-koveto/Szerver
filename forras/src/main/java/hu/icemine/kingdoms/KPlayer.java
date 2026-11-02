@@ -13,7 +13,7 @@ public final class KPlayer {
     public double power;
     public long kills;
     public long deaths;
-    /** Ennyi Resource Pointot adott be a királyságnak. */
+    /** Ennyi nexuspontot adott be a királyságnak. */
     public long donated;
     public long invasions;
     public long lastSeen;
@@ -21,6 +21,8 @@ public final class KPlayer {
     public long powerTick;
 
     public transient boolean kingdomChat;
+    /** Szövetségi chat: a királyság, a nemzettársak és a szövetségesek látják. */
+    public transient boolean allyChat;
     public transient boolean autoClaim;
     public transient boolean autoMap;
     public transient boolean dirty;

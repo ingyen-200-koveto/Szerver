@@ -58,7 +58,7 @@ public final class KingdomMenus {
     }
 
     private String rp(long value) {
-        return "&e" + hu.icemine.core.util.Text.number(value) + " RP";
+        return "&e" + hu.icemine.core.util.Text.number(value) + " NP";
     }
 
     private String yesNo(boolean value) {
@@ -105,7 +105,7 @@ public final class KingdomMenus {
         menu.set(12, button(Material.GRASS_BLOCK, "&2&lFöldek", "&7" + kingdom.claims.size() + "/" + km().maxClaims(kingdom) + " chunk",
                 "&7Power: &f" + format(km().power(kingdom)), "", "&b▶ Foglalás, elengedés, térkép"), this::lands);
         menu.set(13, button(Material.GOLD_INGOT, "&e&lBank", "&7Egyenleg: &f" + plugin.money(kingdom.bank), "", "&b▶ Befizetés, kivét, napló"), this::bank);
-        menu.set(14, button(Material.EMERALD, "&a&lResource Point", "&7Van: " + rp(kingdom.resourcePoints), "", "&b▶ Tárgyak beváltása"), this::points);
+        menu.set(14, button(Material.EMERALD, "&a&lNexuspont", "&7Van: " + rp(kingdom.resourcePoints), "", "&b▶ Tárgyak beváltása"), this::points);
         menu.set(15, button(Material.ANVIL, "&d&lFejlesztések", "&7Szint: &f" + level + "&7/&f" + cfg().maxLevel(), "", "&b▶ Erősítések, képességek"), this::upgrades);
         menu.set(16, button(Material.LODESTONE, "&b&lNexus és építmények", "&7Nexus: " + (kingdom.hasNexus() ? "&alerakva" : "&cmég nincs"),
                 "&7Építmények: &f" + kingdom.count("structure", null), "", "&b▶ Vásárlás, fejlesztés"), this::structures);
@@ -165,7 +165,7 @@ public final class KingdomMenus {
         lore.add("&7Erő: &f" + hu.icemine.core.util.Text.number(km().might(kingdom)));
         Kingdom mine = km().kingdomOf(viewer.getUniqueId());
         if (mine == kingdom) {
-            lore.add("&7Resource Point: " + rp(kingdom.resourcePoints));
+            lore.add("&7Nexuspont: " + rp(kingdom.resourcePoints));
             lore.add("&7Bank: &f" + plugin.money(kingdom.bank));
         } else {
             lore.add("&7Kapcsolat veletek: " + km().relation(mine, kingdom).display());
@@ -269,7 +269,7 @@ public final class KingdomMenus {
             lore.add("&7" + (online ? "&aFent van" : "Utoljára: &f" + (data.lastSeen == 0 ? "-" : date.format(new Date(data.lastSeen)))));
             lore.add("&7Power: &f" + format(data.power));
             lore.add("&7Ölések: &f" + data.kills + " &8| &7Halálok: &f" + data.deaths);
-            lore.add("&7Beadott RP: &e" + data.donated);
+            lore.add("&7Beadott NP: &e" + data.donated);
             lore.add("&7Foglalt földek: &f" + kingdom.claimedBy(id));
             if (data.joined > 0) {
                 lore.add("&7Belépett: &f" + date.format(new Date(data.joined)));
@@ -540,7 +540,7 @@ public final class KingdomMenus {
         long[] points = {10, 100, 1000};
         for (int i = 0; i < points.length; i++) {
             long amount = points[i];
-            menu.set(14 + i, button(Material.EMERALD, "&e&l" + amount + " RP vásárlása", "&7Ára: &f" + plugin.money(amount * cfg().moneyPerPoint) + " &7a bankból."), p -> {
+            menu.set(14 + i, button(Material.EMERALD, "&e&l" + amount + " NP vásárlása", "&7Ára: &f" + plugin.money(amount * cfg().moneyPerPoint) + " &7a bankból."), p -> {
                 km().convert(p, amount);
                 bank(p);
             });
@@ -572,16 +572,16 @@ public final class KingdomMenus {
         }
     }
 
-    // ---- Resource Point ----
+    // ---- Nexuspont ----
 
     public void points(Player player) {
         Kingdom kingdom = km().mine(player);
         if (kingdom == null) {
             return;
         }
-        Menu menu = menu("points", 4, "Resource Point");
+        Menu menu = menu("points", 4, "Nexuspont");
         KPlayer data = km().player(player);
-        menu.set(4, button(Material.EMERALD_BLOCK, "&a&lResource Point", "&7A királyságé: " + rp(kingdom.resourcePoints), "&7Te eddig beadtál: " + rp(data.donated),
+        menu.set(4, button(Material.EMERALD_BLOCK, "&a&lNexuspont", "&7A királyságé: " + rp(kingdom.resourcePoints), "&7Te eddig beadtál: " + rp(data.donated),
                 "", "&7Ebből vásároltok fejlesztést, építményt,", "&7tornyot, földet és pajzsot."));
         menu.set(11, button(Material.CHEST, "&a&lTárgyak beadása", "&7Megnyílik egy láda: tedd bele, amit beváltanál,", "&7és csukd be. Ami nem váltható, visszakapod."),
                 p -> plugin.donations().open(p, kingdom));
@@ -592,10 +592,10 @@ public final class KingdomMenus {
                 values.add("&8... és még " + (cfg().itemPoints.size() - 18));
                 break;
             }
-            values.add("&7" + entry.getKey().toLowerCase(Locale.ROOT).replace('_', ' ') + ": &e" + entry.getValue() + " RP");
+            values.add("&7" + entry.getKey().toLowerCase(Locale.ROOT).replace('_', ' ') + ": &e" + entry.getValue() + " NP");
         }
         menu.set(13, button(Material.BOOK, "&f&lMit mennyiért?", values));
-        menu.set(15, button(Material.GOLD_INGOT, "&e&lPénzért", "&7A bankban átválthattok pénzt RP-re:", "&f" + plugin.money(cfg().moneyPerPoint) + " &7= &e1 RP", "", "&b▶ A bank megnyitása"), this::bank);
+        menu.set(15, button(Material.GOLD_INGOT, "&e&lPénzért", "&7A bankban átválthattok pénzt NP-re:", "&f" + plugin.money(cfg().moneyPerPoint) + " &7= &e1 NP", "", "&b▶ A bank megnyitása"), this::bank);
         back(menu, 31, this::main);
         menu.open(player);
     }
@@ -610,7 +610,7 @@ public final class KingdomMenus {
         Menu menu = menu("upgrades", 4, "Fejlesztések");
         menu.set(4, button(Material.EXPERIENCE_BOTTLE, "&d&lKirálysági szint: " + km().level(kingdom), "&7XP: &f" + hu.icemine.core.util.Text.number(kingdom.xp),
                 cfg().nextLevelXp(kingdom.xp) < 0 ? "&aElértétek a legmagasabb szintet!" : "&7Következő szint: &f" + hu.icemine.core.util.Text.number(cfg().nextLevelXp(kingdom.xp)) + " XP",
-                "", "&7XP jár: RP beadásért, foglalásért,", "&7ölésért és sikeres invázióért.", "&7Szintenként több föld és tag."));
+                "", "&7XP jár: NP beadásért, foglalásért,", "&7ölésért és sikeres invázióért.", "&7Szintenként több föld és tag."));
         menu.set(11, button(Material.ANVIL, "&6&lKirálysági fejlesztések", "&7Több föld, több tag, robbanásvédelem,", "&7Nexus őrök, dicsőség, riadó."), p -> category(p, "misc"));
         menu.set(13, button(Material.BLAZE_POWDER, "&c&lErősítések", "&7A saját földeteken erősebbek,", "&7ellenállóbbak és gyorsabban gyógyultok."), p -> category(p, "powerups"));
         menu.set(15, button(Material.ZOMBIE_HEAD, "&4&lBajnok", "&7Aki inváziókor megvédi a földeket."), this::champion);
@@ -670,7 +670,7 @@ public final class KingdomMenus {
         if (category.equals("champion")) {
             menu.set(4, button(Material.ZOMBIE_HEAD, "&4&lA bajnokotok", championStats(kingdom)));
         }
-        menu.set(40, button(Material.EMERALD, "&a&lResource Point: &e" + kingdom.resourcePoints));
+        menu.set(40, button(Material.EMERALD, "&a&lNexuspont: &e" + kingdom.resourcePoints));
         back(menu, 36, category.equals("misc") || category.equals("powerups") ? this::upgrades : this::main);
         menu.open(player);
     }
@@ -742,7 +742,7 @@ public final class KingdomMenus {
             });
         }
         menu.set(31, button(Material.CHEST_MINECART, turret ? "&f&lLerakott tornyok" : "&f&lLerakott építmények", "&7Lista, állapot, kezelés."), p -> placedList(p, kind, 0));
-        menu.set(40, button(Material.EMERALD, "&a&lResource Point: &e" + kingdom.resourcePoints));
+        menu.set(40, button(Material.EMERALD, "&a&lNexuspont: &e" + kingdom.resourcePoints));
         back(menu, 36, this::main);
         menu.open(player);
     }
@@ -820,7 +820,7 @@ public final class KingdomMenus {
             }
         }
         if (placed.turret() && own) {
-            menu.set(23, button(Material.ARROW, "&f&lLőszer feltöltése", "&7+" + cfg().ammoPerRefill + " lövés", "&7Ár: " + rp(cfg().ammoCost * cfg().ammoPerRefill)), p -> {
+            menu.set(23, button(Material.ARROW, "&f&lLőszer feltöltése", "&7+" + cfg().ammoPerRefill + " lövés", "&7Ár: " + rp(plugin.structures().refillPrice(def))), p -> {
                 plugin.structures().refill(p, kingdom, placed);
                 placed(p, kingdom, placed);
             });
@@ -835,12 +835,53 @@ public final class KingdomMenus {
                     });
                 }
             }
+            case "regulator" -> {
+                if (own) {
+                    menu.set(23, button(Material.COMPARATOR, "&3&lFöld beállításai", "&7Mi történhet ezen a földön."), p -> regulator(p, kingdom, placed));
+                }
+            }
             case "warppad" -> menu.set(23, button(Material.ENDER_PEARL, "&5&lTeleport", "&7Válassz egy másik kaput."), p -> warps(p, kingdom, placed));
-            case "outpost" -> menu.set(23, button(Material.EMERALD, "&a&lVásárlás", "&7Tárgyak Resource Pointért."), p -> outpost(p, kingdom, placed));
+            case "outpost" -> menu.set(23, button(Material.EMERALD, "&a&lVásárlás", "&7Tárgyak nexuspontért."), p -> outpost(p, kingdom, placed));
             default -> {
             }
         }
+        if (own && !placed.type.equals("nexus")) {
+            long value = plugin.structures().sellValue(placed);
+            menu.set(31, button(Material.GOLD_NUGGET, "&6&lEladás", "&7Eltűnik, és ennyit kaptok érte: " + rp(value), "", "&b▶ Kattints kétszer"),
+                    p -> confirmThen(p, "placed-sell", () -> {
+                        p.closeInventory();
+                        Placed fresh = placed;
+                        if (kingdom.placed.contains(fresh)) {
+                            plugin.structures().sellPlaced(p, kingdom, fresh);
+                        }
+                    }, () -> placed(p, kingdom, placed)));
+        }
         back(menu, 40, own ? p -> placedList(p, placed.kind, 0) : Player::closeInventory);
+        menu.open(player);
+    }
+
+    /** A Szabályzó menüje: a föld beállításai. */
+    private void regulator(Player player, Kingdom kingdom, Placed placed) {
+        if (!kingdom.placed.contains(placed)) {
+            return;
+        }
+        Menu menu = menu("regulator", 3, "Föld beállításai");
+        int slot = 10;
+        for (String flag : Regulator.flags()) {
+            boolean off = Regulator.off(placed, flag);
+            menu.set(slot, button(Regulator.icon(flag), (off ? "&c&l" : "&a&l") + Regulator.title(flag),
+                    "&7Ezen a földön: " + (off ? "&ctiltva" : "&aengedélyezve"), "", "&b▶ Kattints a váltáshoz"), p -> {
+                if (!kingdom.can(p.getUniqueId(), KPerm.STRUCTURES)) {
+                    plugin.send(p, "no-kingdom-permission", "%permission%", KPerm.STRUCTURES.title);
+                    return;
+                }
+                Regulator.toggle(placed, flag);
+                kingdom.dirty = true;
+                regulator(p, kingdom, placed);
+            });
+            slot += 2;
+        }
+        back(menu, 22, p -> placed(p, kingdom, placed));
         menu.open(player);
     }
 
@@ -897,7 +938,7 @@ public final class KingdomMenus {
                 outpost(p, kingdom, placed);
             });
         }
-        menu.set(31, button(Material.EMERALD, "&a&lResource Point: &e" + kingdom.resourcePoints));
+        menu.set(31, button(Material.EMERALD, "&a&lNexuspont: &e" + kingdom.resourcePoints));
         back(menu, 27, p -> placed(p, kingdom, placed));
         menu.open(player);
     }
@@ -1037,7 +1078,7 @@ public final class KingdomMenus {
                 km().inviteToNation(p, text);
                 nation(p);
             }));
-            menu.set(29, button(Material.EMERALD, "&e&l100 RP a közös kasszába", "&7A királyság RP-jéből."), p -> {
+            menu.set(29, button(Material.EMERALD, "&e&l100 NP a közös kasszába", "&7A királyság NP-jéből."), p -> {
                 km().donateToNation(p, 100);
                 nation(p);
             });

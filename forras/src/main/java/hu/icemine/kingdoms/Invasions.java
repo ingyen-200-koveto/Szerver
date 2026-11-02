@@ -46,7 +46,7 @@ import org.bukkit.util.Vector;
 
 /**
  * Inváziók: a támadó egy ellenséges földön elindítja ("/k invade"), ott megjelenik a védő királyság bajnoka (champion).
- * Ha a támadók legyőzik az idő lejárta előtt, a föld az övék (a Nexus földjénél sok RP és pénz is), ha nem, a védők nyernek.
+ * Ha a támadók legyőzik az idő lejárta előtt, a föld az övék (a Nexus földjénél sok NP és pénz is), ha nem, a védők nyernek.
  * Ide tartozik a masswar is: időnként egy órára mindenki támadhat mindenkit, olcsóbban.
  */
 public final class Invasions implements Listener {

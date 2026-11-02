@@ -92,6 +92,7 @@ public final class IceMineCore extends JavaPlugin {
     private Leaderboards leaderboards;
     private InventoryStore inventories;
     private hu.icemine.core.fyland.FylandMode fyland;
+    private hu.icemine.core.market.Market market;
     private ComboArenaMode comboArena;
     private GensMode gens;
     private hu.icemine.core.lobby.LobbyClicks lobbyClicks;
@@ -186,6 +187,7 @@ public final class IceMineCore extends JavaPlugin {
         leaderboards = new Leaderboards(this);
         inventories = new InventoryStore(new File(getDataFolder(), "inventories"), getLogger());
         fyland = new hu.icemine.core.fyland.FylandMode(this);
+        market = new hu.icemine.core.market.Market(this);
         comboArena = new ComboArenaMode(this);
         gens = new GensMode(this);
         gensMenu = new GensMenu(this, gens);
@@ -219,6 +221,7 @@ public final class IceMineCore extends JavaPlugin {
             gens.load(configs.get("gens"), problems);
             modes.register(gens);
         });
+        safely("piac", () -> market.load(configs.get(hu.icemine.core.market.Market.FILE), problems));
         safely("hologramok", () -> {
             holograms.load(configs.get("lobby"), problems);
             holograms.spawnAll();
@@ -243,7 +246,7 @@ public final class IceMineCore extends JavaPlugin {
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
         registerListeners(new CoreListener(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
-                fyland, comboArena, gens, new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), nameTags);
+                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
@@ -259,6 +262,14 @@ public final class IceMineCore extends JavaPlugin {
         register("bw", bwCommand, bwCommand);
         hu.icemine.core.fyland.FyCommand fyCommand = new hu.icemine.core.fyland.FyCommand(fyland);
         register("fyland", fyCommand, fyCommand);
+        register("pw", fyCommand, fyCommand);
+        register("enchanter", fyCommand, fyCommand);
+        register("fywarp", fyCommand, fyCommand);
+        registerListeners(fyland.listeners().toArray(new Listener[0]));
+        hu.icemine.core.market.MarketCommand marketCommand = new hu.icemine.core.market.MarketCommand(market);
+        for (String name : new String[]{"ah", "trade", "shopgui", "shop", "sell", "baltop", "lottery", "kulcs", "market"}) {
+            register(name, marketCommand, marketCommand);
+        }
         safely("jogosultságok", () -> permissions.load(configs.get("permissions"), problems));
         startTasks();
         kingdoms = new IceMineKingdoms(this);
@@ -351,6 +362,7 @@ public final class IceMineCore extends JavaPlugin {
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, () -> {
             gens.tick();
             fyland.tick();
+            market.tick();
             comboArena.tickAbilities();
         }, 20L, 20L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, () -> {
@@ -364,6 +376,7 @@ public final class IceMineCore extends JavaPlugin {
             fyland.saveAll();
         }, autosave, autosave));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, leaderboards::refresh, 200L, 1200L));
+        tasks.add(Bukkit.getScheduler().runTaskTimer(this, market::minute, 1200L, 1200L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, duels::tick, 20L, 20L));
         // a LuckPermsben átírt rangok fél percen belül életbe lépnek, újrabelépés nélkül is
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, ranks::refreshAll, 600L, 600L));
@@ -386,6 +399,9 @@ public final class IceMineCore extends JavaPlugin {
         }
         if (duels != null) {
             safely("Duels leállítás", duels::shutdownAll);
+        }
+        if (market != null) {
+            safely("piac leállítás", market::shutdown);
         }
         modes.shutdown();
         combat.shutdown();
@@ -457,6 +473,9 @@ public final class IceMineCore extends JavaPlugin {
             leaderboards.refresh();
             safely("IceCoin", () -> iceCoins.load(main, problems));
             safely("névtáblák", () -> nameTags.load(main));
+        }
+        if (all || file.equals(hu.icemine.core.market.Market.FILE) || file.equals("economy")) {
+            safely("piac", () -> market.load(configs.get(hu.icemine.core.market.Market.FILE), problems));
         }
         if (all || file.equals(hu.icemine.core.fyland.FylandMode.FILE)) {
             safely("Fyland", () -> fyland.load(configs.get(hu.icemine.core.fyland.FylandMode.FILE), problems));
@@ -688,6 +707,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public InventoryStore inventories() {
         return inventories;
+    }
+
+    public hu.icemine.core.market.Market market() {
+        return market;
     }
 
     public hu.icemine.core.fyland.FylandMode fyland() {

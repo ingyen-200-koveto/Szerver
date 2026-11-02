@@ -15,7 +15,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * A Resource Point beadó láda: amit a játékos belerak, csukáskor RP lesz a királyságnak. Ami nem váltható (vagy egyedi
+ * A Nexuspont beadó láda: amit a játékos belerak, csukáskor NP lesz a királyságnak. Ami nem váltható (vagy egyedi
  * nevű, varázsolt tárgy), az visszakerül hozzá, így semmi nem vész el és nem duplázódik.
  */
 public final class Donations implements Listener {
@@ -47,7 +47,7 @@ public final class Donations implements Listener {
         player.openInventory(inventory);
     }
 
-    /** Egy tárgy RP értéke (darabszámmal együtt); 0, ha nem váltható. */
+    /** Egy tárgy NP értéke (darabszámmal együtt); 0, ha nem váltható. */
     long value(ItemStack item) {
         if (item == null || item.getType().isAir()) {
             return 0;
@@ -87,7 +87,7 @@ public final class Donations implements Listener {
         }
         if (total > 0) {
             plugin.manager().donate(player, kingdom, total);
-            kingdom.log(player.getName() + " beadott " + total + " RP-t.");
+            kingdom.log(player.getName() + " beadott " + total + " NP-t.");
             plugin.send(player, "donated", "%points%", String.valueOf(total), "%total%", String.valueOf(kingdom.resourcePoints));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.4f);
         } else if (!back.isEmpty()) {

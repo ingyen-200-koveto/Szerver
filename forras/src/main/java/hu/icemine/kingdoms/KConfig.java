@@ -39,7 +39,7 @@ public final class KConfig {
             this.description = description;
         }
 
-        /** A következő szint ára Resource Pointban, vagy -1, ha már maximum. */
+        /** A következő szint ára nexuspontban, vagy -1, ha már maximum. */
         public long priceFor(int level) {
             if (level >= max) {
                 return -1;
@@ -118,11 +118,11 @@ public final class KConfig {
     public int claimsPerLevel = 3;
     public int claimsPerUpgrade = 5;
     public int freeClaims = 3;
-    public long claimCostRp = 25;
-    public long claimCostMoney = 0;
+    public long claimCostRp = 200;
+    public long claimCostMoney = 100;
     public boolean claimAdjacent = true;
     public boolean giveNexusOnCreate = true;
-    public int claimBuffer = 1;
+    public int claimBuffer = 5;
     public long unclaimRefundPercent = 50;
     public boolean protectExplosions = true;
     public boolean landTitles = true;
@@ -137,7 +137,7 @@ public final class KConfig {
     public double powerDeathLoss = 2;
     public double claimsPerPower = 2;
 
-    // ---- Resource Point ----
+    // ---- Nexuspont ----
     public final Map<String, Long> itemPoints = new LinkedHashMap<>();
     public long deathPenalty = 10;
     public long moneyPerPoint = 10;
@@ -219,11 +219,11 @@ public final class KConfig {
         claimsPerLevel = clamp(root.getInt("claims.per-level", 3), 0, 1000);
         claimsPerUpgrade = clamp(root.getInt("claims.per-upgrade", 5), 0, 1000);
         freeClaims = clamp(root.getInt("claims.free", 3), 0, 100000);
-        claimCostRp = Math.max(0, root.getLong("claims.cost.resource-points", 25));
-        claimCostMoney = Math.max(0, root.getLong("claims.cost.bank", 0));
+        claimCostRp = Math.max(0, root.getLong("claims.cost.resource-points", 200));
+        claimCostMoney = Math.max(0, root.getLong("claims.cost.bank", 100));
         claimAdjacent = root.getBoolean("claims.adjacent", true);
         giveNexusOnCreate = root.getBoolean("structures-settings.give-nexus-on-create", true);
-        claimBuffer = clamp(root.getInt("claims.buffer", 1), 0, 10);
+        claimBuffer = clamp(root.getInt("claims.buffer", 5), 0, 10);
         unclaimRefundPercent = Math.max(0, Math.min(100, root.getLong("claims.unclaim-refund-percent", 50)));
         protectExplosions = root.getBoolean("claims.protect-explosions", true);
         landTitles = root.getBoolean("claims.titles", true);
@@ -495,19 +495,21 @@ public final class KConfig {
     static List<Placeable> defaultStructures() {
         return List.of(
                 place("nexus", "&b&lNexus", "BEACON", 0, 10, 500, 1.6, 1, 1, values("claims-per-level", 2, "champion-health-per-level", 10),
-                        "&7A királyság szíve. Jobb klikkre itt van minden menü.", "&7Ha elfoglalják, sok pénz és RP elvész."),
+                        "&7A királyság szíve. Jobb klikkre itt van minden menü.", "&7Ha elfoglalják, sok pénz és NP elvész."),
                 place("powercell", "&e&lErőmag", "RESPAWN_ANCHOR", 300, 5, 250, 1.6, 2, 6, values("radius", 1, "radius-per-level", 0.5),
                         "&7A körülötte lévő földeket csak akkor", "&7lehet megtámadni, ha előbb az Erőmag", "&7földjét foglalják el."),
                 place("extractor", "&6&lKitermelő", "BLAST_FURNACE", 250, 5, 200, 1.6, 1, 4, values("points", 5, "points-per-level", 4, "minutes", 10, "capacity", 100, "capacity-per-level", 80),
-                        "&7Magától Resource Pointot termel.", "&7Jobb klikkel szeded be."),
+                        "&7Magától nexuspontot termel.", "&7Jobb klikkel szeded be."),
                 place("regenerator", "&d&lGyógyforrás", "CONDUIT", 350, 5, 250, 1.6, 2, 3, values("radius", 8, "radius-per-level", 2, "heal", 1, "heal-per-level", 0.5),
                         "&7A közelében a tagok és a szövetségesek", "&7lassan visszagyógyulnak."),
                 place("bastion", "&8&lBástya", "LODESTONE", 400, 5, 300, 1.7, 3, 3, values("radius", 10, "radius-per-level", 2, "strength", 0, "strength-per-level", 0.25),
                         "&7A közelében az ellenség lassul és gyengül,", "&7a tagok pedig ellenállóbbak lesznek."),
                 place("outpost", "&a&lKereskedőház", "BARREL", 300, 1, 0, 1, 2, 2, values(),
-                        "&7Itt Resource Pointért vásárolhattok", "&7hasznos tárgyakat."),
+                        "&7Itt nexuspontért vásárolhattok", "&7hasznos tárgyakat."),
                 place("warppad", "&5&lTeleportkapu", "END_PORTAL_FRAME", 200, 1, 0, 1, 2, 6, values("cooldown", 30),
-                        "&7A királyság kapui között lehet vele", "&7teleportálni."));
+                        "&7A királyság kapui között lehet vele", "&7teleportálni."),
+                place("regulator", "&3&lSzabályzó", "OBSERVER", 150, 1, 0, 1, 1, 0, values(),
+                        "&7Beállíthatod vele, mi történhet a földjén:", "&7szörnyek, állatok, PvP és tűz."));
     }
 
     static List<Placeable> defaultTurrets() {
@@ -525,7 +527,10 @@ public final class KConfig {
                 place("healing", "&a&lGyógytorony", "DRAGON_HEAD", 250, 10, 150, 1.35, 2, 0, values("range", 8, "range-per-level", 0.5, "heal", 2, "heal-per-level", 0.3, "cooldown", 40, "cooldown-per-level", -1),
                         "&7Gyógyítja a közelben lévő tagokat", "&7és szövetségeseket."),
                 place("mine", "&7&lAkna", "STONE_PRESSURE_PLATE", 80, 5, 60, 1.4, 1, 0, values("power", 2, "power-per-level", 0.3),
-                        "&7Felrobban, ha ellenség lép rá", "&7(a blokkokat nem bántja)."));
+                        "&7Felrobban, ha ellenség lép rá", "&7(a blokkokat nem bántja)."),
+                place("laser", "&b&lLézertorony", "END_ROD", 600, 10, 300, 1.45, 5, 0, values("range", 18, "range-per-level", 0.5, "damage", 9, "damage-per-level", 0.8,
+                                "cooldown", 40, "cooldown-per-level", -1.5, "through-walls", 1, "ammo-cost", 5),
+                        "&7A falakon át is eltalálja az ellenséget,", "&7és nagyot sebez. A lőszere drága."));
     }
 
     private static void readUpgrades(ConfigurationSection section, Map<String, Upgrade> target, List<Upgrade> defaults, List<String> problems, String path) {

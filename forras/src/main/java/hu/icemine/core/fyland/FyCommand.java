@@ -15,7 +15,8 @@ import org.bukkit.entity.Player;
 public final class FyCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> SUBS = Arrays.asList("menu", "haza", "sethome", "meghiv", "elfogad", "kilep", "kirug", "atad", "latogat", "top",
-            "fazisok", "fejlesztes", "piac", "elad", "tagok", "beallitasok", "latogatok", "reset", "help");
+            "fazisok", "fejlesztes", "piac", "elad", "tagok", "beallitasok", "latogatok", "reset", "create", "go", "info", "szint", "promote", "demote",
+            "coop", "uncoop", "ban", "unban", "lock", "unlock", "setwarp", "delwarp", "warp", "csatater", "enchanter", "help");
 
     private final FylandMode mode;
 
@@ -25,6 +26,11 @@ public final class FyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        String name = command.getName().toLowerCase(Locale.ROOT);
+        if (!name.equals("fyland")) {
+            other(sender, name, args);
+            return true;
+        }
         String sub = args.length == 0 ? "menu" : args[0].toLowerCase(Locale.ROOT);
         if (sub.equals("admin")) {
             admin(sender, args);
@@ -47,7 +53,23 @@ public final class FyCommand implements CommandExecutor, TabCompleter {
                     mode.core().modes().sendAndReport(player, FylandMode.ID);
                 }
             }
-            case "haza", "home", "h" -> mode.goHome(player);
+            case "haza", "home", "h", "go" -> mode.goHome(player);
+            case "create", "nev", "name" -> mode.social().create(player, args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : null);
+            case "info" -> mode.social().info(player, arg);
+            case "szint", "level", "ertek", "value" -> mode.worth().recalc(player);
+            case "promote", "eloleptet" -> needArg(player, arg, "/fy promote <tag>", () -> mode.social().promote(player, arg, true));
+            case "demote", "lefokoz" -> needArg(player, arg, "/fy demote <tag>", () -> mode.social().promote(player, arg, false));
+            case "coop" -> needArg(player, arg, "/fy coop <játékos>", () -> mode.social().coop(player, arg, true));
+            case "uncoop" -> needArg(player, arg, "/fy uncoop <játékos>", () -> mode.social().coop(player, arg, false));
+            case "ban", "kitilt" -> needArg(player, arg, "/fy ban <játékos>", () -> mode.social().ban(player, arg, true));
+            case "unban", "felold" -> needArg(player, arg, "/fy unban <játékos>", () -> mode.social().ban(player, arg, false));
+            case "lock", "zar" -> mode.social().lock(player, true);
+            case "unlock", "nyit" -> mode.social().lock(player, false);
+            case "setwarp" -> mode.social().setWarp(player, args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : null);
+            case "delwarp" -> mode.social().delWarp(player);
+            case "warp", "warps" -> mode.battle().warpMenu(player);
+            case "csatater", "pvp", "arena" -> mode.battle().teleport(player);
+            case "enchanter", "varazslo" -> inWorld(player, () -> mode.enchants().open(player));
             case "sethome", "otthon" -> mode.setHome(player);
             case "meghiv", "invite" -> {
                 if (arg == null) {
@@ -97,6 +119,48 @@ public final class FyCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private void needArg(Player player, String arg, String usage, Runnable action) {
+        if (arg == null) {
+            mode.send(player, "usage", "%usage%", usage);
+        } else {
+            action.run();
+        }
+    }
+
+    /** A külön parancsok: /pw (játékos warpok), /enchanter, /fywarp. */
+    private void other(CommandSender sender, String name, String[] args) {
+        if (!(sender instanceof Player player)) {
+            mode.core().messages().send(sender, "general.only-players");
+            return;
+        }
+        if (mode.world() == null) {
+            mode.core().messages().send(player, "mode.unavailable", "%mode%", "Fyland");
+            return;
+        }
+        switch (name) {
+            case "pw" -> {
+                String sub = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+                switch (sub) {
+                    case "" -> inWorld(player, () -> mode.social().warps(player, 0));
+                    case "set" -> mode.social().setWarp(player, args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : null);
+                    case "del", "delete", "torol" -> mode.social().delWarp(player);
+                    case "rate", "ertekel" -> {
+                        if (args.length < 3) {
+                            mode.send(player, "usage", "%usage%", "/pw rate <warp> <1-5>");
+                        } else {
+                            mode.social().rate(player, args[1], args[2]);
+                        }
+                    }
+                    default -> mode.social().goWarp(player, String.join(" ", args));
+                }
+            }
+            case "enchanter" -> inWorld(player, () -> mode.enchants().open(player));
+            case "fywarp" -> mode.battle().warpMenu(player);
+            default -> {
+            }
+        }
+    }
+
     private void inWorld(Player player, Runnable action) {
         if (mode.inWorld(player)) {
             action.run();
@@ -129,6 +193,34 @@ public final class FyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        String name = command.getName().toLowerCase(Locale.ROOT);
+        if (name.equals("pw")) {
+            if (args.length == 1) {
+                List<String> options = new ArrayList<>(Arrays.asList("set", "del", "rate"));
+                for (FyIsland island : mode.islands()) {
+                    if (!island.warpName.isBlank()) {
+                        options.add(island.warpName);
+                    }
+                }
+                return filter(options, args[0]);
+            }
+            if (args.length == 2 && args[0].equalsIgnoreCase("rate")) {
+                List<String> options = new ArrayList<>();
+                for (FyIsland island : mode.islands()) {
+                    if (!island.warpName.isBlank()) {
+                        options.add(island.warpName);
+                    }
+                }
+                return filter(options, args[1]);
+            }
+            if (args.length == 3 && args[0].equalsIgnoreCase("rate")) {
+                return filter(Arrays.asList("1", "2", "3", "4", "5"), args[2]);
+            }
+            return List.of();
+        }
+        if (!name.equals("fyland")) {
+            return List.of();
+        }
         if (args.length == 1) {
             List<String> options = new ArrayList<>(SUBS);
             if (sender.hasPermission("icemine.admin.fyland")) {
@@ -141,10 +233,14 @@ public final class FyCommand implements CommandExecutor, TabCompleter {
             if (sub.equals("admin") && sender.hasPermission("icemine.admin.fyland")) {
                 return filter(Arrays.asList("fazis", "torol", "tp"), args[1]);
             }
-            if (Arrays.asList("meghiv", "invite", "latogat", "visit").contains(sub)) {
+            if (Arrays.asList("meghiv", "invite", "latogat", "visit", "info", "coop", "uncoop", "ban").contains(sub)) {
                 return null;
             }
-            if (Arrays.asList("kirug", "kick", "atad", "transfer").contains(sub) && sender instanceof Player player) {
+            if (sub.equals("unban") && sender instanceof Player player) {
+                FyIsland island = mode.islandOf(player);
+                return island == null ? List.of() : filter(new ArrayList<>(island.banned.values()), args[1]);
+            }
+            if (Arrays.asList("kirug", "kick", "atad", "transfer", "promote", "demote").contains(sub) && sender instanceof Player player) {
                 FyIsland island = mode.islandOf(player);
                 return island == null ? List.of() : filter(new ArrayList<>(island.members.values()), args[1]);
             }

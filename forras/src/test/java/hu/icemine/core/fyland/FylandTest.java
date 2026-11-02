@@ -57,6 +57,20 @@ class FylandTest {
         island.visitors = false;
         island.rewardPending = true;
         island.upgrades.put("size", 2);
+        UUID banned = UUID.randomUUID();
+        UUID rater = UUID.randomUUID();
+        island.worth = 777;
+        island.name = "Jégvár";
+        island.moderators.add(member);
+        island.banned.put(banned, "Rossz");
+        island.hasWarp = true;
+        island.warpX = 805.5;
+        island.warpY = 101;
+        island.warpZ = -402.5;
+        island.warpYaw = 90f;
+        island.warpName = "Bolt";
+        island.ratings.put(rater, 4);
+        island.coops.add(UUID.randomUUID());
         YamlConfiguration yaml = new YamlConfiguration();
         island.write(yaml);
         YamlConfiguration copy = new YamlConfiguration();
@@ -84,6 +98,22 @@ class FylandTest {
         assertTrue(read.member(owner));
         assertFalse(read.member(UUID.randomUUID()));
         assertEquals(2, read.size());
+        assertEquals(777, read.worth);
+        assertEquals("Jégvár", read.display());
+        assertTrue(read.manager(member), "a moderátor kezelheti a szigetet");
+        assertTrue(read.manager(owner));
+        assertEquals("Rossz", read.banned.get(banned));
+        assertTrue(read.hasWarp);
+        assertEquals(805.5, read.warpX);
+        assertEquals(-402.5, read.warpZ);
+        assertEquals("Bolt", read.warpName);
+        assertEquals(4.0, read.rating());
+        assertTrue(read.coops.isEmpty(), "a coop nem mentődik");
+        read.coops.add(banned);
+        assertTrue(read.trusted(banned));
+        assertFalse(read.member(banned));
+        read.members.remove(member);
+        assertFalse(read.manager(member), "aki már nem tag, az moderátorként sem kezelheti");
         assertNull(FyIsland.read(UUID.randomUUID(), new YamlConfiguration()));
     }
 
@@ -148,5 +178,60 @@ class FylandTest {
             assertNotNull(config.getString("messages." + key), key);
         }
         assertFalse(config.getStringList("messages.help").isEmpty());
+    }
+
+    @Test
+    void enchantsAreStoredAndFitTheRightItems() {
+        java.util.Map<String, Integer> values = new java.util.LinkedHashMap<>();
+        values.put("autoszmelt", 1);
+        values.put("robbano", 3);
+        assertEquals("autoszmelt:1,robbano:3", FyEnchants.format(values));
+        assertEquals(values, FyEnchants.parse("autoszmelt:1,robbano:3"));
+        assertTrue(FyEnchants.parse("rossz,valami:x,").isEmpty());
+        assertTrue(FyEnchants.fits("pickaxe", Material.DIAMOND_PICKAXE));
+        assertFalse(FyEnchants.fits("pickaxe", Material.DIAMOND_AXE));
+        assertTrue(FyEnchants.fits("tool", Material.IRON_SHOVEL));
+        assertTrue(FyEnchants.fits("weapon", Material.NETHERITE_AXE));
+        assertTrue(FyEnchants.fits("boots", Material.LEATHER_BOOTS));
+        assertTrue(FyEnchants.fits("helmet", Material.TURTLE_HELMET));
+        assertFalse(FyEnchants.fits("helmet", Material.DIAMOND_CHESTPLATE));
+        assertEquals("III", FyEnchants.roman(3));
+        assertEquals(Material.IRON_INGOT, FyEnchants.SMELT.get(Material.RAW_IRON));
+    }
+
+    @Test
+    void shippedExtrasAreValid() {
+        YamlConfiguration config = resource("fyland.yml");
+        ConfigurationSection values = config.getConfigurationSection("block-values");
+        assertNotNull(values);
+        for (String key : values.getKeys(false)) {
+            assertNotNull(Material.matchMaterial(key), "block-values: " + key);
+            assertTrue(values.getLong(key) > 0, key);
+        }
+        assertTrue(config.getLong("island.level-points") > 0);
+        ConfigurationSection enchants = config.getConfigurationSection("enchanter.enchants");
+        assertNotNull(enchants);
+        assertEquals(8, enchants.getKeys(false).size());
+        for (String id : enchants.getKeys(false)) {
+            ConfigurationSection entry = enchants.getConfigurationSection(id);
+            assertEquals(entry.getInt("max-level"), entry.getIntegerList("cost").size(), id + ": minden szintnek van ára");
+            assertNotNull(Material.matchMaterial(entry.getString("icon")), id);
+            assertNotNull(config.getString("messages.enchant-applies-" + entry.getString("applies")), id + ": applies");
+        }
+        for (String line : config.getStringList("airdrop.loot")) {
+            assertTrue(line.matches("[A-Z_]+( \\d+(-\\d+)?( (0(\\.\\d+)?|1(\\.0+)?))?)?"), line);
+            assertNotNull(Material.matchMaterial(line.split(" ")[0]), line);
+        }
+        int radius = config.getInt("battlefield.radius");
+        int x = config.getInt("battlefield.x");
+        assertTrue(x - radius > 8, "a csatatér nem lóg bele a központba");
+        assertTrue(x + radius < config.getInt("island.spacing") / 2, "a csatatér nem lóg bele egy szigetbe");
+        assertFalse(config.getBoolean("battlefield.built"));
+        assertTrue(config.getBoolean("visit.require-warp"));
+        for (String key : new String[]{"manager-only", "level-done", "coop-added", "banned", "warp-set", "pw-rated", "airdrop-spawned", "enchant-success"}) {
+            assertNotNull(config.getString("messages." + key), key);
+        }
+        assertFalse(config.getStringList("messages.info").isEmpty());
+        assertFalse(config.getStringList("messages.enchant-book-lore").isEmpty());
     }
 }

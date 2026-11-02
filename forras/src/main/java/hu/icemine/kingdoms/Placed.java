@@ -16,7 +16,7 @@ public final class Placed {
     public int level;
     /** Tornyoknál a lőszer, építményeknél az energia. */
     public long ammo;
-    /** Amit az építmény eddig összegyűjtött (pl. a Kitermelő Resource Pointjai). */
+    /** Amit az építmény eddig összegyűjtött (pl. a Kitermelő nexuspontjai). */
     public long stored;
     /** Szabad szöveg (pl. a teleportkapu neve). */
     public String label = "";

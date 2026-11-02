@@ -1,0 +1,179 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.14.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.14.0
+changes:
+- file: fyland
+  path: island.level-blocks
+  old: 200
+- file: fyland
+  path: messages.visiting
+  old: Átjöttél &f%player% &7szigetére.
+- file: fyland
+  path: messages.help
+  old:
+  - '&8&m                                             '
+  - ' &a&lFyland &8- &7parancsok &8(kattints rájuk!)'
+  - ' [[&f/fy|run:/fy]] &8- &7menü'
+  - ' [[&f/fy haza|run:/fy haza]] &8- &7vissza a szigetedre'
+  - ' [[&f/fy piac|run:/fy piac]] &8- &7eladás és vásárlás'
+  - ' [[&f/fy elad|run:/fy elad]] &8- &7minden eladható eladása'
+  - ' [[&f/fy meghiv <játékos>|suggest:/fy meghiv ]] &8- &7barát meghívása'
+  - ' [[&f/fy latogat <játékos>|suggest:/fy latogat ]] &8- &7átnézés más szigetére'
+  - ' [[&f/fy fejlesztes|run:/fy fejlesztes]] &8- &7fejlesztések'
+  - ' [[&f/fy fazisok|run:/fy fazisok]] &8- &7a fázisok'
+  - ' [[&f/fy sethome|run:/fy sethome]] &8- &7otthon beállítása'
+  - '&8&m                                             '
+- file: fyland
+  path: messages.menu.island-name
+  old: '&a&l%owner% szigete'
+- file: fyland
+  path: messages.menu.island-lore
+  old:
+  - '&7Fázis: %phase% &8(%done%/%total%)'
+  - '&7Kibányászva: &f%blocks% &7blokk'
+  - '&7Szint: &f%level% &8| &7Kör: &f%cycle%'
+  - '&7Csapat: &f%members%'
+  - '&7Méret: &f%size%x%size%'
+  - ''
+  - '&7Pénzed: %money%'
+- file: fyland
+  path: messages.menu.top-lore
+  old:
+  - '&7A legtöbbet bányászott szigetek.'
+- file: fyland
+  path: messages.menu.member-manage
+  old:
+  - ''
+  - '&cBal klikk kétszer: kirúgás'
+  - '&eJobb klikk kétszer: tulajdon átadása'
+- file: fyland
+  path: messages.menu.top-entry-lore
+  old:
+  - '&7Kibányászva: &f%blocks% &7blokk'
+  - '&7Szint: &f%level% &8| &7Kör: &f%cycle%'
+  - '&7Fázis: %phase%'
+  - '&7Csapat: &f%members% fő'
+  - ''
+  - '&b▶ Kattints az átnézéshez'
+- file: kingdoms
+  path: bank.currency
+  old: ''
+- file: kingdoms
+  path: claims.cost.resource-points
+  old: 25
+- file: kingdoms
+  path: claims.cost.bank
+  old: 0
+- file: kingdoms
+  path: claims.buffer
+  old: 1
+- file: kingdoms
+  path: turret-settings.per-land
+  old: 4
+- file: kingdoms
+  path: structures.nexus.description
+  old:
+  - '&7A királyság szíve. Jobb klikkre itt van minden menü.'
+  - '&7Ha elfoglalják, sok pénz és RP elvész.'
+- file: kingdoms
+  path: structures.extractor.description
+  old:
+  - '&7Magától Resource Pointot termel.'
+  - '&7Jobb klikkel szeded be.'
+- file: kingdoms
+  path: structures.outpost.description
+  old:
+  - '&7Itt Resource Pointért vásárolhattok'
+  - '&7hasznos tárgyakat.'
+- file: kingdoms
+  path: help
+  old:
+  - '&8&m          &r &6&lKingdoms &8&m          '
+  - ' &e/k &8- &7a királyság menü (minden innen elérhető)'
+  - ' &e/k create <név> &8- &7királyság alapítása'
+  - ' &e/k invite <játékos> &8/ &e/k join <királyság> &8- &7meghívás, belépés'
+  - ' &e/k claim &8/ &e/k unclaim &8/ &e/k autoclaim &8- &7földek'
+  - ' &e/k map &8- &7térkép a környékről'
+  - ' &e/k nexus &8- &7a Nexus blokk (a királyság szíve)'
+  - ' &e/k rp &8- &7tárgyak beadása Resource Pointért'
+  - ' &e/k bank &8/ &e/k deposit <összeg> &8- &7királysági bank'
+  - ' &e/k home &8/ &e/k sethome &8- &7otthon'
+  - ' &e/k ally, truce, neutral, enemy <királyság> &8- &7kapcsolatok'
+  - ' &e/k invade &8- &7invázió (ellenséges földön állva)'
+  - ' &e/k nation &8- &7nemzet ügyei'
+  - ' &e/k top &8- &7a legerősebb királyságok'
+  - ' &e/k chat &8- &7királysági chat (vagy írj ! jelet az üzenet elé)'
+  - ' &e/k spawn &8- &7vissza a városba'
+- file: kingdoms
+  path: messages.claimed
+  old: Ez a chunk mostantól a tiétek &8(%claims%/%max%, -%rp% RP)
+- file: kingdoms
+  path: messages.chat-off
+  old: Királysági chat &ckikapcsolva&7.
+- file: kingdoms
+  path: messages.not-enough-rp
+  old: '&cNincs elég Resource Pointotok. Kell: &e%need% RP'
+- file: kingdoms
+  path: messages.converted
+  old: Vettetek &e%points% RP&7-t &f%money%&7-ért a bankból.
+- file: kingdoms
+  path: messages.donated
+  old: Beadtál &e%points% RP&7-t. A királyságnak most &e%total% RP&7-je van.
+- file: kingdoms
+  path: messages.donate-nothing
+  old: '&7Ezekért nem jár RP, visszakaptad őket.'
+- file: kingdoms
+  path: messages.upgraded
+  old: 'Fejlesztve: %name% &8(%level%/%max%, -%price% RP)'
+- file: kingdoms
+  path: messages.nation-donated
+  old: '%kingdom% &7beadott &e%points% RP&7-t a nemzet kasszájába.'
+- file: kingdoms
+  path: messages.bought-placeable
+  old: 'Megvetted: %name% &8(-%price% RP)&7. Rakd le a saját földeteken.'
+- file: kingdoms
+  path: messages.refilled
+  old: 'Lőszer feltöltve: &f%ammo% &8(-%price% RP)'
+- file: kingdoms
+  path: messages.collected
+  old: Begyűjtöttél &e%points% RP&7-t.
+- file: kingdoms
+  path: messages.outpost-bought
+  old: 'Megvetted: &f%item% &8(-%price% RP)'
+- file: kingdoms
+  path: messages.invasion-won
+  old: '&a&lELFOGLALVA! &7Megszereztétek %kingdom% &7földjét. Zsákmány: &e%rp% RP &7és &f%money%'
+- file: kingdoms
+  path: messages.invasion-won-nexus
+  old: '&a&lA NEXUS ELESETT! &7Legyőztétek %kingdom% &7Nexusát. Zsákmány: &e%rp% RP &7és &f%money%'
+- file: kingdoms
+  path: messages.invasion-lost
+  old: '&c&lELVESZETT EGY FÖLD! %kingdom% &celfoglalta. Elvittek &e%rp% RP&c-t és &f%money%&c-t.'
+- file: kingdoms
+  path: messages.invasion-lost-nexus
+  old: '&4&lELESETT A NEXUS! %kingdom% &celvitte &e%rp% RP&c-t és &f%money%&c-t. Rakjátok le újra a Nexust!'
+- file: ranks
+  path: ranks.wizard.permissions
+  old:
+  - icemine.chat.color
+  - icemine.gens.autosell
+- file: ranks
+  path: ranks.wizard.perks
+  old:
+  - '&7Szívek és tűzijáték ölés effekt'
+  - '&7Gens: automatikus eladás'
+  - '&7Színes chat'
+  - '&725% pénz bónusz'
+- file: ranks
+  path: ranks.iceking.permissions
+  old:
+  - icemine.cosmetic.fly
+  - icemine.gens.backpack.large
+  - icemine.gens.bonus.2
+- file: ranks
+  path: ranks.iceking.perks
+  old:
+  - '&7Fagy és kristály nyomvonal, lélek effekt'
+  - '&7Repülés a lobbyban'
+  - '&7Gens: nagy hátizsák, +20% extra termés'
+  - '&750% pénz bónusz'

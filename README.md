@@ -126,11 +126,41 @@ kezdődik. A fázis és a haladás fent a bossbaron látszik.
 - Piac: amit kibányásztál, eladod (Szigetérme, a rang pénz szorzójával), és vehetsz vizet, lávát, csemetét, magokat, tojásokat.
 - Fejlesztések: sziget méret (51x51-től 201x201-ig), csapat méret (2-8 fő), szerencse (több láda).
 - Ha leesel, visszahoz a szigetedre, halálkor megmaradnak a tárgyak. Enderláda és portál itt nem használható.
+- Sziget szint: a szigetre rakott értékes blokkok (vas-, arany-, gyémánt-, smaragd-, netheritblokk, jeladó...) összértéke.
+  Lerakáskor nő, kiütéskor csökken, a `/fy szint` az egész szigetet újraszámolja. A toplista szint szerint megy.
+  A blokkok értéke: `fyland.yml` -> `block-values`.
+- Csapat: moderátorok (`/fy promote`, `/fy demote`: meghívhatnak, kirúghatnak, kitilthatnak), ideiglenes segítő
+  (`/fy coop <játékos>`, amíg fent van, építhet), kitiltás (`/fy ban`, `/fy unban`), zárás (`/fy lock`, `/fy unlock`),
+  sziget név (`/fy create <név>`), adatok (`/fy info [játékos]`).
+- Látogatás: a látogatók a látogatási pontra érkeznek (`/fy setwarp`). Amíg nincs ilyen, a szigetre nem lehet átmenni
+  (kikapcsolható: `visit.require-warp: false`). Ha nevet is adsz (`/pw set <név>`), a sziget felkerül a játékos warpok
+  közé: `/pw` (lista, a legjobbra értékeltek elöl), `/pw <név>`, `/pw rate <név> <1-5>`.
+- Csatatér: PvP aréna a központ mellett, híd vezet oda (`/fy csatater`). Csak itt lehet ütni egymást, és aki itt hal meg,
+  annak leesnek a tárgyai. 20 percenként ellátmány láda érkezik rá (ha legalább 2 fő van a Fylandon).
+- Varázsló (`/enchanter`): 8 egyedi varázslat XP szintért (Autoszmelt, Telepátia, Tapasztalat, Robbanó, Vámpír, Méreg,
+  Gyorsaság, Éjjellátás). A könyvet a táskádban húzd rá a tárgyra, a könyvön látszik a siker és a tönkremenés esélye.
+  Csak a Fylandon hatnak.
+- Warp menü: `/fywarp` (szigeted, központ, csatatér, játékos warpok, varázsló).
 
 Parancsok: `/fy` (menü, vagy `/fyland`, `/is`), `/fy haza`, `/fy piac`, `/fy elad` (vagy `/elad`), `/fy meghiv <játékos>`,
 `/fy elfogad`, `/fy latogat <játékos>`, `/fy fejlesztes`, `/fy fazisok`, `/fy top`, `/fy help` a teljes listához.
 Admin (`icemine.admin.fyland`): `/fy admin fazis <játékos> <fázis>`, `/fy admin torol <játékos>`, `/fy admin tp <játékos>`.
 Beállítás: `plugins/IceMine/fyland.yml` (fázisok, blokkok, ládák, mobok, árak, fejlesztések, üzenetek).
+
+### Piac (Kingdoms és Fyland)
+
+Közös piac a Kingdomsnak és a Fylandnak, de külön pénzzel és külön tárgyakkal (Kingdoms: Dollár, Fyland: Szigetérme),
+hogy a két mód ne keveredjen. Beállítás: `plugins/IceMine/market.yml`.
+
+- `/ah`: aukciósház (`/ah sell <ár>` a kezedben lévő tárgyra, 48 óráig él, adó, lejárt tárgyak visszaszedése).
+- `/trade <játékos>`: biztonságos csere menüben, pénzzel is, mindkét fél jóváhagyása és 3 mp visszaszámlálás után.
+- `/shopgui`: bolt, aminek az árai a kereslettől mozognak (amit sokan eladnak, olcsóbb lesz). `/sell ha` és `/sell all`.
+- Eladó láda (magától eladja, ami belekerül), Craftoló (tömöríti a tartalmát: 9 vas = 1 vasblokk...), Farm blokk
+  (betöltve tartja a környékét). Ezeket a boltban lehet venni.
+- `/lottery`: napi lottó (max 3 jegy), a nyertes viszi a kasszát és kulcsokat.
+- Kulcsok: jobb klikkre nyílnak, bal klikkre mutatják a tartalmukat. `/kulcs`: a rang heti kulcs csomagja.
+- `/baltop`: a leggazdagabbak abban a módban, ahol állsz. `/shop`: a rangok menüje.
+- Admin (`icemine.admin.market`): `/market give <játékos> <sellchest|crafter|farmblock|key:<név>> [db]`, `/market draw <mód>`.
 
 ### Gens
 
@@ -222,20 +252,28 @@ Minden menüből elérhető, a `/k` megnyitja a főmenüt.
   rangonként 22 állítható jog és foglalási limit, tulajdon átadás, otthon, királysági chat, napló.
 - Földek: chunk foglalás (az első néhány ingyen, utána pénzbe kerül), térkép (`/k map`, auto map, auto foglalás),
   a határ részecskékkel látszik, a földet a hatalom és a szint korlátozza.
-- Bank és erőforrás pont (RP): pénz be és ki, tárgyak leadása RP-ért (`/k rp`), banki napló.
+- Bank és nexuspont (NP): pénz be és ki (a bank pénzneme a Dollár), tárgyak leadása NP-ért (`/k np`), banki napló.
+  Foglalás: az első 3 föld ingyen, utána 200 NP és 100 Dollár; más királyságtól legalább 5 chunk távolság kell.
 - Nexus: a királyság szíve (jeladó blokk, fölötte "Nexus" felirattal). Alapításkor megkapod, bárhova lerakhatod, és ha
   az a föld még szabad, egyben el is foglalja. A `/k nexus` egyből lerakja eléd. Jobb klikkre innen lehet fejleszteni,
   építményeket és tornyokat venni.
 - Fejlesztések: 8 általános, 4 erősítés és 10 bajnok fejlesztés, mind szintekkel.
-- Építmények: erőmű cella, kitermelő, regeneráló, bástya, előőrs, warp pad. Tornyok: íjász, láng, ágyú, mágia,
-  katona, gyógyító és akna. Lerakás után rájuk kattintva fejleszthetők, tölthetők, ki-be kapcsolhatók.
+- Építmények: erőmag, kitermelő, gyógyforrás, bástya, kereskedőház, teleportkapu és Szabályzó (egy földre 1 építmény,
+  a Szabályzó és a Nexus nem számít bele). A Szabályzóval földenként állítható: szörnyek, állatok, PvP, tűz.
+  Tornyok (földenként 5): íjász, láng, ágyú, mágia, katona, gyógyító, akna és Lézertorony (falon át lő, nagyot sebez,
+  drága a lőszere). Lerakás után rájuk kattintva fejleszthetők, tölthetők, ki-be kapcsolhatók, eladhatók (`/k sell`).
+- Nexus lopás: ellenséges királyság Nexusát gyémánt kapával ütve elviszed a nexuspontjaik 5%-át (óránként egyszer,
+  pajzsos vagy pacifista királyságtól nem).
+- Rang jutalmak: `/k fly` (repülés a saját földeken, IceKing és felette), `/k extractor` (minden Kitermelő egyszerre,
+  Wizard és felette).
 - Kapcsolatok: semleges, szövetséges, fegyverszünet, ellenség (a barátit mindkét félnek el kell fogadnia).
 - Nemzetek: több királyság egy nemzetben, közös bank, közös pajzs, főváros.
 - Háború: ellenséges földre betörés (`/k invade`), a védő bajnoka és a Nexus őrei harcolnak, győzelem esetén a föld
   átkerül. Pajzs, védelem utáni pajzs, várakozási idő, békés mód, időzített tömeges háború.
 
 Parancsok: `/k` (menü), `/k create <név>`, `/k claim`, `/k unclaim`, `/k map`, `/k invite <játékos>`, `/k home`,
-`/k nexus`, `/k rp`, `/k invade`, `/k nation`, `/k help` a teljes listához.
+`/k nexus` (`/k nexus open`: a menü bárhonnan), `/k np`, `/k sell`, `/k lore <leírás>`, `/k chat k|a|g` (királysági,
+szövetségi, közös), `/k fly`, `/k extractor`, `/k invade`, `/k nation`, `/k help` a teljes listához.
 Admin (`icemine.kingdoms.admin`): `/ka reload`, `/ka disband`, `/ka unclaim`, `/ka give`, `/ka rp`, `/ka bank`,
 `/ka xp`, `/ka level`, `/ka masswar`, `/ka stopinvasion`, `/ka join`, `/ka setking`, `/ka info`.
 Beállítás: `plugins/IceMine/kingdoms.yml` (árak, limitek, hatalom, háború, építmények, tornyok, üzenetek).

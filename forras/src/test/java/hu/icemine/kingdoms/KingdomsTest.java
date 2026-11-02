@@ -38,8 +38,17 @@ class KingdomsTest {
         assertEquals(8, cfg.misc.size());
         assertEquals(4, cfg.powerups.size());
         assertEquals(10, cfg.champion.size());
-        assertEquals(7, cfg.structures.size());
-        assertEquals(7, cfg.turrets.size());
+        assertEquals(8, cfg.structures.size());
+        assertEquals(8, cfg.turrets.size());
+        assertEquals(200, cfg.claimCostRp);
+        assertEquals(100, cfg.claimCostMoney);
+        assertEquals(5, cfg.claimBuffer);
+        assertNotNull(cfg.structures.get("regulator"));
+        KConfig.Placeable laser = cfg.turrets.get("laser");
+        assertNotNull(laser);
+        assertTrue(laser.get("through-walls", 1) > 0, "a lézer a falon át is lő");
+        assertTrue(laser.get("damage", 1) > cfg.turrets.get("arrow").get("damage", 1) * 2, "a lézer nagyot sebez");
+        assertTrue(laser.values.get("ammo-cost") > cfg.ammoCost, "a lézer lőszere drágább");
         assertEquals(5, cfg.defaultRanks.size());
         assertEquals(3, cfg.shields.size());
         assertEquals(10, cfg.maxLevel());
@@ -47,7 +56,25 @@ class KingdomsTest {
         assertEquals(0, cfg.structures.get("nexus").price, "a Nexus ingyen jár");
         for (KConfig.Placeable turret : cfg.turrets.values()) {
             assertTrue(turret.price > 0, turret.id);
-            assertTrue(turret.block.contains("SKULL") || turret.block.contains("HEAD") || turret.block.contains("PLATE"), turret.id);
+            assertTrue(turret.block.contains("SKULL") || turret.block.contains("HEAD") || turret.block.contains("PLATE") || turret.block.equals("END_ROD"), turret.id);
+        }
+    }
+
+    @Test
+    void regulatorFlagsToggleAndSurviveSave() {
+        Placed placed = new Placed(java.util.UUID.randomUUID(), "structure", "regulator", 10, 64, 20, 1);
+        assertFalse(Regulator.off(placed, "pvp"));
+        assertTrue(Regulator.toggle(placed, "pvp"));
+        assertTrue(Regulator.toggle(placed, "monsters"));
+        assertTrue(Regulator.off(placed, "pvp"));
+        assertFalse(Regulator.toggle(placed, "pvp"));
+        assertFalse(Regulator.off(placed, "pvp"));
+        assertTrue(Regulator.off(placed, "monsters"));
+        placed.label = "monsters, fire ,ismeretlen,fire";
+        assertEquals(java.util.List.of("monsters", "fire"), Regulator.disabled(placed));
+        assertEquals(4, Regulator.flags().size());
+        for (String flag : Regulator.flags()) {
+            assertNotNull(org.bukkit.Material.matchMaterial(Regulator.FLAGS.get(flag)[0]), flag);
         }
     }
 
@@ -294,6 +321,6 @@ class KingdomsTest {
         cfg.load(yaml, problems);
         assertEquals(4, problems.size(), problems.toString());
         assertEquals(5, cfg.defaultRanks.size(), "király nélkül az alap rangok maradnak");
-        assertEquals(7, cfg.turrets.size());
+        assertEquals(8, cfg.turrets.size());
     }
 }

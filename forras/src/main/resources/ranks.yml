@@ -65,11 +65,12 @@ ranks:
     coin-multiplier: 1.25
     kits: []
     cosmetics: [kill.szivek, kill.tuzijatek]
-    permissions: [icemine.chat.color, icemine.gens.autosell]
+    permissions: [icemine.chat.color, icemine.gens.autosell, icemine.kingdoms.extractor]
     perks:
       - "&7Szívek és tűzijáték ölés effekt"
       - "&7Gens: automatikus eladás"
       - "&7Színes chat"
+      - "&7Kingdoms: összes Kitermelő egyszerre (/k extractor)"
       - "&725% pénz bónusz"
     luckperms:
       weight: 20
@@ -83,11 +84,12 @@ ranks:
     coin-multiplier: 1.5
     kits: []
     cosmetics: [trail.fagy, trail.kristaly, kill.lelek]
-    permissions: [icemine.cosmetic.fly, icemine.gens.backpack.large, icemine.gens.bonus.2]
+    permissions: [icemine.cosmetic.fly, icemine.gens.backpack.large, icemine.gens.bonus.2, icemine.kingdoms.fly]
     perks:
       - "&7Fagy és kristály nyomvonal, lélek effekt"
       - "&7Repülés a lobbyban"
       - "&7Gens: nagy hátizsák, +20% extra termés"
+      - "&7Kingdoms: repülés a saját földeken (/k fly)"
       - "&750% pénz bónusz"
     luckperms:
       weight: 30

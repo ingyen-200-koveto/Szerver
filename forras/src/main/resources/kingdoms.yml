@@ -6,8 +6,8 @@
 #  - /k create <név>: királyság alapítása. /k: a királyság menü (minden innen elérhető).
 #  - Földfoglalás chunkonként (/k claim). A földeken csak a tagok építhetnek, a rangjuk jogai szerint.
 #  - A Nexus a királyság szíve (/k nexus adja a blokkot). Nélküle nincs építmény és torony.
-#  - Resource Point (RP): tárgyak beadásával (/k rp) vagy pénzért. Ebből vannak a fejlesztések, tornyok, építmények.
-#  - Királysági XP és szint: RP beadás, foglalás, ölés és invázió után. Szintenként több föld és tag.
+#  - Nexuspont (NP): tárgyak beadásával (/k rp) vagy pénzért. Ebből vannak a fejlesztések, tornyok, építmények.
+#  - Királysági XP és szint: NP beadás, foglalás, ölés és invázió után. Szintenként több föld és tag.
 #  - Háború: ellenséges királyság földjén /k invade -> megjelenik a bajnokuk. Ha legyőzitek, a föld a tiétek.
 #  - Nemzet: több királyság szövetsége, közös kapcsolatokkal és kasszával.
 
@@ -94,6 +94,8 @@ chat:
   no-tag: ""
   # Királysági chat (/k chat, vagy ha !-lel kezded az üzenetet).
   kingdom: "&8[&6♛ %kingdom%&8] &e%player%&8: &f"
+  # Szövetségi chat (/k chat a): a királyság, a nemzettársak és a szövetségesek látják.
+  ally: "&8[&d⚑ Szövetség&8] &8[%color%%kingdom%&8] &d%player%&8: &f"
 
 map:
   header: "&6&lTérkép &8(te vagy a sárga pötty, észak felfelé)"
@@ -114,7 +116,7 @@ members:
 
 # A bank pénzneme (economy.yml). Üresen: az alap pénznem.
 bank:
-  currency: ""
+  currency: "dollar"
 
 # Ennyi másodpercig él egy meghívó.
 invite-seconds: 300
@@ -142,13 +144,13 @@ claims:
   # Az első ennyi föld ingyenes.
   free: 3
   cost:
-    resource-points: 25
-    bank: 0
+    resource-points: 200
+    bank: 100
   # Csak a meglévő földek mellé lehet foglalni.
   adjacent: true
   # Más királyság földjétől legalább ennyi chunk távolság kell (szövetségesnél és nemzettársnál nem).
-  buffer: 1
-  # Elengedéskor a foglalási RP ennyi %-át visszakapjátok.
+  buffer: 5
+  # Elengedéskor a foglalási NP ennyi %-át visszakapjátok.
   unclaim-refund-percent: 50
   # A földeken nem robban szét semmi (invázió közben igen, hacsak nincs Robbanásvédelem fejlesztés).
   protect-explosions: true
@@ -166,12 +168,12 @@ power:
   death-loss: 2
   claims-per-power: 2
 
-# Resource Point: ezeket a tárgyakat lehet beváltani (ANYAG: RP darabonként).
+# Nexuspont: ezeket a tárgyakat lehet beváltani (ANYAG: NP darabonként).
 # Egyedi nevű, leírású vagy varázsolt tárgyat nem vált be.
 resource-points:
-  # Halálkor ennyi RP-t veszít a királyság.
+  # Halálkor ennyi NP-t veszít a királyság.
   death-penalty: 10
-  # A bankban ennyi pénz = 1 RP.
+  # A bankban ennyi pénz = 1 NP.
   money-per-point: 10
   items:
     COAL: 2
@@ -209,7 +211,7 @@ resource-points:
 # ---------------------------------------------------------------------------------------------------------------
 
 invasions:
-  # Az invázió ára RP-ben (masswar alatt ingyenes, lásd lent).
+  # Az invázió ára NP-ben (masswar alatt ingyenes, lásd lent).
   cost: 50
   # Ennyi idő alatt kell legyőzni a bajnokot.
   time-seconds: 300
@@ -221,7 +223,7 @@ invasions:
   cooldown-success-seconds: 0
   # Vesztes védőknek ennyi perc pajzs jár, hogy ne lehessen egymás után az összes földjüket elvenni.
   defeat-shield-minutes: 30
-  # Zsákmány a győztesnek: a vesztes RP-jének és bankjának ennyied része.
+  # Zsákmány a győztesnek: a vesztes NP-jének és bankjának ennyied része.
   loot:
     land:
       resource-points: 0.05
@@ -242,7 +244,7 @@ pacifism:
   # A pacifisták nem PvP-zhetnek (nem üthetnek és nem üthetők).
   disable-pvp: true
 
-# Pajzsok: óra: RP ár. A pajzs alatt nem támadhatnak meg, de ha ti támadtok, eltűnik.
+# Pajzsok: óra: NP ár. A pajzs alatt nem támadhatnak meg, de ha ti támadtok, eltűnik.
 shields:
   6: 300
   12: 550
@@ -318,15 +320,15 @@ relations:
 
 turret-settings:
   # Földenként ennyi torony (+ a "Több torony" fejlesztés).
-  per-land: 4
+  per-land: 5
   # A tornyok a szörnyekre is lőnek.
   target-monsters: true
-  # Lőszer: egy feltöltés ennyi lövés, lövésenként ennyi RP.
+  # Lőszer: egy feltöltés ennyi lövés, lövésenként ennyi NP.
   ammo-per-refill: 64
   ammo-cost: 1
 
 # ---------------------------------------------------------------------------------------------------------------
-# Fejlesztések (RP-ért). cost: első szint | cost-multiplier: szintenként ennyiszer drágább | per-level: szintenként ennyit ad
+# Fejlesztések (NP-ért). cost: első szint | cost-multiplier: szintenként ennyiszer drágább | per-level: szintenként ennyit ad
 # min-level: ennyi királysági szint kell hozzá | enabled: false = kikapcsolva
 # ---------------------------------------------------------------------------------------------------------------
 
@@ -551,7 +553,7 @@ champion-upgrades:
       - "&7A közelében a támadók nem rakhatnak blokkot."
 
 # ---------------------------------------------------------------------------------------------------------------
-# Építmények és tornyok. price: vételár RP | max-level | upgrade-cost: az első fejlesztés ára | upgrade-multiplier
+# Építmények és tornyok. price: vételár NP | max-level | upgrade-cost: az első fejlesztés ára | upgrade-multiplier
 # min-level: királysági szint | limit: ennyi lehet egy királyságnak (0 = korlátlan) | block: a lerakott blokk
 # values: a fajta számai; "<kulcs>-per-level" szintenként ennyivel nő (vagy csökken, ha negatív)
 # ---------------------------------------------------------------------------------------------------------------
@@ -562,6 +564,26 @@ structure-labels: true
 structures-settings:
   # Királyság alapításakor a király megkapja a Nexus tárgyat.
   give-nexus-on-create: true
+  # Egy földre (chunkra) ennyi építmény rakható (a Nexus és a Szabályzó nem számít bele). 0 = nincs korlát.
+  per-land: 1
+  # Eladáskor (/k sell) a vételár és a fejlesztések árának ennyi %-át kapjátok vissza nexuspontban.
+  sell-percent: 50
+
+# Nexus lopás: ellenséges királyság tagja gyémánt kapával üti a Nexust, és elviszi a nexuspontok egy részét.
+# A kapa elhasználódik. Pajzsos vagy pacifista királyságtól nem lehet lopni.
+nexus-steal:
+  enabled: true
+  percent: 5
+  # Legfeljebb ennyi NP egy lopással.
+  max: 2000
+  # Ugyanattól a királyságtól ennyi percenként lehet lopni.
+  cooldown-minutes: 60
+  # Legalább ennyi tagnak fent kell lennie a megtámadott királyságból.
+  min-online: 1
+
+# /k fly: repülés a saját földeteken (jogosultság: icemine.kingdoms.fly). Harc után ennyi másodpercig nem lehet repülni.
+fly:
+  combat-seconds: 10
 
 structures:
   nexus:
@@ -576,7 +598,7 @@ structures:
       champion-health-per-level: 10
     description:
       - "&7A királyság szíve. Jobb klikkre itt van minden menü."
-      - "&7Ha elfoglalják, sok pénz és RP elvész."
+      - "&7Ha elfoglalják, sok pénz és NP elvész."
   powercell:
     name: "&e&lErőmag"
     block: RESPAWN_ANCHOR
@@ -609,7 +631,7 @@ structures:
       capacity: 100
       capacity-per-level: 80
     description:
-      - "&7Magától Resource Pointot termel."
+      - "&7Magától nexuspontot termel."
       - "&7Jobb klikkel szeded be."
   regenerator:
     name: "&d&lGyógyforrás"
@@ -653,7 +675,7 @@ structures:
     min-level: 2
     limit: 2
     description:
-      - "&7Itt Resource Pointért vásárolhattok"
+      - "&7Itt nexuspontért vásárolhattok"
       - "&7hasznos tárgyakat."
   warppad:
     name: "&5&lTeleportkapu"
@@ -667,6 +689,16 @@ structures:
     description:
       - "&7A királyság kapui között lehet vele"
       - "&7teleportálni."
+  regulator:
+    name: "&3&lSzabályzó"
+    block: OBSERVER
+    price: 150
+    max-level: 1
+    min-level: 1
+    limit: 0
+    description:
+      - "&7Beállíthatod vele, mi történhet a földjén:"
+      - "&7szörnyek, állatok, PvP és tűz."
 
 turrets:
   arrow:
@@ -788,8 +820,30 @@ turrets:
     description:
       - "&7Felrobban, ha ellenség lép rá"
       - "&7(a blokkokat nem bántja)."
+  laser:
+    name: "&b&lLézertorony"
+    block: END_ROD
+    price: 600
+    max-level: 10
+    upgrade-cost: 300
+    upgrade-multiplier: 1.45
+    min-level: 5
+    values:
+      range: 18
+      range-per-level: 0.5
+      damage: 9
+      damage-per-level: 0.8
+      cooldown: 40
+      cooldown-per-level: -1.5
+      # 1 = a falakon át is lő
+      through-walls: 1
+      # Lövésenként ennyi NP (a többi toronynál a turret-settings.ammo-cost számít).
+      ammo-cost: 5
+    description:
+      - "&7A falakon át is eltalálja az ellenséget,"
+      - "&7és nagyot sebez. A lőszere drága."
 
-# A Kereskedőház kínálata (ANYAG: RP ár darabonként).
+# A Kereskedőház kínálata (ANYAG: NP ár darabonként).
 outpost:
   GOLDEN_APPLE: 60
   ENDER_PEARL: 40
@@ -857,14 +911,19 @@ help:
   - " &e/k claim &8/ &e/k unclaim &8/ &e/k autoclaim &8- &7földek"
   - " &e/k map &8- &7térkép a környékről"
   - " &e/k nexus &8- &7a Nexus blokk (a királyság szíve)"
-  - " &e/k rp &8- &7tárgyak beadása Resource Pointért"
+  - " &e/k np &8- &7tárgyak beadása nexuspontért"
   - " &e/k bank &8/ &e/k deposit <összeg> &8- &7királysági bank"
   - " &e/k home &8/ &e/k sethome &8- &7otthon"
   - " &e/k ally, truce, neutral, enemy <királyság> &8- &7kapcsolatok"
   - " &e/k invade &8- &7invázió (ellenséges földön állva)"
   - " &e/k nation &8- &7nemzet ügyei"
   - " &e/k top &8- &7a legerősebb királyságok"
-  - " &e/k chat &8- &7királysági chat (vagy írj ! jelet az üzenet elé)"
+  - " &e/k chat [k|a|g] &8- &7királysági, szövetségi vagy közös chat (! az üzenet elé: királysági)"
+  - " &e/k nexus open &8- &7a Nexus menü bárhonnan"
+  - " &e/k sell &8- &7a nézett építmény vagy torony eladása NP-ért"
+  - " &e/k lore <szöveg> &8- &7a királyság leírása"
+  - " &e/k fly &8- &7repülés a saját földeteken &8(rang kell hozzá)"
+  - " &e/k extractor &8- &7az összes Kitermelő begyűjtése &8(rang kell hozzá)"
   - " &e/k spawn &8- &7vissza a városba"
 
 admin-help:
@@ -944,7 +1003,7 @@ messages:
   claim-rank-limit: "&cA rangoddal legfeljebb &f%max% &cchunkot foglalhatsz."
   claim-adjacent: "&cCsak a meglévő földetek mellé foglalhattok."
   claim-buffer: "&cTúl közel van %kingdom% &cföldjéhez, hagyjatok egy kis helyet."
-  claimed: "Ez a chunk mostantól a tiétek &8(%claims%/%max%, -%rp% RP)"
+  claimed: "Ez a chunk mostantól a tiétek &8(%claims%/%max%, -%rp% NP)"
   claimed-free: "Ez a chunk mostantól a tiétek &8(%claims%/%max%, ingyenes)"
   not-your-claim: "&cEz nem a ti földetek."
   not-claimed: "&cEz a föld nincs lefoglalva."
@@ -965,7 +1024,8 @@ messages:
   teleported: "Megérkeztél."
   no-portal: "&cA Netherbe és az Endbe innen még nem lehet átmenni."
   chat-on: "Királysági chat &abekapcsolva&7, most csak a tieid látják, amit írsz."
-  chat-off: "Királysági chat &ckikapcsolva&7."
+  chat-off: "Közös chat: most mindenki látja, amit írsz."
+  chat-ally: "Szövetségi chat &abekapcsolva&7: a királyságod, a nemzettársak és a szövetségesek látják, amit írsz."
   announcement: "&6&lKÖRÜZENET &8| &f%player%&7: &e%message%"
   spawn-protected: "&cA város védett, itt nem tudsz építeni."
   claim-protected: "&cEz %kingdom% &cföldje, itt nem nyúlhatsz semmihez."
@@ -974,19 +1034,19 @@ messages:
   ceasefire: "&cVele nem harcolhatsz, a kapcsolatotok: %relation%"
   pacifist-pvp: "&cPacifista királyság tagjával nem lehet harcolni (és pacifistaként te sem harcolhatsz)."
   no-money: "&cNincs elég pénzed. Kell: &f%price%"
-  not-enough-rp: "&cNincs elég Resource Pointotok. Kell: &e%need% RP"
+  not-enough-rp: "&cNincs elég nexuspontotok. Kell: &e%need% NP"
   not-enough-bank: "&cNincs elég pénz a bankban. Kell: &f%need%"
   bank-error: "&cNem sikerült kivenni, próbáld újra."
   deposited: "Befizettél &f%money%&7-t. A bankban most: &f%bank%"
   withdrew: "Kivettél &f%money%&7-t. A bankban most: &f%bank%"
-  converted: "Vettetek &e%points% RP&7-t &f%money%&7-ért a bankból."
-  donated: "Beadtál &e%points% RP&7-t. A királyságnak most &e%total% RP&7-je van."
-  donate-nothing: "&7Ezekért nem jár RP, visszakaptad őket."
+  converted: "Vettetek &e%points% NP&7-t &f%money%&7-ért a bankból."
+  donated: "Beadtál &e%points% NP&7-t. A királyságnak most &e%total% NP&7-je van."
+  donate-nothing: "&7Ezekért nem jár NP, visszakaptad őket."
   donate-title: "&8Tedd bele, amit beadnál"
   level-up: "&6&lSZINTLÉPÉS! &7A királyság &f%level%. &7szintű lett: több föld és tag fér bele."
   upgrade-max: "%name% &7már a legmagasabb szinten van."
   need-level: "&cEhhez &f%level%. &ckirálysági szint kell."
-  upgraded: "Fejlesztve: %name% &8(%level%/%max%, -%price% RP)"
+  upgraded: "Fejlesztve: %name% &8(%level%/%max%, -%price% NP)"
   shield-bought: "&f%player% &7pajzsot vett: &b%hours% &7óráig nem támadhatnak meg titeket."
   pacifism-disabled: "&cA pacifizmus ki van kapcsolva a szerveren."
   pacifism-cooldown: "&cMég &f%time% &cmúlva válthattok újra."
@@ -1025,7 +1085,7 @@ messages:
   not-in-your-nation: "&cEz a királyság nem tagja a nemzeteteknek (vagy ez a főváros)."
   nation-disband-confirm: "&cBiztos? A nemzet megszűnik, a közös kassza a fővárosé lesz. Ha igen, csináld meg még egyszer."
   nation-disbanded: "&9Megszűnt a(z) &f%nation% &9nemzet."
-  nation-donated: "%kingdom% &7beadott &e%points% RP&7-t a nemzet kasszájába."
+  nation-donated: "%kingdom% &7beadott &e%points% NP&7-t a nemzet kasszájába."
   nation-shield: "&bNemzeti pajzs: &f%hours% &bóráig senkit nem támadhatnak meg a nemzetből."
   item-structure-hint: "&b▶ Rakd le a saját földeteken"
   item-nexus-hint: "&b▶ Rakd le, ahol a királyságod legyen (a szabad földet el is foglalja)"
@@ -1039,19 +1099,40 @@ messages:
   nexus-break-own: "&cA Nexust a menüjéből lehet áthelyezni (jobb klikk rá)."
   nexus-fallen: "&4&lELESETT EGY NEXUS! %attacker% &7elfoglalta %kingdom% &7Nexusát!"
   inventory-full: "&cTele van a táskád."
-  bought-placeable: "Megvetted: %name% &8(-%price% RP)&7. Rakd le a saját földeteken."
+  bought-placeable: "Megvetted: %name% &8(-%price% NP)&7. Rakd le a saját földeteken."
   placed: "Lerakva: %name%"
   place-own-land: "&cEzt csak a saját földeteken rakhatod le."
   place-limit: "&cEbből már nem rakhattok le többet &8(max %max%)."
   turret-land-limit: "&cEgy földre legfeljebb &f%max% &ctornyot rakhattok."
+  structure-land-limit: "&cEgy földre legfeljebb &f%max% &cépítményt rakhattok (a Szabályzó nem számít bele)."
+  regulator-exists: "&cEzen a földön már van Szabályzó."
+  regulator-no-pvp: "&cEzen a földön a Szabályzó letiltotta a PvP-t."
+  sell-look: "&cNézz rá a saját építményetekre vagy tornyotokra, és úgy írd be: &f/k sell"
+  sell-nexus: "&cA Nexust nem lehet eladni."
+  sold-placeable: "Eladtad: %name%&7, ennyit kaptatok érte: &e%points% NP"
+  collected-all: "Begyűjtötted &f%count% &7Kitermelő tartalmát: &e%points% NP"
+  extractor-no-permission: "&cA /k extractor parancshoz magasabb rang kell (&fWizard &cvagy feljebb)."
+  steal-not-enemy: "&cCsak ellenséges királyság Nexusából lophatsz."
+  steal-protected: "&cEz a királyság most védett (pajzs vagy pacifizmus), nem lophatsz tőle."
+  steal-offline: "&cLegalább &f%min% &ctagjuknak fent kell lennie a lopáshoz."
+  steal-cooldown: "&cTőlük nemrég loptak, várj még: &f%time%"
+  steal-empty: "&cNincs mit ellopni, üres a kincstáruk."
+  steal-victim: "&c&l⚠ &f%player% &c(%kingdom%&c) lopott a Nexusotokból: &e%points% NP"
+  steal-success: "&a&l✔ &f%player% &alopott tőlük (%kingdom%&a): &e%points% NP"
+  fly-no-permission: "&cA repüléshez magasabb rang kell (&fIceKing &cvagy feljebb)."
+  fly-on: "Repülés &abekapcsolva&7. Csak a saját földeteken működik."
+  fly-off: "Repülés &ckikapcsolva&7."
+  fly-own-land: "&cCsak a saját királyságod földjén repülhetsz, ezért kikapcsoltam."
+  fly-combat: "&cHarc közben nem lehet repülni."
+  fly-invasion: "&cInvázió közben nem lehet repülni."
   picked-up: "Felvetted: %name%"
   structure-protected: "&cEz egy királyság építménye, nem nyúlhatsz hozzá."
   structure-destroyed: "&c%player% lerombolta: %name%"
-  refilled: "Lőszer feltöltve: &f%ammo% &8(-%price% RP)"
+  refilled: "Lőszer feltöltve: &f%ammo% &8(-%price% NP)"
   nothing-to-collect: "&7Még nincs mit begyűjteni."
-  collected: "Begyűjtöttél &e%points% RP&7-t."
+  collected: "Begyűjtöttél &e%points% NP&7-t."
   warppad-cooldown: "&cA kapu még töltődik, &f%seconds% &cmp."
-  outpost-bought: "Megvetted: &f%item% &8(-%price% RP)"
+  outpost-bought: "Megvetted: &f%item% &8(-%price% NP)"
   soldier-name: "&2Katona &8(%kingdom%&8)"
   champion-name: "%kingdom% &cbajnoka"
   guard-name: "&4Nexus őr &8(%kingdom%&8)"
@@ -1077,10 +1158,10 @@ messages:
   invasion-cancelled: "&7Az invázió véget ért."
   invasion-surrendered: "&7Feladtátok az inváziót."
   invasion-defended: "&a&lGYŐZELEM! &7Visszavertétek %kingdom% &7támadását."
-  invasion-won: "&a&lELFOGLALVA! &7Megszereztétek %kingdom% &7földjét. Zsákmány: &e%rp% RP &7és &f%money%"
-  invasion-won-nexus: "&a&lA NEXUS ELESETT! &7Legyőztétek %kingdom% &7Nexusát. Zsákmány: &e%rp% RP &7és &f%money%"
-  invasion-lost: "&c&lELVESZETT EGY FÖLD! %kingdom% &celfoglalta. Elvittek &e%rp% RP&c-t és &f%money%&c-t."
-  invasion-lost-nexus: "&4&lELESETT A NEXUS! %kingdom% &celvitte &e%rp% RP&c-t és &f%money%&c-t. Rakjátok le újra a Nexust!"
+  invasion-won: "&a&lELFOGLALVA! &7Megszereztétek %kingdom% &7földjét. Zsákmány: &e%rp% NP &7és &f%money%"
+  invasion-won-nexus: "&a&lA NEXUS ELESETT! &7Legyőztétek %kingdom% &7Nexusát. Zsákmány: &e%rp% NP &7és &f%money%"
+  invasion-lost: "&c&lELVESZETT EGY FÖLD! %kingdom% &celfoglalta. Elvittek &e%rp% NP&c-t és &f%money%&c-t."
+  invasion-lost-nexus: "&4&lELESETT A NEXUS! %kingdom% &celvitte &e%rp% NP&c-t és &f%money%&c-t. Rakjátok le újra a Nexust!"
   invasion-running: "&cMost invázió zajlik, ezt nem lehet."
   no-invasion: "&cNincs futó inváziótok."
   war-line-attacking: "&c⚔ Támadás: %kingdom% &8(%chunk%) &7- még &f%time%"

@@ -16,9 +16,9 @@ import org.bukkit.entity.Player;
 final class KingdomCommands implements CommandExecutor, TabCompleter {
 
     private static final List<String> SUBS = Arrays.asList("create", "disband", "invite", "join", "kick", "leave", "info", "home", "sethome", "spawn",
-            "claim", "unclaim", "unclaimall", "autoclaim", "map", "nexus", "bank", "deposit", "withdraw", "rp", "donate", "upgrade", "ally", "truce",
+            "claim", "unclaim", "unclaimall", "autoclaim", "map", "nexus", "bank", "deposit", "withdraw", "np", "donate", "upgrade", "ally", "truce",
             "neutral", "enemy", "relations", "nation", "invade", "surrender", "shield", "pacifist", "top", "list", "members", "ranks", "rank",
-            "promote", "demote", "king", "chat", "announce", "structures", "turrets", "champion", "war", "settings", "open", "help");
+            "promote", "demote", "king", "chat", "announce", "lore", "structures", "turrets", "sell", "extractor", "fly", "champion", "war", "settings", "open", "help");
     private static final List<String> NATION_SUBS = Arrays.asList("create", "invite", "join", "leave", "kick", "disband", "info", "donate");
     private static final List<String> ADMIN_SUBS = Arrays.asList("reload", "rebuild", "disband", "unclaim", "give", "rp", "bank", "xp", "level",
             "masswar", "stopinvasion", "join", "setking", "info");
@@ -102,7 +102,13 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
             case "map" -> plugin.showMap(player);
             case "nexus" -> {
                 Kingdom kingdom = km().mine(player);
-                if (kingdom != null && !kingdom.hasNexus()) {
+                if (kingdom != null && arg != null && (arg.equalsIgnoreCase("open") || arg.equalsIgnoreCase("menu"))) {
+                    if (kingdom.can(player.getUniqueId(), KPerm.NEXUS)) {
+                        plugin.menus().main(player);
+                    } else {
+                        plugin.send(player, "no-kingdom-permission", "%permission%", KPerm.NEXUS.title);
+                    }
+                } else if (kingdom != null && !kingdom.hasNexus()) {
                     plugin.structures().placeNexus(player);
                 } else if (kingdom != null) {
                     plugin.menus().main(player);
@@ -111,7 +117,7 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
             case "bank" -> plugin.menus().bank(player);
             case "deposit" -> needArg(player, arg, "/k deposit <összeg>", () -> km().deposit(player, plugin.amount(player, arg)));
             case "withdraw" -> needArg(player, arg, "/k withdraw <összeg>", () -> km().withdraw(player, plugin.amount(player, arg)));
-            case "rp", "donate" -> {
+            case "rp", "np", "donate" -> {
                 Kingdom kingdom = km().mine(player);
                 if (kingdom != null) {
                     plugin.donations().open(player, kingdom);
@@ -160,10 +166,44 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
                 Kingdom kingdom = km().mine(player);
                 if (kingdom != null) {
                     KPlayer data = km().player(player);
-                    data.kingdomChat = !data.kingdomChat;
-                    plugin.send(player, data.kingdomChat ? "chat-on" : "chat-off");
+                    String mode = arg == null ? "" : arg.toLowerCase(Locale.ROOT);
+                    switch (mode) {
+                        case "k", "kingdom", "kiralysag" -> {
+                            data.kingdomChat = true;
+                            data.allyChat = false;
+                        }
+                        case "a", "ally", "szovetseg" -> {
+                            data.kingdomChat = false;
+                            data.allyChat = true;
+                        }
+                        case "g", "global", "p", "public", "kozos" -> {
+                            data.kingdomChat = false;
+                            data.allyChat = false;
+                        }
+                        default -> {
+                            data.kingdomChat = !data.kingdomChat && !data.allyChat;
+                            data.allyChat = false;
+                        }
+                    }
+                    plugin.send(player, data.allyChat ? "chat-ally" : data.kingdomChat ? "chat-on" : "chat-off");
                 }
             }
+            case "lore", "describe", "leiras" -> {
+                if (rest == null || rest.isBlank()) {
+                    plugin.send(player, "usage", "%usage%", "/k lore <leírás>");
+                } else {
+                    km().describe(player, rest);
+                }
+            }
+            case "sell", "elad" -> plugin.structures().sell(player);
+            case "extractor", "extractors", "kitermelo" -> {
+                if (!player.hasPermission("icemine.kingdoms.extractor")) {
+                    plugin.send(player, "extractor-no-permission");
+                } else {
+                    plugin.structures().collectAll(player);
+                }
+            }
+            case "fly", "repules" -> plugin.fly().toggle(player);
             case "announce" -> km().announce(player, rest);
             case "structures" -> plugin.menus().structures(player);
             case "turrets" -> plugin.menus().turrets(player);
@@ -198,7 +238,7 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
             case "leave" -> km().leaveNation(player);
             case "kick" -> needArg(player, arg, "/k nation kick <királyság>", () -> km().kickFromNation(player, arg));
             case "disband" -> km().disbandNation(player);
-            case "donate" -> needArg(player, arg, "/k nation donate <RP>", () -> km().donateToNation(player, plugin.amount(player, arg)));
+            case "donate" -> needArg(player, arg, "/k nation donate <NP>", () -> km().donateToNation(player, plugin.amount(player, arg)));
             default -> plugin.menus().nation(player);
         }
     }
@@ -422,6 +462,10 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
                     return filter(members, args[1]);
                 case "nation":
                     return filter(NATION_SUBS, args[1]);
+                case "chat", "c":
+                    return filter(Arrays.asList("k", "a", "g"), args[1]);
+                case "nexus":
+                    return filter(Collections.singletonList("open"), args[1]);
                 case "shield":
                     List<String> hours = new ArrayList<>();
                     for (int value : plugin.settings().shields.keySet()) {

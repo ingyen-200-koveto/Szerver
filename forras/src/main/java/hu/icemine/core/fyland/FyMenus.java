@@ -43,7 +43,8 @@ final class FyMenus {
         FyPhase phase = mode.phase(island);
         Menu menu = new Menu("fyland-main", 5, t("main-title"));
         menu.frame(Material.LIME_STAINED_GLASS_PANE, null);
-        menu.set(4, Items.head(Bukkit.getOfflinePlayer(island.owner)).name(t("island-name", "%owner%", island.ownerName)).lore(lines("island-lore",
+        menu.set(4, Items.head(Bukkit.getOfflinePlayer(island.owner)).name(t("island-name", "%owner%", island.display())).lore(lines("island-lore",
+                "%worth%", Text.number(island.worth), "%next%", Text.number(mode.worth().toNext(island)),
                 "%phase%", phase.name, "%done%", Text.number(island.phaseBlocks), "%total%", Text.number(phase.blocks),
                 "%blocks%", Text.number(island.blocks), "%level%", String.valueOf(mode.level(island)), "%cycle%", String.valueOf(island.cycle),
                 "%members%", island.size() + "/" + mode.maxMembers(island), "%size%", String.valueOf(mode.radius(island) * 2 + 1),
@@ -58,7 +59,9 @@ final class FyMenus {
         menu.set(23, Items.of(Material.PLAYER_HEAD).name(t("members")).lore(lines("members-lore", "%members%", island.size() + "/" + mode.maxMembers(island))).build(), this::members);
         menu.set(24, Items.of(Material.COMPARATOR).name(t("settings")).lore(lines("settings-lore")).build(), this::settings);
         menu.set(25, Items.of(Material.GOLDEN_HELMET).name(t("top")).lore(lines("top-lore")).hideAll().build(), this::top);
+        menu.set(30, Items.of(Material.COMPASS).name(t("warps")).lore(lines("warps-lore")).build(), clicker -> mode.battle().warpMenu(clicker));
         menu.set(31, Items.of(Material.ENDER_EYE).name(t("visit")).lore(lines("visit-lore")).build(), this::visitList);
+        menu.set(32, Items.of(Material.ENCHANTING_TABLE).name(t("enchanter")).lore(lines("enchanter-lore")).build(), clicker -> mode.enchants().open(clicker));
         menu.set(40, Items.of(Material.NETHER_STAR).name(t("lobby")).build(), clicker -> {
             clicker.closeInventory();
             mode.core().modes().sendAndReport(clicker, hu.icemine.core.mode.ModeService.LOBBY);
@@ -218,6 +221,7 @@ final class FyMenus {
             return;
         }
         boolean owner = island.owner.equals(player.getUniqueId());
+        boolean manager = island.manager(player.getUniqueId());
         Menu menu = new Menu("fyland-members", 4, t("members-title"));
         menu.frame(Material.LIME_STAINED_GLASS_PANE, null);
         menu.set(10, Items.head(Bukkit.getOfflinePlayer(island.owner)).name(t("member-owner", "%player%", island.ownerName)).lore(lines("member-owner-lore")).build());
@@ -231,17 +235,28 @@ final class FyMenus {
             }
             String name = entry.getValue();
             boolean online = Bukkit.getPlayer(entry.getKey()) != null;
+            boolean moderator = island.moderators.contains(entry.getKey());
             List<String> lore = new ArrayList<>(lines(online ? "member-online" : "member-offline"));
-            if (owner) {
-                lore.addAll(lines("member-manage"));
+            if (moderator) {
+                lore.add(0, t("member-moderator"));
             }
-            menu.set(slot++, Items.head(Bukkit.getOfflinePlayer(entry.getKey())).name("&f" + name).lore(lore).build(),
-                    owner ? clicker -> {
+            if (owner) {
+                lore.addAll(lines(moderator ? "member-manage-demote" : "member-manage-promote"));
+            } else if (manager && !moderator) {
+                lore.addAll(lines("member-manage-kick"));
+            }
+            UUID id = entry.getKey();
+            menu.set(slot++, Items.head(Bukkit.getOfflinePlayer(entry.getKey())).name((moderator ? "&b" : "&f") + name).lore(lore).build(),
+                    manager ? clicker -> {
                         mode.kick(clicker, name);
                         members(clicker);
                     } : null,
                     owner ? clicker -> {
-                        mode.transfer(clicker, name);
+                        if (clicker.isSneaking()) {
+                            mode.transfer(clicker, name);
+                        } else {
+                            mode.social().promote(clicker, name, !island.moderators.contains(id));
+                        }
                         members(clicker);
                     } : null);
         }
@@ -268,15 +283,25 @@ final class FyMenus {
         Menu menu = new Menu("fyland-settings", 3, t("settings-title"));
         menu.frame(Material.LIME_STAINED_GLASS_PANE, null);
         menu.set(11, Items.of(island.visitors ? Material.OAK_DOOR : Material.IRON_DOOR).name(t(island.visitors ? "visitors-open" : "visitors-closed"))
-                .lore(lines(owner ? "visitors-lore" : "owner-only-lore")).build(), clicker -> {
+                .lore(lines(island.manager(player.getUniqueId()) ? "visitors-lore" : "owner-only-lore")).build(), clicker -> {
             mode.toggleVisitors(clicker);
             settings(clicker);
         });
-        menu.set(13, Items.of(Material.RED_BED).name(t("sethome")).lore(lines("sethome-lore")).build(), clicker -> {
+        menu.set(12, Items.of(Material.RED_BED).name(t("sethome")).lore(lines("sethome-lore")).build(), clicker -> {
             clicker.closeInventory();
             mode.setHome(clicker);
         });
-        menu.set(15, Items.of(Material.TNT).name(t("reset")).lore(lines(owner ? "reset-lore" : "owner-only-lore")).build(), clicker -> {
+        menu.set(13, Items.of(Material.OAK_SIGN).name(t("setwarp")).lore(lines(island.hasWarp ? "setwarp-lore-set" : "setwarp-lore",
+                "%name%", island.warpName.isBlank() ? "-" : island.warpName)).build(), clicker -> {
+            clicker.closeInventory();
+            mode.social().setWarp(clicker, null);
+        });
+        menu.set(14, Items.of(Material.EXPERIENCE_BOTTLE).name(t("recalc")).lore(lines("recalc-lore", "%worth%", Text.number(island.worth),
+                "%level%", String.valueOf(mode.level(island)))).build(), clicker -> {
+            clicker.closeInventory();
+            mode.worth().recalc(clicker);
+        });
+        menu.set(16, Items.of(Material.TNT).name(t("reset")).lore(lines(owner ? "reset-lore" : "owner-only-lore")).build(), clicker -> {
             clicker.closeInventory();
             mode.reset(clicker);
         });
@@ -292,9 +317,9 @@ final class FyMenus {
         for (int i = 0; i < top.size(); i++) {
             FyIsland island = top.get(i);
             FyPhase phase = mode.phase(island);
-            String label = island.ownerName;
-            menu.set(slots[i], Items.head(Bukkit.getOfflinePlayer(island.owner)).name(t("top-entry", "%place%", String.valueOf(i + 1), "%owner%", island.ownerName))
-                    .lore(lines("top-entry-lore", "%blocks%", Text.number(island.blocks), "%level%", String.valueOf(mode.level(island)),
+            String label = island.display();
+            menu.set(slots[i], Items.head(Bukkit.getOfflinePlayer(island.owner)).name(t("top-entry", "%place%", String.valueOf(i + 1), "%owner%", island.display()))
+                    .lore(lines("top-entry-lore", "%blocks%", Text.number(island.blocks), "%level%", String.valueOf(mode.level(island)), "%worth%", Text.number(island.worth),
                             "%phase%", phase.name, "%members%", String.valueOf(island.size()), "%cycle%", String.valueOf(island.cycle))).build(), clicker -> {
                 clicker.closeInventory();
                 mode.visit(clicker, island, label);
@@ -314,15 +339,15 @@ final class FyMenus {
         List<FyIsland> seen = new ArrayList<>();
         for (Player online : Bukkit.getOnlinePlayers()) {
             FyIsland island = mode.islandOf(online);
-            if (island == null || seen.contains(island) || !island.visitors || island.member(player.getUniqueId())) {
+            if (island == null || seen.contains(island) || !mode.social().visitable(island, player) || island.member(player.getUniqueId())) {
                 continue;
             }
             seen.add(island);
             if (slot >= 14) {
                 break;
             }
-            String label = island.ownerName;
-            menu.set(INNER[slot++], Items.head(Bukkit.getOfflinePlayer(island.owner)).name("&f" + island.ownerName)
+            String label = island.display();
+            menu.set(INNER[slot++], Items.head(Bukkit.getOfflinePlayer(island.owner)).name("&f" + island.display())
                     .lore(lines("visit-entry-lore", "%phase%", mode.phase(island).name, "%blocks%", Text.number(island.blocks))).build(), clicker -> {
                 clicker.closeInventory();
                 mode.visit(clicker, island, label);

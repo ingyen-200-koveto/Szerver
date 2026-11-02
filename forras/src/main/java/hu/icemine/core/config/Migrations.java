@@ -392,6 +392,26 @@ public final class Migrations {
         }
         notes.addAll(newModes(files));
         notes.addAll(hotbarV3(files::get, files::save));
+        YamlConfiguration economyFile = files.get("economy");
+        if (economyFile != null && economyFile.isSet("currencies") && !economyFile.isSet("currencies.dollar")) {
+            copyDefault(economyFile, "currencies.dollar");
+            files.save("economy");
+            notes.add("economy.yml: új pénznem a Kingdomsnak (Dollár)");
+        }
+        YamlConfiguration fylandFile = files.get("fyland");
+        if (fylandFile != null && fylandFile.isSet("phases")) {
+            List<String> added = new java.util.ArrayList<>();
+            for (String path : new String[]{"visit", "block-values", "battlefield", "airdrop", "enchanter", "island.level-points", "island.recalc-cooldown-seconds"}) {
+                if (!fylandFile.isSet(path)) {
+                    copyDefault(fylandFile, path);
+                    added.add(path);
+                }
+            }
+            if (!added.isEmpty()) {
+                files.save("fyland");
+                notes.add("fyland.yml: sziget érték és szint, csatatér, ellátmány láda és egyedi varázslatok (" + String.join(", ", added) + ")");
+            }
+        }
         YamlConfiguration ranksFile = files.get("ranks");
         if (newRanks(ranksFile)) {
             try {

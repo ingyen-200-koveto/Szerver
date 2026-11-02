@@ -3,7 +3,7 @@
 # blokk jelenik meg. A blokkok fázisokban jönnek (Síkság, Föld alatt, Tél, Óceán... egészen az Endig), néha láda
 # vagy mob is. A fázis végén jutalom láda jár. Az utolsó fázis után újra az elsővel kezdődik (egy új körben).
 #
-# Parancs: /fyland (vagy /fy, /sziget). Admin: /fy admin fazis <játékos> <fázis> | /fy admin torol <játékos> | /fy admin tp <játékos>
+# Parancs: /fyland (vagy /fy, /is). Játékos warpok: /pw, varázslatok: /enchanter, warp menü: /fywarp. Admin: /fy admin fazis <játékos> <fázis> | /fy admin torol <játékos> | /fy admin tp <játékos>
 # A szigetek az IceMine adatbázisában vannak (SQLite vagy MySQL), a tárgyakat kilépéskor mentjük.
 
 world: fyland
@@ -16,14 +16,170 @@ island:
   spacing: 400
   # A varázsblokk magassága
   y: 100
-  # Sziget szint: ennyi kibányászott blokkonként eggyel nő
-  level-blocks: 200
+  # Sziget szint: a szigetre rakott értékes blokkok (block-values) összértéke alapján, ennyi pontonként eggyel nő
+  level-points: 100
+  # A /fy szint (újraszámolás) között ennyi másodpercet kell várni
+  recalc-cooldown-seconds: 300
   # A sziget újrakezdése között ennyi percet kell várni
   reset-cooldown-minutes: 60
   # Ha valaki ez alá esik, visszavisszük a szigetére (nem hal meg)
   void-y: 40
   # Halálkor megmaradnak a tárgyak
   keep-inventory: true
+
+# Látogatás: ha true, csak olyan szigetre lehet átmenni, aminek van látogatási pontja (/fy setwarp).
+visit:
+  require-warp: true
+
+# A sziget értéke: ezek a blokkok ennyi pontot érnek, ha a szigetre rakod őket (kiütéskor levonjuk).
+# A sziget szintje = érték / island.level-points + 1. A /fy szint az egész szigetet újraszámolja.
+block-values:
+  IRON_BLOCK: 10
+  GOLD_BLOCK: 15
+  REDSTONE_BLOCK: 6
+  LAPIS_BLOCK: 8
+  COPPER_BLOCK: 4
+  EMERALD_BLOCK: 40
+  DIAMOND_BLOCK: 50
+  NETHERITE_BLOCK: 300
+  AMETHYST_BLOCK: 3
+  QUARTZ_BLOCK: 3
+  OBSIDIAN: 2
+  CRYING_OBSIDIAN: 4
+  BEACON: 500
+  ENCHANTING_TABLE: 25
+  ANVIL: 15
+  CONDUIT: 200
+  DRAGON_EGG: 2000
+  SEA_LANTERN: 4
+  END_ROD: 2
+  PURPUR_BLOCK: 2
+  PRISMARINE_BRICKS: 2
+  DARK_PRISMARINE: 3
+  SHULKER_BOX: 30
+  HONEY_BLOCK: 5
+  SLIME_BLOCK: 5
+  BOOKSHELF: 3
+  JUKEBOX: 10
+  LODESTONE: 30
+  RESPAWN_ANCHOR: 30
+  ENDER_CHEST: 20
+
+# Csatatér: PvP aréna a központ mellett (híd vezet oda). Csak itt lehet egymást ütni, és aki itt hal meg,
+# annak leesnek a tárgyai (a szintje megmarad). /fy csatater vagy /fywarp
+battlefield:
+  enabled: true
+  # Az aréna közepe és sugara (blokk). Az első induláskor felépül (built: true jelzi).
+  x: 60
+  z: 0
+  radius: 22
+  built: false
+
+# Ellátmány láda a csatatéren: ennyi percenként érkezik, ha legalább min-players fő van a Fylandon.
+# loot: "ANYAG min-max esély" (mint a fázis ládáknál), plusz ekkora eséllyel egy egyedi varázskönyv.
+airdrop:
+  enabled: true
+  minutes: 20
+  min-players: 2
+  despawn-minutes: 5
+  enchant-book-chance: 0.35
+  loot:
+    - "GOLDEN_APPLE 2-4 0.8"
+    - "ENCHANTED_GOLDEN_APPLE 1 0.08"
+    - "DIAMOND 2-6 0.6"
+    - "EMERALD 3-8 0.5"
+    - "NETHERITE_SCRAP 1-2 0.15"
+    - "EXPERIENCE_BOTTLE 8-24 0.7"
+    - "ENDER_PEARL 2-6 0.5"
+    - "DIAMOND_SWORD 1 0.2"
+    - "DIAMOND_CHESTPLATE 1 0.12"
+    - "TOTEM_OF_UNDYING 1 0.05"
+    - "IRON_BLOCK 2-6 0.4"
+
+# Egyedi varázslatok (/enchanter). A könyvet XP szintért veszed, és a táskádban egy tárgyra húzod.
+# success: a siker esélye (a könyvön véletlenszerű ezek között), destroy: ha nem sikerül, ekkora eséllyel tönkremegy a tárgy.
+# applies: tool (csákány, fejsze, ásó, kapa), pickaxe, weapon (kard, fejsze), armor, boots, helmet
+# A hatás a kódban van (az azonosító dönti el), a nevet, az árat és a max szintet itt lehet állítani.
+enchanter:
+  success:
+    min: 40
+    max: 100
+  destroy:
+    min: 0
+    max: 30
+  enchants:
+    autoszmelt:
+      name: "&6Autoszmelt"
+      icon: FURNACE
+      max-level: 1
+      cost: [30]
+      applies: tool
+      description:
+        - "&7A kibányászott érc és homok"
+        - "&7egyből kiolvasztva esik le."
+    telepatia:
+      name: "&bTelepátia"
+      icon: ENDER_EYE
+      max-level: 1
+      cost: [25]
+      applies: tool
+      description:
+        - "&7Amit kibányászol, egyből"
+        - "&7a táskádba kerül."
+    tapasztalat:
+      name: "&aTapasztalat"
+      icon: EXPERIENCE_BOTTLE
+      max-level: 3
+      cost: [15, 25, 40]
+      applies: tool
+      description:
+        - "&7Szintenként +50% XP"
+        - "&7a bányászatból."
+    robbano:
+      name: "&cRobbanó"
+      icon: TNT
+      max-level: 3
+      cost: [20, 35, 50]
+      applies: pickaxe
+      description:
+        - "&7Szintenként 15% eséllyel a blokk körül"
+        - "&7a többi is kitörik (3x3, a szigeteden)."
+    vampir:
+      name: "&4Vámpír"
+      icon: REDSTONE
+      max-level: 3
+      cost: [20, 30, 45]
+      applies: weapon
+      description:
+        - "&7Az ütésed egy része"
+        - "&7visszagyógyít."
+    mereg:
+      name: "&2Méreg"
+      icon: SPIDER_EYE
+      max-level: 3
+      cost: [15, 25, 40]
+      applies: weapon
+      description:
+        - "&7Szintenként 12% eséllyel"
+        - "&7megmérgezed, akit ütsz."
+    gyorsasag:
+      name: "&fGyorsaság"
+      icon: SUGAR
+      max-level: 2
+      cost: [20, 40]
+      applies: boots
+      description:
+        - "&7Gyorsabban futsz, amíg"
+        - "&7rajtad van a csizma."
+    ejjellatas:
+      name: "&9Éjjellátás"
+      icon: GOLDEN_CARROT
+      max-level: 1
+      cost: [20]
+      applies: helmet
+      description:
+        - "&7Sötétben is látsz, amíg"
+        - "&7rajtad van a sisak."
 
 # Az új sziget mellé ezt kapja a tulajdonos
 starter-items: ["BREAD 5"]
@@ -750,6 +906,77 @@ messages:
   sethome-bad: "Az otthon csak a szigeted határán belül, szilárd blokkon lehet."
   sethome: "Az otthonod mostantól itt van."
   owner-only: "Ezt csak a sziget tulajdonosa teheti meg."
+  manager-only: "Ezt csak a sziget tulajdonosa vagy egy moderátor teheti meg."
+  kick-moderator: "Moderátort csak a tulajdonos rúghat ki."
+  name-bad: "A név 3-20 karakter lehet (a warp neve legfeljebb 16), betűk, számok, szóköz és alsóvonal."
+  name-taken: "Ilyen nevű sziget vagy warp már van."
+  name-set: "A sziget új neve: &f%name%"
+  info:
+    - "&8&m                                             "
+    - " &a&l%name% &8(tulajdonos: &f%owner%&8)"
+    - " &7Szint: &f%level% &8| &7Érték: &f%worth% &8(még &f%next% &8a következő szintig)"
+    - " &7Fázis: %phase% &8| &7Kör: &f%cycle% &8| &7Kibányászva: &f%blocks%"
+    - " &7Tagok: %members%"
+    - " &7Látogatás: %visitors% &8| &7Warp: %warp% &8| &7Értékelés: %rating%"
+    - "&8&m                                             "
+  info-open: "&anyitva"
+  info-closed: "&czárva"
+  level-cooldown: "A sziget értékét legközelebb &f%time% &7múlva számolhatod újra."
+  level-calculating: "Számolom a sziget értékét..."
+  level-done: "Kész! A sziget értéke &f%worth% &8(%change%&8)&7, szintje: &a%level%"
+  already-moderator: "&f%player% &7már moderátor."
+  not-moderator: "&f%player% &7nem moderátor."
+  promoted: "&f%player% &7mostantól moderátor a szigeten."
+  demoted: "&f%player% &7már nem moderátor."
+  coop-added: "&f%player% &7ideiglenes segítő lett (coop): építhet, amíg fent van."
+  coop-you: "Ideiglenes segítő lettél ezen a szigeten: &f%island%&7. Amíg fent vagy, építhetsz rajta."
+  coop-removed: "&f%player% &7már nem segítő a szigeten."
+  coop-none: "&f%player% &7nem segítő ezen a szigeten."
+  ban-member: "A sziget tagját nem tilthatod ki. Előbb rúgd ki."
+  ban-none: "&f%player% &7nincs kitiltva."
+  banned: "&f%player% &7ki lett tiltva a szigetről."
+  unbanned: "&f%player% &7újra jöhet a szigetre."
+  you-banned: "Kitiltottak erről a szigetről: &f%island%"
+  visit-banned: "Erről a szigetről ki vagy tiltva: &f%island%"
+  visit-no-warp: "&f%island% &7szigetén még nincs látogatási pont, ezért most nem lehet átmenni."
+  warp-bad: "A látogatási pontot a szigeted határán belül, szilárd blokkon állva tudod beállítani."
+  warp-set: "A látogatási pont mostantól itt van. Ide érkeznek a látogatók."
+  warp-set-named: "A látogatási pont itt van, és a szigeted felkerült a játékos warpok közé: &f%name% &8(/pw)"
+  warp-deleted: "Törölted a látogatási pontot és a játékos warpot."
+  pw-none: "Nincs ilyen játékos warp: &f%name%"
+  pw-rate-own: "A saját warpodat nem értékelheted."
+  pw-rated: "Értékelted: &f%name% &8- &e%stars%★"
+  battle-off: "A csatatér most nincs bekapcsolva."
+  battle-teleport: "&cCsatatér! &7Itt lehet PvP, és ha meghalsz, leesnek a tárgyaid."
+  battle-sign: "&c&lCSATATÉR\n&7Itt lehet PvP, a tárgyaid leesnek!"
+  battle-enter-title: "&c&lCSATATÉR"
+  battle-enter-subtitle: "&7Itt lehet PvP, a tárgyaid leesnek!"
+  battle-leave: "&aElhagytad a csatateret, itt már biztonságban vagy."
+  battle-kill: "&c⚔ &f%killer% &7legyőzte: &f%victim%"
+  airdrop-spawned: "&6&l✦ ELLÁTMÁNY! &7Láda érkezett a csatatérre &8(%x%, %z%)&7, %minutes% percig marad. [[&e&l[ODAMEGYEK]|run:/fy csatater]]"
+  enchant-book-lore:
+    - "&7Siker esélye: &a%success%%"
+    - "&7Ha nem sikerül, tönkremegy a tárgy: &c%destroy%%"
+    - "&7Rátehető: &f%applies%"
+    - ""
+    - "&b▶ Húzd rá egy tárgyra a táskádban"
+  enchant-applies: "&7Rátehető: &f%applies%"
+  enchant-max: "&7Max szint: &f%max%"
+  enchant-cost: "&7Ár: &a%cost% XP szinttől"
+  enchant-click: "&b▶ Kattints a szintek megnézéséhez"
+  enchant-applies-tool: "csákány, fejsze, ásó, kapa"
+  enchant-applies-pickaxe: "csákány"
+  enchant-applies-weapon: "kard, fejsze"
+  enchant-applies-armor: "páncél"
+  enchant-applies-boots: "csizma"
+  enchant-applies-helmet: "sisak"
+  enchant-no-xp: "Ehhez &a%cost% &7XP szint kell."
+  enchant-bought: "Megvetted: %enchant% &8(%cost% XP szint)&7. Húzd rá a tárgyra a táskádban!"
+  enchant-wrong-item: "Erre a tárgyra nem tehető. Rátehető: &f%applies%"
+  enchant-already: "Ezen a tárgyon már legalább ilyen szintű ez a varázslat."
+  enchant-success: "&a&l✔ Sikerült! &7A tárgyad megkapta: %enchant%"
+  enchant-failed: "&c✘ Nem sikerült, de a tárgyad megmaradt. &8(%enchant%)"
+  enchant-destroyed: "&4✘ Nem sikerült, és a tárgy tönkrement! &8(%enchant%)"
   player-offline: "&f%player% &7most nincs fent."
   already-member: "&f%player% &7már a szigeted tagja."
   team-full: "Megtelt a csapat (%max% fő). Nagyobbat a fejlesztéseknél tudsz venni."
@@ -778,7 +1005,7 @@ messages:
   visit-closed-kicked: "Ez a sziget bezárt a látogatók előtt, visszahoztunk a sajátodra."
   visit-none: "&f%player% &7nevű játékosnak nincs szigete."
   visit-closed: "&f%player% &7szigetére most nem lehet átmenni."
-  visiting: "Átjöttél &f%player% &7szigetére."
+  visiting: "Megérkeztél: &f%player%"
   upgrade-max: "Ez a fejlesztés már a legmagasabb szinten van."
   not-enough-money: "Nincs elég pénzed, ez %price% &7lenne."
   upgraded: "&f%player% &7fejlesztett: %upgrade% &7(%level%. szint)"
@@ -803,17 +1030,28 @@ messages:
     - " [[&f/fy fejlesztes|run:/fy fejlesztes]] &8- &7fejlesztések"
     - " [[&f/fy fazisok|run:/fy fazisok]] &8- &7a fázisok"
     - " [[&f/fy sethome|run:/fy sethome]] &8- &7otthon beállítása"
+    - " [[&f/fy info|run:/fy info]] &8/ [[&f/fy szint|run:/fy szint]] &8- &7sziget adatai, érték újraszámolása"
+    - " [[&f/fy create <név>|suggest:/fy create ]] &8- &7a sziget elnevezése"
+    - " [[&f/fy promote <tag>|suggest:/fy promote ]] &8/ [[&f/fy demote <tag>|suggest:/fy demote ]] &8- &7moderátor"
+    - " [[&f/fy coop <játékos>|suggest:/fy coop ]] &8- &7ideiglenes segítő (amíg fent van)"
+    - " [[&f/fy ban <játékos>|suggest:/fy ban ]] &8/ [[&f/fy unban <játékos>|suggest:/fy unban ]] &8- &7kitiltás"
+    - " [[&f/fy lock|run:/fy lock]] &8/ [[&f/fy unlock|run:/fy unlock]] &8- &7sziget zárása, nyitása"
+    - " [[&f/fy setwarp [név]|suggest:/fy setwarp ]] &8- &7látogatási pont (névvel játékos warp is)"
+    - " [[&f/pw|run:/pw]] &8- &7játékos warpok, [[&f/pw rate <warp> <1-5>|suggest:/pw rate ]] &8- &7értékelés"
+    - " [[&f/fywarp|run:/fywarp]] &8- &7warpok: központ, csatatér, varázsló"
+    - " [[&f/enchanter|run:/enchanter]] &8- &7egyedi varázslatok XP-ért"
     - "&8&m                                             "
   menu:
     back: "&7« Vissza"
     lobby: "&cVissza a lobbyba"
     balance: "&7Pénzed: %money%"
     main-title: "&3[IceMine] &8Fyland"
-    island-name: "&a&l%owner% szigete"
+    island-name: "&a&l%owner%"
     island-lore:
       - "&7Fázis: %phase% &8(%done%/%total%)"
       - "&7Kibányászva: &f%blocks% &7blokk"
-      - "&7Szint: &f%level% &8| &7Kör: &f%cycle%"
+      - "&7Szint: &f%level% &8| &7Érték: &f%worth% &8(még %next%)"
+      - "&7Kör: &f%cycle%"
       - "&7Csapat: &f%members%"
       - "&7Méret: &f%size%x%size%"
       - ""
@@ -842,10 +1080,60 @@ messages:
       - "&7Látogatók, otthon, újrakezdés."
     top: "&e&lToplista"
     top-lore:
-      - "&7A legtöbbet bányászott szigetek."
+      - "&7A legértékesebb szigetek."
     visit: "&d&lLátogatás"
     visit-lore:
       - "&7Nézz át a többiek szigetére!"
+    warps: "&e&lWarpok"
+    warps-lore:
+      - "&7Központ, csatatér, játékos warpok."
+    enchanter: "&5&lVarázsló"
+    enchanter-lore:
+      - "&7Egyedi varázslatok XP-ért."
+    prev: "&7« Előző oldal"
+    next: "&7Következő oldal »"
+    pw-title: "&3[IceMine] &8Játékos warpok"
+    pw-entry:
+      - "&7Sziget: &f%island% &8(%owner%)"
+      - "&7Szint: &f%level%"
+      - "&7Értékelés: %rating%"
+      - ""
+      - "&b▶ Kattints az odamenéshez"
+    pw-empty: "&7Még nincs egy játékos warp sem"
+    pw-empty-lore:
+      - "&7Állíts be egyet: &f/pw set <név>"
+    warps-title: "&3[IceMine] &8Warpok"
+    warp-home: "&c&lSzigeted"
+    warp-home-lore:
+      - "&7Vissza a szigeted otthonára."
+    warp-spawn: "&a&lKözpont"
+    warp-spawn-lore:
+      - "&7A Fyland közepe, innen indul"
+      - "&7a híd a csatatérre."
+    warp-battle: "&c&lCsatatér"
+    warp-battle-lore:
+      - "&7PvP aréna, a tárgyaid leesnek!"
+      - "&7Most bent: &f%players% fő"
+      - "&7Ellátmány láda: &f%airdrops% &8| &7következő: &f%next%"
+      - ""
+      - "&b▶ Kattints az odamenéshez"
+    warp-pw: "&e&lJátékos warpok"
+    warp-pw-lore:
+      - "&7A többiek boltjai, farmjai."
+    warp-enchanter: "&5&lVarázsló"
+    warp-enchanter-lore:
+      - "&7Egyedi varázslatok XP-ért."
+    enchanter-title: "&3[IceMine] &8Varázsló"
+    enchanter-levels-title: "&3[IceMine] &8%enchant%"
+    enchanter-xp: "&a&lXP szinted: &f%level%"
+    enchanter-help:
+      - "&7Válassz varázslatot, vedd meg a könyvet,"
+      - "&7aztán a táskádban húzd rá a tárgyra."
+      - "&7A könyvön látod a siker esélyét."
+    enchanter-level-lore:
+      - "&7Ár: &a%cost% XP szint &8(neked: %level%)"
+      - ""
+      - "&b▶ Kattints a vásárláshoz"
     phases-title: "&3[IceMine] &8Fázisok"
     phase-blocks: "&7Hossza: &f%blocks% &7blokk"
     phase-done: "&a✔ Kész"
@@ -891,10 +1179,20 @@ messages:
       - "&aFent van"
     member-offline:
       - "&8Nincs fent"
-    member-manage:
+    member-moderator: "&b★ Moderátor"
+    member-manage-promote:
       - ""
       - "&cBal klikk kétszer: kirúgás"
-      - "&eJobb klikk kétszer: tulajdon átadása"
+      - "&bJobb klikk: moderátor lesz"
+      - "&eShift + jobb klikk kétszer: tulajdon átadása"
+    member-manage-demote:
+      - ""
+      - "&cBal klikk kétszer: kirúgás"
+      - "&bJobb klikk: már nem moderátor"
+      - "&eShift + jobb klikk kétszer: tulajdon átadása"
+    member-manage-kick:
+      - ""
+      - "&cBal klikk kétszer: kirúgás"
     invite: "&a&lMeghívás"
     invite-lore:
       - "&7Tagok: &f%members%"
@@ -913,6 +1211,19 @@ messages:
     sethome: "&c&lOtthon beállítása"
     sethome-lore:
       - "&7Ahol most állsz, az lesz az otthon."
+    setwarp: "&e&lLátogatási pont"
+    setwarp-lore:
+      - "&7Még nincs beállítva, ezért most"
+      - "&7nem lehet átjönni hozzátok."
+      - "&b▶ Kattints: ahol állsz, ott lesz"
+    setwarp-lore-set:
+      - "&7Ide érkeznek a látogatók."
+      - "&7Játékos warp: &f%name%"
+      - "&b▶ Kattints: áthelyezés ide"
+    recalc: "&a&lSziget érték"
+    recalc-lore:
+      - "&7Érték: &f%worth% &8| &7Szint: &f%level%"
+      - "&b▶ Kattints az újraszámoláshoz"
     reset: "&4&lÚjrakezdés"
     reset-lore:
       - "&7Új sziget, a haladás elölről indul."
@@ -921,8 +1232,8 @@ messages:
     top-title: "&3[IceMine] &8Toplista"
     top-entry: "&e#%place% &f%owner%"
     top-entry-lore:
-      - "&7Kibányászva: &f%blocks% &7blokk"
-      - "&7Szint: &f%level% &8| &7Kör: &f%cycle%"
+      - "&7Szint: &f%level% &8| &7Érték: &f%worth%"
+      - "&7Kibányászva: &f%blocks% &7blokk &8| &7Kör: &f%cycle%"
       - "&7Fázis: %phase%"
       - "&7Csapat: &f%members% fő"
       - ""
