@@ -39,6 +39,9 @@ max-height: 4
 # Minél kisebb, annál gyorsabban lehet egymás után ütni. Ez a CPS kezelés is: 4 tick = legfeljebb 5 találat
 # másodpercenként, akárhány CPS-sel kattint valaki, így a makró sem ad előnyt. Csak ComboFly módokban érvényes.
 hit-delay-ticks: 4
+# 1.8-as PvP a ComboFlyban: nincs ütés cooldown (minden kattintás teljes erejű ütés) és nincs söprő ütés.
+# false = a mostani (1.9+) PvP, cooldownnal.
+old-pvp: true
 # Az ütések sebzésének szorzója (1.0 = vanilla). A modes résznél módonként is megadható.
 damage-multiplier: 1.0
 # Maximális ütési távolság (blokk). Ennél messzebbről jött ütés nem számít bele a kombóba.

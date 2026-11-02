@@ -52,6 +52,7 @@ public final class ComboFly implements Listener {
     private boolean resetOnGround = true;
     private int groundGrace = 6;
     private int hitDelay = 4;
+    private boolean oldPvp = true;
     private double damageMultiplier = 1.0;
     private double maxReach = 4.2;
     private int endMessageFrom = 5;
@@ -72,6 +73,7 @@ public final class ComboFly implements Listener {
         resetOnGround = values.bool("reset-on-ground", true);
         groundGrace = values.integer("ground-grace-ticks", 6, 0, 40);
         hitDelay = values.integer("hit-delay-ticks", 4, 1, 20);
+        oldPvp = values.bool("old-pvp", true);
         damageMultiplier = values.decimal("damage-multiplier", 1.0, 0.1, 5.0);
         maxReach = values.decimal("max-reach", 4.2, 3.0, 6.0);
         endMessageFrom = values.integer("end-message-from", 5, 2, 500);
@@ -164,7 +166,29 @@ public final class ComboFly implements Listener {
 
     public void applyHitDelay(Player player) {
         String mode = core.modes().current(player);
-        player.setMaximumNoDamageTicks(activeIn(mode) ? hitDelay : 20);
+        boolean active = activeIn(mode);
+        player.setMaximumNoDamageTicks(active ? hitDelay : 20);
+        attackSpeed(player, active && oldPvp);
+    }
+
+    /** 1.8-as PvP: nincs ütés cooldown (a kard minden kattintásra teljes erővel üt), különben a vanilla 4.0. */
+    private static void attackSpeed(Player player, boolean old) {
+        org.bukkit.attribute.AttributeInstance speed = player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_ATTACK_SPEED);
+        if (speed != null) {
+            double wanted = old ? 1024.0 : 4.0;
+            if (speed.getBaseValue() != wanted) {
+                speed.setBaseValue(wanted);
+            }
+        }
+    }
+
+    /** 1.8-as PvP: a kard söprő ütése (sweep) nincs. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSweep(EntityDamageByEntityEvent event) {
+        if (oldPvp && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK && event.getDamager() instanceof Player attacker
+                && activeIn(core.modes().current(attacker))) {
+            event.setCancelled(true);
+        }
     }
 
     private double heightAboveGround(Player player) {
@@ -333,6 +357,7 @@ public final class ComboFly implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         endFor(event.getPlayer());
+        attackSpeed(event.getPlayer(), false);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

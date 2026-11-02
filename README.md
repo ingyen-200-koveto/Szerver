@@ -188,7 +188,9 @@ Parancsok: `/gens kapa`, `/gens fold` (következő föld megnyitása), `/gens ba
 `/gens rebirth`, `/gens members`, `/gens upgrades`, `/gens lock`. Beállítás: `plugins/IceMine/gens.yml`
 (a földek a `fields`, a kapa a `hoe` résznél). Toplista: Gens prestige.
 
-### ComboFly lökés
+### ComboFly lökés és 1.8-as PvP
+
+A ComboFlyban 1.8-as a PvP: nincs ütés cooldown és söprő ütés (`combofly.yml` -> `old-pvp`, `false` = 1.9+).
 
 `plugins/IceMine/combofly.yml`: a lökés öt része külön állítható: Horizontal (`knockback-horizontal`),
 Vertical (`knockback-vertical`), Air (`knockback-air-*`, ha az ellenfél már a levegőben van),

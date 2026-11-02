@@ -1,0 +1,7 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.14.4 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.14.4
+changes:
+- file: messages_hu
+  path: update.downloaded
+  old: '&aLetöltöttem az új IceMine verziót (&f%version%&a)! &7A szerver következő újraindításakor magától települ.'

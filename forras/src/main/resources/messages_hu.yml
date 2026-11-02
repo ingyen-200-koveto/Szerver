@@ -713,7 +713,7 @@ update:
   busy: "Most is épp nézem, várj egy kicsit."
   latest: "A legfrissebb verzió van fent (&f%version%&7)."
   ready: "Az új verzió (&f%version%&7) már le van töltve, a szerver következő újraindításakor települ."
-  downloaded: "&aLetöltöttem az új IceMine verziót (&f%version%&a)! &7A szerver következő újraindításakor magától települ."
+  downloaded: "&aÚj verzió elérhető."
   failed: "&cNem sikerült a frissítés: &f%reason%"
 
 rank:
