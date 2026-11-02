@@ -354,17 +354,17 @@ public final class Migrations {
                 notes.add("permissions.yml: új parancsok joga");
             }
         }
-        YamlConfiguration modeLobbies = files.get("modelobbies");
-        if (modeLobbies != null && modeLobbies.isSet("lobbies") && !modeLobbies.getBoolean("migrated.unique-v1", false)) {
-            ConfigurationSection section = modeLobbies.getConfigurationSection("lobbies");
+        YamlConfiguration oneBlockLobbies = files.get("modelobbies");
+        if (oneBlockLobbies != null && oneBlockLobbies.isSet("lobbies") && !oneBlockLobbies.getBoolean("migrated.unique-v1", false)) {
+            ConfigurationSection section = oneBlockLobbies.getConfigurationSection("lobbies");
             java.util.Set<String> themes = java.util.Set.of("fullpvp", "fyland", "combofly", "gens", "kingdoms", "duels");
             for (String key : section.getKeys(false)) {
-                if (!modeLobbies.isSet("lobbies." + key + ".theme")) {
-                    modeLobbies.set("lobbies." + key + ".theme", themes.contains(key) ? key : "snow");
+                if (!oneBlockLobbies.isSet("lobbies." + key + ".theme")) {
+                    oneBlockLobbies.set("lobbies." + key + ".theme", themes.contains(key) ? key : "snow");
                 }
-                modeLobbies.set("lobbies." + key + ".built", false);
+                oneBlockLobbies.set("lobbies." + key + ".built", false);
             }
-            modeLobbies.set("migrated.unique-v1", true);
+            oneBlockLobbies.set("migrated.unique-v1", true);
             files.save("modelobbies");
             notes.add("modelobbies.yml: minden játékmód saját témájú lobbyt kap, most újraépülnek");
         }
@@ -411,6 +411,14 @@ public final class Migrations {
                 files.save("fyland");
                 notes.add("fyland.yml: sziget érték és szint, csatatér, ellátmány láda és egyedi varázslatok (" + String.join(", ", added) + ")");
             }
+        }
+        if (oneBlockLobbies != null && !oneBlockLobbies.getBoolean("migrated.oneblock-title", false) && oneBlockLobbies.isConfigurationSection("lobbies.fyland")) {
+            oneBlockLobbies.set("migrated.oneblock-title", true);
+            if ("ONEBLOCK".equals(oneBlockLobbies.getString("lobbies.fyland.title")) && oneBlockLobbies.getBoolean("lobbies.fyland.built", false)) {
+                oneBlockLobbies.set("lobbies.fyland.built", false);
+                notes.add("modelobbies.yml: a Fyland neve OneBlock lett, a lobbyja az új felirattal újraépül");
+            }
+            files.save("modelobbies");
         }
         YamlConfiguration lobbyNpcs = files.get("lobby");
         if (creativeStatue(lobbyNpcs)) {

@@ -242,7 +242,7 @@ public final class LobbyMenus {
         fyland.add("&7Kibányászott blokkok: &f" + Text.number(profile.stat("fyland.blocks")));
         fyland.add("&7Egyenleg: " + core.economy().format(core.economy().currency("fyland") == null ? core.economy().defaultCurrency() : "fyland",
                 profile.balance(core.economy().currency("fyland") == null ? core.economy().defaultCurrency() : "fyland")));
-        menu.set(31, Items.of(Material.GRASS_BLOCK).name("&a&lFyland").lore(fyland).hideAll().build());
+        menu.set(31, Items.of(Material.GRASS_BLOCK).name("&a&lOneBlock").lore(fyland).hideAll().build());
         List<String> gens = new ArrayList<>();
         gens.add("&7Egyenleg: " + core.economy().format("gens", profile.balance("gens")));
         gens.add("&7Összes bevétel: &e" + Text.number(profile.stat("gens.earned")));

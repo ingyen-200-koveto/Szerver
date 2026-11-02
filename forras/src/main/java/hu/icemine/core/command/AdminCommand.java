@@ -249,7 +249,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Text.color(" &7" + mode + ": &a" + kills + " &7ölés, &c" + deaths + " &7halál, K/D &f" + Text.ratio(kills, deaths)
                     + "&7, sorozat &e" + profile.stat(mode + ".best_streak")));
         }
-        sender.sendMessage(Text.color(" &7Fyland: &a" + Text.number(profile.stat("fyland.blocks")) + " &7kibányászott blokk"));
+        sender.sendMessage(Text.color(" &7OneBlock: &a" + Text.number(profile.stat("fyland.blocks")) + " &7kibányászott blokk"));
         sender.sendMessage(Text.color(" &7Gens bevétel: &e" + Text.number(profile.stat("gens.earned")) + " &8| &7Parkour: &f"
                 + (profile.stat("parkour2.best_ms") > 0 ? Text.timer(profile.stat("parkour2.best_ms")) : "-") + " &8| &7Kombó: &b" + profile.stat("combofly.best") + "x"));
         sender.sendMessage(Text.color(" &7Játékidő: &f" + Text.duration(profile.playtime())));

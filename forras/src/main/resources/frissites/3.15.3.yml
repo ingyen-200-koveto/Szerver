@@ -1,0 +1,108 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.15.3 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.15.3
+changes:
+- file: config
+  path: leaderboards.boards.fyland.title
+  old: '&a&l⛏ Fyland blokkok'
+- file: fyland
+  path: messages.welcome
+  old: 'Üdv újra a Fylandon! Menü: &f/fy'
+- file: fyland
+  path: messages.first-join
+  old:
+  - '&8&m                                             '
+  - ' &a&lFyland &8- &7üdv, &f%player%&7!'
+  - ' &7Egyetlen blokkon állsz a semmi közepén. Bányászd ki,'
+  - ' &7és a helyén mindig jön egy új: előbb fű és fa, aztán kő,'
+  - ' &7jég, homok... egészen az Endig. Néha láda vagy mob is jön.'
+  - ' &7A blokk alá ne ess le, de ha mégis, visszahozunk.'
+  - ' [[&f/fy|run:/fy]] &8- &7menü  [[&f/fy piac|run:/fy piac]] &8- &7eladás'
+  - '&8&m                                             '
+- file: fyland
+  path: messages.no-portal
+  old: '&cA Fylandon nem lehet portált használni.'
+- file: fyland
+  path: messages.no-island
+  old: Még nincs szigeted. Lépj be a Fylandra, és kapsz egyet.
+- file: fyland
+  path: messages.only-here
+  old: Ezt csak a Fylandon tudod használni.
+- file: fyland
+  path: messages.help
+  old:
+  - '&8&m                                             '
+  - ' &a&lFyland &8- &7parancsok &8(kattints rájuk!)'
+  - ' [[&f/fy|run:/fy]] &8- &7menü'
+  - ' [[&f/fy haza|run:/fy haza]] &8- &7vissza a szigetedre'
+  - ' [[&f/fy piac|run:/fy piac]] &8- &7eladás és vásárlás'
+  - ' [[&f/fy elad|run:/fy elad]] &8- &7minden eladható eladása'
+  - ' [[&f/fy meghiv <játékos>|suggest:/fy meghiv ]] &8- &7barát meghívása'
+  - ' [[&f/fy latogat <játékos>|suggest:/fy latogat ]] &8- &7átnézés más szigetére'
+  - ' [[&f/fy fejlesztes|run:/fy fejlesztes]] &8- &7fejlesztések'
+  - ' [[&f/fy fazisok|run:/fy fazisok]] &8- &7a fázisok'
+  - ' [[&f/fy sethome|run:/fy sethome]] &8- &7otthon beállítása'
+  - ' [[&f/fy info|run:/fy info]] &8/ [[&f/fy szint|run:/fy szint]] &8- &7sziget adatai, érték újraszámolása'
+  - ' [[&f/fy create <név>|suggest:/fy create ]] &8- &7a sziget elnevezése'
+  - ' [[&f/fy promote <tag>|suggest:/fy promote ]] &8/ [[&f/fy demote <tag>|suggest:/fy demote ]] &8- &7moderátor'
+  - ' [[&f/fy coop <játékos>|suggest:/fy coop ]] &8- &7ideiglenes segítő (amíg fent van)'
+  - ' [[&f/fy ban <játékos>|suggest:/fy ban ]] &8/ [[&f/fy unban <játékos>|suggest:/fy unban ]] &8- &7kitiltás'
+  - ' [[&f/fy lock|run:/fy lock]] &8/ [[&f/fy unlock|run:/fy unlock]] &8- &7sziget zárása, nyitása'
+  - ' [[&f/fy setwarp [név]|suggest:/fy setwarp ]] &8- &7látogatási pont (névvel játékos warp is)'
+  - ' [[&f/pw|run:/pw]] &8- &7játékos warpok, [[&f/pw rate <warp> <1-5>|suggest:/pw rate ]] &8- &7értékelés'
+  - ' [[&f/fywarp|run:/fywarp]] &8- &7warpok: központ, csatatér, varázsló'
+  - ' [[&f/enchanter|run:/enchanter]] &8- &7egyedi varázslatok XP-ért'
+  - '&8&m                                             '
+- file: fyland
+  path: messages.menu.main-title
+  old: '&3[IceMine] &8Fyland'
+- file: fyland
+  path: messages.menu.warp-spawn-lore
+  old:
+  - '&7A Fyland közepe, innen indul'
+  - '&7a híd a csatatérre.'
+- file: lobby
+  path: info-texts.mode_fyland
+  old:
+  - '&8&m                                             '
+  - ' &a&lFyland &8- &7hogyan játszd?'
+  - ' &7Egyetlen blokkon kezdesz a semmi közepén. Bányászd ki,'
+  - ' &7és a helyén mindig jön egy új: fű és fa, kő, jég, homok,'
+  - ' &7egészen a Netherig és az Endig. Néha láda vagy mob is jön.'
+  - ' &7Add el a piacon, amit bányásztál, és fejleszd a szigeted.'
+  - ' &7Hívd meg a barátaidat is! Menü: /fy'
+  - '&8&m                                             '
+- file: market
+  path: scopes.fyland.name
+  old: '&aFyland'
+- file: market
+  path: messages.only-in-scope
+  old: Ezt csak a Kingdomsban és a Fylandon tudod használni.
+- file: messages_hu
+  path: mainmenu.selector.lore
+  old:
+  - '&7Fyland, ComboFly, Gens, Kingdoms,'
+  - '&7Duels és BedWars.'
+- file: modelobbies
+  path: lobbies.fyland.title
+  old: FYLAND
+- file: modelobbies
+  path: lobbies.fyland.title-split
+  old: 2
+- file: modes
+  path: modes.fyland.name
+  old: '&a&lFyland'
+- file: scoreboard
+  path: boards.fyland
+  old:
+  - '&8&m                    '
+  - '&7Mód: &a&lFyland'
+  - ''
+  - '&7Fázis: %fy_phase%'
+  - '&7Haladás: &f%fy_progress%'
+  - '&7Kibányászva: &f%fy_blocks%'
+  - '&7Szint: &f%fy_level% &8| &7Kör: &f%fy_cycle%'
+  - '&7Csapat: &f%fy_members%'
+  - ''
+  - '&7Pénz: %fy_money%'
+  - '&bplay.icemine.hu'

@@ -3,7 +3,7 @@ version: ${project.version}
 main: hu.icemine.core.IceMineCore
 api-version: '1.20'
 author: IceMine
-description: IceMine Network - lobby, Fyland, ComboFly, Gens, Kingdoms, Duels, BedWars
+description: IceMine Network - lobby, OneBlock, ComboFly, Gens, Kingdoms, Duels, BedWars
 softdepend: [AuthMe, LuckPerms, TAB, Citizens]
 
 commands:
@@ -81,7 +81,7 @@ commands:
     usage: /arena
     aliases: [arenak, arenas]
   fyland:
-    description: Fyland (OneBlock) sziget parancsok
+    description: OneBlock sziget parancsok
     usage: /fyland [haza|piac|elad|meghiv|info|szint|coop|ban|lock|setwarp|warp|csatater|enchanter|...]
     aliases: [fy, is, oneblock]
   plot:
@@ -89,15 +89,15 @@ commands:
     usage: /plot [auto|claim|home|visit|trust|deny|kick|name|info|list|clear|delete]
     aliases: [p, telek, plots]
   pw:
-    description: Fyland játékos warpok
+    description: OneBlock játékos warpok
     usage: /pw [set <név>|del|rate <warp> <1-5>|<warp>]
     aliases: [playerwarp, pwarp]
   enchanter:
-    description: Fyland egyedi varázslatok
+    description: OneBlock egyedi varázslatok
     usage: /enchanter
     aliases: [varazslo]
   fywarp:
-    description: Fyland warp menü (központ, csatatér, játékos warpok)
+    description: OneBlock warp menü (központ, csatatér, játékos warpok)
     usage: /fywarp
     aliases: [fwarp]
   gens:
@@ -105,11 +105,11 @@ commands:
     usage: /gens [home|kapa|fold|visit|trust|untrust|sell|daily|quests|shop|backpack|autosell|prestige|rebirth|members|upgrades|lock]
     aliases: [gen, sziget]
   elad:
-    description: Eladás (Gens termés, Fyland bányászat)
+    description: Eladás (Gens termés, OneBlock bányászat)
     usage: /elad
     aliases: [sellall]
   ah:
-    description: Aukciósház (Kingdoms, Fyland)
+    description: Aukciósház (Kingdoms, OneBlock)
     usage: /ah [sell <ár>|lejart]
     aliases: [auction, aukcio]
   trade:
@@ -117,7 +117,7 @@ commands:
     usage: /trade <játékos> | /trade elfogad
     aliases: [csere]
   shop:
-    description: Bolt a Fylandon és a Kingdomsban (az árak a kereslettől mozognak)
+    description: Bolt OneBlock és Kingdoms módban (az árak a kereslettől mozognak)
     usage: /shop
     aliases: [bolt]
   sell:
@@ -265,7 +265,7 @@ permissions:
     description: Régi kit mentés (/icem kit create|delete), most nem használt
     default: op
   icemine.admin.fyland:
-    description: Fyland admin (/fy admin fazis|torol|tp) és belépés a zárt szigetekre
+    description: OneBlock admin (/fy admin fazis|torol|tp) és belépés a zárt szigetekre
     default: op
   icemine.admin.market:
     description: Piac admin (/market give, /market draw)

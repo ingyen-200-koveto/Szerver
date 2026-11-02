@@ -773,7 +773,7 @@ mainmenu:
   selector:
     name: "&b&lJátékmódok"
     lore:
-      - "&7Fyland, ComboFly, Gens, Kingdoms,"
+      - "&7OneBlock, ComboFly, Gens, Kingdoms,"
       - "&7Duels és BedWars."
   kits:
     name: "&6&lKitek"

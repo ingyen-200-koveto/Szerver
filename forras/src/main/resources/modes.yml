@@ -16,7 +16,7 @@ send-cooldown-ms: 2000
 
 modes:
   fyland:
-    name: "&a&lFyland"
+    name: "&a&lOneBlock"
     icon: GRASS_BLOCK
     slot: 10
     color: "&a"

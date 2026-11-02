@@ -76,7 +76,7 @@ leaderboards:
   size: 10
   boards:
     fyland:
-      title: "&a&l⛏ Fyland blokkok"
+      title: "&a&l⛏ OneBlock blokkok"
       source: stat
       key: fyland.blocks
     gens:

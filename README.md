@@ -54,7 +54,7 @@ elmenti. Ha ezt nem kéred: `plugins/IceMine/config.yml` -> `kulso-uzenetek: fal
 
 A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `/kit`, `/profil`...) is maradtak.
 
-**Játékmód választó** (iránytű a hotbaron): Fyland (fűblokk), Gens (gyémánt kapa),
+**Játékmód választó** (iránytű a hotbaron): OneBlock (fűblokk), Gens (gyémánt kapa),
 Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly és Creative.
 
 **Kozmetikák:** a nyomvonalak és az ölés effektek csak a lobbyban (és a játékmódok lobbyjaiban) látszanak,
@@ -113,7 +113,7 @@ Rangot adni (konzolba): `lp user Jatekosnev parent add iceking`. A rangváltás 
 Amit egyszer létrehozott, azt az IceMine többet nem állítja át (a lista: `plugins/IceMine/.luckperms-kesz`), így a
 LuckPermsben nyugodtan átírhatod. Ha újra kell, töröld a fájlt, és indítsd újra a szervert.
 
-### Fyland (OneBlock)
+### OneBlock (régi nevén Fyland)
 
 Mindenki kap egy saját szigetet a semmi közepén, ami egyetlen blokkból áll. Ha kibányászod, a helyén azonnal új blokk
 jelenik meg, a blokkok 11 fázisban jönnek: Síkság, Föld alatt, Fagyos tundra, Óceán, Dzsungel, Mocsár, Mélység,

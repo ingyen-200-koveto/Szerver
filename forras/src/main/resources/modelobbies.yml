@@ -20,8 +20,8 @@ lobbies:
     theme: fyland
     built: false
     color: lime
-    title: "FYLAND"
-    title-split: 2
+    title: "ONEBLOCK"
+    title-split: 3
     center: {x: 0, y: 100, z: 0}
     holograms:
       play:

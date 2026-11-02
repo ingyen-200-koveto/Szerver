@@ -41,7 +41,7 @@ public final class FyCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if (mode.world() == null) {
-            mode.core().messages().send(player, "mode.unavailable", "%mode%", "Fyland");
+            mode.core().messages().send(player, "mode.unavailable", "%mode%", "OneBlock");
             return true;
         }
         String arg = args.length > 1 ? args[1] : null;
@@ -134,7 +134,7 @@ public final class FyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (mode.world() == null) {
-            mode.core().messages().send(player, "mode.unavailable", "%mode%", "Fyland");
+            mode.core().messages().send(player, "mode.unavailable", "%mode%", "OneBlock");
             return;
         }
         switch (name) {

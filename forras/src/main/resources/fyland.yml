@@ -1,4 +1,4 @@
-# Fyland (OneBlock)
+# OneBlock (a kódban és a fájlnevekben "fyland")
 # Mindenki kap egy saját szigetet a semmi közepén, ami egyetlen blokkból áll. Ha kibányászod, a helyén azonnal új
 # blokk jelenik meg. A blokkok fázisokban jönnek (Síkság, Föld alatt, Tél, Óceán... egészen az Endig), néha láda
 # vagy mob is. A fázis végén jutalom láda jár. Az utolsó fázis után újra az elsővel kezdődik (egy új körben).
@@ -75,7 +75,7 @@ battlefield:
   radius: 22
   built: false
 
-# Ellátmány láda a csatatéren: ennyi percenként érkezik, ha legalább min-players fő van a Fylandon.
+# Ellátmány láda a csatatéren: ennyi percenként érkezik, ha legalább min-players fő van OneBlock módban.
 # loot: "ANYAG min-max esély" (mint a fázis ládáknál), plusz ekkora eséllyel egy egyedi varázskönyv.
 airdrop:
   enabled: true
@@ -882,10 +882,10 @@ phases:
 
 messages:
   island-created: "Megkaptad a saját szigeted! Bányászd ki a blokkot, a helyén mindig jön egy új."
-  welcome: "Üdv újra a Fylandon! Menü: &f/fy"
+  welcome: "Üdv újra! A OneBlock menü: &f/fy"
   first-join:
     - "&8&m                                             "
-    - " &a&lFyland &8- &7üdv, &f%player%&7!"
+    - " &a&lOneBlock &8- &7üdv, &f%player%&7!"
     - " &7Egyetlen blokkon állsz a semmi közepén. Bányászd ki,"
     - " &7és a helyén mindig jön egy új: előbb fű és fa, aztán kő,"
     - " &7jég, homok... egészen az Endig. Néha láda vagy mob is jön."
@@ -898,11 +898,11 @@ messages:
   phase-title: "&7Új fázis kezdődött"
   no-build: "&cEz nem a te szigeted, vagy már kívül vagy a határán."
   no-enderchest: "&cEnderládát itt nem lehet használni."
-  no-portal: "&cA Fylandon nem lehet portált használni."
+  no-portal: "&cOneBlock módban nem lehet portált használni."
   void: "&eLeestél, visszahoztunk a szigetre."
   home: "Itthon vagy."
-  no-island: "Még nincs szigeted. Lépj be a Fylandra, és kapsz egyet."
-  only-here: "Ezt csak a Fylandon tudod használni."
+  no-island: "Még nincs szigeted. Lépj be OneBlock módba, és kapsz egyet."
+  only-here: "Ezt csak OneBlock módban tudod használni."
   sethome-bad: "Az otthon csak a szigeted határán belül, szilárd blokkon lehet."
   sethome: "Az otthonod mostantól itt van."
   owner-only: "Ezt csak a sziget tulajdonosa teheti meg."
@@ -1020,7 +1020,7 @@ messages:
   admin-deleted: "Törölve: &f%player% &7szigete."
   help:
     - "&8&m                                             "
-    - " &a&lFyland &8- &7parancsok &8(kattints rájuk!)"
+    - " &a&lOneBlock &8- &7parancsok &8(kattints rájuk!)"
     - " [[&f/fy|run:/fy]] &8- &7menü"
     - " [[&f/fy haza|run:/fy haza]] &8- &7vissza a szigetedre"
     - " [[&f/fy piac|run:/fy piac]] &8- &7eladás és vásárlás"
@@ -1045,7 +1045,7 @@ messages:
     back: "&7« Vissza"
     lobby: "&cVissza a lobbyba"
     balance: "&7Pénzed: %money%"
-    main-title: "&3[IceMine] &8Fyland"
+    main-title: "&3[IceMine] &8OneBlock"
     island-name: "&a&l%owner%"
     island-lore:
       - "&7Fázis: %phase% &8(%done%/%total%)"
@@ -1108,7 +1108,7 @@ messages:
       - "&7Vissza a szigeted otthonára."
     warp-spawn: "&a&lKözpont"
     warp-spawn-lore:
-      - "&7A Fyland közepe, innen indul"
+      - "&7A OneBlock világ közepe, innen indul"
       - "&7a híd a csatatérre."
     warp-battle: "&c&lCsatatér"
     warp-battle-lore:

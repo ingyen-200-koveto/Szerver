@@ -1,6 +1,6 @@
 # Piac: aukciósház (/ah), csere (/trade), dinamikus bolt (/shopgui), eladás (/sell ha, /sell all), pénz toplista (/baltop),
 # lottó (/lottery), kulcsok (lootbox, /kulcs), eladó láda, craftoló, farm blokk.
-# Minden piaconként külön működik: a Kingdoms és a Fyland saját pénzzel, saját aukciókkal és saját árakkal.
+# Minden piaconként külön működik: a Kingdoms és a OneBlock saját pénzzel, saját aukciókkal és saját árakkal.
 # Admin: /market give <játékos> <sellchest|crafter|farmblock|key:<kulcs>> [db] | /market draw <piac> (lottó sorsolás most)
 #
 # Tárgy formátum: ANYAG [darab] [varázslat:szint ...] [name=Név_szóközök_helyett], pl. "DIAMOND_SWORD sharpness:5"
@@ -14,7 +14,7 @@ scopes:
   fyland:
     world: fyland
     currency: fyland
-    name: "&aFyland"
+    name: "&aOneBlock"
 
 auction:
   # Egyszerre ennyi tárgyat tehet ki valaki (icemine.market.ah.extra joggal kétszer ennyit)
@@ -259,7 +259,7 @@ item-names:
 
 messages:
   not-ready: "A piac most nem elérhető, szólj egy adminnak."
-  only-in-scope: "Ezt csak a Kingdomsban és a Fylandon tudod használni."
+  only-in-scope: "Ezt csak Kingdoms és OneBlock módban tudod használni."
   inventory-full: "Nincs elég hely az inventorydban."
   not-enough-money: "Nincs elég pénzed, ez %price% &7lenne."
   balance: "&7Pénzed: %money%"

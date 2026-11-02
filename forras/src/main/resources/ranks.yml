@@ -12,7 +12,7 @@
 #              és az erősebbek használhatják. Ami sehol nem szerepel, ingyenes.
 # cosmetics:   kozmetikák (lobby.yml -> cosmetics), pl. trail.kristaly, kill.villam
 # permissions: IceMine jogok, amiket a rang kap (pl. icemine.cosmetic.fly = repülés a lobbyban)
-# coin-multiplier: ennyivel szorozzuk a jutalmakat (BedWars, Gens, Fyland eladás, napi jutalom)
+# coin-multiplier: ennyivel szorozzuk a jutalmakat (BedWars, Gens, OneBlock eladás, napi jutalom)
 # perks:       ez csak a rang menüben (/icem rank) jelenik meg, leírásnak
 #
 # luckperms:   a LuckPerms csoport beállításai. Az IceMine indításkor egyszer létrehozza a csoportot a LuckPermsben
