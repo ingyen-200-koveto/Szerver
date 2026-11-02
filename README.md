@@ -289,6 +289,13 @@ A régi királyságok, földek és otthonok az első indításkor maguktól átj
 
 ## Frissítés
 
+A 3.14.3 óta az IceMine magát frissíti: 10 percenként megnézi itt a `version.txt`-t, és ha újabb verzió van,
+letölti a `plugins/update` mappába. A szerver következő újraindításakor magától felrakja, Git Pull nem kell hozzá.
+Ha van fent admin, szól neki a chatben. Kézzel: `/icem update`. Beállítás: `config.yml` -> `auto-update`
+(`restart-when-empty: true` esetén üres szervernél magától újra is indít, ha a panel ezt engedi).
+
+Git Pull csak akkor kell, ha más plugin vagy fájl változik a repóban:
+
 1. Állítsd le a szervert.
 2. Git Pull. Ha hibát ad, akkor Hard Reset.
 3. Indítsd el.

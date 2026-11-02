@@ -24,6 +24,16 @@ icecoin:
   # Ennyi másodpercenként frissül
   refresh-seconds: 30
 
+# Automatikus frissítés: 10 percenként megnézi a GitHubon, van-e új IceMine. Ha van, letölti a plugins/update
+# mappába, és a szerver következő újraindításakor magától felrakja (Git Pull nem kell). Kézzel: /icem update
+# restart-when-empty: ha true, letöltött frissítésnél, amikor 2 perce senki nincs fent, újraindítja a szervert.
+#   Csak akkor kapcsold be, ha a panel leállás után magától újraindítja a szervert.
+auto-update:
+  enabled: true
+  check-minutes: 10
+  restart-when-empty: false
+  repo-raw: "https://raw.githubusercontent.com/ingyen-200-koveto/Szerver/main"
+
 # A játékosok feje fölött: a név előtt a rang, a név mellett az életerő (pl. "Peti 20❤").
 # A rang a LuckPerms előtag, ha be van állítva, különben az IceMine rang neve (ranks.yml). Alap rangnál nem ír ki semmit.
 # BedWars meccsben a rang helyett a csapat színe látszik. Ha a TAB fent van, a rangot a TAB-on keresztül írja ki.

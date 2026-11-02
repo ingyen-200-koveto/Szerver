@@ -84,6 +84,7 @@ public final class IceMineCore extends JavaPlugin {
     private hu.icemine.core.economy.IceCoins iceCoins;
     private hu.icemine.core.rank.NameTags nameTags;
     private final hu.icemine.core.board.TabList tabList = new hu.icemine.core.board.TabList(this);
+    private final Updater updater = new Updater(this);
     private Duels duels;
     private Npcs npcs;
     private ContactBook contacts;
@@ -210,6 +211,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("toplisták", () -> leaderboards.load(main, problems));
         safely("IceCoin", () -> iceCoins.load(main, problems));
         safely("névtáblák", () -> nameTags.load(main));
+        safely("frissítés", () -> updater.load(main));
         safely("Fyland", () -> {
             fyland.load(configs.get(hu.icemine.core.fyland.FylandMode.FILE), problems);
             modes.register(fyland);
@@ -474,6 +476,7 @@ public final class IceMineCore extends JavaPlugin {
             leaderboards.refresh();
             safely("IceCoin", () -> iceCoins.load(main, problems));
             safely("névtáblák", () -> nameTags.load(main));
+            safely("frissítés", () -> updater.load(main));
         }
         if (all || file.equals(hu.icemine.core.market.Market.FILE) || file.equals("economy")) {
             safely("piac", () -> market.load(configs.get(hu.icemine.core.market.Market.FILE), problems));
@@ -712,6 +715,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public hu.icemine.core.market.Market market() {
         return market;
+    }
+
+    public Updater updater() {
+        return updater;
     }
 
     public hu.icemine.core.board.TabList tabList() {

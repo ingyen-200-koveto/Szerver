@@ -705,7 +705,16 @@ icem:
     setspawn: ["/icem setspawn <mód> [aréna]", "játékmód spawn ide"]
     reload: ["/icem reload [fájl]", "configok újratöltése"]
     admin: ["/icem admin", "adminisztrátori parancsok"]
+    update: ["/icem update", "új IceMine verzió keresése és letöltése"]
   unknown: "Ilyen alparancs nincs. Segítség: &f/icem help"
+
+update:
+  checking: "Nézem, van-e új IceMine verzió..."
+  busy: "Most is épp nézem, várj egy kicsit."
+  latest: "A legfrissebb verzió van fent (&f%version%&7)."
+  ready: "Az új verzió (&f%version%&7) már le van töltve, a szerver következő újraindításakor települ."
+  downloaded: "&aLetöltöttem az új IceMine verziót (&f%version%&a)! &7A szerver következő újraindításakor magától települ."
+  failed: "&cNem sikerült a frissítés: &f%reason%"
 
 rank:
   menu-title: "&3[IceMine] &8Rangok"

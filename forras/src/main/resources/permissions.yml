@@ -59,4 +59,5 @@ icem:
   rank-others:  {permission: icemine.command.rank.others, default: true}
   setspawn:     {permission: icemine.command.setspawn, default: op}
   reload:       {permission: icemine.command.reload, default: op}
+  update:       {permission: icemine.command.update, default: op}
   admin:        {permission: icemine.command.admin, default: op}
