@@ -154,12 +154,12 @@ hogy a két mód ne keveredjen. Beállítás: `plugins/IceMine/market.yml`.
 
 - `/ah`: aukciósház (`/ah sell <ár>` a kezedben lévő tárgyra, 48 óráig él, adó, lejárt tárgyak visszaszedése).
 - `/trade <játékos>`: biztonságos csere menüben, pénzzel is, mindkét fél jóváhagyása és 3 mp visszaszámlálás után.
-- `/shopgui`: bolt, aminek az árai a kereslettől mozognak (amit sokan eladnak, olcsóbb lesz). `/sell ha` és `/sell all`.
+- `/shop` (vagy `/shopgui`, `/bolt`): bolt, aminek az árai a kereslettől mozognak (amit sokan eladnak, olcsóbb lesz). `/sell ha` és `/sell all`.
 - Eladó láda (magától eladja, ami belekerül), Craftoló (tömöríti a tartalmát: 9 vas = 1 vasblokk...), Farm blokk
   (betöltve tartja a környékét). Ezeket a boltban lehet venni.
 - `/lottery`: napi lottó (max 3 jegy), a nyertes viszi a kasszát és kulcsokat.
 - Kulcsok: jobb klikkre nyílnak, bal klikkre mutatják a tartalmukat. `/kulcs`: a rang heti kulcs csomagja.
-- `/baltop`: a leggazdagabbak abban a módban, ahol állsz. `/shop`: a rangok menüje.
+- `/baltop`: a leggazdagabbak abban a módban, ahol állsz.
 - Admin (`icemine.admin.market`): `/market give <játékos> <sellchest|crafter|farmblock|key:<név>> [db]`, `/market draw <mód>`.
 
 ### Gens

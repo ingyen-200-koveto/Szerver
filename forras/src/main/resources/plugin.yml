@@ -121,8 +121,9 @@ commands:
     usage: /shopgui
     aliases: [dinbolt]
   shop:
-    description: Rangok és a webshop
+    description: Bolt a Fylandon és a Kingdomsban (az árak a kereslettől mozognak)
     usage: /shop
+    aliases: [bolt]
   sell:
     description: Eladás a bolt árán
     usage: /sell <ha|all>

@@ -1,0 +1,7 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.14.1 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.14.1
+changes:
+- file: market
+  path: messages.kulcs-no-rank
+  old: 'A rangodhoz nem jár kulcs csomag. Rangokat itt nézhetsz: &f/shop'
