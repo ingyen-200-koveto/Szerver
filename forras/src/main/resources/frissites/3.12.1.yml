@@ -1,0 +1,42 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.12.1 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.12.1
+changes:
+- file: lobby
+  path: hotbar.items.selector.slot
+  old: 0
+- file: lobby
+  path: hotbar.items.profile.slot
+  old: 1
+- file: lobby
+  path: hotbar.items.profile.material
+  old: PLAYER_HEAD
+- file: lobby
+  path: hotbar.items.profile.name
+  old: '&b&lProfil'
+- file: lobby
+  path: hotbar.items.profile.lore
+  old:
+  - '&7A statisztikáid és a pénzed.'
+- file: lobby
+  path: hotbar.items.profile.action
+  old: menu:profile
+- file: lobby
+  path: hotbar.items.cosmetics.slot
+  old: 3
+- file: lobby
+  path: hotbar.items.cosmetics.material
+  old: AMETHYST_SHARD
+- file: lobby
+  path: hotbar.items.cosmetics.name
+  old: '&d&lKozmetikák'
+- file: lobby
+  path: hotbar.items.cosmetics.lore
+  old:
+  - '&7Nyomvonalak és ölés effektek.'
+- file: lobby
+  path: hotbar.items.cosmetics.action
+  old: menu:cosmetics
+- file: lobby
+  path: hotbar.items.parkour.slot
+  old: 5

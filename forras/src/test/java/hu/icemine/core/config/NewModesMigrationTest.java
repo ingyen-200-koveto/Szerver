@@ -98,6 +98,24 @@ class NewModesMigrationTest {
     }
 
     @Test
+    void hotbarGetsCompassInTheMiddle() {
+        Map<String, YamlConfiguration> files = new HashMap<>();
+        files.put("lobby", withDefaults("lobby", "hotbar:\n  items:\n    selector: {slot: 0, material: COMPASS}\n    profile: {slot: 1}\n"
+                + "    cosmetics: {slot: 3}\n    parkour: {slot: 5}\n    settings: {slot: 7}\n    info: {slot: 8}\n"));
+        Set<String> saved = new HashSet<>();
+        assertFalse(Migrations.hotbarV3(files::get, saved::add).isEmpty());
+        YamlConfiguration lobby = files.get("lobby");
+        assertFalse(lobby.isSet("hotbar.items.profile"));
+        assertFalse(lobby.isSet("hotbar.items.cosmetics"));
+        assertEquals(4, lobby.getInt("hotbar.items.selector.slot"));
+        assertEquals(0, lobby.getInt("hotbar.items.parkour.slot"));
+        assertEquals(8, lobby.getInt("hotbar.items.info.slot"));
+        assertEquals(Set.of("hotbar.items.selector", "hotbar.items.parkour", "hotbar.items.settings", "hotbar.items.info"),
+                new HashSet<>(lobby.getConfigurationSection("hotbar.items").getKeys(false)).stream().map(k -> "hotbar.items." + k).collect(java.util.stream.Collectors.toSet()));
+        assertTrue(Migrations.hotbarV3(files::get, saved::add).isEmpty());
+    }
+
+    @Test
     void oldWorldNamesAreSafe() {
         assertTrue(OldModes.safeName("ice_kitpvp"));
         assertFalse(OldModes.safeName("world"));

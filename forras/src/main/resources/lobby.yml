@@ -41,28 +41,14 @@ hotbar:
   enabled: true
   items:
     selector:
-      slot: 0
+      slot: 4
       material: COMPASS
       name: "&b[IceMine] &fJátékmódok"
       lore:
         - "&7Kattints, és válassz játékmódot!"
       action: "menu:selector"
-    profile:
-      slot: 1
-      material: PLAYER_HEAD
-      name: "&b&lProfil"
-      lore:
-        - "&7A statisztikáid és a pénzed."
-      action: "menu:profile"
-    cosmetics:
-      slot: 3
-      material: AMETHYST_SHARD
-      name: "&d&lKozmetikák"
-      lore:
-        - "&7Nyomvonalak és ölés effektek."
-      action: "menu:cosmetics"
     parkour:
-      slot: 5
+      slot: 0
       material: FEATHER
       name: "&f&lJégparkour"
       lore:

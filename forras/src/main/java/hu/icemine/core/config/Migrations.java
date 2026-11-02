@@ -391,6 +391,7 @@ public final class Migrations {
             notes.add("combofly.yml: kombós lökés, gyorsabb ütések (4 tick) és erősebb sebzés az arénában");
         }
         notes.addAll(newModes(files));
+        notes.addAll(hotbarV3(files::get, files::save));
         return notes;
     }
 
@@ -549,6 +550,27 @@ public final class Migrations {
             save.accept("ranks");
             notes.add("ranks.yml: a rangokból kikerültek a megszűnt módok kitjei");
         }
+        return notes;
+    }
+
+    /** 3.12: a lobby hotbarról kikerült a profil és a kozmetikák, az iránytű középre, a parkour a bal szélre került. */
+    static List<String> hotbarV3(java.util.function.Function<String, YamlConfiguration> get, java.util.function.Consumer<String> save) {
+        List<String> notes = new ArrayList<>();
+        YamlConfiguration lobby = get.apply("lobby");
+        if (lobby == null || !lobby.isSet("hotbar.items") || lobby.getBoolean("migrated.hotbar-v3", false)) {
+            return notes;
+        }
+        lobby.set("hotbar.items.profile", null);
+        lobby.set("hotbar.items.cosmetics", null);
+        String[][] slots = {{"selector", "4"}, {"parkour", "0"}, {"settings", "7"}, {"info", "8"}};
+        for (String[] slot : slots) {
+            if (lobby.isSet("hotbar.items." + slot[0])) {
+                lobby.set("hotbar.items." + slot[0] + ".slot", Integer.parseInt(slot[1]));
+            }
+        }
+        lobby.set("migrated.hotbar-v3", true);
+        save.accept("lobby");
+        notes.add("lobby.yml: új hotbar (iránytű középen, parkour balra, beállítások és infó jobbra)");
         return notes;
     }
 
