@@ -412,6 +412,11 @@ public final class Migrations {
                 notes.add("fyland.yml: sziget érték és szint, csatatér, ellátmány láda és egyedi varázslatok (" + String.join(", ", added) + ")");
             }
         }
+        YamlConfiguration lobbyNpcs = files.get("lobby");
+        if (creativeStatue(lobbyNpcs)) {
+            files.save("lobby");
+            notes.add("lobby.yml: a Creative szobra a lobbyban (a \"Hamarosan\" szobor helyén)");
+        }
         YamlConfiguration scoreboardFile = files.get("scoreboard");
         if (scoreboardFile != null && scoreboardFile.isSet("boards") && !scoreboardFile.isSet("boards.creative")) {
             copyDefault(scoreboardFile, "boards.creative");
@@ -651,6 +656,42 @@ public final class Migrations {
             copyDefault(config, path);
         }
         config.set(marker, true);
+        return true;
+    }
+
+    /** 3.15: a Creative elkészült, a szobra az egyik "Hamarosan" szobor helyére kerül a főlobbyban. */
+    static boolean creativeStatue(YamlConfiguration lobby) {
+        if (lobby == null || !lobby.isConfigurationSection("npcs") || lobby.isSet("npcs.mode_creative") || lobby.getBoolean("migrated.creative-statue", false)) {
+            return false;
+        }
+        ConfigurationSection npcs = lobby.getConfigurationSection("npcs");
+        String soon = null;
+        for (String candidate : new String[]{"soon_2", "soon_3", "soon_1", "soon"}) {
+            if (npcs.isConfigurationSection(candidate + ".location")) {
+                soon = candidate;
+                break;
+            }
+        }
+        if (soon == null) {
+            for (String key : npcs.getKeys(false)) {
+                if (key.startsWith("soon") && npcs.isConfigurationSection(key + ".location")) {
+                    soon = key;
+                    break;
+                }
+            }
+        }
+        lobby.set("migrated.creative-statue", true);
+        if (soon == null) {
+            return true;
+        }
+        ConfigurationSection location = npcs.getConfigurationSection(soon + ".location");
+        for (Map.Entry<String, Object> entry : location.getValues(true).entrySet()) {
+            if (!(entry.getValue() instanceof ConfigurationSection)) {
+                lobby.set("npcs.mode_creative.location." + entry.getKey(), entry.getValue());
+            }
+        }
+        hu.icemine.core.lobby.LobbyDefaults.npc(lobby, "mode_creative");
+        lobby.set("npcs." + soon, null);
         return true;
     }
 

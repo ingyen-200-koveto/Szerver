@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 public final class PlotCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> SUBS = Arrays.asList("auto", "claim", "home", "visit", "info", "trust", "untrust", "deny", "undeny", "kick",
-            "name", "clear", "delete", "list", "help");
+            "name", "clear", "delete", "list", "hub", "help");
 
     private final CreativeMode mode;
 
@@ -40,6 +40,7 @@ public final class PlotCommand implements CommandExecutor, TabCompleter {
             case "auto", "uj", "új" -> mode.auto(player);
             case "claim", "foglal" -> mode.claim(player);
             case "home", "h", "haza" -> mode.home(player, arg);
+            case "hub", "spawn", "kozpont", "lobby" -> mode.hub(player);
             case "visit", "v", "latogat", "tp" -> need(player, arg, "/plot visit <játékos> [szám]", () -> mode.visit(player, arg, third));
             case "info", "i" -> mode.info(player);
             case "trust", "add", "hozzaad" -> need(player, arg, "/plot trust <játékos>", () -> mode.trust(player, arg, true));
@@ -80,8 +81,14 @@ public final class PlotCommand implements CommandExecutor, TabCompleter {
             mode.core().messages().send(player, "general.no-permission");
             return;
         }
-        Plot plot = mode.plotAt(player.getLocation());
         String action = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "";
+        if (action.equals("hub")) {
+            mode.buildHub();
+            mode.core().adminLog(player, "creative-hub", null, null);
+            mode.send(player, "hub-rebuilt");
+            return;
+        }
+        Plot plot = mode.plotAt(player.getLocation());
         if (plot == null || !(action.equals("clear") || action.equals("delete"))) {
             mode.send(player, "admin-usage");
             return;
@@ -116,7 +123,7 @@ public final class PlotCommand implements CommandExecutor, TabCompleter {
                 }
             }
             if (sub.equals("admin") && sender.hasPermission("icemine.admin.creative")) {
-                return filter(Arrays.asList("clear", "delete"), args[1]);
+                return filter(Arrays.asList("clear", "delete", "hub"), args[1]);
             }
         }
         return List.of();

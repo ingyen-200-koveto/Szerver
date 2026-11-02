@@ -1,0 +1,33 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.15.1 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.15.1
+changes:
+- file: creative
+  path: limits.ranks.wizard
+  old: 3
+- file: creative
+  path: limits.ranks.iceking
+  old: 4
+- file: creative
+  path: limits.ranks.yeti
+  old: 5
+- file: creative
+  path: messages.admin-usage
+  old: 'Admin: állj egy telekre, és &f/plot admin clear &7vagy &f/plot admin delete'
+- file: creative
+  path: messages.help
+  old:
+  - '&8&m                                             '
+  - ' &5&lCreative &8- &7parancsok &8(kattints rájuk!)'
+  - ' [[&f/plot|run:/plot]] &8- &7menü'
+  - ' [[&f/plot auto|run:/plot auto]] &8- &7új telek kérése'
+  - ' [[&f/plot claim|run:/plot claim]] &8- &7a telek lefoglalása, ahol állsz'
+  - ' [[&f/plot home [szám]|run:/plot home]] &8- &7vissza a telkedre'
+  - ' [[&f/plot visit <játékos>|suggest:/plot visit ]] &8- &7átnézés más telkére'
+  - ' [[&f/plot trust <játékos>|suggest:/plot trust ]] &8/ [[&f/plot untrust|suggest:/plot untrust ]] &8- &7ki építhet rajta'
+  - ' [[&f/plot deny <játékos>|suggest:/plot deny ]] &8/ [[&f/plot undeny|suggest:/plot undeny ]] &8- &7kitiltás'
+  - ' [[&f/plot kick <játékos>|suggest:/plot kick ]] &8- &7leküldés a telekről'
+  - ' [[&f/plot name <név>|suggest:/plot name ]] &8- &7a telek neve'
+  - ' [[&f/plot info|run:/plot info]] &8/ [[&f/plot list|run:/plot list]] &8- &7adatok, a telkeid'
+  - ' [[&f/plot clear|suggest:/plot clear]] &8- &7a telek kiürítése &8| [[&f/plot delete|suggest:/plot delete]] &8- &7feladás'
+  - '&8&m                                             '

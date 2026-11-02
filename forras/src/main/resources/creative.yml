@@ -20,17 +20,23 @@ plot:
   border: SMOOTH_STONE_SLAB
   border-claimed: QUARTZ_SLAB
 
+# A központ (lobby) a telkek között: ezen a telken épül fel az első indításkor (built: true jelzi), ide érkezik
+# mindenki, aki a Creative-ba jön, és ezt nem lehet lefoglalni. Újraépítés: /plot admin hub
+hub:
+  plot-x: 0
+  plot-z: 0
+  built: false
+
 # A világ határa (blokk, átmérő)
 border-size: 20000
 
 # Hány telke lehet egy játékosnak: alapból, és rangonként (a ranks.yml azonosítói). A magasabb rang a gyengébbekét is megkapja.
+# max: ennél több senkinek nem lehet (az icemine.creative.unlimited joggal sem).
 limits:
   default: 1
+  max: 2
   ranks:
     bronz: 2
-    wizard: 3
-    iceking: 4
-    yeti: 5
 
 # Egy telken legfeljebb ennyi entitás (mob, páncélállvány, keret, kocsi...) lehet. 0 = nincs korlát.
 entities-per-plot: 40
@@ -68,6 +74,14 @@ messages:
     - "&8&m                                             "
   no-plot: "Még nincs telked. [[&a&l[KÉREK EGYET]|run:/plot auto]]"
   free: "&aszabad"
+  hub-name: "&5Központ"
+  hub-reserved: "Ez a központ, ezt nem lehet lefoglalni. Kérj egy telket: &f/plot auto"
+  enter-hub: "&5&lCreative központ"
+  hub-title: "&5&l✦ CREATIVE ✦\n&7Építs, amit csak el tudsz képzelni!\n&7Telkeid: &f/plot home &8| &7Menü: &f/plot"
+  hub-auto: "&a&lTELKET KÉREK\n&7Kattints ide!"
+  hub-menu: "&d&lTELKEIM\n&7Kattints ide!"
+  hub-rebuilt: "A központ újraépült."
+
   enter-plot: "&7Telek: &f%plot% &8(%owner%)"
   enter-free: "&aSzabad telek &8- &7foglald le: &f/plot claim"
   no-build: "&cEz nem a te telked, itt nem építhetsz."
@@ -108,7 +122,7 @@ messages:
   deleted: "Feladtad a telket."
   list-header: "A telkeid (&f%have%&7/&f%max%&7):"
   list-line: " [[&f%index%. %plot%|run:/plot home %index%]] &8(%x%, %z%)"
-  admin-usage: "Admin: állj egy telekre, és &f/plot admin clear &7vagy &f/plot admin delete"
+  admin-usage: "Admin: állj egy telekre, és &f/plot admin clear &7vagy &f/plot admin delete&7. A központ újraépítése: &f/plot admin hub"
   admin-done: "Kész: &f%plot%"
   info:
     - "&8&m                                             "
@@ -123,7 +137,7 @@ messages:
     - " [[&f/plot|run:/plot]] &8- &7menü"
     - " [[&f/plot auto|run:/plot auto]] &8- &7új telek kérése"
     - " [[&f/plot claim|run:/plot claim]] &8- &7a telek lefoglalása, ahol állsz"
-    - " [[&f/plot home [szám]|run:/plot home]] &8- &7vissza a telkedre"
+    - " [[&f/plot home [szám]|run:/plot home]] &8- &7vissza a telkedre &8| [[&f/plot hub|run:/plot hub]] &8- &7a központ"
     - " [[&f/plot visit <játékos>|suggest:/plot visit ]] &8- &7átnézés más telkére"
     - " [[&f/plot trust <játékos>|suggest:/plot trust ]] &8/ [[&f/plot untrust|suggest:/plot untrust ]] &8- &7ki építhet rajta"
     - " [[&f/plot deny <játékos>|suggest:/plot deny ]] &8/ [[&f/plot undeny|suggest:/plot undeny ]] &8- &7kitiltás"

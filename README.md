@@ -163,7 +163,11 @@ hogy a két mód ne keveredjen. Beállítás: `plugins/IceMine/market.yml`.
 ### Creative
 
 Telkes építés kreatív módban. A világot a plugin rajzolja (végtelen telekrács, 48x48-as telkek, köztük utak), nem kell
-felépíteni. Mindenki kap telket: alapból 1, Bronz 2, Wizard 3, IceKing 4, Yeti 5 (`creative.yml` -> `limits`).
+felépíteni. Telek: alapból 1, Bronz ranggal (és felette) 2, ennél több senkinek (`creative.yml` -> `limits`).
+
+- Központ: a telkek között, a középső telken (szökőkút, utak, fák, lámpák). Ide érkezik mindenki, itt lehet telket kérni
+  (kattints a "Telket kérek" pontra) vagy a telkeidet megnyitni. `/plot hub` visz vissza, `/plot admin hub` újraépíti.
+- A főlobbyban a Creative szobra a régi "Hamarosan" szobor helyén áll.
 
 - Csak a saját telkeden (vagy ahova felvettek) építhetsz, az út és a többiek telke védett.
 - Barátok felvétele (`/plot trust`), kitiltás (`/plot deny`), leküldés (`/plot kick`), név (`/plot name`).

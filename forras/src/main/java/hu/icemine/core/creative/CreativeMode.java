@@ -86,6 +86,8 @@ public final class CreativeMode implements ModeHandler, Listener {
     private boolean loaded;
     private int defaultLimit = 1;
     private int entityLimit = 40;
+    private int maxLimit = 2;
+    private long hubKey = PlotGrid.key(0, 0);
     private Material claimedBorder = Material.QUARTZ_SLAB;
 
     public CreativeMode(IceMineCore core) {
@@ -144,6 +146,8 @@ public final class CreativeMode implements ModeHandler, Listener {
             }
         }
         entityLimit = Math.max(0, config.getInt("entities-per-plot", 40));
+        maxLimit = Math.max(1, config.getInt("limits.max", 2));
+        hubKey = PlotGrid.key(config.getInt("hub.plot-x", 0), config.getInt("hub.plot-z", 0));
         blocked.clear();
         for (String name : config.getStringList("blocked-items")) {
             Material material = Material.matchMaterial(name);
@@ -165,6 +169,20 @@ public final class CreativeMode implements ModeHandler, Listener {
                 problems.add("Creative: nem sikerült betölteni a telkeket (" + exception.getMessage() + "), a mód most nem indul el");
                 world = null;
             }
+        }
+        if (world != null && loaded && !config.getBoolean("hub.built", false)) {
+            Plot taken = plots.get(hubKey);
+            config.set("hub.built", true);
+            core.configs().save(FILE);
+            if (taken != null) {
+                relocate(taken, this::buildHub);
+            } else {
+                buildHub();
+            }
+        }
+        if (world != null) {
+            Location spawn = hubSpawn();
+            world.setSpawnLocation(spawn.getBlockX(), spawn.getBlockY(), spawn.getBlockZ());
         }
     }
 
@@ -260,7 +278,181 @@ public final class CreativeMode implements ModeHandler, Listener {
     }
 
     boolean onPlot(Location location) {
-        return world != null && location.getWorld() == world && grid.plotAt(location.getBlockX(), location.getBlockZ()) != PlotGrid.NONE;
+        if (world == null || location.getWorld() != world) {
+            return false;
+        }
+        long key = grid.plotAt(location.getBlockX(), location.getBlockZ());
+        return key != PlotGrid.NONE && key != hubKey;
+    }
+
+    boolean inHub(Location location) {
+        return world != null && location.getWorld() == world && grid.plotAt(location.getBlockX(), location.getBlockZ()) == hubKey;
+    }
+
+    // ---- a központ (a telkek között) ----
+
+    private int hubCenterX() {
+        return grid.minX(PlotGrid.keyX(hubKey)) + grid.size / 2;
+    }
+
+    private int hubCenterZ() {
+        return grid.minZ(PlotGrid.keyZ(hubKey)) + grid.size / 2;
+    }
+
+    /** A központ: itt érkezik mindenki, aki a Creative-ba jön. */
+    Location hubSpawn() {
+        return new Location(world, hubCenterX() + 0.5, grid.height + 1, hubCenterZ() + 11.5, 180, 0);
+    }
+
+    public void hub(Player player) {
+        if (ready(player)) {
+            teleport(player, hubSpawn());
+        }
+    }
+
+    private void put(int x, int y, int z, String data) {
+        world.getBlockAt(x, y, z).setBlockData(Bukkit.createBlockData(data), false);
+    }
+
+    /** A központ felépítése a központi telekre: szökőkút, utak, fák, lámpák, feliratok és két kattintható pont. */
+    void buildHub() {
+        int x0 = grid.minX(PlotGrid.keyX(hubKey));
+        int z0 = grid.minZ(PlotGrid.keyZ(hubKey));
+        int size = grid.size;
+        int h = grid.height;
+        int cx = hubCenterX();
+        int cz = hubCenterZ();
+        for (int x = x0; x < x0 + size; x++) {
+            for (int z = z0; z < z0 + size; z++) {
+                for (int y = h + 1; y <= h + 10; y++) {
+                    if (!world.getBlockAt(x, y, z).getType().isAir()) {
+                        world.getBlockAt(x, y, z).setType(Material.AIR, false);
+                    }
+                }
+                int dx = x - cx;
+                int dz = z - cz;
+                double d = Math.sqrt(dx * dx + dz * dz);
+                boolean path = Math.abs(dx) <= 1 || Math.abs(dz) <= 1;
+                String floor;
+                if (d <= 4.5) {
+                    floor = "water";
+                    put(x, h - 1, z, "prismarine_bricks");
+                } else if (d <= 5.5) {
+                    floor = "dark_prismarine";
+                    put(x, h + 1, z, "prismarine_brick_slab[type=bottom]");
+                } else if (d <= 8.5) {
+                    floor = "smooth_quartz";
+                } else if (d <= 9.5) {
+                    floor = "purpur_block";
+                } else if (path) {
+                    floor = Math.abs(dx) == 0 || Math.abs(dz) == 0 ? "purpur_block" : "smooth_quartz";
+                } else if (d <= 12.5) {
+                    floor = "polished_andesite";
+                } else {
+                    floor = "grass_block";
+                    int hash = Math.floorMod(x * 7 + z * 13, 17);
+                    if (hash == 0) {
+                        put(x, h + 1, z, "allium");
+                    } else if (hash == 5) {
+                        put(x, h + 1, z, "azure_bluet");
+                    } else if (hash == 9) {
+                        put(x, h + 1, z, "short_grass");
+                    } else if (hash == 13) {
+                        put(x, h + 1, z, "lilac[half=lower]");
+                        put(x, h + 2, z, "lilac[half=upper]");
+                    }
+                }
+                put(x, h, z, floor);
+            }
+        }
+        for (int y = h; y <= h + 3; y++) {
+            put(cx, y, cz, "quartz_pillar[axis=y]");
+        }
+        put(cx, h + 4, cz, "sea_lantern");
+        put(cx, h + 5, cz, "amethyst_cluster[facing=up]");
+        for (int[] dir : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            for (int step : new int[]{12, 19}) {
+                for (int side : new int[]{-2, 2}) {
+                    int x = cx + dir[0] * step + (dir[0] == 0 ? side : 0);
+                    int z = cz + dir[1] * step + (dir[1] == 0 ? side : 0);
+                    put(x, h + 1, z, "dark_oak_fence");
+                    put(x, h + 2, z, "dark_oak_fence");
+                    put(x, h + 3, z, "lantern[hanging=false]");
+                }
+            }
+        }
+        for (int[] corner : new int[][]{{15, 15}, {-15, 15}, {15, -15}, {-15, -15}}) {
+            int tx = cx + corner[0];
+            int tz = cz + corner[1];
+            for (int y = h + 1; y <= h + 5; y++) {
+                put(tx, y, tz, "cherry_log[axis=y]");
+            }
+            for (int lx = -2; lx <= 2; lx++) {
+                for (int lz = -2; lz <= 2; lz++) {
+                    for (int ly = 4; ly <= 7; ly++) {
+                        double r = Math.sqrt(lx * lx + lz * lz + (ly - 5.5) * (ly - 5.5));
+                        if (r <= 2.6 && !(lx == 0 && lz == 0 && ly <= 5)) {
+                            put(tx + lx, h + ly, tz + lz, "cherry_leaves[persistent=true]");
+                        }
+                    }
+                }
+            }
+        }
+        put(cx - 3, h + 1, cz + 7, "amethyst_block");
+        put(cx + 3, h + 1, cz + 7, "purpur_pillar[axis=y]");
+        for (int[] spot : grid.ringOf(PlotGrid.keyX(hubKey), PlotGrid.keyZ(hubKey))) {
+            put(spot[0], h + 1, spot[1], "purpur_slab[type=bottom]");
+        }
+        spawnHubEntities();
+    }
+
+    /** A feliratok és a kattintható pontok (egyszer, a felépítéskor; újraépítésnél előbb a régieket töröljük). */
+    void spawnHubEntities() {
+        int cx = hubCenterX();
+        int cz = hubCenterZ();
+        int h = grid.height;
+        BoundingBox box = new BoundingBox(cx - 30, h - 2, cz - 30, cx + 30, h + 20, cz + 30);
+        for (Entity entity : world.getNearbyEntities(box)) {
+            for (String tag : entity.getScoreboardTags()) {
+                if (tag.startsWith("icemine_creative_hub")) {
+                    entity.remove();
+                    break;
+                }
+            }
+        }
+        label(new Location(world, cx + 0.5, h + 7.2, cz + 0.5), text("hub-title"), 1.6f);
+        label(new Location(world, cx - 2.5, h + 2.9, cz + 7.5), text("hub-auto"), 1.0f);
+        label(new Location(world, cx + 3.5, h + 2.9, cz + 7.5), text("hub-menu"), 1.0f);
+        clickable(new Location(world, cx - 2.5, h + 2, cz + 7.5), "icemine_creative_hub:auto");
+        clickable(new Location(world, cx + 3.5, h + 2, cz + 7.5), "icemine_creative_hub:menu");
+    }
+
+    private void label(Location at, String text, float scale) {
+        world.spawn(at, org.bukkit.entity.TextDisplay.class, display -> {
+            display.setText(Text.color(text.replace("\\n", "\n")));
+            display.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
+            display.setPersistent(true);
+            display.addScoreboardTag("icemine_creative_hub");
+            try {
+                org.bukkit.util.Transformation transformation = display.getTransformation();
+                Object vector = org.bukkit.util.Transformation.class.getMethod("getScale").invoke(transformation);
+                vector.getClass().getMethod("set", float.class).invoke(vector, scale);
+                display.setTransformation(transformation);
+            } catch (ReflectiveOperationException | RuntimeException ignored) {
+                // ha nem sikerül, marad az alap méret
+            }
+        });
+    }
+
+    private void clickable(Location at, String tag) {
+        world.spawn(at, org.bukkit.entity.Interaction.class, interaction -> {
+            interaction.setInteractionWidth(1.2f);
+            interaction.setInteractionHeight(1.4f);
+            interaction.setResponsive(true);
+            interaction.setPersistent(true);
+            interaction.addScoreboardTag("icemine_creative_hub");
+            interaction.addScoreboardTag(tag);
+        });
     }
 
     List<Plot> plotsOf(UUID player) {
@@ -292,7 +484,7 @@ public final class CreativeMode implements ModeHandler, Listener {
                 limit = Math.max(limit, value);
             }
         }
-        return limit;
+        return Math.min(limit, maxLimit);
     }
 
     String limitText(Player player) {
@@ -371,7 +563,8 @@ public final class CreativeMode implements ModeHandler, Listener {
         }
         for (int i = 0; i < 1_000_000; i++) {
             int[] spot = PlotGrid.spiral(i);
-            if (!plots.containsKey(PlotGrid.key(spot[0], spot[1]))) {
+            long key = PlotGrid.key(spot[0], spot[1]);
+            if (key != hubKey && !plots.containsKey(key)) {
                 Plot plot = claimAt(player, spot[0], spot[1]);
                 teleport(player, home(plot));
                 send(player, "claimed", "%x%", String.valueOf(plot.px), "%z%", String.valueOf(plot.pz));
@@ -389,6 +582,10 @@ public final class CreativeMode implements ModeHandler, Listener {
         long key = grid.plotAt(player.getLocation().getBlockX(), player.getLocation().getBlockZ());
         if (key == PlotGrid.NONE) {
             send(player, "not-on-plot");
+            return;
+        }
+        if (key == hubKey) {
+            send(player, "hub-reserved");
             return;
         }
         if (plots.containsKey(key)) {
@@ -701,6 +898,69 @@ public final class CreativeMode implements ModeHandler, Listener {
         clearJobs.addLast(step[0]);
     }
 
+    /**
+     * Ha a központ helyén már volt egy lefoglalt telek: a tulajdonosa kap egy új telket, oda átmásoljuk a blokkokat
+     * (részletekben), aztán a régi helyet kiürítjük, és utána jöhet a központ.
+     */
+    void relocate(Plot old, Runnable then) {
+        Plot moved = null;
+        for (int i = 1; i < 1_000_000 && moved == null; i++) {
+            int[] spot = PlotGrid.spiral(i);
+            long key = PlotGrid.key(spot[0], spot[1]);
+            if (key != hubKey && !plots.containsKey(key)) {
+                moved = new Plot(spot[0], spot[1], old.owner, old.ownerName);
+            }
+        }
+        if (moved == null) {
+            return;
+        }
+        Plot target = moved;
+        target.name = old.name;
+        target.created = old.created;
+        target.trusted.putAll(old.trusted);
+        target.denied.putAll(old.denied);
+        plots.remove(old.key());
+        store.delete(old);
+        plots.put(target.key(), target);
+        store.save(target);
+        paintBorder(target, claimedBorder);
+        core.getLogger().info("Creative: " + old.ownerName + " telke a központ helyén volt, átköltöztettem ide: " + target.id());
+        int fromX = grid.minX(old.px);
+        int fromZ = grid.minZ(old.pz);
+        int toX = grid.minX(target.px);
+        int toZ = grid.minZ(target.pz);
+        int size = grid.size;
+        int bottom = grid.height - 5;
+        int total = size * size;
+        int[] next = {0};
+        target.clearing = true;
+        Runnable[] step = new Runnable[1];
+        step[0] = () -> {
+            int end = Math.min(total, next[0] + 32);
+            for (int i = next[0]; i < end; i++) {
+                int dx = i % size;
+                int dz = i / size;
+                int top = Math.max(grid.height + 1, world.getHighestBlockYAt(fromX + dx, fromZ + dz));
+                for (int y = bottom; y <= top; y++) {
+                    Block from = world.getBlockAt(fromX + dx, y, fromZ + dz);
+                    Block to = world.getBlockAt(toX + dx, y, toZ + dz);
+                    if (!to.getBlockData().equals(from.getBlockData())) {
+                        to.setBlockData(from.getBlockData(), false);
+                    }
+                }
+            }
+            next[0] = end;
+            if (end < total) {
+                clearJobs.addLast(step[0]);
+            } else {
+                target.clearing = false;
+                Plot ghost = new Plot(old.px, old.pz, old.owner, old.ownerName);
+                regenerate(ghost, then);
+            }
+        };
+        clearJobs.addLast(step[0]);
+    }
+
     /** Tickenként: a telek törlések következő darabja. */
     public void tick() {
         int jobs = clearJobs.size();
@@ -786,8 +1046,7 @@ public final class CreativeMode implements ModeHandler, Listener {
         if (world == null) {
             return null;
         }
-        List<Plot> mine = plotsOf(player.getUniqueId());
-        return mine.isEmpty() ? world.getSpawnLocation() : home(mine.get(0));
+        return hubSpawn();
     }
 
     @Override
@@ -824,7 +1083,7 @@ public final class CreativeMode implements ModeHandler, Listener {
     @Override
     public void placeholders(Player player, Map<String, String> values) {
         Plot here = plotAt(player.getLocation());
-        values.put("%cr_plot%", here == null ? (onPlot(player.getLocation()) ? text("free") : "-") : here.display());
+        values.put("%cr_plot%", inHub(player.getLocation()) ? text("hub-name") : here == null ? (onPlot(player.getLocation()) ? text("free") : "-") : here.display());
         values.put("%cr_owner%", here == null ? "-" : here.ownerName);
         values.put("%cr_plots%", plotsOf(player.getUniqueId()).size() + "/" + limitText(player));
     }
@@ -907,6 +1166,24 @@ public final class CreativeMode implements ModeHandler, Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.getRightClicked() instanceof org.bukkit.entity.Interaction && here(event.getRightClicked().getLocation())) {
+            event.setCancelled(true);
+            if (event.getHand() != EquipmentSlot.HAND) {
+                return;
+            }
+            Set<String> tags = event.getRightClicked().getScoreboardTags();
+            if (tags.contains("icemine_creative_hub:auto")) {
+                List<Plot> mine = plotsOf(event.getPlayer().getUniqueId());
+                if (mine.size() >= limit(event.getPlayer()) && !mine.isEmpty()) {
+                    home(event.getPlayer(), null);
+                } else {
+                    auto(event.getPlayer());
+                }
+            } else if (tags.contains("icemine_creative_hub:menu")) {
+                menu(event.getPlayer());
+            }
+            return;
+        }
         if (here(event.getRightClicked().getLocation()) && !(event.getRightClicked() instanceof Player)
                 && !canBuild(event.getPlayer(), event.getRightClicked().getLocation())) {
             event.setCancelled(true);
@@ -1096,7 +1373,9 @@ public final class CreativeMode implements ModeHandler, Listener {
         Long previous = lastPlot.get(player.getUniqueId());
         if (previous == null || previous != key) {
             lastPlot.put(player.getUniqueId(), key);
-            if (key != PlotGrid.NONE) {
+            if (key == hubKey) {
+                player.sendActionBar(Text.color(text("enter-hub")));
+            } else if (key != PlotGrid.NONE) {
                 player.sendActionBar(Text.color(plot == null ? text("enter-free") : text("enter-plot", "%plot%", plot.display(), "%owner%", plot.ownerName)));
             }
         }
