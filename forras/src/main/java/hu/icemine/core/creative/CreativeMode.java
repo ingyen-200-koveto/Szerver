@@ -350,16 +350,15 @@ public final class CreativeMode implements ModeHandler, Listener {
                     floor = "polished_andesite";
                 } else {
                     floor = "grass_block";
-                    int hash = Math.floorMod(x * 7 + z * 13, 17);
+                    int hash = Math.floorMod(x * 7 + z * 13 + x * z, 41);
                     if (hash == 0) {
                         put(x, h + 1, z, "allium");
-                    } else if (hash == 5) {
+                    } else if (hash == 11) {
                         put(x, h + 1, z, "azure_bluet");
-                    } else if (hash == 9) {
+                    } else if (hash == 23) {
+                        put(x, h + 1, z, "pink_tulip");
+                    } else if (hash == 31 || hash == 37) {
                         put(x, h + 1, z, "short_grass");
-                    } else if (hash == 13) {
-                        put(x, h + 1, z, "lilac[half=lower]");
-                        put(x, h + 2, z, "lilac[half=upper]");
                     }
                 }
                 put(x, h, z, floor);
