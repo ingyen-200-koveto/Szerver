@@ -715,7 +715,7 @@ rank:
   kits: "&7Kitek: &f%kits%"
   multiplier: "&7Pénz szorzó: &e%multiplier%x"
   cosmetics: "&7Kozmetikák: &f%count% db"
-  store: "&b▶ Rangot itt vehetsz: &f%url%"
+  store: "&b▶ Rangot a weboldalon vehetsz: &f%url%"
   info: "&f%player% &7rangja: %rank%"
   your-rank: "A rangod: %rank% &8(pénz szorzó: &e%multiplier%x&8)"
   none: "&8nincs"

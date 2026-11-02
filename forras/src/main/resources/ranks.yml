@@ -27,7 +27,7 @@
 luckperms-setup: true
 
 # Hol lehet rangot venni (a rang menü alján jelenik meg)
-store-url: "https://discord.gg/icemine"
+store-url: "www.icemine.hu"
 
 ranks:
   default:

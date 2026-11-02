@@ -75,7 +75,7 @@ public final class LobbyMenus {
 
     /**
      * Főmenü: innen minden elérhető (játékmódok, kitek, Duels, profil, toplisták, rangok, napi jutalom, kozmetikák,
-     * beállítások, kapcsolatok, információk, parkour). Megnyitás: /menu, vagy a hotbaron a nether csillag.
+     * beállítások, kapcsolatok, információk, parkour). Megnyitás: a lobby NPC-k és tárgyak "menu:main" művelete.
      */
     public void main(Player player) {
         PlayerProfile profile = core.profiles().profile(player);

@@ -77,9 +77,6 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
             case "kozmetika":
                 core.menus().cosmetics(player);
                 break;
-            case "menu":
-                core.menus().main(player);
-                break;
             case "kapcsolat":
                 if (core.lobby().inLobby(player)) {
                     core.contacts().open(player);

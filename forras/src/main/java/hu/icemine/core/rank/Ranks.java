@@ -44,6 +44,11 @@ public final class Ranks {
         public final List<String> permissions;
         public final List<String> perks;
         final int order;
+
+        /** A rang helye a sorban (0 = alap, a nagyobb erősebb). */
+        public int order() {
+            return order;
+        }
         /** Ez a rang és az összes gyengébb együtt mit ad (az öröklés miatt). */
         final Set<String> granted = new LinkedHashSet<>();
         final Set<String> allKits = new LinkedHashSet<>();

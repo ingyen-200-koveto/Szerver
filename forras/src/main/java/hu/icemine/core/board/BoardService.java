@@ -113,7 +113,12 @@ public final class BoardService implements Listener {
         Map<String, String> values = new HashMap<>();
         PlayerProfile profile = core.profiles().profile(player);
         values.put("%player%", player.getName());
-        values.put("%rank%", Text.color(core.prefixes().prefix(player)).trim());
+        String rankPrefix = Text.color(core.prefixes().prefix(player)).trim();
+        if (Text.strip(rankPrefix).isBlank()) {
+            hu.icemine.core.rank.Ranks.Rank rank = core.ranks().of(player);
+            rankPrefix = Text.color(rank == null ? "&7Játékos" : rank.name);
+        }
+        values.put("%rank%", rankPrefix);
         values.put("%rank_name%", core.prefixes().group(player));
         String currency = core.economy().defaultCurrency();
         values.put("%money%", core.economy().format(currency, profile == null ? 0 : profile.balance(currency)));
@@ -253,14 +258,17 @@ public final class BoardService implements Listener {
         shown.put(player.getUniqueId(), lines);
     }
 
-    private static boolean tabPlugin() {
-        return Bukkit.getPluginManager().getPlugin("TAB") != null;
+    /** A név a tablistában: rang (BedWarsban a csapat) előtag, és a sorrend a rang szerint. */
+    private void updateTabName(Player player) {
+        hu.icemine.core.rank.Ranks.Rank rank = core.ranks().of(player);
+        String prefix = core.nameTags() == null ? core.prefixes().prefix(player) : core.nameTags().prefix(player);
+        core.tabList().name(player, prefix, rank == null ? 0 : rank.order());
     }
 
     public void updateTab(Player player) {
         ModeInfo info = core.modes().info(core.modes().current(player));
         boolean external = info != null && !info.coreScoreboard;
-        if (external || tabPlugin()) {
+        if (external) {
             return;
         }
         Map<String, String> values = placeholders(player);
@@ -272,12 +280,13 @@ public final class BoardService implements Listener {
         for (String line : footer) {
             bottom.add(apply(line, values));
         }
-        player.setPlayerListHeaderFooter(String.join("\n", top), String.join("\n", bottom));
+        core.tabList().headerFooter(player, String.join("\n", top), String.join("\n", bottom));
     }
 
     public void tick() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             core.prefixes().apply(player);
+            updateTabName(player);
             if (boards.containsKey(player.getUniqueId())) {
                 update(player);
                 updateTab(player);
@@ -310,5 +319,6 @@ public final class BoardService implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         boards.remove(event.getPlayer().getUniqueId());
         shown.remove(event.getPlayer().getUniqueId());
+        core.tabList().forget(event.getPlayer());
     }
 }

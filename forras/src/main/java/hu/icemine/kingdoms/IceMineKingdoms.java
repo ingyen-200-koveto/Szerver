@@ -787,6 +787,6 @@ public final class IceMineKingdoms extends Module {
         for (String line : getConfig().getStringList("tablist.footer")) {
             footer.add(apply(line, player));
         }
-        player.setPlayerListHeaderFooter(String.join("\n", header), String.join("\n", footer));
+        core().tabList().headerFooter(player, String.join("\n", header), String.join("\n", footer));
     }
 }

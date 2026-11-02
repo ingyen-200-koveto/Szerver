@@ -83,6 +83,7 @@ public final class IceMineCore extends JavaPlugin {
     private hu.icemine.core.bedwars.Bedwars bedwars;
     private hu.icemine.core.economy.IceCoins iceCoins;
     private hu.icemine.core.rank.NameTags nameTags;
+    private final hu.icemine.core.board.TabList tabList = new hu.icemine.core.board.TabList(this);
     private Duels duels;
     private Npcs npcs;
     private ContactBook contacts;
@@ -252,7 +253,7 @@ public final class IceMineCore extends JavaPlugin {
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
         register("icem", icem, icem);
         PlayerCommands players = new PlayerCommands(this);
-        for (String name : new String[]{"lobby", "spawn", "profil", "top", "kozmetika", "penz", "fizet", "napi", "kapcsolat", "parkour", "combofly", "kit", "arena", "gens", "elad", "menu"}) {
+        for (String name : new String[]{"lobby", "spawn", "profil", "top", "kozmetika", "penz", "fizet", "napi", "kapcsolat", "parkour", "combofly", "kit", "arena", "gens", "elad"}) {
             register(name, players, players);
         }
         DuelsCommand duelsCommand = new DuelsCommand(this, duels);
@@ -267,7 +268,7 @@ public final class IceMineCore extends JavaPlugin {
         register("fywarp", fyCommand, fyCommand);
         registerListeners(fyland.listeners().toArray(new Listener[0]));
         hu.icemine.core.market.MarketCommand marketCommand = new hu.icemine.core.market.MarketCommand(market);
-        for (String name : new String[]{"ah", "trade", "shopgui", "shop", "sell", "baltop", "lottery", "kulcs", "market"}) {
+        for (String name : new String[]{"ah", "trade", "shop", "sell", "baltop", "lottery", "kulcs", "market"}) {
             register(name, marketCommand, marketCommand);
         }
         safely("jogosultságok", () -> permissions.load(configs.get("permissions"), problems));
@@ -711,6 +712,14 @@ public final class IceMineCore extends JavaPlugin {
 
     public hu.icemine.core.market.Market market() {
         return market;
+    }
+
+    public hu.icemine.core.board.TabList tabList() {
+        return tabList;
+    }
+
+    public hu.icemine.core.rank.NameTags nameTags() {
+        return nameTags;
     }
 
     public hu.icemine.core.fyland.FylandMode fyland() {

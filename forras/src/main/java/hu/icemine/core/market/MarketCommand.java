@@ -13,7 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-/** A piac parancsai: /ah, /trade, /shop (és /shopgui), /sell, /baltop, /lottery, /kulcs és az admin /market. */
+/** A piac parancsai: /ah, /trade, /shop, /sell, /baltop, /lottery, /kulcs és az admin /market. */
 public final class MarketCommand implements CommandExecutor, TabCompleter {
 
     private final Market market;
@@ -61,7 +61,7 @@ public final class MarketCommand implements CommandExecutor, TabCompleter {
                     market.trades().request(player, args[0]);
                 }
             }
-            case "shopgui", "shop" -> market.shop().open(player);
+            case "shop" -> market.shop().open(player);
             case "sell" -> {
                 if (sub.equals("all") || sub.equals("mind")) {
                     market.shop().sellCommand(player, true);

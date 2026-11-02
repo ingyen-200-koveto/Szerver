@@ -381,7 +381,7 @@ messages:
   key-rare: "&d&lSZERENCSE! &f%player% &7nagyot nyert (%key%&7): &f%reward%"
   key-preview-title: "&3[IceMine] &8%key%"
   key-chance: "&7Esély: &f%chance%%"
-  kulcs-no-rank: "A rangodhoz nem jár kulcs csomag. A rangokat itt nézheted meg: &f/menu"
+  kulcs-no-rank: "A rangodhoz nem jár kulcs csomag. Rangot a weboldalon vehetsz: &fwww.icemine.hu"
   kulcs-cooldown: "A következő csomagot &f%time% &7múlva kérheted."
   kulcs-claimed: "Megkaptad a(z) %rank% &7heti csomagját: &f%keys%"
   # pénz toplista

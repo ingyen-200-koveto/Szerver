@@ -93,17 +93,22 @@ boards:
     - ""
     - "&bplay.icemine.hu"
 
-# Ha a TAB plugin fent van, a tablistát (fejléc, lábléc, nevek) a TAB kezeli, ez a rész akkor nem számít.
+# Tablista (Tab gomb). Ha a TAB plugin fent van, az IceMine rajta keresztül írja ki ezt (a TAB saját fejléce,
+# lábléce és ping számai így nem látszanak), a nevek elé a rang kerül, és a magasabb rang van feljebb.
 tablist:
   header:
     - ""
-    - "&b&l❄ &b&lIce&f&lMine&b&l ❄"
-    - "&7Online: &b%online%&7/&b%max% &8| &7Mód: %mode%"
+    - "&b&l❄ &b&lIce&f&lMine &b&l❄"
+    - ""
+    - "&7Üdv, &f%player%&7!"
+    - "&7Online: &b%online% &8• &7Itt vagy: %mode%"
     - ""
   footer:
     - ""
-    - "&7IceCoin: &b%icecoin% &8| &7Rang: %rank%"
-    - "&9%discord% &8| &bplay.icemine.hu"
+    - "&7Rang: %rank% &8• &7IceCoin: &b%icecoin%"
+    - ""
+    - "&9%discord% &8• &fwww.icemine.hu"
+    - "&bplay.icemine.hu"
     - ""
 
 chat:

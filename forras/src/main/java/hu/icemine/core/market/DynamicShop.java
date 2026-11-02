@@ -19,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 /**
- * Dinamikus bolt (/shopgui): az árak a kereslettől függnek. Amiből sokat vesznek, az drágul, amiből sokat adnak el,
+ * Dinamikus bolt (/shop): az árak a kereslettől függnek. Amiből sokat vesznek, az drágul, amiből sokat adnak el,
  * az olcsóbb lesz, és idővel minden ár lassan visszaáll az alapra. Piaconként (Kingdoms, Fyland) külön számol.
  */
 public final class DynamicShop {

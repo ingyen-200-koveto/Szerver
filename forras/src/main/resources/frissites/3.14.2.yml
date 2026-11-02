@@ -1,0 +1,39 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.14.2 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.14.2
+changes:
+- file: market
+  path: messages.kulcs-no-rank
+  old: 'A rangodhoz nem jár kulcs csomag. A rangokat itt nézheted meg: &f/menu'
+- file: messages_hu
+  path: rank.store
+  old: '&b▶ Rangot itt vehetsz: &f%url%'
+- file: permissions
+  path: commands.menu.permission
+  old: icemine.command.menu
+- file: permissions
+  path: commands.menu.default
+  old: true
+- file: permissions
+  path: commands.shopgui.permission
+  old: icemine.command.shopgui
+- file: permissions
+  path: commands.shopgui.default
+  old: true
+- file: ranks
+  path: store-url
+  old: https://discord.gg/icemine
+- file: scoreboard
+  path: tablist.header
+  old:
+  - ''
+  - '&b&l❄ &b&lIce&f&lMine&b&l ❄'
+  - '&7Online: &b%online%&7/&b%max% &8| &7Mód: %mode%'
+  - ''
+- file: scoreboard
+  path: tablist.footer
+  old:
+  - ''
+  - '&7IceCoin: &b%icecoin% &8| &7Rang: %rank%'
+  - '&9%discord% &8| &bplay.icemine.hu'
+  - ''

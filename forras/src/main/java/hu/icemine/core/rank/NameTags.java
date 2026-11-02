@@ -78,7 +78,7 @@ public final class NameTags implements Listener {
     }
 
     /** A rang (vagy BedWars csapat) előtag, színkódokkal, a végén szóközzel; üres, ha nincs mit kiírni. */
-    String prefix(Player player) {
+    public String prefix(Player player) {
         if (core.bedwars() != null) {
             String team = core.bedwars().nameTag(player);
             if (team != null) {

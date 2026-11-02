@@ -54,10 +54,6 @@ elmenti. Ha ezt nem kéred: `plugins/IceMine/config.yml` -> `kulso-uzenetek: fal
 
 A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `/kit`, `/profil`...) is maradtak.
 
-**Főmenü:** `/menu` (a hotbaron már nincs rá tárgy). Innen minden elérhető: játékmódok, kitek, Duels, profil
-(minden mód statisztikájával), toplisták, rangok, napi jutalom, kozmetikák, beállítások, kapcsolatok, információk,
-parkour és Gens. Minden menüben van "Vissza" gomb a főmenübe.
-
 **Játékmód választó** (iránytű a hotbaron): Fyland (fűblokk), Gens (gyémánt kapa),
 Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly, és a Creative "Hamarosan" felirattal.
 Ha a Creative elkészül, a `modes.yml`-ben a `status: soon` helyett `open` kell.
@@ -85,6 +81,9 @@ az `essentials.<parancs>` joga.
 - A játékosok feje fölött a név előtt a rang (LuckPerms előtag, ha nincs, az IceMine rang), a név mellett az életerő
   (pl. `Peti 20❤`). BedWarsban a rang helyett a csapat színe. Beállítás: `config.yml` -> `nametags`
   (`health-position: below` esetén a név alatt látszik, mint régen).
+- Tablista (Tab gomb): fejléc és lábléc a `scoreboard.yml` -> `tablist` részből, a nevek előtt a rang, a magasabb rang
+  van feljebb. A TAB pluginon keresztül írja ki, így a TAB alap szövegei (Server name, memória, ping számok) nem látszanak.
+- Rangot és IceCoint csak a weboldalon lehet venni, a játékban nincs rangvásárló parancs.
 
 ### Rangok
 
@@ -154,7 +153,7 @@ hogy a két mód ne keveredjen. Beállítás: `plugins/IceMine/market.yml`.
 
 - `/ah`: aukciósház (`/ah sell <ár>` a kezedben lévő tárgyra, 48 óráig él, adó, lejárt tárgyak visszaszedése).
 - `/trade <játékos>`: biztonságos csere menüben, pénzzel is, mindkét fél jóváhagyása és 3 mp visszaszámlálás után.
-- `/shop` (vagy `/shopgui`, `/bolt`): bolt, aminek az árai a kereslettől mozognak (amit sokan eladnak, olcsóbb lesz). `/sell ha` és `/sell all`.
+- `/shop` (vagy `/bolt`): bolt, aminek az árai a kereslettől mozognak (amit sokan eladnak, olcsóbb lesz). `/sell ha` és `/sell all`.
 - Eladó láda (magától eladja, ami belekerül), Craftoló (tömöríti a tartalmát: 9 vas = 1 vasblokk...), Farm blokk
   (betöltve tartja a környékét). Ezeket a boltban lehet venni.
 - `/lottery`: napi lottó (max 3 jegy), a nyertes viszi a kasszát és kulcsokat.

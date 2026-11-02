@@ -23,7 +23,6 @@ commands:
   fizet:     {permission: icemine.command.fizet, default: true}
   napi:      {permission: icemine.command.napi, default: true}
   kozmetika: {permission: icemine.command.kozmetika, default: true}
-  menu:      {permission: icemine.command.menu, default: true}
   kapcsolat: {permission: icemine.command.kapcsolat, default: true}
   parkour:   {permission: icemine.command.parkour, default: true}
   combofly:  {permission: icemine.command.combofly, default: true}
@@ -40,7 +39,6 @@ commands:
   fywarp:    {permission: icemine.command.fywarp, default: true}
   ah:        {permission: icemine.command.ah, default: true}
   trade:     {permission: icemine.command.trade, default: true}
-  shopgui:   {permission: icemine.command.shopgui, default: true}
   shop:      {permission: icemine.command.shop, default: true}
   sell:      {permission: icemine.command.sell, default: true}
   baltop:    {permission: icemine.command.baltop, default: true}
