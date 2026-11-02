@@ -236,10 +236,10 @@ kit:
   bad-id: "A kit neve 2-20 karakter lehet: kisbetű, szám és alsóvonal (ékezet nélkül)."
   bad-rank: "Ilyen rang nincs. Lehet: &f%ranks%"
   create-empty: "Nincs nálad semmi. Vedd fel a kit tárgyait és a páncélt, aztán írd be újra."
-  created: "Elmentve az új FullPvP kit: &f%kit% &8(rang: %rank%&8)&7. A fullpvp.yml-ben tudod finomítani (név, leírás, várakozás)."
+  no-editor: "Most nincs olyan mód, ahova kitet lehetne menteni. A ComboFly kitjeit a comboarena.yml-ben szerkesztheted."
   deleted: "Törölve: &f%kit%"
   only-safe: "Kitet csak a biztonságos zónában választhatsz."
-  only-pvp: "Kitet csak a PvP módokban választhatsz (FullPvP, ComboFly)."
+  only-pvp: "Kitet csak a ComboFly arénában választhatsz."
   selected: "Kiválasztva: %kit%&7. Sok sikert!"
   auto: "Nem választottál kitet, ezt kaptad: %kit%"
   menu-title: "&3[IceMine] &8Kitek"
@@ -562,7 +562,7 @@ admin:
     - " &b/icem admin mode <játékos> <mód|lobby> [-f] &8- &7játékos átküldése"
     - " &b/icem admin maintenance <mód> <on|off|closed>"
     - " &b/icem admin hologram <list|move <id>> &8| &b/icem admin npc <list|move <id>>"
-    - " &b/icem admin rebuild <lobby|fullpvp|combofly|gens> confirm"
+    - " &b/icem admin rebuild <lobby|combofly|gens> confirm"
     - " &b/icem admin combattag clear <játékos> &8| &b/icem admin info"
   info:
     - "&b[IceMine] &fÁllapot"
@@ -699,7 +699,7 @@ icem:
   help:
     help: ["/icem help", "ez a lista"]
     stats: ["/icem stats [játékos]", "profil és statisztikák"]
-    kit: ["/icem kit [kit]", "kitek (FullPvP, ComboFly)"]
+    kit: ["/icem kit [kit]", "kitek (ComboFly)"]
     arena: ["/icem arena", "aréna választó"]
     rank: ["/icem rank [játékos]", "rangok és amit adnak"]
     setspawn: ["/icem setspawn <mód> [aréna]", "játékmód spawn ide"]
@@ -764,12 +764,12 @@ mainmenu:
   selector:
     name: "&b&lJátékmódok"
     lore:
-      - "&7FullPvP, Fyland, ComboFly, Gens,"
-      - "&7Kingdoms, Duels és BedWars."
+      - "&7Fyland, ComboFly, Gens, Kingdoms,"
+      - "&7Duels és BedWars."
   kits:
     name: "&6&lKitek"
     lore:
-      - "&7Kitek (FullPvP, ComboFly)."
+      - "&7Kitek (ComboFly)."
   duels:
     name: "&e&lDuels"
     lore:

@@ -31,60 +31,65 @@ class NewModesMigrationTest {
     }
 
     @Test
-    void oldModesAreReplacedEverywhere() {
+    void oldModesAreRemovedAndFylandAdded() {
         Map<String, YamlConfiguration> files = new HashMap<>();
-        files.put("modes", withDefaults("modes", "modes:\n  kitpvp:\n    name: KitPvP\n    slot: 12\n  skypvp:\n    name: SkyPvP\n    slot: 10\n  gens:\n    name: Gens\n"));
-        files.put("modelobbies", withDefaults("modelobbies", "lobbies:\n  kitpvp:\n    world: lobby_kitpvp\n    built: true\n  skypvp:\n    world: lobby_skypvp\n"));
-        files.put("lobby", withDefaults("lobby", "npcs:\n  mode_kitpvp:\n    location: {world: world, x: 5.5, y: 70.0, z: -11.5, yaw: 20.0}\n    action: 'mode:kitpvp'\n"
-                + "  mode_skypvp:\n    location: {world: world, x: -5.5, y: 70.0, z: -11.5, yaw: -20.0}\nmenus:\n  stats:\n    icons:\n      kitpvp: DIAMOND_SWORD\n      skypvp: FEATHER\n"
-                + "info-texts:\n  mode_kitpvp: [a]\n  mode_skypvp: [b]\n"));
-        files.put("config", withDefaults("config", "leaderboards:\n  boards:\n    kitpvp:\n      key: kitpvp.kills\n    streak:\n      key: kitpvp.best_streak\n"));
-        files.put("scoreboard", withDefaults("scoreboard", "boards:\n  kitpvp: [a]\n  skypvp: [b]\n  lobby: [c]\n"));
+        files.put("modes", withDefaults("modes", "modes:\n  kitpvp:\n    name: KitPvP\n    slot: 12\n  skypvp:\n    name: SkyPvP\n    slot: 10\n  fullpvp:\n    slot: 12\n  gens:\n    name: Gens\n"));
+        files.put("modelobbies", withDefaults("modelobbies", "lobbies:\n  kitpvp:\n    world: lobby_kitpvp\n    built: true\n  skypvp:\n    world: lobby_skypvp\n  fullpvp:\n    world: lobby_fullpvp\n"));
+        files.put("lobby", withDefaults("lobby", "npcs:\n  mode_fullpvp:\n    location: {world: world, x: 5.5, y: 70.0, z: -11.5, yaw: 20.0}\n    action: 'mode:fullpvp'\n"
+                + "  mode_skypvp:\n    location: {world: world, x: -5.5, y: 70.0, z: -11.5, yaw: -20.0}\nholograms:\n  top_x:\n    target: fullpvp\n  top_y:\n    target: gens\n"
+                + "menus:\n  stats:\n    icons:\n      fullpvp: DIAMOND_SWORD\n      skypvp: FEATHER\n      streak: BLAZE_POWDER\n"
+                + "info-texts:\n  mode_fullpvp: [a]\n  mode_skypvp: [b]\n"));
+        files.put("config", withDefaults("config", "leaderboards:\n  boards:\n    fullpvp:\n      key: fullpvp.kills\n    streak:\n      key: fullpvp.best_streak\n    gens:\n      key: gens.earned\n"));
+        files.put("scoreboard", withDefaults("scoreboard", "boards:\n  fullpvp: [a]\n  skypvp: [b]\n  lobby: [c]\n"));
         files.put("economy", withDefaults("economy", "currencies:\n  kristaly:\n    name: Kristály\n"));
-        files.put("ranks", withDefaults("ranks", "ranks:\n  default:\n    kits: [harcos, ijasz, tank]\n  vip:\n    kits: [orgyilkos, combo]\n"));
-        files.put("fullpvp", withDefaults("fullpvp", ""));
+        files.put("ranks", withDefaults("ranks", "ranks:\n  default:\n    kits: [harcos, ijasz]\n    perks: ['&7FullPvP: Kezdő kit', '&7Hónyom']\n  vip:\n    kits: [vip, combo]\n    perks: ['&7Orgyilkos kit', '&710% bónusz']\n"));
         files.put("comboarena", withDefaults("comboarena", ""));
         Set<String> saved = new HashSet<>();
         List<String> notes = Migrations.newModes(files::get, saved::add);
         assertFalse(notes.isEmpty());
 
         YamlConfiguration modes = files.get("modes");
-        assertFalse(modes.isSet("modes.kitpvp"));
-        assertFalse(modes.isSet("modes.skypvp"));
-        assertEquals(12, modes.getInt("modes.fullpvp.slot"));
+        for (String old : new String[]{"kitpvp", "skypvp", "fullpvp"}) {
+            assertFalse(modes.isSet("modes." + old), old);
+        }
         assertEquals(10, modes.getInt("modes.fyland.slot"));
         assertTrue(modes.isSet("modes.gens"));
 
         YamlConfiguration lobbies = files.get("modelobbies");
+        assertFalse(lobbies.isSet("lobbies.fullpvp"));
         assertFalse(lobbies.isSet("lobbies.kitpvp"));
-        assertEquals("lobby_fullpvp", lobbies.getString("lobbies.fullpvp.world"));
-        assertFalse(lobbies.getBoolean("lobbies.fyland.built"));
+        assertEquals("lobby_fyland", lobbies.getString("lobbies.fyland.world"));
 
         YamlConfiguration lobby = files.get("lobby");
-        assertFalse(lobby.isSet("npcs.mode_kitpvp"));
-        assertEquals(5.5, lobby.getDouble("npcs.mode_fullpvp.location.x"));
-        assertEquals("mode:fullpvp", lobby.getString("npcs.mode_fullpvp.action"));
+        assertFalse(lobby.isSet("npcs.mode_fullpvp"));
+        assertEquals(5.5, lobby.getDouble("npcs.soon_2.location.x"), "a FullPvP szobor helyén hamarosan szobor");
         assertEquals("mode:fyland", lobby.getString("npcs.mode_fyland.action"));
-        assertNull(lobby.get("menus.stats.icons.kitpvp", null));
+        assertFalse(lobby.isSet("holograms.top_x"));
+        assertTrue(lobby.isSet("holograms.top_y"));
+        assertFalse(lobby.isSet("menus.stats.icons.fullpvp"));
+        assertFalse(lobby.isSet("menus.stats.icons.streak"));
         assertEquals("GRASS_BLOCK", lobby.getString("menus.stats.icons.fyland"));
-        assertTrue(lobby.isSet("info-texts.mode_fullpvp"));
-        assertFalse(lobby.isSet("info-texts.mode_skypvp"));
+        assertFalse(lobby.isSet("info-texts.mode_fullpvp"));
+        assertTrue(lobby.isSet("info-texts.mode_fyland"));
 
         YamlConfiguration main = files.get("config");
-        assertFalse(main.isSet("leaderboards.boards.kitpvp"));
-        assertEquals("fullpvp.kills", main.getString("leaderboards.boards.fullpvp.key"));
-        assertEquals("fullpvp.best_streak", main.getString("leaderboards.boards.streak.key"));
+        assertFalse(main.isSet("leaderboards.boards.fullpvp"));
+        assertFalse(main.isSet("leaderboards.boards.streak"));
+        assertEquals("fyland.blocks", main.getString("leaderboards.boards.fyland.key"));
+        assertTrue(main.isSet("leaderboards.boards.gens"));
 
         YamlConfiguration board = files.get("scoreboard");
-        assertFalse(board.isSet("boards.kitpvp"));
+        assertFalse(board.isSet("boards.fullpvp"));
         assertTrue(board.isSet("boards.fyland"));
         assertTrue(board.isSet("boards.lobby"));
 
         assertTrue(files.get("economy").isSet("currencies.fyland.name"));
 
         YamlConfiguration ranks = files.get("ranks");
-        assertEquals(List.of("harcos", "ijasz"), ranks.getStringList("ranks.default.kits"), "ami FullPvP kitként is létezik, marad");
-        assertEquals(List.of("combo", "vip"), ranks.getStringList("ranks.vip.kits"));
+        assertTrue(ranks.getStringList("ranks.default.kits").isEmpty());
+        assertEquals(List.of("combo"), ranks.getStringList("ranks.vip.kits"));
+        assertEquals(List.of("&7Hónyom"), ranks.getStringList("ranks.default.perks"));
+        assertEquals(List.of("&710% bónusz"), ranks.getStringList("ranks.vip.perks"));
 
         assertTrue(saved.containsAll(Set.of("modes", "modelobbies", "lobby", "config", "scoreboard", "economy", "ranks")));
         saved.clear();

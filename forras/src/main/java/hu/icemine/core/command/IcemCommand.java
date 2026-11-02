@@ -179,48 +179,13 @@ public final class IcemCommand implements CommandExecutor, TabCompleter {
         mode.openKits(player);
     }
 
-    /** /icem kit create &lt;id&gt; [rang] és /icem kit delete &lt;id&gt; (FullPvP egyedi kitek). */
+    /** A kit mentés a FullPvP-vel együtt megszűnt (a ComboFly kitjeit a comboarena.yml-ben lehet szerkeszteni). */
     private void kitAdmin(CommandSender sender, String[] args) {
         if (!sender.hasPermission("icemine.admin.kit")) {
             core.messages().send(sender, "general.no-permission");
             return;
         }
-        boolean create = args[1].equalsIgnoreCase("create");
-        if (args.length < 3) {
-            core.messages().send(sender, "admin.usage", "%usage%", create ? "/icem kit create <név> [rang]" : "/icem kit delete <név>");
-            return;
-        }
-        String id = args[2].toLowerCase(Locale.ROOT);
-        if (!id.matches("[a-z0-9_]{2,20}")) {
-            core.messages().send(sender, "kit.bad-id");
-            return;
-        }
-        if (!create) {
-            if (core.fullpvp().deleteKit(id)) {
-                core.messages().send(sender, "kit.deleted", "%kit%", id);
-                core.adminLog(sender, "kit-delete", id, null);
-            } else {
-                core.messages().send(sender, "kit.unknown", "%kits%", String.join(", ", core.fullpvp().fullKits().keySet()));
-            }
-            return;
-        }
-        Player player = player(sender);
-        if (player == null) {
-            return;
-        }
-        String rank = null;
-        if (args.length > 3) {
-            Ranks.Rank found = core.ranks().byId(args[3]);
-            if (found == null) {
-                core.messages().send(sender, "kit.bad-rank", "%ranks%", rankIds());
-                return;
-            }
-            rank = found.id;
-        }
-        if (core.fullpvp().createKit(player, id, rank)) {
-            core.messages().send(sender, "kit.created", "%kit%", id, "%rank%", rank == null ? core.messages().raw("rank.none") : core.ranks().byId(rank).name);
-            core.adminLog(sender, "kit-create", id, rank);
-        }
+        core.messages().send(sender, "kit.no-editor");
     }
 
     private String rankIds() {
@@ -307,26 +272,10 @@ public final class IcemCommand implements CommandExecutor, TabCompleter {
             case "kit":
                 if (args.length == 2) {
                     List<String> options = new ArrayList<>();
-                    if (sender instanceof Player player && core.fullpvp().inWorld(player)) {
-                        options.addAll(core.fullpvp().fullKits().keySet());
-                    } else if (sender instanceof Player player && core.pvpModeOf(player) != null) {
+                    if (sender instanceof Player player && core.pvpModeOf(player) != null) {
                         options.addAll(core.pvpModeOf(player).kits().keySet());
                     }
-                    if (sender.hasPermission("icemine.admin.kit")) {
-                        options.add("create");
-                        options.add("delete");
-                    }
                     return AdminCommand.filter(options, args[1]);
-                }
-                if (args.length == 3 && args[1].equalsIgnoreCase("delete") && sender.hasPermission("icemine.admin.kit")) {
-                    return AdminCommand.filter(new ArrayList<>(core.fullpvp().fullKits().keySet()), args[2]);
-                }
-                if (args.length == 4 && args[1].equalsIgnoreCase("create") && sender.hasPermission("icemine.admin.kit")) {
-                    List<String> ids = new ArrayList<>();
-                    for (Ranks.Rank rank : core.ranks().all()) {
-                        ids.add(rank.id);
-                    }
-                    return AdminCommand.filter(ids, args[3]);
                 }
                 return Collections.emptyList();
             case "stats":

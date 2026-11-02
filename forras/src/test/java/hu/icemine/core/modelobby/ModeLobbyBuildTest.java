@@ -49,15 +49,15 @@ class ModeLobbyBuildTest {
 
     @Test
     void handlerIdsMapBack() {
-        assertEquals("fullpvp", ModeLobbies.modeOf("lobby_fullpvp"));
-        assertNull(ModeLobbies.modeOf("fullpvp"));
+        assertEquals("fyland", ModeLobbies.modeOf("lobby_fyland"));
+        assertNull(ModeLobbies.modeOf("fyland"));
         assertNull(ModeLobbies.modeOf(null));
         assertTrue(ModeLobbies.PREFIX.endsWith("_"));
     }
 
     @org.junit.jupiter.api.Test
     void everyThemeKeepsTheSameImportantSpots() {
-        String[] themes = {"fullpvp", "fyland", "combofly", "gens", "kingdoms", "duels", "bedwars", "snow"};
+        String[] themes = {"arena", "fyland", "combofly", "gens", "kingdoms", "duels", "bedwars", "snow"};
         java.util.Map<String, hu.icemine.core.build.Layout.Point> reference = null;
         java.util.Set<String> seen = new java.util.HashSet<>();
         for (String theme : themes) {

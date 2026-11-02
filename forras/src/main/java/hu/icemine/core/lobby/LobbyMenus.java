@@ -238,7 +238,6 @@ public final class LobbyMenus {
         }
         menu.set(15, Items.of(Material.GOLD_INGOT).name(core.messages().raw("mainmenu.stats.name")).lore(core.messages().list("mainmenu.stats.lore")).hideAll().build(),
                 this::stats);
-        menu.set(29, pvpItem(Material.DIAMOND_SWORD, "&c&lFullPvP", profile, "fullpvp"));
         List<String> fyland = new ArrayList<>();
         fyland.add("&7Kibányászott blokkok: &f" + Text.number(profile.stat("fyland.blocks")));
         fyland.add("&7Egyenleg: " + core.economy().format(core.economy().currency("fyland") == null ? core.economy().defaultCurrency() : "fyland",
@@ -287,18 +286,6 @@ public final class LobbyMenus {
         menu.set(39, Items.of(Material.RED_BED).name("&6&lBedWars").lore(bedwars).hideAll().build());
         back(menu, 49);
         menu.open(viewer);
-    }
-
-    private org.bukkit.inventory.ItemStack pvpItem(Material icon, String name, PlayerProfile profile, String mode) {
-        long kills = profile.stat(mode + ".kills");
-        long deaths = profile.stat(mode + ".deaths");
-        List<String> lore = new ArrayList<>();
-        lore.add("&7Ölések: &a" + Text.number(kills));
-        lore.add("&7Halálok: &c" + Text.number(deaths));
-        lore.add("&7K/D: &f" + Text.ratio(kills, deaths));
-        lore.add("&7Legjobb sorozat: &e" + profile.stat(mode + ".best_streak"));
-        lore.add("&7Legnagyobb kombó: &b" + profile.stat(mode + ".best_combo") + "x");
-        return Items.of(icon).name(name).lore(lore).hideAll().build();
     }
 
     public void stats(Player player) {

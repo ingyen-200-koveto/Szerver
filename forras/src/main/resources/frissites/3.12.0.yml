@@ -1,0 +1,256 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.12.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.12.0
+changes:
+- file: config
+  path: leaderboards.boards.fullpvp.title
+  old: '&c&l⚔ FullPvP ölések'
+- file: config
+  path: leaderboards.boards.fullpvp.source
+  old: stat
+- file: config
+  path: leaderboards.boards.fullpvp.key
+  old: fullpvp.kills
+- file: config
+  path: leaderboards.boards.streak.title
+  old: '&e&l⚡ Legjobb FullPvP sorozat'
+- file: config
+  path: leaderboards.boards.streak.source
+  old: stat
+- file: config
+  path: leaderboards.boards.streak.key
+  old: fullpvp.best_streak
+- file: lobby
+  path: menus.stats.icons.fullpvp
+  old: DIAMOND_SWORD
+- file: lobby
+  path: menus.stats.icons.streak
+  old: BLAZE_POWDER
+- file: lobby
+  path: info-texts.mode_fullpvp
+  old:
+  - '&8&m                                             '
+  - ' &c&lFullPvP &8- &7hogyan játszd?'
+  - ' &7A felszerelésed a tiéd: megmarad, ha kilépsz, de halálkor'
+  - ' &7kiesik, és aki megölt, felveheti.'
+  - ' &7Ölésért kristály jár, abból a vár udvarán lévő boltban veszel.'
+  - ' &7Kitek várakozással, széf, varázsasztal és fejpénz is van.'
+  - ' &7Menü: /fullpvp &8| &7Vissza a vár udvarára: /spawn'
+  - '&8&m                                             '
+- file: messages_hu
+  path: kit.created
+  old: 'Elmentve az új FullPvP kit: &f%kit% &8(rang: %rank%&8)&7. A fullpvp.yml-ben tudod finomítani (név, leírás, várakozás).'
+- file: messages_hu
+  path: kit.only-pvp
+  old: Kitet csak a PvP módokban választhatsz (FullPvP, ComboFly).
+- file: messages_hu
+  path: admin.help
+  old:
+  - '&b[IceMine] &fAdmin parancsok &8(/icem admin ...)'
+  - ' &b/icem admin setlobby &8- &7lobby spawn ide'
+  - ' &b/icem admin setportal <mód> [sugár] [magasság] &8- &7portál ide'
+  - ' &b/icem admin givecurrency|takecurrency|setcurrency <játékos> <összeg> [pénznem]'
+  - ' &b/icem admin parkour <start|checkpoint|finish|clear|fail>'
+  - ' &b/icem admin combofly <reload|on|off>'
+  - ' &b/icem admin mode <játékos> <mód|lobby> [-f] &8- &7játékos átküldése'
+  - ' &b/icem admin maintenance <mód> <on|off|closed>'
+  - ' &b/icem admin hologram <list|move <id>> &8| &b/icem admin npc <list|move <id>>'
+  - ' &b/icem admin rebuild <lobby|fullpvp|combofly|gens> confirm'
+  - ' &b/icem admin combattag clear <játékos> &8| &b/icem admin info'
+- file: messages_hu
+  path: icem.help.kit
+  old:
+  - /icem kit [kit]
+  - kitek (FullPvP, ComboFly)
+- file: messages_hu
+  path: mainmenu.selector.lore
+  old:
+  - '&7FullPvP, Fyland, ComboFly, Gens,'
+  - '&7Kingdoms, Duels és BedWars.'
+- file: messages_hu
+  path: mainmenu.kits.lore
+  old:
+  - '&7Kitek (FullPvP, ComboFly).'
+- file: modelobbies
+  path: lobbies.fullpvp.world
+  old: lobby_fullpvp
+- file: modelobbies
+  path: lobbies.fullpvp.theme
+  old: fullpvp
+- file: modelobbies
+  path: lobbies.fullpvp.built
+  old: false
+- file: modelobbies
+  path: lobbies.fullpvp.color
+  old: red
+- file: modelobbies
+  path: lobbies.fullpvp.title
+  old: FULLPVP
+- file: modelobbies
+  path: lobbies.fullpvp.title-split
+  old: 4
+- file: modelobbies
+  path: lobbies.fullpvp.center.x
+  old: 0
+- file: modelobbies
+  path: lobbies.fullpvp.center.y
+  old: 100
+- file: modelobbies
+  path: lobbies.fullpvp.center.z
+  old: 0
+- file: modelobbies
+  path: lobbies.fullpvp.holograms.play.lines
+  old:
+  - '&a&lJÁTÉK'
+  - '&7Kattints rám, vagy lépj'
+  - '&7be a portálba!'
+- file: modelobbies
+  path: lobbies.fullpvp.holograms.play.action
+  old: play
+- file: modelobbies
+  path: lobbies.fullpvp.holograms.info.lines
+  old:
+  - '&e&lHogyan játszd?'
+  - '&7Kattints rám!'
+- file: modelobbies
+  path: lobbies.fullpvp.holograms.info.action
+  old: info:mode_fullpvp
+- file: modelobbies
+  path: lobbies.fullpvp.holograms.top1.toplist
+  old: fullpvp
+- file: modelobbies
+  path: lobbies.fullpvp.holograms.top1.lines
+  old: []
+- file: modelobbies
+  path: lobbies.fullpvp.holograms.top2.toplist
+  old: streak
+- file: modelobbies
+  path: lobbies.fullpvp.holograms.top2.lines
+  old: []
+- file: modes
+  path: modes.fullpvp.name
+  old: '&c&lFullPvP'
+- file: modes
+  path: modes.fullpvp.icon
+  old: DIAMOND_SWORD
+- file: modes
+  path: modes.fullpvp.slot
+  old: 12
+- file: modes
+  path: modes.fullpvp.color
+  old: '&c'
+- file: modes
+  path: modes.fullpvp.status
+  old: open
+- file: modes
+  path: modes.fullpvp.combat-tag
+  old: true
+- file: modes
+  path: modes.fullpvp.combofly
+  old: false
+- file: modes
+  path: modes.fullpvp.inventory
+  old: persistent
+- file: modes
+  path: modes.fullpvp.description
+  old:
+  - '&7Nagy pálya, saját felszerelés, ami'
+  - '&7halálkor kiesik. Ölj, vásárolj a boltban,'
+  - '&7vedd fel a kiteket, tűzz ki fejpénzt!'
+- file: permissions
+  path: commands.fullpvp.permission
+  old: icemine.command.fullpvp
+- file: permissions
+  path: commands.fullpvp.default
+  old: true
+- file: ranks
+  path: ranks.default.perks
+  old:
+  - '&7FullPvP: Kezdő, Harcos, Íjász és Napi kit'
+  - '&7Hónyom és jégszilánk effekt'
+- file: ranks
+  path: ranks.vip.kits
+  old:
+  - vip
+- file: ranks
+  path: ranks.vip.perks
+  old:
+  - '&7FullPvP: VIP kit'
+  - '&7Felhő nyomvonal'
+  - '&710% pénz bónusz'
+- file: ranks
+  path: ranks.vipplus.kits
+  old:
+  - vipplus
+- file: ranks
+  path: ranks.vipplus.perks
+  old:
+  - '&7FullPvP: VIP+ kit'
+  - '&7Gens: automatikus eladás'
+  - '&7Szívek ölés effekt'
+  - '&7Színes chat'
+  - '&720% pénz bónusz'
+- file: ranks
+  path: ranks.mvp.kits
+  old:
+  - mvp
+- file: ranks
+  path: ranks.mvp.permissions
+  old:
+  - icemine.cosmetic.fly
+  - icemine.gens.backpack.large
+  - icemine.fullpvp.vault.large
+- file: ranks
+  path: ranks.mvp.perks
+  old:
+  - '&7FullPvP: MVP kit és nagy széf'
+  - '&7Gens: nagy hátizsák'
+  - '&7Fagy nyomvonal'
+  - '&7Repülés a lobbyban'
+  - '&730% pénz bónusz'
+- file: ranks
+  path: ranks.mvpplus.kits
+  old:
+  - mvpplus
+- file: ranks
+  path: ranks.mvpplus.perks
+  old:
+  - '&7FullPvP: MVP+ kit'
+  - '&7Lélek ölés effekt'
+  - '&740% pénz bónusz'
+- file: ranks
+  path: ranks.elite.kits
+  old:
+  - elite
+- file: ranks
+  path: ranks.elite.perks
+  old:
+  - '&7FullPvP: ELITE kit'
+  - '&7Gens: +20% esély extra termésre'
+  - '&7Kristály nyomvonal, tűzijáték effekt'
+  - '&750% pénz bónusz'
+- file: ranks
+  path: ranks.legend.kits
+  old:
+  - legend
+- file: ranks
+  path: ranks.legend.perks
+  old:
+  - '&7FullPvP: LEGEND kit'
+  - '&7Gens: +40% esély extra termésre'
+  - '&7Minden kozmetika'
+  - '&775% pénz bónusz'
+- file: scoreboard
+  path: boards.fullpvp
+  old:
+  - '&8&m                    '
+  - '&7Mód: &c&lFullPvP'
+  - ''
+  - '&7Ölés: &a%kills% &8| &7Halál: &c%deaths%'
+  - '&7K/D: &f%kd%'
+  - '&7Sorozat: &e%streak% &8(legjobb: %best_streak%)'
+  - '&7Fejpénz rajtad: &e%bounty%'
+  - '&7Harc: %combat%'
+  - ''
+  - '&7Kristály: %fp_money%'
+  - '&bplay.icemine.hu'

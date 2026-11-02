@@ -23,7 +23,7 @@ class BlockFontTest {
 
     @Test
     void modeTitlesBuild() {
-        for (String word : new String[]{"FULLPVP", "FYLAND", "COMBOFLY", "GENS", "KINGDOMS", "BEDWARS"}) {
+        for (String word : new String[]{"FYLAND", "COMBOFLY", "GENS", "KINGDOMS", "BEDWARS"}) {
             Map<String, String> blocks = new HashMap<>();
             Title title = new Title((x, y, z, d) -> blocks.put(x + " " + y + " " + z, d), 0, 100, 0, 1, "south", word,
                     "red_concrete", "white_concrete", 3, "red_terracotta", "red_terracotta");

@@ -65,18 +65,10 @@ quit-message: "&8[&c-&8] %prefix%%player%"
 leaderboards:
   size: 10
   boards:
-    fullpvp:
-      title: "&c&l⚔ FullPvP ölések"
-      source: stat
-      key: fullpvp.kills
     fyland:
       title: "&a&l⛏ Fyland blokkok"
       source: stat
       key: fyland.blocks
-    streak:
-      title: "&e&l⚡ Legjobb FullPvP sorozat"
-      source: stat
-      key: fullpvp.best_streak
     gens:
       title: "&a&l⛃ Gens bevétel"
       source: stat

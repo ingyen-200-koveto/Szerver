@@ -1,6 +1,6 @@
 # Scoreboard, tablista és chat
 # Placeholderek: %player% %rank% (LuckPerms előtag) %rank_name% (LuckPerms csoport) %icecoin% (a weboldalas egyenleg) %money% %gens_money% %online% %max% %mode% %discord% %combat%
-#   PvP módokban: %kills% %deaths% %kd% %streak% %best_streak% (FullPvP: %bounty% %fp_money%)
+#   PvP módokban: %kills% %deaths% %kd% %streak% %best_streak%
 #   Fyland: %fy_phase% %fy_progress% %fy_blocks% %fy_level% %fy_members% %fy_cycle% %fy_money% %fy_island%
 #   ComboFly arénában még: %combo% (a mostani kombó), %combo_best% (rekord)
 #   Bárhol: %combat_time% (combat hátralévő ideje, pl. 29.4s), %pearl% (enderpearl várakozás, pl. 4.4s)
@@ -30,7 +30,7 @@ boards:
     - "&7Idő: &f%duel_time%"
     - ""
     - "&bplay.icemine.hu"
-  # A játékmódok saját lobbyjában (lobby_fullpvp, lobby_fyland...). Külön is megadhatod, pl. lobby_fullpvp:
+  # A játékmódok saját lobbyjában (lobby_fyland, lobby_gens...). Külön is megadhatod, pl. lobby_fyland:
   modelobby:
     - "&8&m                    "
     - "&7Játékos: &f%player%"
@@ -52,18 +52,6 @@ boards:
     - "&7Online: &b%online%"
     - ""
     - "&9%discord%"
-    - "&bplay.icemine.hu"
-  fullpvp:
-    - "&8&m                    "
-    - "&7Mód: &c&lFullPvP"
-    - ""
-    - "&7Ölés: &a%kills% &8| &7Halál: &c%deaths%"
-    - "&7K/D: &f%kd%"
-    - "&7Sorozat: &e%streak% &8(legjobb: %best_streak%)"
-    - "&7Fejpénz rajtad: &e%bounty%"
-    - "&7Harc: %combat%"
-    - ""
-    - "&7Kristály: %fp_money%"
     - "&bplay.icemine.hu"
   fyland:
     - "&8&m                    "

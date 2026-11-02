@@ -46,7 +46,7 @@ elmenti. Ha ezt nem kéred: `plugins/IceMine/config.yml` -> `kulso-uzenetek: fal
 |---|---|---|
 | `/icem help` | a parancsok listája (csak az látszik, amihez jogod van) | mindenki |
 | `/icem stats [játékos]` | profil és statisztikák | mindenki |
-| `/icem kit [kit]` | kitek (FullPvP, ComboFly) | mindenki |
+| `/icem kit [kit]` | kitek (ComboFly) | mindenki |
 | `/icem rank [játékos]` | rangok és amit adnak | mindenki |
 | `/icem setspawn <mód> [aréna]` | játékmód spawn ide | OP |
 | `/icem reload [fájl]` | configok újratöltése | OP |
@@ -58,7 +58,7 @@ A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `
 (minden mód statisztikájával), toplisták, rangok, napi jutalom, kozmetikák, beállítások, kapcsolatok, információk,
 parkour és Gens. Minden menüben van "Vissza" gomb a főmenübe.
 
-**Játékmód választó** (iránytű a hotbaron): Fyland (fűblokk), FullPvP (gyémántkard), Gens (gyémánt kapa),
+**Játékmód választó** (iránytű a hotbaron): Fyland (fűblokk), Gens (gyémánt kapa),
 Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly, és a Creative "Hamarosan" felirattal.
 Ha a Creative elkészül, a `modes.yml`-ben a `status: soon` helyett `open` kell.
 
@@ -91,7 +91,7 @@ az `essentials.<parancs>` joga.
 A rang nevét, előtagját és chat színét a LuckPerms adja (ezt te írod meg). Hogy melyik rang mit kap
 az IceMine-ban (kitek, kozmetikák, pénz szorzó, egyéb jogok), azt a `plugins/IceMine/ranks.yml`-ben
 állítod. Rangok: Default, VIP, VIP+, MVP, MVP+, ELITE, LEGEND, YOUTUBER, HELPER, MODERATOR, ADMIN, OWNER.
-Mindegyik megkapja a gyengébbek jutalmait is. A FullPvP-ben a Kezdő, Harcos, Íjász és Napi kit ingyenes, minden rangnak saját kitje van.
+Mindegyik megkapja a gyengébbek jutalmait is.
 
 A LuckPerms csoport neve kisbetűs, `+` jel nélkül: `default`, `vip`, `vipplus`, `mvp`, `mvpplus`, `elite`,
 `legend`, `youtuber`, `helper`, `moderator`, `admin`, `owner`. Példa (konzolba):
@@ -104,24 +104,6 @@ lp user Jatekosnev parent add vip
 ```
 
 A rangváltás fél percen belül életbe lép, újrabelépés nélkül is.
-
-### FullPvP
-
-Egy nagy pálya (dombos rét fákkal, romokkal, őrtornyokkal, tóval, körben kőfal), középen kiemelt vár udvarral.
-A vár udvara a biztonságos zóna, harc közben nem lehet visszamenni. Négy lépcső vezet le a rétre.
-
-- A felszerelés a tiéd: kilépéskor megmarad, halálkor kiesik, és aki megölt, felveheti. Halál után a Kezdő kitet kapod
-  (ez nem esik ki).
-- Ölésért kristály jár (sorozatért extra, napi korláttal és farmolás elleni védelemmel), plusz 3 XP szint.
-- Bolt a vár udvarán (smaragdblokk): fegyverek, páncél, íjak, étel, bájitalok, pearl, lazurit, totem.
-- Kitek (láda): Harcos, Íjász (10 perc), Napi (naponta), és rangonként egy (VIP, VIP+, MVP, MVP+, ELITE, LEGEND, óránként).
-- Széf (enderláda): saját tároló, 3 sor (MVP-től 6).
-- Varázsasztal és üllő a vár udvarán, sorozat jutalmak (aranyalma, varázsalma, sorozatkard, totem), fejpénz.
-
-Parancsok: `/fullpvp` (menü, vagy `/fp`), `/fullpvp bolt`, `/kit`, `/fullpvp szef`, `/fullpvp fejpenz <játékos> <összeg>`.
-Új kitet játékban is csinálhatsz: vedd fel a tárgyakat és a páncélt, aztán `/icem kit create <név> [rang]`
-(törlés: `/icem kit delete <név>`). Beállítás: `plugins/IceMine/fullpvp.yml` (kitek, bolt, jutalmak, feliratok, üzenetek).
-Újraépítés: `/icem admin rebuild fullpvp confirm`.
 
 ### Fyland (OneBlock)
 
@@ -184,10 +166,10 @@ A szerver nem használja, csak megőrzésre van itt.
 
 Ezeket az IceMine hozza létre és építi fel magától:
 
-- a lobby (a fő világ), `ice_fullpvp`, `fyland`, `combofly_map`, gens, `kingdoms`, `duels`, `ice_bedwars`
-- minden játékmódnak külön lobby világ: `lobby_fullpvp`, `lobby_fyland`, `lobby_combofly`,
+- a lobby (a fő világ), `fyland`, `combofly_map`, gens, `kingdoms`, `duels`, `ice_bedwars`
+- minden játékmódnak külön lobby világ: `lobby_fyland`, `lobby_combofly`,
   `lobby_gens`, `lobby_kingdoms`, `lobby_duels`, `lobby_bedwars` (beállítás: `plugins/IceMine/modelobbies.yml`)
-- minden mód lobbyjának saját témája van: FullPvP gladiátor aréna, Fyland felhők fölötti szigetek, ComboFly ametiszt kristályok,
+- minden mód lobbyjának saját témája van: Fyland felhők fölötti szigetek, ComboFly ametiszt kristályok,
   Gens farm, Kingdoms vár udvar, Duels párbaj csarnok, BedWars tábor ágyakkal (`theme:` a `modelobbies.yml`-ben)
 
 ## Duels

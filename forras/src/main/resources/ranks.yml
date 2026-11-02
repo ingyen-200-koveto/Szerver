@@ -9,7 +9,7 @@
 # A sorrend számít: lefelé haladva egyre erősebb a rang, és mindegyik megkapja
 # az összes fölötte lévő (gyengébb) rang jutalmát is.
 #
-# kits:        kit azonosítók (fullpvp.yml, comboarena.yml). Amelyik kit egy rangnál
+# kits:        kit azonosítók (comboarena.yml). Amelyik kit egy rangnál
 #              szerepel, azt csak ez a rang és az erősebbek használhatják. Ami sehol nem szerepel, ingyenes.
 # cosmetics:   kozmetikák (lobby.yml -> cosmetics), pl. trail.kristaly, kill.villam
 # permissions: bármilyen egyéb jog, amit a rang kap (pl. icemine.cosmetic.fly = repülés a lobbyban)
@@ -35,18 +35,16 @@ ranks:
     cosmetics: [trail.ho, kill.szilank]
     permissions: []
     perks:
-      - "&7FullPvP: Kezdő, Harcos, Íjász és Napi kit"
       - "&7Hónyom és jégszilánk effekt"
   vip:
     group: vip
     name: "&a&lVIP"
     icon: LIME_DYE
     coin-multiplier: 1.1
-    kits: [vip]
+    kits: []
     cosmetics: [trail.felho]
     permissions: []
     perks:
-      - "&7FullPvP: VIP kit"
       - "&7Felhő nyomvonal"
       - "&710% pénz bónusz"
   vipplus:
@@ -54,11 +52,10 @@ ranks:
     name: "&a&lVIP&6&l+"
     icon: EMERALD
     coin-multiplier: 1.2
-    kits: [vipplus]
+    kits: []
     cosmetics: [kill.szivek]
     permissions: [icemine.chat.color, icemine.gens.autosell]
     perks:
-      - "&7FullPvP: VIP+ kit"
       - "&7Gens: automatikus eladás"
       - "&7Szívek ölés effekt"
       - "&7Színes chat"
@@ -68,11 +65,10 @@ ranks:
     name: "&b&lMVP"
     icon: LIGHT_BLUE_DYE
     coin-multiplier: 1.3
-    kits: [mvp]
+    kits: []
     cosmetics: [trail.fagy]
-    permissions: [icemine.cosmetic.fly, icemine.gens.backpack.large, icemine.fullpvp.vault.large]
+    permissions: [icemine.cosmetic.fly, icemine.gens.backpack.large]
     perks:
-      - "&7FullPvP: MVP kit és nagy széf"
       - "&7Gens: nagy hátizsák"
       - "&7Fagy nyomvonal"
       - "&7Repülés a lobbyban"
@@ -82,11 +78,10 @@ ranks:
     name: "&b&lMVP&c&l+"
     icon: DIAMOND
     coin-multiplier: 1.4
-    kits: [mvpplus]
+    kits: []
     cosmetics: [kill.lelek]
     permissions: []
     perks:
-      - "&7FullPvP: MVP+ kit"
       - "&7Lélek ölés effekt"
       - "&740% pénz bónusz"
   elite:
@@ -94,11 +89,10 @@ ranks:
     name: "&5&lELITE"
     icon: AMETHYST_SHARD
     coin-multiplier: 1.5
-    kits: [elite]
+    kits: []
     cosmetics: [trail.kristaly, kill.tuzijatek]
     permissions: [icemine.gens.bonus.2]
     perks:
-      - "&7FullPvP: ELITE kit"
       - "&7Gens: +20% esély extra termésre"
       - "&7Kristály nyomvonal, tűzijáték effekt"
       - "&750% pénz bónusz"
@@ -107,11 +101,10 @@ ranks:
     name: "&6&lLEGEND"
     icon: NETHER_STAR
     coin-multiplier: 1.75
-    kits: [legend]
+    kits: []
     cosmetics: [trail.szikra, kill.villam, kill.robbanas]
     permissions: [icemine.gens.bonus.4]
     perks:
-      - "&7FullPvP: LEGEND kit"
       - "&7Gens: +40% esély extra termésre"
       - "&7Minden kozmetika"
       - "&775% pénz bónusz"

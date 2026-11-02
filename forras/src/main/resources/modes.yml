@@ -4,7 +4,7 @@
 #   (pl. a buzogány, MACE csak 1.21-től van), ezt mutatja helyette
 #   Karbantartás alatt csak az icemine.admin.maintenance.bypass joggal lehet belépni.
 #   Gyorsan: /icemine maintenance <mód> <on|off|closed>
-# world: a mód világa. A fullpvp, fyland, combofly és gens világát a plugin maga hozza létre (a saját .yml fájljukban állítható).
+# world: a mód világa. A fyland, combofly és gens világát a plugin maga hozza létre (a saját .yml fájljukban állítható).
 # server: ha egyszer külön szerverre költözik egy mód, ide írd a Velocity-ben megadott szervernevét.
 # inventory: kit (belépéskor/kilépéskor ürül) | persistent (megmarad) | external (egy másik plugin kezeli)
 # core-scoreboard: false, ha a mód saját scoreboardot használ (pl. Kingdoms)
@@ -28,19 +28,6 @@ modes:
       - "&7Egyetlen blokkon kezdesz a semmi"
       - "&7közepén. Bányászd ki, és jön a következő:"
       - "&7fa, kő, jég, homok... egészen az Endig!"
-  fullpvp:
-    name: "&c&lFullPvP"
-    icon: DIAMOND_SWORD
-    slot: 12
-    color: "&c"
-    status: open
-    combat-tag: true
-    combofly: false
-    inventory: persistent
-    description:
-      - "&7Nagy pálya, saját felszerelés, ami"
-      - "&7halálkor kiesik. Ölj, vásárolj a boltban,"
-      - "&7vedd fel a kiteket, tűzz ki fejpénzt!"
   combofly:
     name: "&d&lComboFly"
     icon: PRISMARINE_SHARD

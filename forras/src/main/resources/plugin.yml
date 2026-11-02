@@ -3,7 +3,7 @@ version: ${project.version}
 main: hu.icemine.core.IceMineCore
 api-version: '1.20'
 author: IceMine
-description: IceMine Network - lobby, FullPvP, Fyland, ComboFly, Gens, Kingdoms, Duels, BedWars
+description: IceMine Network - lobby, Fyland, ComboFly, Gens, Kingdoms, Duels, BedWars
 softdepend: [AuthMe, LuckPerms, TAB, Citizens]
 
 commands:
@@ -84,10 +84,6 @@ commands:
     description: Aréna választó (most egyik módban sincs)
     usage: /arena
     aliases: [arenak, arenas]
-  fullpvp:
-    description: FullPvP menü, bolt, kitek, széf, fejpénz
-    usage: /fullpvp [bolt|kit|szef|fejpenz <játékos> <összeg>|fejpenzek]
-    aliases: [fp]
   fyland:
     description: Fyland (OneBlock) sziget parancsok
     usage: /fyland [haza|piac|elad|meghiv|elfogad|kilep|kirug|atad|latogat|top|fazisok|fejlesztes|tagok|beallitasok|reset]
@@ -213,14 +209,11 @@ permissions:
     description: Kreatív módban építhet a védett területeken
     default: op
   icemine.admin.kit:
-    description: Új FullPvP kit mentése és kit törlése (/icem kit create|delete)
+    description: Régi kit mentés (/icem kit create|delete), most nem használt
     default: op
   icemine.admin.fyland:
     description: Fyland admin (/fy admin fazis|torol|tp) és belépés a zárt szigetekre
     default: op
-  icemine.fullpvp.vault.large:
-    description: Nagyobb széf a FullPvP-ben
-    default: false
   icemine.admin.commands:
     description: Használhatja a config.yml blocked-commands részében tiltott parancsokat (pl. /plugins)
     default: op

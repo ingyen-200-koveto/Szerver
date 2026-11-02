@@ -159,7 +159,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (args.length < 2) {
-            core.messages().send(sender, "admin.usage", "%usage%", "/icem setspawn <fullpvp|combofly|gens|lobby_<mód>>");
+            core.messages().send(sender, "admin.usage", "%usage%", "/icem setspawn <combofly|gens|lobby_<mód>>");
             return;
         }
         String mode = args[1].toLowerCase(Locale.ROOT);
@@ -243,7 +243,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         for (Economy.Currency currency : core.economy().currencies()) {
             sender.sendMessage(Text.color(" &7" + currency.name + ": " + core.economy().format(currency.id, profile.balance(currency.id))));
         }
-        for (String mode : new String[]{"fullpvp", "combofly"}) {
+        for (String mode : new String[]{"combofly"}) {
             long kills = profile.stat(mode + ".kills");
             long deaths = profile.stat(mode + ".deaths");
             sender.sendMessage(Text.color(" &7" + mode + ": &a" + kills + " &7ölés, &c" + deaths + " &7halál, K/D &f" + Text.ratio(kills, deaths)
@@ -461,8 +461,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if (!allowed(sender, "icemine.admin.rebuild")) {
             return;
         }
-        if (args.length < 2 || !Arrays.asList("lobby", "fullpvp", "combofly", "gens").contains(args[1].toLowerCase(Locale.ROOT))) {
-            core.messages().send(sender, "admin.usage", "%usage%", "/icem admin rebuild <lobby|fullpvp|combofly|gens> confirm");
+        if (args.length < 2 || !Arrays.asList("lobby", "combofly", "gens").contains(args[1].toLowerCase(Locale.ROOT))) {
+            core.messages().send(sender, "admin.usage", "%usage%", "/icem admin rebuild <lobby|combofly|gens> confirm");
             return;
         }
         if (args.length < 3 || !args[2].equalsIgnoreCase("confirm")) {
@@ -530,7 +530,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     files.add("all");
                     return filter(files, args[1]);
                 case "setspawn":
-                    return filter(Arrays.asList("fullpvp", "combofly", "gens"), args[1]);
+                    return filter(Arrays.asList("combofly", "gens"), args[1]);
                 case "setportal":
                 case "maintenance":
                     return filter(core.modes().ids(), args[1]);
@@ -542,7 +542,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 case "npc":
                     return filter(Arrays.asList("list", "move"), args[1]);
                 case "rebuild":
-                    return filter(Arrays.asList("lobby", "fullpvp", "combofly", "gens"), args[1]);
+                    return filter(Arrays.asList("lobby", "combofly", "gens"), args[1]);
                 case "arena":
                     return filter(Collections.singletonList("reset"), args[1]);
                 case "combattag":

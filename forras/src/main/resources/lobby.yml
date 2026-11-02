@@ -198,9 +198,7 @@ menus:
   stats:
     title: "&3[IceMine] &8Toplisták"
     icons:
-      fullpvp: DIAMOND_SWORD
       fyland: GRASS_BLOCK
-      streak: BLAZE_POWDER
       gens: EMERALD
       parkour: LEATHER_BOOTS
       combo: PRISMARINE_SHARD
@@ -283,15 +281,6 @@ info-texts:
     - " &f/napi &8- &7napi jutalom"
     - " &f/kozmetika &8- &7nyomvonalak és ölés effektek"
     - " &f/kapcsolat &8- &7elérhetőségeink"
-    - "&8&m                                             "
-  mode_fullpvp:
-    - "&8&m                                             "
-    - " &c&lFullPvP &8- &7hogyan játszd?"
-    - " &7A felszerelésed a tiéd: megmarad, ha kilépsz, de halálkor"
-    - " &7kiesik, és aki megölt, felveheti."
-    - " &7Ölésért kristály jár, abból a vár udvarán lévő boltban veszel."
-    - " &7Kitek várakozással, széf, varázsasztal és fejpénz is van."
-    - " &7Menü: /fullpvp &8| &7Vissza a vár udvarára: /spawn"
     - "&8&m                                             "
   mode_fyland:
     - "&8&m                                             "
