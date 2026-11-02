@@ -1,0 +1,160 @@
+# Creative (telkes építés)
+# Végtelen telekrács, mindenki kap saját telket, és azon kreatív módban építhet. A világot a plugin rajzolja meg
+# (nem kell felépíteni), a telkek az IceMine adatbázisában vannak.
+#
+# Parancs: /plot (vagy /p, /telek). Admin (icemine.admin.creative): /plot admin clear|delete (azon a telken, ahol állsz),
+# és mindenhol építhet. Korlátlan telek: icemine.creative.unlimited
+
+world: creative
+
+# A telek és az út mérete blokkban, a talaj magassága. Ezeket csak az első indítás előtt érdemes átírni,
+# utána a már legenerált részen nem változnak.
+plot:
+  size: 48
+  road: 7
+  height: 64
+  ground: GRASS_BLOCK
+  fill: DIRT
+  road-block: SMOOTH_STONE
+  # A telek körüli félblokk: szabad telken és lefoglalton
+  border: SMOOTH_STONE_SLAB
+  border-claimed: QUARTZ_SLAB
+
+# A világ határa (blokk, átmérő)
+border-size: 20000
+
+# Hány telke lehet egy játékosnak: alapból, és rangonként (a ranks.yml azonosítói). A magasabb rang a gyengébbekét is megkapja.
+limits:
+  default: 1
+  ranks:
+    bronz: 2
+    wizard: 3
+    iceking: 4
+    yeti: 5
+
+# Egy telken legfeljebb ennyi entitás (mob, páncélállvány, keret, kocsi...) lehet. 0 = nincs korlát.
+entities-per-plot: 40
+
+# Ezeket nem lehet elővenni, lerakni vagy használni (az adminok kivételével).
+blocked-items:
+  - TNT
+  - TNT_MINECART
+  - END_CRYSTAL
+  - RESPAWN_ANCHOR
+  - SPAWNER
+  - COMMAND_BLOCK
+  - CHAIN_COMMAND_BLOCK
+  - REPEATING_COMMAND_BLOCK
+  - COMMAND_BLOCK_MINECART
+  - STRUCTURE_BLOCK
+  - STRUCTURE_VOID
+  - JIGSAW
+  - DEBUG_STICK
+  - WITHER_SPAWN_EGG
+  - ENDER_DRAGON_SPAWN_EGG
+  - WARDEN_SPAWN_EGG
+  - ELDER_GUARDIAN_SPAWN_EGG
+  - WITHER_SKELETON_SKULL
+  - DRAGON_EGG
+
+messages:
+  welcome: "Üdv újra a Creative módban! Menü: &f/plot"
+  first-join:
+    - "&8&m                                             "
+    - " &5&lCreative &8- &7üdv, &f%player%&7!"
+    - " &7Itt kreatív módban építhetsz a saját telkeden."
+    - " [[&f/plot auto|run:/plot auto]] &8- &7kérj egy telket"
+    - " [[&f/plot|run:/plot]] &8- &7menü  [[&f/plot help|run:/plot help]] &8- &7parancsok"
+    - "&8&m                                             "
+  no-plot: "Még nincs telked. [[&a&l[KÉREK EGYET]|run:/plot auto]]"
+  free: "&aszabad"
+  enter-plot: "&7Telek: &f%plot% &8(%owner%)"
+  enter-free: "&aSzabad telek &8- &7foglald le: &f/plot claim"
+  no-build: "&cEz nem a te telked, itt nem építhetsz."
+  no-enderchest: "&cEnderládát itt nem lehet használni."
+  blocked-item: "&cEzt itt nem lehet használni."
+  entity-limit: "&cEzen a telken már túl sok entitás van."
+  denied-enter: "&cErre a telekre ki vagy tiltva."
+  usage: "Használat: &f%usage%"
+  limit: "Elérted a telek korlátot (&f%max%&7). Több telek magasabb ranggal jár (weboldal: &fwww.icemine.hu&7)."
+  claimed: "&aMegvan a telked! &7(%x%, %z%) Hívd meg a barátaidat: &f/plot trust <játékos>"
+  not-on-plot: "Nem telken állsz."
+  plot-free: "Ez a telek még szabad, lefoglalhatod: &f/plot claim"
+  taken: "Ez a telek már foglalt (&f%owner%&7)."
+  not-yours: "Ez nem a te telked."
+  no-such-home: "Ilyen számú telked nincs. Neked ennyi van: &f%max%"
+  visit-none: "&f%player% &7névvel nincs telek."
+  visiting: "Megérkeztél: &f%plot%"
+  denied-you: "&cKitiltottak erről a telekről: &f%plot%"
+  unknown-player: "&f%player% &7nevű játékost nem ismerek (legalább egyszer fent kellett lennie)."
+  self: "Ez a saját telked."
+  trusted: "&f%player% &7mostantól építhet a telkeden."
+  trusted-you: "&f%owner% &7felvett a telkére, mostantól ott is építhetsz: &f%plot%"
+  not-trusted: "&f%player% &7nincs felvéve a telekre."
+  untrusted: "&f%player% &7már nem építhet a telkeden."
+  denied: "&f%player% &7ki lett tiltva a telekről."
+  not-denied: "&f%player% &7nincs kitiltva."
+  undenied: "&f%player% &7újra jöhet a telekre."
+  kick-none: "&f%player% &7nincs a telkeden."
+  kicked: "&f%player% &7le lett küldve a telekről."
+  kicked-you: "Leküldtek erről a telekről: &f%plot%"
+  name-bad: "A név 2-24 karakter lehet (betű, szám, szóköz)."
+  named: "A telek új neve: &f%name%"
+  clearing: "Ez a telek épp most törlődik, várj egy kicsit."
+  clear-confirm: "&cFigyelem: &7minden, amit a telekre építettél, eltűnik. Ha biztos vagy benne, írd be újra: &f/plot clear"
+  clear-started: "Törlöm a telket, pár másodperc..."
+  cleared: "&aA telek újra üres."
+  delete-confirm: "&cFigyelem: &7a telek nem lesz többé a tiéd, és minden eltűnik róla. Ha biztos vagy benne, írd be újra: &f/plot delete"
+  deleted: "Feladtad a telket."
+  list-header: "A telkeid (&f%have%&7/&f%max%&7):"
+  list-line: " [[&f%index%. %plot%|run:/plot home %index%]] &8(%x%, %z%)"
+  admin-usage: "Admin: állj egy telekre, és &f/plot admin clear &7vagy &f/plot admin delete"
+  admin-done: "Kész: &f%plot%"
+  info:
+    - "&8&m                                             "
+    - " &5&l%plot% &8(%x%, %z%)"
+    - " &7Tulajdonos: &f%owner% &8| &7Foglalva: &f%date%"
+    - " &7Építhet rajta: &f%trusted%"
+    - " &7Kitiltva: &f%denied%"
+    - "&8&m                                             "
+  help:
+    - "&8&m                                             "
+    - " &5&lCreative &8- &7parancsok &8(kattints rájuk!)"
+    - " [[&f/plot|run:/plot]] &8- &7menü"
+    - " [[&f/plot auto|run:/plot auto]] &8- &7új telek kérése"
+    - " [[&f/plot claim|run:/plot claim]] &8- &7a telek lefoglalása, ahol állsz"
+    - " [[&f/plot home [szám]|run:/plot home]] &8- &7vissza a telkedre"
+    - " [[&f/plot visit <játékos>|suggest:/plot visit ]] &8- &7átnézés más telkére"
+    - " [[&f/plot trust <játékos>|suggest:/plot trust ]] &8/ [[&f/plot untrust|suggest:/plot untrust ]] &8- &7ki építhet rajta"
+    - " [[&f/plot deny <játékos>|suggest:/plot deny ]] &8/ [[&f/plot undeny|suggest:/plot undeny ]] &8- &7kitiltás"
+    - " [[&f/plot kick <játékos>|suggest:/plot kick ]] &8- &7leküldés a telekről"
+    - " [[&f/plot name <név>|suggest:/plot name ]] &8- &7a telek neve"
+    - " [[&f/plot info|run:/plot info]] &8/ [[&f/plot list|run:/plot list]] &8- &7adatok, a telkeid"
+    - " [[&f/plot clear|suggest:/plot clear]] &8- &7a telek kiürítése &8| [[&f/plot delete|suggest:/plot delete]] &8- &7feladás"
+    - "&8&m                                             "
+  menu:
+    title: "&3[IceMine] &8Creative"
+    back: "&7« Vissza"
+    plot-lore:
+      - "&7Hely: &f%x%, %z%"
+      - "&7Építhet rajta még: &f%trusted% fő"
+      - ""
+      - "&b▶ Kattints az odamenéshez"
+    no-plot: "&7Még nincs telked"
+    no-plot-lore:
+      - "&7Kérj egyet lent!"
+    auto: "&a&lÚj telek"
+    auto-lore:
+      - "&7Telkeid: &f%have%&7/&f%max%"
+      - "&b▶ Kattints, és kapsz egyet"
+    visit: "&d&lLátogatás"
+    visit-lore:
+      - "&7Nézd meg, mit építenek a többiek!"
+    visit-title: "&3[IceMine] &8Látogatás"
+    visit-entry:
+      - "&7Telkei: &f%plots%"
+      - "&b▶ Kattints az átnézéshez"
+    visit-empty: "&7Most senkinek nincs telke a fentlévők közül"
+    help: "&e&lParancsok"
+    help-lore:
+      - "&7Az összes /plot parancs."

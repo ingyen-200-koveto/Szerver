@@ -94,6 +94,7 @@ public final class IceMineCore extends JavaPlugin {
     private Leaderboards leaderboards;
     private InventoryStore inventories;
     private hu.icemine.core.fyland.FylandMode fyland;
+    private hu.icemine.core.creative.CreativeMode creative;
     private hu.icemine.core.market.Market market;
     private ComboArenaMode comboArena;
     private GensMode gens;
@@ -189,6 +190,7 @@ public final class IceMineCore extends JavaPlugin {
         leaderboards = new Leaderboards(this);
         inventories = new InventoryStore(new File(getDataFolder(), "inventories"), getLogger());
         fyland = new hu.icemine.core.fyland.FylandMode(this);
+        creative = new hu.icemine.core.creative.CreativeMode(this);
         market = new hu.icemine.core.market.Market(this);
         comboArena = new ComboArenaMode(this);
         gens = new GensMode(this);
@@ -215,6 +217,10 @@ public final class IceMineCore extends JavaPlugin {
         safely("Fyland", () -> {
             fyland.load(configs.get(hu.icemine.core.fyland.FylandMode.FILE), problems);
             modes.register(fyland);
+        });
+        safely("Creative", () -> {
+            creative.load(configs.get(hu.icemine.core.creative.CreativeMode.FILE), problems);
+            modes.register(creative);
         });
         safely("ComboFly aréna", () -> {
             comboArena.load(configs.get(ComboArenaMode.FILE), problems);
@@ -269,6 +275,9 @@ public final class IceMineCore extends JavaPlugin {
         register("enchanter", fyCommand, fyCommand);
         register("fywarp", fyCommand, fyCommand);
         registerListeners(fyland.listeners().toArray(new Listener[0]));
+        registerListeners(creative);
+        hu.icemine.core.creative.PlotCommand plotCommand = new hu.icemine.core.creative.PlotCommand(creative);
+        register("plot", plotCommand, plotCommand);
         hu.icemine.core.market.MarketCommand marketCommand = new hu.icemine.core.market.MarketCommand(market);
         for (String name : new String[]{"ah", "trade", "shop", "sell", "baltop", "lottery", "kulcs", "market"}) {
             register(name, marketCommand, marketCommand);
@@ -358,6 +367,7 @@ public final class IceMineCore extends JavaPlugin {
             parkour.tick();
         }, 5L, 5L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, cosmetics::tick, 4L, 4L));
+        tasks.add(Bukkit.getScheduler().runTaskTimer(this, creative::tick, 1L, 1L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, combat::tick, 10L, 10L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, nameTags::tick, 20L, 5L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, boards::tick, boardTicks, boardTicks));
@@ -480,6 +490,9 @@ public final class IceMineCore extends JavaPlugin {
         }
         if (all || file.equals(hu.icemine.core.market.Market.FILE) || file.equals("economy")) {
             safely("piac", () -> market.load(configs.get(hu.icemine.core.market.Market.FILE), problems));
+        }
+        if (all || file.equals(hu.icemine.core.creative.CreativeMode.FILE)) {
+            safely("Creative", () -> creative.load(configs.get(hu.icemine.core.creative.CreativeMode.FILE), problems));
         }
         if (all || file.equals(hu.icemine.core.fyland.FylandMode.FILE)) {
             safely("Fyland", () -> fyland.load(configs.get(hu.icemine.core.fyland.FylandMode.FILE), problems));
@@ -727,6 +740,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public hu.icemine.core.rank.NameTags nameTags() {
         return nameTags;
+    }
+
+    public hu.icemine.core.creative.CreativeMode creative() {
+        return creative;
     }
 
     public hu.icemine.core.fyland.FylandMode fyland() {

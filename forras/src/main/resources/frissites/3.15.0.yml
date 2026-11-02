@@ -1,0 +1,13 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.15.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.15.0
+changes:
+- file: modes
+  path: modes.creative.status
+  old: soon
+- file: modes
+  path: modes.creative.world
+  old: creative
+- file: modes
+  path: modes.creative.inventory
+  old: external

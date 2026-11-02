@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class ConfigFiles {
 
     public static final String[] NAMES = {"config", "messages_hu", "lobby", "modes", "combofly", "combat-tag", "parkour", "economy",
-            "scoreboard", "contacts", "fyland", "market", "comboarena", "gens", "modelobbies", "duels", "ranks", "permissions", "bedwars"};
+            "scoreboard", "contacts", "fyland", "market", "comboarena", "gens", "modelobbies", "duels", "ranks", "permissions", "bedwars", "creative"};
 
     private final JavaPlugin plugin;
     private final Map<String, YamlConfiguration> files = new LinkedHashMap<>();

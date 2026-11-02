@@ -55,8 +55,7 @@ elmenti. Ha ezt nem kéred: `plugins/IceMine/config.yml` -> `kulso-uzenetek: fal
 A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `/kit`, `/profil`...) is maradtak.
 
 **Játékmód választó** (iránytű a hotbaron): Fyland (fűblokk), Gens (gyémánt kapa),
-Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly, és a Creative "Hamarosan" felirattal.
-Ha a Creative elkészül, a `modes.yml`-ben a `status: soon` helyett `open` kell.
+Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly és Creative.
 
 **Kozmetikák:** a nyomvonalak és az ölés effektek csak a lobbyban (és a játékmódok lobbyjaiban) látszanak,
 játék közben nem. Visszakapcsolás: `plugins/IceMine/lobby.yml` -> `cosmetics.lobby-only: false`.
@@ -160,6 +159,22 @@ hogy a két mód ne keveredjen. Beállítás: `plugins/IceMine/market.yml`.
 - Kulcsok: jobb klikkre nyílnak, bal klikkre mutatják a tartalmukat. `/kulcs`: a rang heti kulcs csomagja.
 - `/baltop`: a leggazdagabbak abban a módban, ahol állsz.
 - Admin (`icemine.admin.market`): `/market give <játékos> <sellchest|crafter|farmblock|key:<név>> [db]`, `/market draw <mód>`.
+
+### Creative
+
+Telkes építés kreatív módban. A világot a plugin rajzolja (végtelen telekrács, 48x48-as telkek, köztük utak), nem kell
+felépíteni. Mindenki kap telket: alapból 1, Bronz 2, Wizard 3, IceKing 4, Yeti 5 (`creative.yml` -> `limits`).
+
+- Csak a saját telkeden (vagy ahova felvettek) építhetsz, az út és a többiek telke védett.
+- Barátok felvétele (`/plot trust`), kitiltás (`/plot deny`), leküldés (`/plot kick`), név (`/plot name`).
+- `/plot clear`: a telek kiürítése, `/plot delete`: a telek feladása (mindkettőt kétszer kell beírni).
+- Robbanás, tűz, mobok magától nem születnek, a víz és a láva nem folyik ki a telekről. Telkenként legfeljebb 40 entitás.
+  Tiltott tárgyak (TNT, parancsblokk, spawner, wither...): `creative.yml` -> `blocked-items`. Enderláda itt nem használható.
+- Saját táska: amit a Creative-ban elővesz, az nem jön át a többi módba.
+
+Parancsok: `/plot` (menü, vagy `/p`, `/telek`), `/plot auto`, `/plot claim`, `/plot home [szám]`, `/plot visit <játékos>`,
+`/plot info`, `/plot list`, `/plot help`. Admin (`icemine.admin.creative`, bárhol építhet): `/plot admin clear|delete`.
+Korlátlan telek: `icemine.creative.unlimited`.
 
 ### Gens
 

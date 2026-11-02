@@ -412,6 +412,12 @@ public final class Migrations {
                 notes.add("fyland.yml: sziget érték és szint, csatatér, ellátmány láda és egyedi varázslatok (" + String.join(", ", added) + ")");
             }
         }
+        YamlConfiguration scoreboardFile = files.get("scoreboard");
+        if (scoreboardFile != null && scoreboardFile.isSet("boards") && !scoreboardFile.isSet("boards.creative")) {
+            copyDefault(scoreboardFile, "boards.creative");
+            files.save("scoreboard");
+            notes.add("scoreboard.yml: új tábla a Creative módhoz");
+        }
         YamlConfiguration ranksFile = files.get("ranks");
         if (newRanks(ranksFile)) {
             try {

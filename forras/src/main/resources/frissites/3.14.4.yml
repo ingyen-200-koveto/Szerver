@@ -5,3 +5,12 @@ changes:
 - file: messages_hu
   path: update.downloaded
   old: '&aLetöltöttem az új IceMine verziót (&f%version%&a)! &7A szerver következő újraindításakor magától települ.'
+- file: modes
+  path: modes.creative.status
+  old: soon
+- file: modes
+  path: modes.creative.world
+  old: creative
+- file: modes
+  path: modes.creative.inventory
+  old: external

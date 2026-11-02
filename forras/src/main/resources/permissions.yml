@@ -34,6 +34,7 @@ commands:
   duels:     {permission: icemine.command.duels, default: true}
   bw:        {permission: icemine.command.bedwars, default: true}
   fyland:    {permission: icemine.command.fyland, default: true}
+  plot:      {permission: icemine.command.plot, default: true}
   pw:        {permission: icemine.command.pw, default: true}
   enchanter: {permission: icemine.command.enchanter, default: true}
   fywarp:    {permission: icemine.command.fywarp, default: true}

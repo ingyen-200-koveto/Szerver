@@ -98,11 +98,10 @@ modes:
     icon: AMETHYST_SHARD
     slot: 31
     color: "&5"
-    status: soon
-    world: creative
+    status: open
     combat-tag: false
     combofly: false
-    inventory: external
+    inventory: persistent
     description:
       - "&7Saját telek, végtelen blokkok,"
       - "&7építs, amit csak el tudsz képzelni!"

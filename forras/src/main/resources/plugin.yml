@@ -84,6 +84,10 @@ commands:
     description: Fyland (OneBlock) sziget parancsok
     usage: /fyland [haza|piac|elad|meghiv|info|szint|coop|ban|lock|setwarp|warp|csatater|enchanter|...]
     aliases: [fy, is, oneblock]
+  plot:
+    description: Creative telkek
+    usage: /plot [auto|claim|home|visit|trust|deny|kick|name|info|list|clear|delete]
+    aliases: [p, telek, plots]
   pw:
     description: Fyland játékos warpok
     usage: /pw [set <név>|del|rate <warp> <1-5>|<warp>]
@@ -144,6 +148,12 @@ permissions:
   icemine.kingdoms.admin:
     default: op
   icemine.kingdoms.bypass:
+    default: op
+  icemine.admin.creative:
+    description: Creative admin (bárhol építhet, /plot admin)
+    default: op
+  icemine.creative.unlimited:
+    description: Korlátlan Creative telek
     default: op
   icemine.kingdoms.fly:
     description: /k fly - repülés a saját királyság földjén

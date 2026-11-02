@@ -1,6 +1,7 @@
 # Scoreboard, tablista és chat
 # Placeholderek: %player% %rank% (LuckPerms előtag) %rank_name% (LuckPerms csoport) %icecoin% (a weboldalas egyenleg) %money% %gens_money% %online% %max% %mode% %discord% %combat%
 #   PvP módokban: %kills% %deaths% %kd% %streak% %best_streak%
+#   Creative: %cr_plot% (a telek, ahol állsz) %cr_owner% %cr_plots% (telkeid/max)
 #   Fyland: %fy_phase% %fy_progress% %fy_blocks% %fy_level% %fy_members% %fy_cycle% %fy_money% %fy_island%
 #   ComboFly arénában még: %combo% (a mostani kombó), %combo_best% (rekord)
 #   Bárhol: %combat_time% (combat hátralévő ideje, pl. 29.4s), %pearl% (enderpearl várakozás, pl. 4.4s)
@@ -64,6 +65,16 @@ boards:
     - "&7Csapat: &f%fy_members%"
     - ""
     - "&7Pénz: %fy_money%"
+    - "&bplay.icemine.hu"
+  creative:
+    - "&8&m                    "
+    - "&7Mód: &5&lCreative"
+    - ""
+    - "&7Telek: &f%cr_plot%"
+    - "&7Tulaj: &f%cr_owner%"
+    - "&7Telkeid: &f%cr_plots%"
+    - ""
+    - "&7Online: &b%online%"
     - "&bplay.icemine.hu"
   combofly:
     - "&7&m                         "
