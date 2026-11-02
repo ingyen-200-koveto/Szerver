@@ -88,22 +88,32 @@ az `essentials.<parancs>` joga.
 
 ### Rangok
 
-A rang nevét, előtagját és chat színét a LuckPerms adja (ezt te írod meg). Hogy melyik rang mit kap
-az IceMine-ban (kitek, kozmetikák, pénz szorzó, egyéb jogok), azt a `plugins/IceMine/ranks.yml`-ben
-állítod. Rangok: Default, VIP, VIP+, MVP, MVP+, ELITE, LEGEND, YOUTUBER, HELPER, MODERATOR, ADMIN, OWNER.
-Mindegyik megkapja a gyengébbek jutalmait is.
+A rangokat az IceMine magától létrehozza a LuckPermsben az első indításkor (előtag, súly, név, szülő rang, jogok).
+Minden a `plugins/IceMine/ranks.yml`-ben van: mit kap a rang az IceMine-ban (kozmetikák, pénz szorzó, jogok) és
+milyen a LuckPermsben (`luckperms` rész). Mindegyik rang megkapja a gyengébbek IceMine jutalmait is.
 
-A LuckPerms csoport neve kisbetűs, `+` jel nélkül: `default`, `vip`, `vipplus`, `mvp`, `mvpplus`, `elite`,
-`legend`, `youtuber`, `helper`, `moderator`, `admin`, `owner`. Példa (konzolba):
+| Rang | LuckPerms csoport | Súly | Szülő |
+|---|---|---|---|
+| Játékos | `default` | 0 | |
+| Bronz | `bronz` | 10 | |
+| Wizard | `wizard` | 20 | bronz |
+| IceKing | `iceking` | 30 | wizard |
+| Yeti | `yeti` | 40 | iceking |
+| Média | `media` | 100 | |
+| Építész | `epitesz` | 150 | |
+| Jn.Moderátor | `jnmoderator` | 300 | |
+| Moderátor | `moderator` | 400 | jnmoderator |
+| Sr.Moderátor | `srmoderator` | 500 | moderator |
+| Admin | `admin` | 600 | srmoderator |
+| Sr.Admin | `sradmin` | 700 | admin |
+| Fejlesztő | `fejleszto` | 800 | sradmin |
+| Manager | `manager` | 900 | fejleszto |
+| Tulajdonos | `tulajdonos` | 1000 | manager (minden jog) |
 
-```
-lp creategroup vip
-lp group vip parent add default
-lp group vip meta setprefix 100 "&a[VIP] "
-lp user Jatekosnev parent add vip
-```
+Rangot adni (konzolba): `lp user Jatekosnev parent add iceking`. A rangváltás fél percen belül életbe lép.
 
-A rangváltás fél percen belül életbe lép, újrabelépés nélkül is.
+Amit egyszer létrehozott, azt az IceMine többet nem állítja át (a lista: `plugins/IceMine/.luckperms-kesz`), így a
+LuckPermsben nyugodtan átírhatod. Ha újra kell, töröld a fájlt, és indítsd újra a szervert.
 
 ### Fyland (OneBlock)
 

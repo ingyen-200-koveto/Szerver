@@ -27,9 +27,9 @@ class RanksTest {
         List<String> problems = new ArrayList<>();
         Ranks ranks = shipped(problems);
         assertTrue(problems.isEmpty(), problems.toString());
-        assertEquals(12, ranks.all().size());
+        assertEquals(15, ranks.all().size());
         assertEquals("default", ranks.base().id);
-        assertEquals("owner", ranks.all().get(11).id);
+        assertEquals("tulajdonos", ranks.all().get(14).id);
     }
 
     @Test
@@ -43,12 +43,13 @@ class RanksTest {
     @Test
     void strongerRanksInheritEverything() {
         Ranks ranks = shipped(new ArrayList<>());
-        Ranks.Rank legend = ranks.byId("legend");
+        Ranks.Rank legend = ranks.byId("yeti");
         assertTrue(legend.granted().contains("icemine.cosmetic.trail.felho"));
         assertTrue(legend.granted().contains("icemine.cosmetic.fly"));
-        assertTrue(ranks.byId("owner").granted().contains("icemine.admin.*"));
-        assertFalse(ranks.byId("vip").granted().contains("icemine.cosmetic.fly"));
-        assertTrue(ranks.byId("mvpplus").multiplier > ranks.byId("vip").multiplier);
+        assertTrue(ranks.byId("tulajdonos").granted().contains("icemine.admin.*"));
+        assertTrue(ranks.byId("tulajdonos").granted().contains("icemine.cosmetic.trail.felho"), "a csapat rangjai a Yeti jutalmait is megkapják");
+        assertFalse(ranks.byId("bronz").granted().contains("icemine.cosmetic.fly"));
+        assertTrue(ranks.byId("iceking").multiplier > ranks.byId("bronz").multiplier);
     }
 
     @Test

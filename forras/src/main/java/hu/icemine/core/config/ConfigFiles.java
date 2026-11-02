@@ -41,6 +41,10 @@ public final class ConfigFiles {
         return new ArrayList<>(problems);
     }
 
+    public File folder() {
+        return plugin.getDataFolder();
+    }
+
     public YamlConfiguration get(String name) {
         YamlConfiguration config = files.get(name);
         if (config == null) {

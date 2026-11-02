@@ -278,6 +278,11 @@ public final class IceMineCore extends JavaPlugin {
             }
         }
         leaderboards.refresh();
+        // a LuckPerms csoportok (ranks.yml -> luckperms) a szerver teljes elindulása után jönnek létre
+        Bukkit.getScheduler().runTaskLater(this, () -> safely("LuckPerms rangok", () -> {
+            hu.icemine.core.rank.LuckPermsSetup.run(getDataFolder(), configs.get("ranks"), getLogger());
+            Bukkit.getScheduler().runTaskLater(this, ranks::refreshAll, 60L);
+        }), 40L);
         getLogger().info("IceMine " + getDescription().getVersion() + " elindult" + (problems.isEmpty() ? "." : ", " + problems.size() + " config figyelmeztetéssel."));
     }
 

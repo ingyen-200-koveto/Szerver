@@ -392,6 +392,16 @@ public final class Migrations {
         }
         notes.addAll(newModes(files));
         notes.addAll(hotbarV3(files::get, files::save));
+        YamlConfiguration ranksFile = files.get("ranks");
+        if (newRanks(ranksFile)) {
+            try {
+                java.nio.file.Files.writeString(new java.io.File(files.folder(), "ranks.yml.regi").toPath(), previousRanks, java.nio.charset.StandardCharsets.UTF_8);
+            } catch (java.io.IOException ignored) {
+                // a mentés csak biztonsági másolat, nélküle is mehet tovább
+            }
+            files.save("ranks");
+            notes.add("ranks.yml: új rangok (Bronz, Wizard, IceKing, Yeti és a csapat rangjai), a régi fájl: ranks.yml.regi");
+        }
         return notes;
     }
 
@@ -551,6 +561,23 @@ public final class Migrations {
             notes.add("ranks.yml: a rangokból kikerültek a megszűnt módok kitjei");
         }
         return notes;
+    }
+
+    private static String previousRanks = "";
+
+    /** 3.13: az új rangok (Bronz, Wizard, IceKing, Yeti, Média, Építész és a csapat rangjai) a régi VIP/MVP... helyett. */
+    static boolean newRanks(YamlConfiguration ranks) {
+        if (ranks == null || ranks.getDefaults() == null || !ranks.isSet("ranks") || ranks.getBoolean("migrated.ranks-v2", false)) {
+            return false;
+        }
+        previousRanks = ranks.saveToString();
+        ranks.set("ranks", null);
+        copyDefault(ranks, "ranks");
+        if (!ranks.isSet("luckperms-setup")) {
+            ranks.set("luckperms-setup", true);
+        }
+        ranks.set("migrated.ranks-v2", true);
+        return true;
     }
 
     /** 3.12: a lobby hotbarról kikerült a profil és a kozmetikák, az iránytű középre, a parkour a bal szélre került. */

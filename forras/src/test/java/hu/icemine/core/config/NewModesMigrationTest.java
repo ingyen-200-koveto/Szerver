@@ -116,6 +116,17 @@ class NewModesMigrationTest {
     }
 
     @Test
+    void oldRanksAreReplacedOnce() {
+        YamlConfiguration ranks = withDefaults("ranks", "store-url: x\nranks:\n  default:\n    group: default\n  vip:\n    group: vip\n");
+        assertTrue(Migrations.newRanks(ranks));
+        assertFalse(ranks.isSet("ranks.vip"));
+        assertEquals("iceking", ranks.getString("ranks.iceking.group"));
+        assertEquals(30, ranks.getInt("ranks.iceking.luckperms.weight"));
+        assertEquals("x", ranks.getString("store-url"));
+        assertFalse(Migrations.newRanks(ranks), "másodszor már nem fut le");
+    }
+
+    @Test
     void oldWorldNamesAreSafe() {
         assertTrue(OldModes.safeName("ice_kitpvp"));
         assertFalse(OldModes.safeName("world"));
