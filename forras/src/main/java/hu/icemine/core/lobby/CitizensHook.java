@@ -72,6 +72,40 @@ public final class CitizensHook {
         return -1;
     }
 
+    /**
+     * Az IceMine által csinált ("icemine_" kezdetű) Citizens NPC-k közül törli azokat, amik már nem kellenek
+     * (nincs ilyen NPC a configban), vagy egy név kétszer szerepel (ilyenkor a megjegyzett marad). Visszaadja, hányat törölt.
+     */
+    public int cleanup(java.util.Map<String, Integer> keep) {
+        int removed = 0;
+        try {
+            java.util.List<Object> gone = new java.util.ArrayList<>();
+            java.util.Map<String, Integer> seen = new java.util.HashMap<>();
+            for (Object npc : (Iterable<?>) registry) {
+                String name = String.valueOf(method(npcType, "getName").invoke(npc));
+                if (!name.startsWith("icemine_")) {
+                    continue;
+                }
+                int id = (Integer) method(npcType, "getId").invoke(npc);
+                Integer wanted = keep.get(name);
+                if (!keep.containsKey(name)) {
+                    gone.add(npc);
+                } else if (wanted != null && wanted >= 0 ? wanted != id : seen.containsKey(name)) {
+                    gone.add(npc);
+                } else {
+                    seen.put(name, id);
+                }
+            }
+            for (Object npc : gone) {
+                method(npcType, "destroy").invoke(npc);
+                removed++;
+            }
+        } catch (Throwable error) {
+            logger.warning("Nem sikerült rendet rakni a Citizens NPC-k között: " + error);
+        }
+        return removed;
+    }
+
     public int create(String name, Location location, String skin, ItemStack hand) {
         try {
             Class<?> registryType = Class.forName("net.citizensnpcs.api.npc.NPCRegistry", true, loader);
