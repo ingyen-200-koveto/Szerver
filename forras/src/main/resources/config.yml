@@ -24,6 +24,15 @@ icecoin:
   # Ennyi másodpercenként frissül
   refresh-seconds: 30
 
+# Chat napló: minden chat üzenet (a királysági és szövetségi is), parancs, be- és kilépés naponta egy fájlba kerül:
+# plugins/IceMine/chatlog/ÉÉÉÉ-HH-NN.log. A jelszavas parancsoknál (/login, /register...) a jelszó helyett csillag van.
+# Játékban: /icem chatlog [játékos] [oldal]. keep-days: ennyi napnál régebbi naplókat törli.
+chatlog:
+  enabled: true
+  commands: true
+  joins: true
+  keep-days: 30
+
 # Automatikus frissítés: 10 percenként megnézi a GitHubon, van-e új IceMine. Ha van, letölti a plugins/update
 # mappába, és a szerver következő újraindításakor magától felrakja (Git Pull nem kell). Kézzel: /icem update
 # restart-when-empty: ha true, letöltött frissítésnél, amikor 2 perce senki nincs fent, újraindítja a szervert.

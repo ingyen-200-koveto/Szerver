@@ -707,7 +707,14 @@ icem:
     reload: ["/icem reload [fájl]", "configok újratöltése"]
     admin: ["/icem admin", "adminisztrátori parancsok"]
     update: ["/icem update", "új IceMine verzió keresése és letöltése"]
+    chatlog: ["/icem chatlog [játékos] [oldal]", "a chat napló (üzenetek, parancsok, belépések)"]
   unknown: "Ilyen alparancs nincs. Segítség: &f/icem help"
+
+chatlog:
+  header: "&fChat napló &8(%filter%, %page%/%pages%. oldal, legfrissebb elöl)"
+  all: "mindenki"
+  footer: "&8Régebbi: /icem chatlog [játékos] <oldal> &8| Teljes napló: plugins/IceMine/chatlog"
+  empty: "A chat napló még üres."
 
 update:
   checking: "Nézem, van-e új IceMine verzió..."

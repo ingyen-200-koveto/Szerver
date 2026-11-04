@@ -85,6 +85,7 @@ public final class IceMineCore extends JavaPlugin {
     private hu.icemine.core.rank.NameTags nameTags;
     private final hu.icemine.core.board.TabList tabList = new hu.icemine.core.board.TabList(this);
     private final Updater updater = new Updater(this);
+    private final ChatLog chatLog = new ChatLog(this);
     private Duels duels;
     private Npcs npcs;
     private ContactBook contacts;
@@ -214,6 +215,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("IceCoin", () -> iceCoins.load(main, problems));
         safely("névtáblák", () -> nameTags.load(main));
         safely("frissítés", () -> updater.load(main));
+        safely("chat napló", () -> chatLog.load(main));
         safely("Fyland", () -> {
             fyland.load(configs.get(hu.icemine.core.fyland.FylandMode.FILE), problems);
             modes.register(fyland);
@@ -254,7 +256,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("scoreboard", () -> boards.load(configs.get("scoreboard"), problems));
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
-        registerListeners(new CoreListener(this), new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
+        registerListeners(new CoreListener(this), chatLog, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
                 fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
@@ -417,6 +419,7 @@ public final class IceMineCore extends JavaPlugin {
             safely("piac leállítás", market::shutdown);
         }
         modes.shutdown();
+        chatLog.shutdown();
         combat.shutdown();
         holograms.despawn();
         if (modeLobbies != null) {
@@ -487,6 +490,7 @@ public final class IceMineCore extends JavaPlugin {
             safely("IceCoin", () -> iceCoins.load(main, problems));
             safely("névtáblák", () -> nameTags.load(main));
             safely("frissítés", () -> updater.load(main));
+            safely("chat napló", () -> chatLog.load(main));
         }
         if (all || file.equals(hu.icemine.core.market.Market.FILE) || file.equals("economy")) {
             safely("piac", () -> market.load(configs.get(hu.icemine.core.market.Market.FILE), problems));
@@ -728,6 +732,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public hu.icemine.core.market.Market market() {
         return market;
+    }
+
+    public ChatLog chatLog() {
+        return chatLog;
     }
 
     public Updater updater() {

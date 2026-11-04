@@ -60,6 +60,13 @@ Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly és
 **Kozmetikák:** a nyomvonalak és az ölés effektek csak a lobbyban (és a játékmódok lobbyjaiban) látszanak,
 játék közben nem. Visszakapcsolás: `plugins/IceMine/lobby.yml` -> `cosmetics.lobby-only: false`.
 
+### Chat napló
+
+Minden chat üzenet (a királysági és szövetségi is), parancs (a `/msg` is), be- és kilépés naponta egy fájlba kerül:
+`plugins/IceMine/chatlog/ÉÉÉÉ-HH-NN.log`. A jelszavas parancsoknál (`/login`, `/register`...) csillag van a jelszó helyén.
+Játékban (OP): `/icem chatlog` (legfrissebb 15 sor), `/icem chatlog <játékos>`, `/icem chatlog [játékos] <oldal>`.
+A 30 napnál régebbi naplókat magától törli (`config.yml` -> `chatlog`).
+
 ### Jogok
 
 Minden parancsnak külön joga van, egy helyen: `plugins/IceMine/permissions.yml`.

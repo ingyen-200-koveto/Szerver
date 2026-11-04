@@ -20,6 +20,6 @@ class PermissionSetupTest {
     @Test
     void icemSubcommandsHaveTheirOwnOrder() {
         assertEquals("help", IcemCommand.SUBS.get(0));
-        assertEquals(9, IcemCommand.SUBS.size());
+        assertEquals(10, IcemCommand.SUBS.size());
     }
 }

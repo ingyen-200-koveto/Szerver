@@ -61,4 +61,5 @@ icem:
   setspawn:     {permission: icemine.command.setspawn, default: op}
   reload:       {permission: icemine.command.reload, default: op}
   update:       {permission: icemine.command.update, default: op}
+  chatlog:      {permission: icemine.command.chatlog, default: op}
   admin:        {permission: icemine.command.admin, default: op}
