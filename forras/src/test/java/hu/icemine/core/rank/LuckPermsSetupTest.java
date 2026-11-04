@@ -22,7 +22,7 @@ class LuckPermsSetupTest {
     void everyRankFromTheListIsCreated() {
         YamlConfiguration config = shipped();
         Set<String> groups = LuckPermsSetup.groups(config);
-        for (String group : new String[]{"default", "bronz", "wizard", "iceking", "yeti", "media", "epitesz", "jnmoderator", "moderator",
+        for (String group : new String[]{"jatekos", "bronz", "wizard", "iceking", "yeti", "media", "epitesz", "jnmoderator", "moderator",
                 "srmoderator", "admin", "sradmin", "fejleszto", "manager", "tulajdonos"}) {
             assertTrue(groups.contains(group), group);
         }
@@ -42,15 +42,16 @@ class LuckPermsSetupTest {
         assertTrue(commands.contains("lp group fejleszto setdisplayname \"Fejlesztő\""));
         assertTrue(commands.contains("lp group yeti parent add iceking"));
         assertTrue(commands.contains("lp group tulajdonos permission set * true"));
-        assertTrue(commands.contains("lp group default setweight 0"));
+        assertTrue(commands.contains("lp creategroup jatekos"));
+        assertTrue(commands.contains("lp group jatekos setweight 1"));
     }
 
     @Test
     void doneGroupsAreLeftAlone() {
-        List<String> commands = LuckPermsSetup.commands(shipped(), Set.of("bronz", "default"));
+        List<String> commands = LuckPermsSetup.commands(shipped(), Set.of("bronz", "jatekos"));
         for (String command : commands) {
             assertFalse(command.equals("lp creategroup bronz") || command.startsWith("lp group bronz "), command);
-            assertFalse(command.startsWith("lp group default "), command);
+            assertFalse(command.startsWith("lp group jatekos "), command);
         }
         assertTrue(commands.contains("lp group wizard parent add bronz"));
     }

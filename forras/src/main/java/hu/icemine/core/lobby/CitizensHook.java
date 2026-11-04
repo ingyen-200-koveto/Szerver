@@ -73,27 +73,40 @@ public final class CitizensHook {
     }
 
     /**
-     * Az IceMine által csinált ("icemine_" kezdetű) Citizens NPC-k közül törli azokat, amik már nem kellenek
-     * (nincs ilyen NPC a configban), vagy egy név kétszer szerepel (ilyenkor a megjegyzett marad). Visszaadja, hányat törölt.
+     * Rendrakás a Citizens NPC-k között: törli az IceMine régi ("icemine_" kezdetű, de már nem használt) NPC-it, a
+     * kétszer meglévőket, és minden más Citizens NPC-t, ami egy IceMine NPC helyén áll (1,5 blokkon belül), hogy egy
+     * helyen csak egy legyen. keep: név → megjegyzett azonosító (-1, ha nincs), spots: azonosító → hely.
      */
-    public int cleanup(java.util.Map<String, Integer> keep) {
+    public int cleanup(java.util.Map<String, Integer> keep, java.util.Map<Integer, Location> spots, java.util.List<Location> places) {
         int removed = 0;
         try {
             java.util.List<Object> gone = new java.util.ArrayList<>();
             java.util.Map<String, Integer> seen = new java.util.HashMap<>();
             for (Object npc : (Iterable<?>) registry) {
                 String name = String.valueOf(method(npcType, "getName").invoke(npc));
-                if (!name.startsWith("icemine_")) {
+                int id = (Integer) method(npcType, "getId").invoke(npc);
+                if (name.startsWith("icemine_")) {
+                    Integer wanted = keep.get(name);
+                    if (!keep.containsKey(name)) {
+                        gone.add(npc);
+                        continue;
+                    }
+                    if (wanted != null && wanted >= 0 ? wanted != id : seen.containsKey(name)) {
+                        gone.add(npc);
+                        continue;
+                    }
+                    seen.put(name, id);
                     continue;
                 }
-                int id = (Integer) method(npcType, "getId").invoke(npc);
-                Integer wanted = keep.get(name);
-                if (!keep.containsKey(name)) {
-                    gone.add(npc);
-                } else if (wanted != null && wanted >= 0 ? wanted != id : seen.containsKey(name)) {
-                    gone.add(npc);
-                } else {
-                    seen.put(name, id);
+                Location at = location(npc);
+                if (at == null) {
+                    continue;
+                }
+                for (Location place : places) {
+                    if (place.getWorld() == at.getWorld() && place.distanceSquared(at) < 2.25) {
+                        gone.add(npc);
+                        break;
+                    }
                 }
             }
             for (Object npc : gone) {
@@ -104,6 +117,19 @@ public final class CitizensHook {
             logger.warning("Nem sikerült rendet rakni a Citizens NPC-k között: " + error);
         }
         return removed;
+    }
+
+    private Location location(Object npc) {
+        try {
+            Object entity = method(npcType, "getEntity").invoke(npc);
+            if (entity instanceof Entity living) {
+                return living.getLocation();
+            }
+            Object stored = method(npcType, "getStoredLocation").invoke(npc);
+            return stored instanceof Location location ? location : null;
+        } catch (Throwable error) {
+            return null;
+        }
     }
 
     public int create(String name, Location location, String skin, ItemStack hand) {

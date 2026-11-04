@@ -56,10 +56,14 @@ public final class LobbyClicks implements Listener {
         World world = player.getWorld();
         boolean lobby = core.lobby() != null && world == core.lobby().world();
         boolean modeLobby = core.modeLobbies() != null && core.modeLobbies().isLobbyWorld(world);
-        if (!lobby && !modeLobby) {
+        boolean creative = core.creative() != null && core.creative().world() == world;
+        if (!lobby && !modeLobby && !creative) {
             return;
         }
         List<Target> targets = new ArrayList<>();
+        if (creative) {
+            core.creative().targets(targets);
+        }
         if (lobby && core.holograms() != null) {
             core.holograms().targets(targets);
         }

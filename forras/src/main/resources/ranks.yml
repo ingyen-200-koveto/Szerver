@@ -5,6 +5,8 @@
 #
 # group: a LuckPerms csoport neve (kisbetű, ékezet és + jel nélkül, pl. sradmin).
 #        A játékos a legmagasabb olyan rangot kapja, aminek a csoportjában benne van.
+#        Az első rang (Játékos, jatekos csoport) mindenkinek jár: aki belép, és a LuckPermsben még csak a
+#        default csoportban van, automatikusan megkapja.
 # A sorrend számít: lefelé haladva egyre erősebb a rang, és mindegyik megkapja
 # az összes fölötte lévő (gyengébb) rang jutalmát is.
 #
@@ -31,7 +33,7 @@ store-url: "www.icemine.hu"
 
 ranks:
   default:
-    group: default
+    group: jatekos
     name: "&7Játékos"
     icon: GRAY_DYE
     coin-multiplier: 1.0
@@ -41,8 +43,9 @@ ranks:
     perks:
       - "&7Hónyom és jégszilánk effekt"
     luckperms:
-      weight: 0
+      weight: 1
       display: "Játékos"
+      prefix: "&7&lJÁTÉKOS &7"
   bronz:
     group: bronz
     name: "&6&lBRONZ"

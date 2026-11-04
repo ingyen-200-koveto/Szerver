@@ -498,23 +498,25 @@ public final class Npcs implements Listener {
         }
     }
 
-    private boolean cleaned;
+    private long nextCleanup;
 
     public void tick() {
         ticks++;
         boolean check = ticks % 5 == 0 && System.currentTimeMillis() >= citizensReadyAt;
-        if (check && !cleaned && citizens.available()) {
-            cleaned = true;
+        if (check && citizens.available() && System.currentTimeMillis() >= nextCleanup) {
+            nextCleanup = System.currentTimeMillis() + 60_000L;
             java.util.Map<String, Integer> keep = new java.util.HashMap<>();
             keep.put("icemine_combofly_kit", -1);
+            java.util.List<Location> places = new java.util.ArrayList<>();
             for (Npc npc : npcs.values()) {
                 if (npc.external) {
                     keep.put("icemine_" + npc.id, npc.citizenId);
+                    places.add(npc.location);
                 }
             }
-            int removed = citizens.cleanup(keep);
+            int removed = citizens.cleanup(keep, new java.util.HashMap<>(), places);
             if (removed > 0) {
-                core.getLogger().info("Citizens: " + removed + " régi vagy dupla IceMine NPC törölve.");
+                core.getLogger().info("Citizens: " + removed + " régi vagy dupla NPC törölve az IceMine NPC-k helyéről.");
             }
         }
         for (Npc npc : npcs.values()) {

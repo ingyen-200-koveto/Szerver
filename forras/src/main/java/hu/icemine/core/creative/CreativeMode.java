@@ -414,6 +414,39 @@ public final class CreativeMode implements ModeHandler, Listener {
         spawnHubEntities();
     }
 
+    private final Map<UUID, Long> hubClicked = new HashMap<>();
+
+    /** A központ két kattintható pontja: "Telket kérek" és "Telkeim" (a talapzat és a felirat körül). */
+    public void targets(List<hu.icemine.core.lobby.LobbyClicks.Target> out) {
+        if (world == null) {
+            return;
+        }
+        int cx = hubCenterX();
+        int cz = hubCenterZ();
+        int h = grid.height;
+        out.add(new hu.icemine.core.lobby.LobbyClicks.Target(new BoundingBox(cx - 3.3, h + 1, cz + 6.7, cx - 1.7, h + 3.8, cz + 8.3), p -> hubClick(p, "auto")));
+        out.add(new hu.icemine.core.lobby.LobbyClicks.Target(new BoundingBox(cx + 2.7, h + 1, cz + 6.7, cx + 4.3, h + 3.8, cz + 8.3), p -> hubClick(p, "menu")));
+    }
+
+    void hubClick(Player player, String what) {
+        long now = System.currentTimeMillis();
+        Long last = hubClicked.get(player.getUniqueId());
+        if (last != null && now - last < 700) {
+            return;
+        }
+        hubClicked.put(player.getUniqueId(), now);
+        if (what.equals("auto")) {
+            List<Plot> mine = plotsOf(player.getUniqueId());
+            if (!mine.isEmpty() && mine.size() >= limit(player)) {
+                home(player, null);
+            } else {
+                auto(player);
+            }
+        } else {
+            menu(player);
+        }
+    }
+
     /** A feliratok és a kattintható pontok (egyszer, a felépítéskor; újraépítésnél előbb a régieket töröljük). */
     void spawnHubEntities() {
         int cx = hubCenterX();
@@ -1290,24 +1323,29 @@ public final class CreativeMode implements ModeHandler, Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onHubEntity(PlayerInteractEntityEvent event) {
+        if (!(event.getRightClicked() instanceof org.bukkit.entity.Interaction) || !here(event.getRightClicked().getLocation())) {
+            return;
+        }
+        Set<String> tags = event.getRightClicked().getScoreboardTags();
+        if (!tags.contains("icemine_creative_hub")) {
+            return;
+        }
+        event.setCancelled(true);
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+        if (tags.contains("icemine_creative_hub:auto")) {
+            hubClick(event.getPlayer(), "auto");
+        } else if (tags.contains("icemine_creative_hub:menu")) {
+            hubClick(event.getPlayer(), "menu");
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         if (event.getRightClicked() instanceof org.bukkit.entity.Interaction && here(event.getRightClicked().getLocation())) {
-            event.setCancelled(true);
-            if (event.getHand() != EquipmentSlot.HAND) {
-                return;
-            }
-            Set<String> tags = event.getRightClicked().getScoreboardTags();
-            if (tags.contains("icemine_creative_hub:auto")) {
-                List<Plot> mine = plotsOf(event.getPlayer().getUniqueId());
-                if (mine.size() >= limit(event.getPlayer()) && !mine.isEmpty()) {
-                    home(event.getPlayer(), null);
-                } else {
-                    auto(event.getPlayer());
-                }
-            } else if (tags.contains("icemine_creative_hub:menu")) {
-                menu(event.getPlayer());
-            }
             return;
         }
         if (here(event.getRightClicked().getLocation()) && !(event.getRightClicked() instanceof Player)
@@ -1514,6 +1552,7 @@ public final class CreativeMode implements ModeHandler, Listener {
         confirm.remove(id);
         confirmUntil.remove(id);
         warned.remove(id);
+        hubClicked.remove(id);
     }
 
     @Override

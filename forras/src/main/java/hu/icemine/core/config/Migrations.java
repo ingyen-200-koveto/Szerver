@@ -420,6 +420,13 @@ public final class Migrations {
             }
             files.save("modelobbies");
         }
+        YamlConfiguration rankFile = files.get("ranks");
+        if (rankFile != null && rankFile.isSet("ranks.default.luckperms") && !rankFile.isSet("ranks.default.luckperms.prefix")
+                && "jatekos".equals(rankFile.getString("ranks.default.group"))) {
+            copyDefault(rankFile, "ranks.default.luckperms.prefix");
+            files.save("ranks");
+            notes.add("ranks.yml: Játékos rang (jatekos csoport) előtaggal, az új játékosok automatikusan megkapják");
+        }
         YamlConfiguration lobbyNpcs = files.get("lobby");
         if (creativeStatue(lobbyNpcs)) {
             files.save("lobby");
