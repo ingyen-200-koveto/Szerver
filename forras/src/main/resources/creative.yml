@@ -41,6 +41,53 @@ limits:
 # Egy telken legfeljebb ennyi entitás (mob, páncélállvány, keret, kocsi...) lehet. 0 = nincs korlát.
 entities-per-plot: 40
 
+# WorldEdit a telkeken: aki már legalább min-playtime-minutes percet játszott a szerveren, megkapja ezeket a
+# WorldEdit jogokat, amíg a Creative-ban van. Csak a saját (vagy oda felvett) telkén hat, a bedrockot nem bántja,
+# a tiltott blokkokat nem rakja le, entitást nem illeszt be. Egyszerre legfeljebb max-blocks blokkot cserél,
+# a gömb/henger/piramis sugara legfeljebb max-radius, a //stack legfeljebb max-count. A laggos parancsok
+# (//regen, //smooth, //forest, ecsetek, //generate, schematic fájlok...) nincsenek a listában, így nem használhatók.
+worldedit:
+  enabled: true
+  min-playtime-minutes: 120
+  max-blocks: 20000
+  max-radius: 20
+  max-count: 10
+  permissions:
+    - worldedit.wand
+    - worldedit.wand.toggle
+    - worldedit.selection.pos
+    - worldedit.selection.hpos
+    - worldedit.selection.expand
+    - worldedit.selection.contract
+    - worldedit.selection.shift
+    - worldedit.selection.outset
+    - worldedit.selection.inset
+    - worldedit.selection.size
+    - worldedit.analysis.count
+    - worldedit.analysis.sel
+    - worldedit.region.set
+    - worldedit.region.replace
+    - worldedit.region.walls
+    - worldedit.region.faces
+    - worldedit.region.overlay
+    - worldedit.region.center
+    - worldedit.region.hollow
+    - worldedit.region.line
+    - worldedit.region.move
+    - worldedit.region.stack
+    - worldedit.clipboard.copy
+    - worldedit.clipboard.cut
+    - worldedit.clipboard.paste
+    - worldedit.clipboard.rotate
+    - worldedit.clipboard.flip
+    - worldedit.clipboard.clear
+    - worldedit.history.undo
+    - worldedit.history.redo
+    - worldedit.history.clear
+    - worldedit.generation.sphere
+    - worldedit.generation.cylinder
+    - worldedit.generation.pyramid
+
 # Ezeket nem lehet elővenni, lerakni vagy használni (az adminok kivételével).
 blocked-items:
   - TNT
@@ -75,6 +122,11 @@ messages:
   no-plot: "Még nincs telked. [[&a&l[KÉREK EGYET]|run:/plot auto]]"
   free: "&aszabad"
   hub-name: "&5Központ"
+  worldedit-on: "&aMostantól használhatod a WorldEditet a telkeiden! &7(pl. &f//wand&7, &f//set&7, &f//copy&7, &f//paste&7)"
+  worldedit-playtime: "A WorldEdithez legalább 2 óra játékidő kell. Még ennyi hiányzik: &f%time%"
+  worldedit-too-big: "&cEz túl nagy. A sugár legfeljebb &f%max% &clehet."
+  worldedit-too-many: "&cLegfeljebb &f%max% &cmásolatot rakhatsz egymás mellé."
+
   hub-reserved: "Ez a központ, ezt nem lehet lefoglalni. Kérj egy telket: &f/plot auto"
   enter-hub: "&5&lCreative központ"
   hub-title: "&5&l✦ CREATIVE ✦\n&7Építs, amit csak el tudsz képzelni!\n&7Telkeid: &f/plot home &8| &7Menü: &f/plot"
@@ -147,7 +199,7 @@ messages:
     - " [[&f/plot clear|suggest:/plot clear]] &8- &7a telek kiürítése &8| [[&f/plot delete|suggest:/plot delete]] &8- &7feladás"
     - "&8&m                                             "
   menu:
-    title: "&3[IceMine] &8Creative"
+    title: "&8Creative"
     back: "&7« Vissza"
     plot-lore:
       - "&7Hely: &f%x%, %z%"
@@ -164,7 +216,7 @@ messages:
     visit: "&d&lLátogatás"
     visit-lore:
       - "&7Nézd meg, mit építenek a többiek!"
-    visit-title: "&3[IceMine] &8Látogatás"
+    visit-title: "&8Látogatás"
     visit-entry:
       - "&7Telkei: &f%plots%"
       - "&b▶ Kattints az átnézéshez"

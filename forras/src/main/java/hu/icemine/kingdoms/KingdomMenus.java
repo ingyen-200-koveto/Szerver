@@ -36,7 +36,7 @@ public final class KingdomMenus {
     }
 
     private Menu menu(String id, int rows, String title) {
-        Menu menu = new Menu("kingdoms-" + id, rows, plugin.label("menus.title-prefix", "&3[IceMine] &8") + title);
+        Menu menu = new Menu("kingdoms-" + id, rows, plugin.label("menus.title-prefix", "&8") + title);
         menu.frame(EDGE, null);
         return menu;
     }

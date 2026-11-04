@@ -45,6 +45,18 @@ title:
   facing: south
   scale: 3
 
+# A saját pálya köré barrier fal (kör alakú), hogy ne lehessen kiugrani. Egyszer épül fel (built: true jelzi).
+# Újra: írd át a built értékét false-ra, és indítsd újra a szervert.
+barrier-wall:
+  enabled: true
+  center-x: 0.5
+  center-z: 0.5
+  inner-radius: 199
+  outer-radius: 203
+  from-y: 40
+  to-y: 319
+  built: false
+
 custom-map:
   folder: combofly_map
   applied: false

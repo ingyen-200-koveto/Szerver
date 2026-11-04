@@ -56,4 +56,14 @@ class ForeignMessagesTest {
         assertTrue(second.isEmpty());
         assertEquals("saját", Files.readString(plugins.resolve("AuthMe/messages/messages_hu.yml")));
     }
+
+    @org.junit.jupiter.api.Test
+    void authMeWelcomeIsTurnedOff() {
+        String text = "settings:\n    # comment\n    useWelcomeMessage: true\n    broadcastWelcomeMessage: true\n    other: true\n";
+        String patched = ForeignMessages.patchAuthMe(text);
+        org.junit.jupiter.api.Assertions.assertTrue(patched.contains("    useWelcomeMessage: false"));
+        org.junit.jupiter.api.Assertions.assertTrue(patched.contains("    broadcastWelcomeMessage: false"));
+        org.junit.jupiter.api.Assertions.assertTrue(patched.contains("    other: true"));
+        org.junit.jupiter.api.Assertions.assertTrue(patched.contains("# comment"));
+    }
 }

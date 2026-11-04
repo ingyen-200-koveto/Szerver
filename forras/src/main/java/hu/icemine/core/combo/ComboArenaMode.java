@@ -109,6 +109,7 @@ public final class ComboArenaMode extends PvpMode {
         }
         world.setSpawnLocation(spawn.getBlockX(), spawn.getBlockY(), spawn.getBlockZ());
         extras.load(config, world);
+        barrierWall(config);
         if (guardTask != null) {
             guardTask.cancel();
         }
@@ -439,6 +440,64 @@ public final class ComboArenaMode extends PvpMode {
             return true;
         }
         return areaAt(location) != null;
+    }
+
+    /** ComboFlyban a biztonságos részen üres a táska, csak a lobbyba vivő ágy van. A cucc leugráskor vagy az NPC-nél jön. */
+    @Override
+    public void giveSafeHotbar(Player player) {
+        org.bukkit.inventory.PlayerInventory inventory = player.getInventory();
+        inventory.clear();
+        inventory.setArmorContents(new org.bukkit.inventory.ItemStack[4]);
+        inventory.setItem(8, hu.icemine.core.util.Items.of(Material.RED_BED).name(core.messages().raw("pvp.item.lobby")).tag("pvp:lobby").build());
+        inventory.setHeldItemSlot(0);
+    }
+
+    /**
+     * A saját pálya szélén (kör alakú) a barrier fal csak 150-es magasságig ér, a spawn fölötte van, így ki lehetett
+     * repülni. Egyszer felhúzzuk a falat a világ tetejéig, részletekben, hogy ne akadjon a szerver.
+     */
+    private void barrierWall(YamlConfiguration config) {
+        if (!config.getBoolean("custom", false) || !config.getBoolean("barrier-wall.enabled", true) || config.getBoolean("barrier-wall.built", false)) {
+            return;
+        }
+        double cx = config.getDouble("barrier-wall.center-x", 0.5);
+        double cz = config.getDouble("barrier-wall.center-z", 0.5);
+        double inner = config.getDouble("barrier-wall.inner-radius", 199);
+        double outer = config.getDouble("barrier-wall.outer-radius", 203);
+        int fromY = Math.max(world.getMinHeight(), config.getInt("barrier-wall.from-y", 40));
+        int toY = Math.min(world.getMaxHeight() - 1, config.getInt("barrier-wall.to-y", 319));
+        List<int[]> columns = new ArrayList<>();
+        int r = (int) Math.ceil(outer) + 1;
+        for (int x = (int) Math.floor(cx) - r; x <= (int) Math.floor(cx) + r; x++) {
+            for (int z = (int) Math.floor(cz) - r; z <= (int) Math.floor(cz) + r; z++) {
+                double d = Math.hypot(x + 0.5 - cx, z + 0.5 - cz);
+                if (d >= inner && d <= outer) {
+                    columns.add(new int[]{x, z});
+                }
+            }
+        }
+        config.set("barrier-wall.built", true);
+        core.configs().save(FILE);
+        core.getLogger().info("ComboFly: barrier fal a pálya köré (" + columns.size() + " oszlop, " + fromY + "-" + toY + ")...");
+        int[] next = {0};
+        org.bukkit.scheduler.BukkitTask[] task = new org.bukkit.scheduler.BukkitTask[1];
+        task[0] = Bukkit.getScheduler().runTaskTimer(core, () -> {
+            int end = Math.min(columns.size(), next[0] + 60);
+            for (int i = next[0]; i < end; i++) {
+                int[] column = columns.get(i);
+                for (int y = fromY; y <= toY; y++) {
+                    org.bukkit.block.Block block = world.getBlockAt(column[0], y, column[1]);
+                    if (block.getType().isAir()) {
+                        block.setType(Material.BARRIER, false);
+                    }
+                }
+            }
+            next[0] = end;
+            if (end >= columns.size()) {
+                task[0].cancel();
+                core.getLogger().info("ComboFly: a barrier fal kész.");
+            }
+        }, 40L, 2L);
     }
 
     @Override

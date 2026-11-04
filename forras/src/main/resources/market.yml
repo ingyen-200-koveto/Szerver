@@ -271,7 +271,7 @@ messages:
   sell-not-sellable: "Ezt a tárgyat nem lehet eladni."
   sell-usage: "Használat: &f/sell ha &7(a kezedben lévő) vagy &f/sell all &7(minden eladható)"
   # aukciósház
-  ah-title: "&3[IceMine] &8Aukciósház &7(%page%/%pages%)"
+  ah-title: "&8Aukciósház &7(%page%/%pages%)"
   ah-usage: "Használat: &f/ah sell <ár> &7(a kezedben lévő tárgyat teszi ki)"
   ah-price-range: "Az ár %min% &7és %max% &7között lehet."
   ah-empty-hand: "Vedd a kezedbe, amit el akarsz adni."
@@ -288,12 +288,12 @@ messages:
   ah-mine-lore:
     - "&7Most kint: &f%count%"
     - "&b▶ Kattints"
-  ah-mine-title: "&3[IceMine] &8Hirdetéseim"
+  ah-mine-title: "&8Hirdetéseim"
   ah-expired: "&c&lLejárt tárgyaim"
   ah-expired-lore:
     - "&7Visszakérhető: &f%count%"
     - "&b▶ Kattints"
-  ah-expired-title: "&3[IceMine] &8Lejárt tárgyaim"
+  ah-expired-title: "&8Lejárt tárgyaim"
   ah-help: "&f&lHogyan működik?"
   ah-help-lore:
     - "&7Vedd a kezedbe a tárgyat, és írd be:"
@@ -339,8 +339,8 @@ messages:
   trade-done: "A csere kész &f%player% &7játékossal."
   trade-cancelled: "A csere megszakadt."
   # bolt
-  shop-title: "&3[IceMine] &8Bolt"
-  shop-category-title: "&3[IceMine] &8Bolt: %category%"
+  shop-title: "&8Bolt"
+  shop-category-title: "&8Bolt: %category%"
   shop-category-lore:
     - "&7%count% tétel &8| &b▶ Kattints!"
   shop-buy: "&7Vétel: %price% &8(%amount% db)"
@@ -379,7 +379,7 @@ messages:
     - "&b▶ Jobb klikk: kinyitás &8| &7Bal klikk: mi van benne"
   key-opened: "Kinyitottad: %key%&7, ezt kaptad: &f%reward%"
   key-rare: "&d&lSZERENCSE! &f%player% &7nagyot nyert (%key%&7): &f%reward%"
-  key-preview-title: "&3[IceMine] &8%key%"
+  key-preview-title: "&8%key%"
   key-chance: "&7Esély: &f%chance%%"
   kulcs-no-rank: "A rangodhoz nem jár kulcs csomag. Rangot a weboldalon vehetsz: &fwww.icemine.hu"
   kulcs-cooldown: "A következő csomagot &f%time% &7múlva kérheted."

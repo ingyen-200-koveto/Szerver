@@ -4,7 +4,7 @@ main: hu.icemine.core.IceMineCore
 api-version: '1.20'
 author: IceMine
 description: IceMine Network - lobby, OneBlock, ComboFly, Gens, Kingdoms, Duels, BedWars
-softdepend: [AuthMe, LuckPerms, TAB, Citizens]
+softdepend: [AuthMe, LuckPerms, TAB, Citizens, WorldEdit]
 
 commands:
   k:

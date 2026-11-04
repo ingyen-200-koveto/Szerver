@@ -180,6 +180,12 @@ Parancsok: `/plot` (menü, vagy `/p`, `/telek`), `/plot auto`, `/plot claim`, `/
 `/plot info`, `/plot list`, `/plot help`. Admin (`icemine.admin.creative`, bárhol építhet): `/plot admin clear|delete`.
 Korlátlan telek: `icemine.creative.unlimited`.
 
+WorldEdit a telkeken: aki már legalább 2 órát játszott a szerveren, a Creative-ban megkapja a biztonságos WorldEdit
+parancsokat (`//wand`, `//set`, `//replace`, `//walls`, `//copy`, `//paste`, `//rotate`, `//undo`, `//sphere`...).
+Csak a saját (vagy oda felvett) telkén hat, a bedrockot nem bántja, egyszerre legfeljebb 20 000 blokkot cserél,
+a gömb sugara legfeljebb 20. A laggos parancsok (`//regen`, `//smooth`, ecsetek, schematic...) nem használhatók.
+Beállítás: `creative.yml` -> `worldedit`.
+
 ### Gens
 
 Nincsenek generátorok: mindenkinek saját farm szigete van 8 földdel, és a növényeket a Gens kapával kell

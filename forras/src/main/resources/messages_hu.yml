@@ -93,6 +93,7 @@ daily:
 
 menu:
   back: "&7« Vissza"
+  close: "&cBezárás"
   unknown: "Ez a menü nem létezik."
 
 selector:
@@ -242,7 +243,7 @@ kit:
   only-pvp: "Kitet csak a ComboFly arénában választhatsz."
   selected: "Kiválasztva: %kit%&7. Sok sikert!"
   auto: "Nem választottál kitet, ezt kaptad: %kit%"
-  menu-title: "&3[IceMine] &8Kitek"
+  menu-title: "&8Kitek"
   item:
     menu: "&b&lKit választó"
     menu-lore:
@@ -262,7 +263,7 @@ arena:
   item: "&b&lAréna választó"
   item-lore:
     - "&7Válts arénát, ha unod a mostanit."
-  menu-title: "&3[IceMine] &8Arénák"
+  menu-title: "&8Arénák"
   players: "&7Itt játszanak: &f%count%"
   current: "&a✔ Itt vagy most"
   click: "&b▶ Kattints az átlépéshez"
@@ -345,7 +346,7 @@ gens:
       - "&b&lKapa fejlesztés"
       - "&7Jobb klikk az üllőre"
   hoe:
-    title: "&3[IceMine] &8Kapa fejlesztés"
+    title: "&8Kapa fejlesztés"
     tiers:
       - "Fa kapa"
       - "Kő kapa"
@@ -389,11 +390,11 @@ gens:
     on: "Automatikus eladás &abekapcsolva&7. A learatott termés rögtön pénzzé válik."
     off: "Automatikus eladás &ckikapcsolva&7."
   backpack:
-    title: "&3[IceMine] &8Hátizsák (%size%)"
+    title: "&8Hátizsák (%size%)"
     already: "Már a nagy hátizsákod van."
     bought: "Megvetted a nagy hátizsákot: &f%size% &7hely."
   upgrade:
-    title: "&3[IceMine] &8Sziget fejlesztések"
+    title: "&8Sziget fejlesztések"
     bought: "Fejlesztve: %name% &8(%level%/%max%)"
     max: "%name% &7már a legmagasabb szinten van."
   prestige:
@@ -408,8 +409,8 @@ gens:
     done: "&5&lREBIRTH %rebirth%! &7Mostantól ennyi termés jár: &f%multiplier%"
     broadcast: "&f%player% &7újjászületett a Gensben: &5%rebirth%. rebirth&7!"
   members:
-    title: "&3[IceMine] &8Sziget tagok"
-    title-one: "&3[IceMine] &8%player% jogai"
+    title: "&8Sziget tagok"
+    title-one: "&8%player% jogai"
     build: "&fÉpítés és bontás"
     containers: "&fLádák használata"
     collect: "&fAratás a földeken"
@@ -421,7 +422,7 @@ gens:
       - "&7Hívj meg valakit: &f/gens trust <név>"
       - "&7Utána itt állíthatod, mit csinálhat."
   menu:
-    title: "&3[IceMine] &8Gens menü"
+    title: "&8Gens menü"
     info:
       - "&7Egyenleg: &f%money%"
       - "&7Földek: &f%fields%&7/&f%max_fields%"
@@ -539,12 +540,12 @@ gens:
         - "&7A földeket sorban nyithatod meg."
         - "&7A kapával aratsz: bal klikk a beérett növényre."
   quests:
-    title: "&3[IceMine] &8Napi küldetések"
+    title: "&8Napi küldetések"
     reward: "&7Jutalom: &f%reward%"
     done: "&a✔ Teljesítve"
     open: "&7Még dolgozz rajta!"
   shop:
-    title: "&3[IceMine] &8Gens bolt"
+    title: "&8Gens bolt"
     lore:
       - "&7Mennyiség: &f%amount% db"
       - "&7Ár: &f%price%"
@@ -663,7 +664,7 @@ duels:
     - " &f/duels leave &8- &7kilépés a sorból vagy a nézésből"
     - "&8&m                                             "
   menu:
-    title: "&3[IceMine] &8Duels"
+    title: "&8Duels"
     in-queue: "&7Sorban: &f%count%"
     playing: "&7Játszik: &f%count%"
     your-elo: "&7Elo: &f%elo%"
@@ -677,11 +678,11 @@ duels:
       - "&7a győzelemért Elo pont jár."
       - "&e» Kattints a váltáshoz!"
     stats: "&b&lStatisztikáid"
-    stats-title: "&3[IceMine] &8Duels statok"
+    stats-title: "&8Duels statok"
     spectate: "&f&lMeccsek nézése"
     spectate-lore:
       - "&7Nézd meg, ki játszik most."
-    spectate-title: "&3[IceMine] &8Futó meccsek"
+    spectate-title: "&8Futó meccsek"
     no-matches: "&7Most nem megy egy meccs sem."
     leave-queue: "&c&lKilépés a sorból"
     invite-title: "&eKihívás: &f%player%"
@@ -717,7 +718,7 @@ update:
   failed: "&cNem sikerült a frissítés: &f%reason%"
 
 rank:
-  menu-title: "&3[IceMine] &8Rangok"
+  menu-title: "&8Rangok"
   yours: "&a✔ Ez a te rangod"
   have: "&a✔ Ezt már megkaptad"
   missing: "&8✖ Még nincs meg"
@@ -743,7 +744,7 @@ ability:
   board-ready: "&akész"
 
 upgrade:
-  menu-title: "&3[IceMine] &8Fejlesztések"
+  menu-title: "&8Fejlesztések"
   item: "&b&lFejlesztések"
   item-lore:
     - "&7Erősebb kard és páncél, több élet,"

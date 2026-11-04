@@ -77,6 +77,14 @@ public final class CreativeMode implements ModeHandler, Listener {
     private final Map<UUID, Long> warned = new HashMap<>();
     private final Deque<Runnable> clearJobs = new ArrayDeque<>();
     private final Set<Material> blocked = EnumSet.noneOf(Material.class);
+    private CreativeWorldEdit worldEdit;
+    private boolean weEnabled = true;
+    private long weMinPlaytime = 7_200_000L;
+    private int weMaxBlocks = 20000;
+    private int weMaxRadius = 20;
+    private int weMaxCount = 10;
+    private List<String> wePermissions = new ArrayList<>();
+    private long tickCount;
     private final Map<String, Integer> rankLimits = new HashMap<>();
     private YamlConfiguration config;
     private World world;
@@ -146,6 +154,7 @@ public final class CreativeMode implements ModeHandler, Listener {
             }
         }
         entityLimit = Math.max(0, config.getInt("entities-per-plot", 40));
+        loadWorldEdit(config);
         maxLimit = Math.max(1, config.getInt("limits.max", 2));
         hubKey = PlotGrid.key(config.getInt("hub.plot-x", 0), config.getInt("hub.plot-z", 0));
         blocked.clear();
@@ -493,6 +502,115 @@ public final class CreativeMode implements ModeHandler, Listener {
 
     private boolean builder(Player player) {
         return player.hasPermission("icemine.admin.creative");
+    }
+
+    /** A WorldEdit ide írhat-e a játékos nevében: a saját (vagy felvett) telkén, a bedrock fölött. */
+    boolean canEdit(UUID player, int x, int y, int z) {
+        if (world == null || y <= grid.height - 6) {
+            return false;
+        }
+        long key = grid.plotAt(x, z);
+        Plot plot = key == PlotGrid.NONE ? null : plots.get(key);
+        return plot != null && !plot.clearing && plot.canBuild(player);
+    }
+
+    boolean isBlocked(Material material) {
+        return blocked.contains(material);
+    }
+
+    // ---- WorldEdit ----
+
+    private void loadWorldEdit(YamlConfiguration config) {
+        weEnabled = config.getBoolean("worldedit.enabled", true);
+        weMinPlaytime = Math.max(0, config.getLong("worldedit.min-playtime-minutes", 120)) * 60_000L;
+        weMaxBlocks = Math.max(100, config.getInt("worldedit.max-blocks", 20000));
+        weMaxRadius = Math.max(1, config.getInt("worldedit.max-radius", 20));
+        weMaxCount = Math.max(1, config.getInt("worldedit.max-count", 10));
+        wePermissions = config.isSet("worldedit.permissions") ? config.getStringList("worldedit.permissions")
+                : config.getDefaults() == null ? new ArrayList<>() : config.getDefaults().getStringList("worldedit.permissions");
+        org.bukkit.plugin.Plugin plugin = Bukkit.getPluginManager().getPlugin("WorldEdit");
+        if (worldEdit == null && weEnabled && plugin != null && plugin.isEnabled()) {
+            try {
+                worldEdit = new CreativeWorldEdit(this);
+                core.getLogger().info("Creative: WorldEdit megtalálva, a telkeken a 2 óránál többet játszott játékosok használhatják.");
+            } catch (Throwable error) {
+                worldEdit = null;
+                core.getLogger().warning("Creative: a WorldEdit fent van, de nem tudok rákapcsolódni (" + error + ")");
+            }
+        }
+        if (worldEdit != null && !weEnabled) {
+            worldEdit.unregister();
+            worldEdit = null;
+        }
+    }
+
+    /** Hány perc játékidő hiányzik még a WorldEdithez (0, ha már megvan). */
+    long weMissing(Player player) {
+        hu.icemine.core.data.PlayerProfile profile = core.profiles().profile(player);
+        long played = profile == null ? 0 : profile.playtime();
+        return Math.max(0, weMinPlaytime - played);
+    }
+
+    private void updateWorldEdit(Player player) {
+        if (worldEdit == null) {
+            return;
+        }
+        boolean eligible = inWorld(player) && !builder(player) && weMissing(player) == 0;
+        boolean had = worldEdit.has(player);
+        worldEdit.update(player, eligible, wePermissions, weMaxBlocks);
+        if (eligible && !had) {
+            send(player, "worldedit-on");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onCommand(org.bukkit.event.player.PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
+        String message = event.getMessage();
+        if (!message.startsWith("//") && !message.toLowerCase(Locale.ROOT).startsWith("/worldedit:")) {
+            return;
+        }
+        if (!inWorld(player) || builder(player)) {
+            if (!builder(player) && !player.hasPermission("worldedit.*") && worldEdit != null && worldEdit.has(player)) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+        if (worldEdit == null || !worldEdit.has(player)) {
+            long missing = weMissing(player);
+            if (missing > 0) {
+                event.setCancelled(true);
+                send(player, "worldedit-playtime", "%time%", Text.duration(missing));
+            }
+            return;
+        }
+        String[] parts = message.substring(message.startsWith("//") ? 2 : 1).split("\\s+");
+        String command = parts[0].toLowerCase(Locale.ROOT).replace("worldedit:", "").replace("/", "");
+        boolean radiusCommand = command.equals("sphere") || command.equals("hsphere") || command.equals("cyl") || command.equals("hcyl")
+                || command.equals("pyramid") || command.equals("hpyramid");
+        for (int i = 1; i < parts.length; i++) {
+            String part = parts[i];
+            if (part.startsWith("-")) {
+                continue;
+            }
+            for (String piece : part.split(",")) {
+                try {
+                    double number = Double.parseDouble(piece);
+                    if (radiusCommand && i >= 2 && number > weMaxRadius) {
+                        event.setCancelled(true);
+                        send(player, "worldedit-too-big", "%max%", String.valueOf(weMaxRadius));
+                        return;
+                    }
+                    if (command.equals("stack") && i == 1 && number > weMaxCount) {
+                        event.setCancelled(true);
+                        send(player, "worldedit-too-many", "%max%", String.valueOf(weMaxCount));
+                        return;
+                    }
+                } catch (NumberFormatException ignored) {
+                    // nem szám (pl. blokk minta)
+                }
+            }
+        }
     }
 
     boolean canBuild(Player player, Location location) {
@@ -962,6 +1080,11 @@ public final class CreativeMode implements ModeHandler, Listener {
 
     /** Tickenként: a telek törlések következő darabja. */
     public void tick() {
+        if (++tickCount % 100 == 0 && world != null && worldEdit != null) {
+            for (Player player : world.getPlayers()) {
+                updateWorldEdit(player);
+            }
+        }
         int jobs = clearJobs.size();
         for (int i = 0; i < Math.min(jobs, 3); i++) {
             Runnable job = clearJobs.pollFirst();
@@ -1066,6 +1189,7 @@ public final class CreativeMode implements ModeHandler, Listener {
         if (plotsOf(player.getUniqueId()).isEmpty()) {
             click(player, "no-plot");
         }
+        updateWorldEdit(player);
     }
 
     @Override
@@ -1077,6 +1201,9 @@ public final class CreativeMode implements ModeHandler, Listener {
         player.setFlying(false);
         player.setAllowFlight(false);
         lastPlot.remove(player.getUniqueId());
+        if (worldEdit != null) {
+            worldEdit.revoke(player);
+        }
     }
 
     @Override

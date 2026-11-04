@@ -1,5 +1,6 @@
 settings:
     messagesLanguage: hu
+    useWelcomeMessage: false
     sessions:
         enabled: true
         timeout: 10

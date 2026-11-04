@@ -176,13 +176,13 @@ cosmetics:
 
 menus:
   main:
-    title: "&3[IceMine] &8Főmenü"
+    title: "&8Főmenü"
   selector:
-    title: "&3[IceMine] &8Játékmódok"
+    title: "&8Játékmódok"
   profile:
-    title: "&3[IceMine] &8Profil"
+    title: "&8Profil"
   stats:
-    title: "&3[IceMine] &8Toplisták"
+    title: "&8Toplisták"
     icons:
       fyland: GRASS_BLOCK
       gens: EMERALD
@@ -196,11 +196,11 @@ menus:
       bedwarswins: RED_BED
       bedwarsfinals: IRON_SWORD
   cosmetics:
-    title: "&3[IceMine] &8Kozmetikák"
+    title: "&8Kozmetikák"
   settings:
-    title: "&3[IceMine] &8Beállítások"
+    title: "&8Beállítások"
   info:
-    title: "&3[IceMine] &8Információk"
+    title: "&8Információk"
     # action: mi történjen kattintásra (info:<szöveg> = kiírja a chatre az info-texts részből)
     items:
       server:

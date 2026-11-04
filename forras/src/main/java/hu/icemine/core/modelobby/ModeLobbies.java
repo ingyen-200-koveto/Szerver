@@ -459,7 +459,7 @@ public final class ModeLobbies implements Listener {
                 core.menus().cosmetics(player);
                 break;
             case "main":
-                core.menus().main(player);
+                core.menus().open(player, "selector");
                 break;
             case "back":
                 core.modes().sendAndReport(player, ModeService.LOBBY);

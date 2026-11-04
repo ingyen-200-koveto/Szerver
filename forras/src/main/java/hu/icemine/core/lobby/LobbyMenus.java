@@ -79,7 +79,7 @@ public final class LobbyMenus {
      */
     public void main(Player player) {
         PlayerProfile profile = core.profiles().profile(player);
-        Menu menu = new Menu("main", 4, title("main", "&3[IceMine] &8Főmenü"));
+        Menu menu = new Menu("main", 4, title("main", "&8Főmenü"));
         menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
         menu.set(10, button(Material.COMPASS, "mainmenu.selector"), clicker -> selector(clicker));
         menu.set(11, button(Material.CHEST, "mainmenu.kits"), clicker -> {
@@ -161,7 +161,7 @@ public final class LobbyMenus {
     }
 
     private void back(Menu menu, int slot) {
-        menu.set(slot, Items.of(Material.ARROW).name(core.messages().raw("menu.back")).build(), this::main);
+        menu.set(slot, Items.of(Material.BARRIER).name(core.messages().raw("menu.close")).build(), Player::closeInventory);
     }
 
     public void selector(Player player) {

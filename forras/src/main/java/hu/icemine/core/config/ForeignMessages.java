@@ -29,6 +29,7 @@ public final class ForeignMessages {
             {"Essentials/messages/messages_hu.properties", "1"},
     };
     static final String ESSENTIALS_CONFIG = "essentials-config:1";
+    static final String AUTHME_WELCOME = "authme-welcome:1";
     private static final String DONE_FILE = ".kulso-uzenetek";
 
     private ForeignMessages() {
@@ -93,6 +94,27 @@ public final class ForeignMessages {
                 }
             }
         }
+        if (!done.contains(AUTHME_WELCOME)) {
+            Path config = plugins.resolve("AuthMe").resolve("config.yml");
+            if (Files.isRegularFile(config)) {
+                try {
+                    String text = Files.readString(config, StandardCharsets.UTF_8);
+                    String patched = patchAuthMe(text);
+                    if (!patched.equals(text)) {
+                        Files.writeString(config, patched, StandardCharsets.UTF_8);
+                    }
+                    Path welcome = plugins.resolve("AuthMe").resolve("welcome.txt");
+                    if (Files.isRegularFile(welcome)) {
+                        Files.writeString(welcome, "", StandardCharsets.UTF_8);
+                    }
+                    notes.add("AuthMe/config.yml (az angol \"Welcome ... / AuthMeReloaded protection\" üzenet kikapcsolva)");
+                    done.add(AUTHME_WELCOME);
+                    changed = true;
+                } catch (IOException exception) {
+                    logger.warning("Nem sikerült átírni: plugins/AuthMe/config.yml (" + exception.getMessage() + ")");
+                }
+            }
+        }
         if (changed) {
             write(doneFile, done);
         }
@@ -100,6 +122,12 @@ public final class ForeignMessages {
             logger.info("IceMine üzenetek beállítva: plugins/" + note);
         }
         return notes;
+    }
+
+    /** Az AuthMe belépés utáni angol üdvözlése (welcome.txt) ki. */
+    static String patchAuthMe(String text) {
+        return text.replaceAll("(?m)^(\\s*useWelcomeMessage:\\s*)true\\s*$", "$1false")
+                .replaceAll("(?m)^(\\s*broadcastWelcomeMessage:\\s*)true\\s*$", "$1false");
     }
 
     private static boolean jarPresent(Path plugins, String owner) {

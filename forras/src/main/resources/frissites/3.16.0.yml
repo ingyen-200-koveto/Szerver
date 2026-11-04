@@ -1,0 +1,133 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.16.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.16.0
+changes:
+- file: creative
+  path: messages.menu.title
+  old: '&3[IceMine] &8Creative'
+- file: creative
+  path: messages.menu.visit-title
+  old: '&3[IceMine] &8Látogatás'
+- file: fyland
+  path: messages.menu.main-title
+  old: '&3[IceMine] &8OneBlock'
+- file: fyland
+  path: messages.menu.pw-title
+  old: '&3[IceMine] &8Játékos warpok'
+- file: fyland
+  path: messages.menu.warps-title
+  old: '&3[IceMine] &8Warpok'
+- file: fyland
+  path: messages.menu.enchanter-title
+  old: '&3[IceMine] &8Varázsló'
+- file: fyland
+  path: messages.menu.enchanter-levels-title
+  old: '&3[IceMine] &8%enchant%'
+- file: fyland
+  path: messages.menu.phases-title
+  old: '&3[IceMine] &8Fázisok'
+- file: fyland
+  path: messages.menu.upgrades-title
+  old: '&3[IceMine] &8Fejlesztések'
+- file: fyland
+  path: messages.menu.market-title
+  old: '&3[IceMine] &8Piac'
+- file: fyland
+  path: messages.menu.buy-title
+  old: '&3[IceMine] &8Piac: vásárlás'
+- file: fyland
+  path: messages.menu.members-title
+  old: '&3[IceMine] &8Csapat'
+- file: fyland
+  path: messages.menu.settings-title
+  old: '&3[IceMine] &8Beállítások'
+- file: fyland
+  path: messages.menu.top-title
+  old: '&3[IceMine] &8Toplista'
+- file: fyland
+  path: messages.menu.visit-title
+  old: '&3[IceMine] &8Látogatás'
+- file: lobby
+  path: menus.main.title
+  old: '&3[IceMine] &8Főmenü'
+- file: lobby
+  path: menus.selector.title
+  old: '&3[IceMine] &8Játékmódok'
+- file: lobby
+  path: menus.profile.title
+  old: '&3[IceMine] &8Profil'
+- file: lobby
+  path: menus.stats.title
+  old: '&3[IceMine] &8Toplisták'
+- file: lobby
+  path: menus.cosmetics.title
+  old: '&3[IceMine] &8Kozmetikák'
+- file: lobby
+  path: menus.settings.title
+  old: '&3[IceMine] &8Beállítások'
+- file: lobby
+  path: menus.info.title
+  old: '&3[IceMine] &8Információk'
+- file: market
+  path: messages.ah-title
+  old: '&3[IceMine] &8Aukciósház &7(%page%/%pages%)'
+- file: market
+  path: messages.ah-mine-title
+  old: '&3[IceMine] &8Hirdetéseim'
+- file: market
+  path: messages.ah-expired-title
+  old: '&3[IceMine] &8Lejárt tárgyaim'
+- file: market
+  path: messages.shop-title
+  old: '&3[IceMine] &8Bolt'
+- file: market
+  path: messages.shop-category-title
+  old: '&3[IceMine] &8Bolt: %category%'
+- file: market
+  path: messages.key-preview-title
+  old: '&3[IceMine] &8%key%'
+- file: messages_hu
+  path: kit.menu-title
+  old: '&3[IceMine] &8Kitek'
+- file: messages_hu
+  path: arena.menu-title
+  old: '&3[IceMine] &8Arénák'
+- file: messages_hu
+  path: gens.hoe.title
+  old: '&3[IceMine] &8Kapa fejlesztés'
+- file: messages_hu
+  path: gens.backpack.title
+  old: '&3[IceMine] &8Hátizsák (%size%)'
+- file: messages_hu
+  path: gens.upgrade.title
+  old: '&3[IceMine] &8Sziget fejlesztések'
+- file: messages_hu
+  path: gens.members.title
+  old: '&3[IceMine] &8Sziget tagok'
+- file: messages_hu
+  path: gens.members.title-one
+  old: '&3[IceMine] &8%player% jogai'
+- file: messages_hu
+  path: gens.menu.title
+  old: '&3[IceMine] &8Gens menü'
+- file: messages_hu
+  path: gens.quests.title
+  old: '&3[IceMine] &8Napi küldetések'
+- file: messages_hu
+  path: gens.shop.title
+  old: '&3[IceMine] &8Gens bolt'
+- file: messages_hu
+  path: duels.menu.title
+  old: '&3[IceMine] &8Duels'
+- file: messages_hu
+  path: duels.menu.stats-title
+  old: '&3[IceMine] &8Duels statok'
+- file: messages_hu
+  path: duels.menu.spectate-title
+  old: '&3[IceMine] &8Futó meccsek'
+- file: messages_hu
+  path: rank.menu-title
+  old: '&3[IceMine] &8Rangok'
+- file: messages_hu
+  path: upgrade.menu-title
+  old: '&3[IceMine] &8Fejlesztések'

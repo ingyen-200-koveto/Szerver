@@ -1045,7 +1045,7 @@ messages:
     back: "&7« Vissza"
     lobby: "&cVissza a lobbyba"
     balance: "&7Pénzed: %money%"
-    main-title: "&3[IceMine] &8OneBlock"
+    main-title: "&8OneBlock"
     island-name: "&a&l%owner%"
     island-lore:
       - "&7Fázis: %phase% &8(%done%/%total%)"
@@ -1092,7 +1092,7 @@ messages:
       - "&7Egyedi varázslatok XP-ért."
     prev: "&7« Előző oldal"
     next: "&7Következő oldal »"
-    pw-title: "&3[IceMine] &8Játékos warpok"
+    pw-title: "&8Játékos warpok"
     pw-entry:
       - "&7Sziget: &f%island% &8(%owner%)"
       - "&7Szint: &f%level%"
@@ -1102,7 +1102,7 @@ messages:
     pw-empty: "&7Még nincs egy játékos warp sem"
     pw-empty-lore:
       - "&7Állíts be egyet: &f/pw set <név>"
-    warps-title: "&3[IceMine] &8Warpok"
+    warps-title: "&8Warpok"
     warp-home: "&c&lSzigeted"
     warp-home-lore:
       - "&7Vissza a szigeted otthonára."
@@ -1123,8 +1123,8 @@ messages:
     warp-enchanter: "&5&lVarázsló"
     warp-enchanter-lore:
       - "&7Egyedi varázslatok XP-ért."
-    enchanter-title: "&3[IceMine] &8Varázsló"
-    enchanter-levels-title: "&3[IceMine] &8%enchant%"
+    enchanter-title: "&8Varázsló"
+    enchanter-levels-title: "&8%enchant%"
     enchanter-xp: "&a&lXP szinted: &f%level%"
     enchanter-help:
       - "&7Válassz varázslatot, vedd meg a könyvet,"
@@ -1134,19 +1134,19 @@ messages:
       - "&7Ár: &a%cost% XP szint &8(neked: %level%)"
       - ""
       - "&b▶ Kattints a vásárláshoz"
-    phases-title: "&3[IceMine] &8Fázisok"
+    phases-title: "&8Fázisok"
     phase-blocks: "&7Hossza: &f%blocks% &7blokk"
     phase-done: "&a✔ Kész"
     phase-now: "&e▶ Most itt tartotok: &f%done%&7/&f%total%"
     phase-locked: "&8Még zárva"
-    upgrades-title: "&3[IceMine] &8Fejlesztések"
+    upgrades-title: "&8Fejlesztések"
     upgrade-level: "&7Szint: &f%level%&7/&f%max%"
     upgrade-now: "&7Most: &f%value%"
     upgrade-next: "&7Következő: &a%value%"
     upgrade-price: "&7Ár: %price%"
     upgrade-click: "&b▶ Kattints a fejlesztéshez"
     upgrade-maxed: "&a✔ Elérted a legmagasabb szintet"
-    market-title: "&3[IceMine] &8Piac"
+    market-title: "&8Piac"
     sell-lore:
       - "&7Ár: %price% &7/ db"
       - "&7Nálad: &f%count% db &8(%total%&8)"
@@ -1162,7 +1162,7 @@ messages:
     buy: "&e&lVásárlás"
     buy-lore:
       - "&7Víz, láva, csemeték, magok..."
-    buy-title: "&3[IceMine] &8Piac: vásárlás"
+    buy-title: "&8Piac: vásárlás"
     buy-offer:
       - "&7Ár: %price%"
       - ""
@@ -1171,7 +1171,7 @@ messages:
       - "&7Ár: %price%"
       - ""
       - "&b▶ Bal klikk: 1x &8| &bJobb klikk: %amount% db"
-    members-title: "&3[IceMine] &8Csapat"
+    members-title: "&8Csapat"
     member-owner: "&6&l%player% &8(tulajdonos)"
     member-owner-lore:
       - "&7A sziget gazdája."
@@ -1201,7 +1201,7 @@ messages:
     leave: "&c&lKilépés a szigetről"
     leave-lore:
       - "&7Ha kilépsz, saját szigetet kapsz."
-    settings-title: "&3[IceMine] &8Beállítások"
+    settings-title: "&8Beállítások"
     visitors-open: "&a&lLátogatók: be lehet jönni"
     visitors-closed: "&c&lLátogatók: zárva"
     visitors-lore:
@@ -1229,7 +1229,7 @@ messages:
       - "&7Új sziget, a haladás elölről indul."
       - "&7A fejlesztések megmaradnak."
       - "&cKétszer kell megerősíteni."
-    top-title: "&3[IceMine] &8Toplista"
+    top-title: "&8Toplista"
     top-entry: "&e#%place% &f%owner%"
     top-entry-lore:
       - "&7Szint: &f%level% &8| &7Érték: &f%worth%"
@@ -1239,7 +1239,7 @@ messages:
       - ""
       - "&b▶ Kattints az átnézéshez"
     top-empty: "&7Még nincs egy sziget sem."
-    visit-title: "&3[IceMine] &8Látogatás"
+    visit-title: "&8Látogatás"
     visit-entry-lore:
       - "&7Fázis: %phase%"
       - "&7Kibányászva: &f%blocks% &7blokk"
