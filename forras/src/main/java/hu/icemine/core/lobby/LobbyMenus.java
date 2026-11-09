@@ -261,9 +261,9 @@ public final class LobbyMenus {
         duels.add("&7Lejátszott meccsek: &f" + profile.stat("duels.played"));
         menu.set(37, Items.of(Material.GOLDEN_SWORD).name("&e&lDuels").lore(duels).hideAll().build());
         List<String> parkour = new ArrayList<>();
-        long best = profile.stat("parkour2.best_ms");
+        long best = profile.stat("parkour3.best_ms");
         parkour.add("&7Legjobb idő: &f" + (best > 0 ? Text.timer(best) : "-"));
-        parkour.add("&7Teljesítve: &f" + profile.stat("parkour2.completions") + "x");
+        parkour.add("&7Teljesítve: &f" + profile.stat("parkour3.completions") + "x");
         menu.set(43, Items.of(Material.LEATHER_BOOTS).name("&f&lParkour").lore(parkour).hideAll().build());
         List<String> combo = new ArrayList<>();
         long comboKills = profile.stat("combofly.kills");

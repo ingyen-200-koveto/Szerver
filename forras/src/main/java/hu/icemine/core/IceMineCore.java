@@ -419,6 +419,7 @@ public final class IceMineCore extends JavaPlugin {
             safely("piac leállítás", market::shutdown);
         }
         modes.shutdown();
+        safely("parkour leállítás", parkour::shutdown);
         chatLog.shutdown();
         combat.shutdown();
         holograms.despawn();

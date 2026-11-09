@@ -189,6 +189,21 @@ public final class Migrations {
             parkourFile.set("fall-depth", 6);
             files.save("parkour");
         }
+        if (main != null && "parkour2.best_ms".equals(main.getString("leaderboards.boards.parkour.key", ""))) {
+            main.set("leaderboards.boards.parkour.key", "parkour3.best_ms");
+            files.save("config");
+            notes.add("config.yml: új, kockánként megjelenő parkour, új rekordlista");
+        }
+        if (parkourFile != null && !parkourFile.isSet("checkpoint-every")) {
+            if (parkourFile.getInt("min-time-ms", 0) == 40000) {
+                parkourFile.set("min-time-ms", 25000);
+            }
+            if (parkourFile.getInt("fall-depth", 0) == 6) {
+                parkourFile.set("fall-depth", 3);
+            }
+            parkourFile.set("checkpoint-every", 14);
+            files.save("parkour");
+        }
         if (board.isSet("boards") && !board.isSet("boards.modelobby")) {
             copyDefault(board, "boards.modelobby");
             files.save("scoreboard");

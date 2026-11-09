@@ -251,7 +251,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         }
         sender.sendMessage(Text.color(" &7OneBlock: &a" + Text.number(profile.stat("fyland.blocks")) + " &7kibányászott blokk"));
         sender.sendMessage(Text.color(" &7Gens bevétel: &e" + Text.number(profile.stat("gens.earned")) + " &8| &7Parkour: &f"
-                + (profile.stat("parkour2.best_ms") > 0 ? Text.timer(profile.stat("parkour2.best_ms")) : "-") + " &8| &7Kombó: &b" + profile.stat("combofly.best") + "x"));
+                + (profile.stat("parkour3.best_ms") > 0 ? Text.timer(profile.stat("parkour3.best_ms")) : "-") + " &8| &7Kombó: &b" + profile.stat("combofly.best") + "x"));
         sender.sendMessage(Text.color(" &7Játékidő: &f" + Text.duration(profile.playtime())));
     }
 
@@ -322,8 +322,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if (player == null || !allowed(sender, "icemine.admin.parkour")) {
             return;
         }
-        if (args.length < 2 || !Arrays.asList("start", "checkpoint", "finish", "clear", "fail").contains(args[1].toLowerCase(Locale.ROOT))) {
-            core.messages().send(sender, "admin.usage", "%usage%", "/icem admin parkour <start|checkpoint|finish|clear|fail>");
+        if (args.length < 2 || !Arrays.asList("start", "fail").contains(args[1].toLowerCase(Locale.ROOT))) {
+            core.messages().send(sender, "admin.usage", "%usage%", "/icem admin parkour <start|fail>");
             return;
         }
         if (player.getWorld() != core.lobby().world()) {

@@ -2,57 +2,80 @@ package hu.icemine.core.parkour;
 
 public final class ParkourRun {
 
-    public enum Reach {
-        OK,
-        ALREADY,
-        SKIPPED
+    public enum Step {
+        NONE,
+        NEXT,
+        CHECKPOINT,
+        FINISH
     }
 
     private final long startNanos;
-    private final int total;
-    private int next;
-    private int last = -1;
+    private final int length;
+    private final int every;
+    private int current = -1;
+    private int checkpoint = -1;
     private int falls;
 
-    public ParkourRun(long startNanos, int total) {
+    public ParkourRun(long startNanos, int length, int every) {
         this.startNanos = startNanos;
-        this.total = Math.max(0, total);
+        this.length = Math.max(1, length);
+        this.every = Math.max(0, every);
     }
 
-    public Reach reach(int index) {
-        if (index < next) {
-            return Reach.ALREADY;
+    public static boolean isCheckpoint(int index, int length, int every) {
+        return every > 0 && index < length - 1 && (index + 1) % every == 0;
+    }
+
+    public static int checkpointCount(int length, int every) {
+        return every > 0 ? (Math.max(1, length) - 1) / every : 0;
+    }
+
+    public Step land(int index) {
+        if (index != current + 1 || index >= length) {
+            return Step.NONE;
         }
-        if (index > next) {
-            return Reach.SKIPPED;
+        current = index;
+        if (index == length - 1) {
+            return Step.FINISH;
         }
-        next++;
-        last = index;
-        return Reach.OK;
-    }
-
-    public boolean complete() {
-        return next >= total;
-    }
-
-    public int last() {
-        return last;
-    }
-
-    public int reached() {
-        return next;
-    }
-
-    public int total() {
-        return total;
-    }
-
-    public long elapsed(long nowNanos) {
-        return Math.max(0L, (nowNanos - startNanos) / 1_000_000L);
+        if (isCheckpoint(index, length, every)) {
+            checkpoint = index;
+            return Step.CHECKPOINT;
+        }
+        return Step.NEXT;
     }
 
     public void fell() {
         falls++;
+        back();
+    }
+
+    public void back() {
+        current = checkpoint;
+    }
+
+    public int current() {
+        return current;
+    }
+
+    public int checkpoint() {
+        return checkpoint;
+    }
+
+    public int checkpointsReached() {
+        return every > 0 ? (checkpoint + 1) / every : 0;
+    }
+
+    public int checkpointTotal() {
+        return checkpointCount(length, every);
+    }
+
+    public int length() {
+        return length;
+    }
+
+    public long elapsed(long nowNanos) {
+        return Math.max(0L, (nowNanos - startNanos) / 1_000_000L);
     }
 
     public int falls() {

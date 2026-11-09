@@ -1,12 +1,14 @@
-# Lobby jégparkour
-# A pályát a lobby építésekor a plugin tölti ki. Kézzel is beállíthatod:
-#   /icemine parkour start | checkpoint | finish | clear | fail
+# Lobby parkour: színes gyapjú kockák, mindig csak a következő kocka jelenik meg,
+# amikor ráugrottál az előzőre. A pályát (56 kocka) a lobby építésekor a plugin tölti ki.
+# A startot kézzel is beállíthatod: /icem admin parkour start | fail
 
 enabled: true
 # Ennél gyorsabb időt nem fogad el (ms) - védelem a csalás ellen
-min-time-ms: 40000
-# Ha ennyi blokkal az utolsó ellenőrzőpont alá esel, visszakerülsz rá
-fall-depth: 6
+min-time-ms: 25000
+# Ha ennyi blokkal a mostani kockád alá esel, visszakerülsz a legutóbbi ellenőrzőpontra
+fall-depth: 3
+# Minden hányadik kocka ellenőrzőpont (zöld gyapjú). A cél az utolsó kocka (aranyblokk).
+checkpoint-every: 14
 # Ennyi perc után magától megszakad
 max-time-minutes: 15
 

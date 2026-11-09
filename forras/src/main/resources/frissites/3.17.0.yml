@@ -1,0 +1,43 @@
+# Automatikusan generált lista: ezek az alapértékek változtak a 3.17.0 verzióban.
+# Ha a szerveren még a régi alapérték van, az IceMine kicseréli az újra. A saját átírásaidhoz nem nyúl.
+version: 3.17.0
+changes:
+- file: config
+  path: leaderboards.boards.parkour.key
+  old: parkour2.best_ms
+- file: lobby
+  path: info-texts.parkour
+  old:
+  - '&8&m                                             '
+  - ' &b&lJégparkour'
+  - ' &7Lépj a nyomólapra a start kapuban, és indul az óra.'
+  - ' &7Útközben ellenőrzőpontok vannak, ha leesel, onnan folytatod.'
+  - ' &7Első teljesítésért és új rekordért kristály jár!'
+  - ' &7Rekord: &f%parkour_record%'
+  - '&8&m                                             '
+- file: messages_hu
+  path: parkour.started
+  old: '&bIndul! &7Ha leesel, a legutóbbi ellenőrzőpontra kerülsz.'
+- file: messages_hu
+  path: parkour.timer
+  old: '&b⏱ %time% &8| &7Ellenőrzőpont: &f%number%/%total%'
+- file: messages_hu
+  path: admin.help
+  old:
+  - '&b[IceMine] &fAdmin parancsok &8(/icem admin ...)'
+  - ' &b/icem admin setlobby &8- &7lobby spawn ide'
+  - ' &b/icem admin setportal <mód> [sugár] [magasság] &8- &7portál ide'
+  - ' &b/icem admin givecurrency|takecurrency|setcurrency <játékos> <összeg> [pénznem]'
+  - ' &b/icem admin parkour <start|checkpoint|finish|clear|fail>'
+  - ' &b/icem admin combofly <reload|on|off>'
+  - ' &b/icem admin mode <játékos> <mód|lobby> [-f] &8- &7játékos átküldése'
+  - ' &b/icem admin maintenance <mód> <on|off|closed>'
+  - ' &b/icem admin hologram <list|move <id>> &8| &b/icem admin npc <list|move <id>>'
+  - ' &b/icem admin rebuild <lobby|combofly|gens> confirm'
+  - ' &b/icem admin combattag clear <játékos> &8| &b/icem admin info'
+- file: parkour
+  path: min-time-ms
+  old: 40000
+- file: parkour
+  path: fall-depth
+  old: 6

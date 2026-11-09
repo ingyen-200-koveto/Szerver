@@ -95,7 +95,7 @@ leaderboards:
     parkour:
       title: "&f&l⏱ Parkour rekordok"
       source: stat
-      key: parkour2.best_ms
+      key: parkour3.best_ms
       ascending: true
       format: time
     combo:

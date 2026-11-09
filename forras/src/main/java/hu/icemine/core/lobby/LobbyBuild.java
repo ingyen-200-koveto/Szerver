@@ -6,7 +6,8 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 6;
+    public static final int VERSION = 7;
+    public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 90;
     public static final int CLEAR_NORTH = 100;
     public static final int CLEAR_SOUTH = 112;
@@ -918,95 +919,13 @@ public final class LobbyBuild extends Build {
     }
 
     private void parkour() {
-        int[][] jumps = {
-                {0, 5, 11, 0, 0}, {3, 5, 11, 0, 0}, {6, 5, 12, 0, 0}, {9, 6, 12, 0, 0}, {11, 6, 14, 0, 0}, {14, 6, 14, 0, 0},
-                {17, 7, 13, 0, 0}, {20, 7, 13, 0, 0}, {22, 7, 15, 0, 0}, {25, 8, 15, 0, 0}, {28, 8, 15, 0, 0}, {30, 9, 16, 0, 0},
-                {33, 9, 16, 0, 0}, {36, 10, 20, 1, 0}, {35, 11, 25, 0, 1}, {31, 11, 25, 0, 1}, {28, 12, 25, 0, 1}, {24, 12, 26, 0, 1},
-                {21, 13, 26, 0, 1}, {17, 12, 27, 0, 1}, {14, 13, 27, 0, 1}, {11, 13, 29, 0, 1}, {7, 13, 29, 0, 1}, {4, 14, 29, 0, 1},
-                {0, 14, 28, 0, 1}, {-3, 15, 29, 0, 1}, {-7, 15, 29, 0, 1}, {-10, 15, 31, 0, 1}, {-14, 15, 31, 0, 1}, {-17, 16, 35, 1, 1},
-                {-16, 17, 40, 0, 2}, {-12, 17, 40, 0, 2}, {-8, 18, 40, 0, 2}, {-5, 18, 43, 0, 2}, {0, 17, 43, 0, 2}, {3, 18, 44, 0, 2},
-                {6, 19, 46, 0, 2}, {10, 19, 46, 0, 2}, {13, 20, 45, 0, 2}, {18, 19, 45, 0, 2}, {20, 20, 48, 0, 2}, {24, 21, 48, 0, 2},
-                {28, 21, 48, 0, 2}, {32, 21, 49, 0, 2}, {35, 22, 53, 1, 2}, {34, 23, 58, 0, 3}, {30, 23, 58, 0, 3}, {27, 24, 58, 0, 3},
-                {23, 24, 59, 0, 3}, {19, 24, 59, 0, 3}, {16, 25, 61, 0, 3}, {12, 25, 61, 0, 3}, {7, 25, 61, 0, 3}, {4, 26, 61, 0, 3},
-                {0, 26, 63, 0, 3}, {-4, 27, 63, 0, 3}, {-8, 27, 63, 0, 3}, {-12, 27, 62, 0, 3}, {-15, 28, 66, 1, 3}, {-14, 29, 71, 0, 4},
-                {-10, 30, 71, 0, 4}, {-5, 30, 71, 0, 4}, {-2, 31, 72, 0, 4}, {2, 31, 74, 0, 4}, {5, 32, 76, 0, 4}, {10, 32, 76, 0, 4},
-                {14, 33, 76, 0, 4}, {18, 33, 76, 0, 4}, {22, 33, 77, 0, 4}, {26, 34, 77, 0, 4}, {31, 34, 77, 0, 4}, {34, 35, 81, 2, 4}
-        };
-        String[][] styles = {
-                {"mossy_stone_bricks", "stone_bricks", "cracked_stone_bricks"},
-                {"spruce_log[axis=y]", "oak_log[axis=y]", "spruce_planks"},
-                {"moss_block", "flowering_azalea_leaves[persistent=true]", "azalea_leaves[persistent=true]"},
-                {"packed_ice", "blue_ice", "packed_ice"},
-                {"smooth_quartz", "light_blue_concrete", "calcite"}
-        };
-        int index = 0;
-        for (int[] jump : jumps) {
-            int x = jump[0];
-            int y = jump[1];
-            int z = jump[2];
-            int section = Math.min(styles.length - 1, jump[4]);
-            if (jump[3] == 1) {
-                islet(x, y, z, false);
-                put(x, y + 1, z, "heavy_weighted_pressure_plate");
-                layout.add("parkour:checkpoints", x, y + 1, z, 0);
-            } else if (jump[3] == 2) {
-                islet(x, y, z, true);
-                put(x, y + 1, z, "light_weighted_pressure_plate");
-                layout.point("parkour:finish", x, y + 1, z, 0);
-                layout.point("holo:parkour_finish", x + 0.5, y + 3.6, z + 0.5, 0);
-            } else {
-                String[] style = styles[section];
-                String block = style[(int) (noise(x, z, 90 + index) * style.length)];
-                put(x, y, z, block);
-                if (section == 1 && block.contains("log")) {
-                    put(x, y - 1, z, block);
-                    put(x, y - 2, z, block);
-                } else if (section == 0) {
-                    put(x, y - 1, z, noise(x, z, 91) < 0.5 ? "cobblestone" : "mossy_cobblestone");
-                } else if (section == 2) {
-                    put(x, y - 1, z, "dirt");
-                    put(x, y - 2, z, "hanging_roots");
-                } else if (section == 3) {
-                    put(x, y - 1, z, "snow_block");
-                    put(x, y - 2, z, "ice");
-                } else {
-                    put(x, y - 1, z, "packed_ice");
-                }
-            }
-            course.add(new int[]{x, y, z});
-            index++;
+        List<int[]> blocks = hu.icemine.core.parkour.CourseGen.generate(new int[]{0, PLATFORM, BACK + 2}, COURSE_LENGTH, 56L);
+        for (int[] block : blocks) {
+            layout.add("parkour:blocks", block[0], block[1], block[2], 0);
+            course.add(block);
         }
-    }
-
-    private void islet(int x, int y, int z, boolean big) {
-        double radius = big ? 3.3 : 2.3;
-        int r = (int) Math.ceil(radius);
-        for (int dx = -r; dx <= r; dx++) {
-            for (int dz = -r; dz <= r; dz++) {
-                double d = dist(dx, dz);
-                if (d > radius) {
-                    continue;
-                }
-                put(x + dx, y, z + dz, big ? (d < 1.5 ? "smooth_quartz" : (Math.floorMod(dx + dz, 2) == 0 ? "light_blue_concrete" : "calcite")) : "grass_block");
-                int depth = (int) ((1 - d / (radius + 0.5)) * (big ? 5 : 4)) + 1;
-                for (int l = 1; l <= depth; l++) {
-                    put(x + dx, y - l, z + dz, l == 1 ? "dirt" : (noise(x + dx, z + dz + l, 92) < 0.6 ? "stone" : "andesite"));
-                }
-                if (!big && d > 1.6 && noise(x + dx, z + dz, 93) < 0.3) {
-                    put(x + dx, y + 1, z + dz, "short_grass");
-                }
-            }
-        }
-        if (big) {
-            for (int[] p : new int[][]{{-2, -2}, {2, 2}, {-2, 2}}) {
-                put(x + p[0], y + 1, z + p[1], "stone_brick_wall[up=true]");
-                put(x + p[0], y + 2, z + p[1], "lantern[hanging=false]");
-            }
-        } else {
-            int side = x > 0 ? 2 : -2;
-            put(x + side, y + 1, z, "spruce_fence");
-            put(x + side, y + 2, z, "lantern[hanging=false]");
-        }
+        int[] last = blocks.get(blocks.size() - 1);
+        layout.point("holo:parkour_finish", last[0] + 0.5, last[1] + 3.2, last[2] + 0.5, 0);
     }
 
     private void anchors() {

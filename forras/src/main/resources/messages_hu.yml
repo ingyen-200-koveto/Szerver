@@ -194,7 +194,7 @@ board:
 parkour:
   not-ready: "A parkour még nincs beállítva."
   go-to-start: "Lépj a nyomólapra, és indul az óra!"
-  started: "&bIndul! &7Ha leesel, a legutóbbi ellenőrzőpontra kerülsz."
+  started: "&bIndul! &7Ugorj a színes kockákra, mindig csak a következő jelenik meg. &f%blocks% &7kocka vár, a zöldek ellenőrzőpontok."
   restart: "Újrakezdheted, lépj a startra."
   stopped: "A parkour megszakadt."
   not-running: "Nem futsz épp parkourt."
@@ -209,7 +209,7 @@ parkour:
   server-record: "&f%player% &7új szerverrekordot futott a parkouron: &b%time%&7!"
   suspicious: "Ez az idő túl gyors volt ahhoz, hogy elfogadjuk. Próbáld újra rendesen!"
   timeout: "Túl sokáig tartott, a parkour megszakadt."
-  timer: "&b⏱ %time% &8| &7Ellenőrzőpont: &f%number%/%total%"
+  timer: "&b⏱ %time% &8| &7Kocka: &f%block%/%blocks% &8| &7Ellenőrzőpont: &f%number%/%total%"
   portal-blocked: "Parkour közben nem léphetsz be a kapukon."
   item:
     checkpoint: "&bVissza az ellenőrzőpontra"
@@ -558,7 +558,7 @@ admin:
     - " &b/icem admin setlobby &8- &7lobby spawn ide"
     - " &b/icem admin setportal <mód> [sugár] [magasság] &8- &7portál ide"
     - " &b/icem admin givecurrency|takecurrency|setcurrency <játékos> <összeg> [pénznem]"
-    - " &b/icem admin parkour <start|checkpoint|finish|clear|fail>"
+    - " &b/icem admin parkour <start|fail>"
     - " &b/icem admin combofly <reload|on|off>"
     - " &b/icem admin mode <játékos> <mód|lobby> [-f] &8- &7játékos átküldése"
     - " &b/icem admin maintenance <mód> <on|off|closed>"

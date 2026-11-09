@@ -236,6 +236,14 @@ Kombó közben nincs részecske és hang effekt, csak a számláló az action ba
 A plugin teljes forráskódja a `forras` mappában van (Maven projekt, Paper API, `mvn package` -> `IceMine.jar`).
 A szerver nem használja, csak megőrzésre van itt.
 
+## Lobby parkour
+
+A start kapu mögötti nyomólapra lépve indul. A pálya 56 színes gyapjú kockából áll, de mindig csak a
+következő kocka látszik: akkor jelenik meg, amikor ráugrottál az előzőre. Minden 14. kocka zöld, az
+ellenőrzőpont, ha leesel, onnan folytatod. Az utolsó kocka aranyblokk, az a cél. Egyszerre többen is
+futhatnak, mindenki a saját kockáit látja előtűnni. A 3.17.0-val a lobby egyszer magától újraépül
+(a régi parkour helyére ez kerül), és a parkour rekordlista újraindul. Beállítás: `parkour.yml`.
+
 ## Világok
 
 Ezeket az IceMine hozza létre és építi fel magától:

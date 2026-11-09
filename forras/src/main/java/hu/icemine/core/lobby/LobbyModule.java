@@ -153,16 +153,16 @@ public final class LobbyModule implements ModeHandler {
         writeAnchors(config, layout, x, y, z);
         YamlConfiguration parkour = core.configs().get("parkour");
         Layout.Point start = layout.points.get("parkour:start");
-        Layout.Point finish = layout.points.get("parkour:finish");
-        if (start != null && finish != null) {
+        List<Layout.Point> blocks = layout.lists.getOrDefault("parkour:blocks", new ArrayList<>());
+        if (start != null && !blocks.isEmpty()) {
             Locs.write(parkour, "course.start", x + start.x, y + start.y, z + start.z, start.yaw);
-            Locs.write(parkour, "course.finish", x + finish.x, y + finish.y, z + finish.z, finish.yaw);
+            parkour.set("course.finish", null);
             parkour.set("course.checkpoints", null);
-            List<Layout.Point> checkpoints = layout.lists.getOrDefault("parkour:checkpoints", new ArrayList<>());
-            for (int i = 0; i < checkpoints.size(); i++) {
-                Layout.Point point = checkpoints.get(i);
-                Locs.write(parkour, "course.checkpoints." + (i + 1), x + point.x, y + point.y, z + point.z, point.yaw);
+            List<String> list = new ArrayList<>();
+            for (Layout.Point point : blocks) {
+                list.add((int) Math.round(x + point.x) + "," + (int) Math.round(y + point.y) + "," + (int) Math.round(z + point.z));
             }
+            parkour.set("course.blocks", list);
             Layout.Point fail = layout.points.get("parkour:fail");
             if (fail != null) {
                 parkour.set("course.fail-y", y + fail.y);
