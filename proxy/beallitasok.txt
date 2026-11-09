@@ -1,0 +1,5 @@
+# IceMineProxy: ezeket a beállításokat minden proxy induláskor beírja a pluginok configjába.
+# Forma: fájl a plugins mappán belül | kulcs = érték
+Geyser-Velocity/config.yml | bedrock.clone-remote-port = true
+Geyser-Velocity/config.yml | bedrock.transport = nethernet
+Geyser-Velocity/config.yml | bedrock.signaling.mode = nxs

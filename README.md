@@ -9,6 +9,7 @@ Purpur 1.20.6, Java 21.
 - `plugins/*.jar`: az IceMine plugin (`IceMine.jar`, benne minden saját rendszer és játékmód) és a külső pluginok
   (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB, Citizens 2.0.35 b3500)
 - `forras/`: az IceMine plugin forráskódja (a szerver nem használja)
+- `proxy/`: a Velocity proxyhoz tartozó IceMineProxy plugin és a beállításai (lásd lent)
 - `kezdo/`: amit csak egyszer kell a helyére tenni (server.properties, config/paper-global.yml,
   AuthMe config és magyar szövegek, ComboFly pálya). Ezt az IceMine az első indításkor
   magától a helyére másolja, aztán leállítja a szervert. A második indítástól minden a helyén van.
@@ -313,6 +314,24 @@ Beállítás: `plugins/IceMine/kingdoms.yml` (árak, limitek, hatalom, háború,
 
 A régi királyságok, földek és otthonok az első indításkor maguktól átjönnek az új rendszerbe
 (a régi fájl `kingdoms.yml.regi` néven megmarad).
+
+## Proxy (Velocity) és Bedrock
+
+A Bedrock játékosok a proxyn lévő Geyser és Floodgate pluginon keresztül jönnek be. Ezeket és a beállításaikat
+az **IceMineProxy** plugin tartja rendben, így a proxyn sem kell kézzel semmit frissíteni:
+
+- minden induláskor beírja a `proxy/beallitasok.txt` sorait a pluginok configjába (most: a Geyser a proxy
+  portját használja, NetherNet kapcsolattal, külső signalinggal, mert az SRKHost csak egy portot ad),
+- 30 percenként megnézi, van-e újabb Geyser és Floodgate (Velocity build), és ha igen, letölti. A proxy
+  következő újraindításakor kerül a helyére,
+- magát is frissíti innen (`proxy/version.txt`).
+
+Telepítés (csak egyszer): a proxy `plugins` mappájában Letöltés URL-ről:
+`https://raw.githubusercontent.com/ingyen-200-koveto/Szerver/main/proxy/IceMineProxy.jar`
+Utána indítsd újra a proxyt, várj 2 percet, és indítsd újra még egyszer.
+
+Bedrockon a csatlakozási címet a Geyser írja ki a proxy konzoljára indításkor
+("Players can join at ..."). Forráskód: `proxy/forras`.
 
 ## Első telepítés
 
