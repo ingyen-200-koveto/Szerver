@@ -84,7 +84,7 @@ public final class WebLogin implements Listener {
     }
 
     /** A weboldalon a Bedrock játékosok neve a pont nélküli név. */
-    static String webName(String name) {
+    public static String webName(String name) {
         String result = name;
         while (result.startsWith(".") || result.startsWith("*")) {
             result = result.substring(1);

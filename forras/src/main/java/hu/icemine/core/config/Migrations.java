@@ -194,6 +194,11 @@ public final class Migrations {
             files.save("config");
             notes.add("config.yml: új, kockánként megjelenő parkour, új rekordlista");
         }
+        if (main != null && !main.isSet("weboldal-rangok")) {
+            copyDefault(main, "weboldal-rangok");
+            files.save("config");
+            notes.add("config.yml: a weboldalon vett rangok automatikusan megjönnek (weboldal-rangok)");
+        }
         if (main != null && !main.isSet("weboldal-belepes")) {
             copyDefault(main, "weboldal-belepes");
             files.save("config");

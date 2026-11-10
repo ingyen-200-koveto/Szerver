@@ -18,4 +18,12 @@ class IceCoinsTest {
         assertTrue(IceCoins.parse("{\"error\":\"Hibás kulcs.\"}").isEmpty());
         assertTrue(IceCoins.parse(null).isEmpty());
     }
+
+    @Test
+    void readsTheRanks() {
+        Map<String, String> ranks = IceCoins.parseRanks("{\"players\":{\"steve\":{\"coins\":1234,\"rank\":\"IceKing\"},\"alex_2\":{\"coins\":0,\"rank\":\"default\"}}}");
+        assertEquals("IceKing", ranks.get("steve"));
+        assertEquals("default", ranks.get("alex_2"));
+        assertTrue(IceCoins.parseRanks("{\"players\":{}}").isEmpty());
+    }
 }

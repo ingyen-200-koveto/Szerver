@@ -30,6 +30,7 @@ import org.bukkit.scheduler.BukkitTask;
 public final class IceCoins {
 
     private static final Pattern ENTRY = Pattern.compile("\"([a-z0-9_]{1,16})\"\\s*:\\s*\\{\\s*\"coins\"\\s*:\\s*(-?\\d+)");
+    private static final Pattern RANK = Pattern.compile("\"([a-z0-9_]{1,16})\"\\s*:\\s*\\{[^{}]*?\"rank\"\\s*:\\s*\"([^\"]{0,40})\"");
 
     private final IceMineCore core;
     private final Map<String, Long> coins = new ConcurrentHashMap<>();
@@ -80,7 +81,7 @@ public final class IceCoins {
     }
 
     public void forget(Player player) {
-        String name = player.getName().toLowerCase(Locale.ROOT);
+        String name = key(player);
         coins.remove(name);
         checked.remove(name);
     }
@@ -92,7 +93,7 @@ public final class IceCoins {
         List<String> names = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!player.hasMetadata("NPC")) {
-                names.add(player.getName().toLowerCase(Locale.ROOT));
+                names.add(key(player));
             }
         }
         if (names.isEmpty()) {
@@ -121,6 +122,12 @@ public final class IceCoins {
                 return;
             }
             Map<String, Long> found = parse(response.body());
+            Map<String, String> ranks = parseRanks(response.body());
+            Bukkit.getScheduler().runTask(core, () -> {
+                if (core.webRanks() != null) {
+                    core.webRanks().update(ranks);
+                }
+            });
             for (String name : names) {
                 Long value = found.get(name);
                 if (value == null) {
@@ -145,6 +152,24 @@ public final class IceCoins {
         }
     }
 
+    /** A weboldalon a játékos neve (Bedrockon a pont nélkül). */
+    public static String key(Player player) {
+        return hu.icemine.core.WebLogin.webName(player.getName());
+    }
+
+    /** A weboldal válaszából a rangok: {"players":{"steve":{"coins":1234,"rank":"VIP"}}} -> steve = VIP. */
+    static Map<String, String> parseRanks(String body) {
+        Map<String, String> result = new HashMap<>();
+        if (body == null) {
+            return result;
+        }
+        Matcher matcher = RANK.matcher(body);
+        while (matcher.find()) {
+            result.put(matcher.group(1), matcher.group(2));
+        }
+        return result;
+    }
+
     /** A weboldal válaszából: {"players":{"steve":{"coins":1234,"rank":"VIP"}}} -> steve = 1234. */
     static Map<String, Long> parse(String body) {
         Map<String, Long> result = new HashMap<>();
@@ -163,7 +188,7 @@ public final class IceCoins {
 
     /** A scoreboardra: az egyenleg, vagy "nincs fiók", ha nem regisztrált a weboldalon. */
     public String display(Player player) {
-        String name = player.getName().toLowerCase(Locale.ROOT);
+        String name = key(player);
         Long value = coins.get(name);
         if (value != null) {
             return Text.number(value);
@@ -175,6 +200,6 @@ public final class IceCoins {
     }
 
     public Long balance(Player player) {
-        return coins.get(player.getName().toLowerCase(Locale.ROOT));
+        return coins.get(key(player));
     }
 }

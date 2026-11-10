@@ -1146,3 +1146,7 @@ weblogin:
   offline: "A weboldal most nem érhető el, ezért nem tudom ellenőrizni a jelszavad. Próbáld újra pár perc múlva."
   conflict: "Ezt a nevet a szerveren már a weboldalas fiók előtt regisztrálták. Lépj be a régi szerveres jelszavaddal, aztán írd be: &b/changepassword <régi> <weboldalas jelszó>"
   failed: "Nem sikerült a bejelentkezés. Próbáld újra, vagy szólj egy adminnak."
+
+webrank:
+  given: "&aMegérkezett a weboldalon vett rangod: %rank%&a. Köszönjük a támogatást!"
+  expired: "Lejárt a %rank% &7rangod. A weboldalon meghosszabbíthatod: &b%url%"

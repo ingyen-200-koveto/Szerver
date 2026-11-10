@@ -87,6 +87,7 @@ public final class IceMineCore extends JavaPlugin {
     private final Updater updater = new Updater(this);
     private final ChatLog chatLog = new ChatLog(this);
     private final WebLogin webLogin = new WebLogin(this);
+    private final hu.icemine.core.rank.WebRanks webRanks = new hu.icemine.core.rank.WebRanks(this);
     private Duels duels;
     private Npcs npcs;
     private ContactBook contacts;
@@ -218,6 +219,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("frissítés", () -> updater.load(main));
         safely("chat napló", () -> chatLog.load(main));
         safely("weboldalas belépés", () -> webLogin.load(main));
+        safely("weboldalas rangok", () -> webRanks.load(main));
         safely("Fyland", () -> {
             fyland.load(configs.get(hu.icemine.core.fyland.FylandMode.FILE), problems);
             modes.register(fyland);
@@ -495,6 +497,7 @@ public final class IceMineCore extends JavaPlugin {
             safely("frissítés", () -> updater.load(main));
             safely("chat napló", () -> chatLog.load(main));
         safely("weboldalas belépés", () -> webLogin.load(main));
+        safely("weboldalas rangok", () -> webRanks.load(main));
         }
         if (all || file.equals(hu.icemine.core.market.Market.FILE) || file.equals("economy")) {
             safely("piac", () -> market.load(configs.get(hu.icemine.core.market.Market.FILE), problems));
@@ -788,6 +791,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public GensMenu gensMenu() {
         return gensMenu;
+    }
+
+    public hu.icemine.core.rank.WebRanks webRanks() {
+        return webRanks;
     }
 
     public AuthHook auth() {

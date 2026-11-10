@@ -37,6 +37,19 @@ weboldal-belepes:
   # Ezt a címet írja ki a játékosoknak (üresen: az icecoin.url-ből)
   weboldal: "icemine.hu"
 
+# A weboldalon vett rangok: a szerver az IceCoinnal együtt lekérdezi a rangot is (icecoin.refresh-seconds időnként),
+# és ha valakinek a weboldalon rangja van, megkapja a hozzá tartozó LuckPerms csoportot. Ha lejár, leveszi.
+# A kézzel adott rangokhoz (lp user ... parent add ...) nem nyúl.
+weboldal-rangok:
+  enabled: true
+  # weboldalas rang neve: LuckPerms csoport
+  rangok:
+    Bronz: bronz
+    Wizard: wizard
+    Abyss: wizard
+    IceKing: iceking
+    Yeti: yeti
+
 # Chat napló: minden chat üzenet (a királysági és szövetségi is), parancs, be- és kilépés naponta egy fájlba kerül:
 # plugins/IceMine/chatlog/ÉÉÉÉ-HH-NN.log. A jelszavas parancsoknál (/login, /register...) a jelszó helyett csillag van.
 # Játékban: /icem chatlog [játékos] [oldal]. keep-days: ennyi napnál régebbi naplókat törli.
