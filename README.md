@@ -236,6 +236,17 @@ Kombó közben nincs részecske és hang effekt, csak a számláló az action ba
 A plugin teljes forráskódja a `forras` mappában van (Maven projekt, Paper API, `mvn package` -> `IceMine.jar`).
 A szerver nem használja, csak megőrzésre van itt.
 
+## Belépés a weboldalas jelszóval
+
+A játékosok a szerveren is a weboldalas jelszavukkal lépnek be (`/login <jelszó>`). A jelszót a weboldal
+ellenőrzi (`/api/mc/login`), és ha jó, az AuthMe beléptet, a szerveren tárolt jelszó pedig a weboldaléra
+változik. Regisztrálni csak a weboldalon lehet, ugyanazzal a névvel, mint a játékban. Ha a weboldalon
+megváltozik a jelszó, a következő belépéstől az új jelszó jó. Bedrockon a név előtti pontot nem kell beírni a
+weboldalon. Akinek még nincs weboldalas fiókja, de régen a szerveren regisztrált, a régi jelszavával még
+beléphet. Ha a weboldal nem elérhető, a szerveren tárolt jelszó működik. 8 rossz jelszó után az adott
+névvel 15 percig nem lehet próbálkozni. Beállítás: `config.yml` -> `weboldal-belepes` (a cím és a kulcs az
+`icecoin` résznél van; ha a weboldal `.env` fájljában van `MC_API_KEY`, ugyanaz kell az `icecoin.api-key`-be).
+
 ## Lobby parkour
 
 A start kapu mögötti nyomólapra lépve indul. A pálya 56 színes gyapjú kockából áll, de mindig csak a

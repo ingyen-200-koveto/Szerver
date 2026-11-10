@@ -194,6 +194,11 @@ public final class Migrations {
             files.save("config");
             notes.add("config.yml: új, kockánként megjelenő parkour, új rekordlista");
         }
+        if (main != null && !main.isSet("weboldal-belepes")) {
+            copyDefault(main, "weboldal-belepes");
+            files.save("config");
+            notes.add("config.yml: belépés a weboldalas jelszóval (weboldal-belepes)");
+        }
         if (parkourFile != null && !parkourFile.isSet("checkpoint-every")) {
             if (parkourFile.getInt("min-time-ms", 0) == 40000) {
                 parkourFile.set("min-time-ms", 25000);

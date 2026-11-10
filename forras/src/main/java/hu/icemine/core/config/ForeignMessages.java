@@ -25,7 +25,7 @@ public final class ForeignMessages {
 
     /** Ha egy kulso fájl tartalma változik, itt kell növelni a számát, akkor újra kikerül. */
     static final String[][] FILES = {
-            {"AuthMe/messages/messages_hu.yml", "1"},
+            {"AuthMe/messages/messages_hu.yml", "2"},
             {"Essentials/messages/messages_hu.properties", "1"},
     };
     static final String ESSENTIALS_CONFIG = "essentials-config:1";

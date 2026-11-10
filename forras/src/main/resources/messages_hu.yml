@@ -1129,3 +1129,20 @@ bedwars:
 icecoin:
   no-account: "&7nincs fiók"
   loading: "&7..."
+
+weblogin:
+  usage: "Így kell: &b/login <jelszó> &7(ugyanaz a jelszó, mint a weboldalon)"
+  busy: "Pillanat, még ellenőrzöm a jelszavad..."
+  success: "&aSikeres bejelentkezés a weboldalas fiókoddal, jó játékot!"
+  success-local: "&aSikeres bejelentkezés. &7Regisztrálj a weboldalon is (&b%url%&7) ugyanezzel a névvel, és onnantól azzal a jelszóval lépsz be."
+  success-old: "&aSikeres bejelentkezés a régi szerveres jelszavaddal."
+  success-offline: "&aSikeres bejelentkezés. &7(A weboldal most nem elérhető, ezért a szerveren tárolt jelszóval léptél be.)"
+  wrong: "Rossz jelszó. Azt a jelszót írd be, amivel a weboldalon (&b%url%&7) belépsz. Még &f%left% &7próbálkozásod van."
+  kick: "&b[IceMine]\n\n&cTúl sokszor írtad el a jelszót.\n&7Ha elfelejtetted, a weboldalon kérhetsz újat: &b%url%"
+  no-account: "Ehhez a névhez még nincs fiók. Regisztrálj a weboldalon: &b%url%&7, ugyanezzel a névvel (&f%name%&7), aztán itt: &b/login <jelszó>"
+  register: "Regisztrálni a weboldalon tudsz: &b%url%&7. Ugyanazt a nevet add meg, mint itt (&f%name%&7), aztán lépj be: &b/login <jelszó>"
+  verify: "A weboldalas fiókod még nincs megerősítve. Nézd meg az e-mailjeidet, kattints a linkre, aztán próbáld újra."
+  wait: "Túl sok rossz jelszó jött ehhez a névhez. Várj &f%minutes% &7percet, aztán próbáld újra."
+  offline: "A weboldal most nem érhető el, ezért nem tudom ellenőrizni a jelszavad. Próbáld újra pár perc múlva."
+  conflict: "Ezt a nevet a szerveren már a weboldalas fiók előtt regisztrálták. Lépj be a régi szerveres jelszavaddal, aztán írd be: &b/changepassword <régi> <weboldalas jelszó>"
+  failed: "Nem sikerült a bejelentkezés. Próbáld újra, vagy szólj egy adminnak."

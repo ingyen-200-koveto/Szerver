@@ -24,6 +24,19 @@ icecoin:
   # Ennyi másodpercenként frissül
   refresh-seconds: 30
 
+# Belépés a weboldalas jelszóval: a /login jelszavát a weboldal ellenőrzi (az icecoin.url címen, az icecoin.api-key kulccsal).
+# Ha jó, a szerveres (AuthMe) jelszó is erre változik. Ha a weboldalon megváltoztatod a jelszót, a következő belépéstől az új jó.
+weboldal-belepes:
+  enabled: true
+  # Ennyi rossz jelszó után kidob
+  probalkozas: 5
+  # Akinek nincs weboldalas fiókja, de régen a szerveren regisztrált, beléphet a régi szerveres jelszavával
+  regi-fiokok: true
+  # Lehessen-e a szerveren regisztrálni (/register). false = csak a weboldalon
+  szerveren-regisztracio: false
+  # Ezt a címet írja ki a játékosoknak (üresen: az icecoin.url-ből)
+  weboldal: "icemine.hu"
+
 # Chat napló: minden chat üzenet (a királysági és szövetségi is), parancs, be- és kilépés naponta egy fájlba kerül:
 # plugins/IceMine/chatlog/ÉÉÉÉ-HH-NN.log. A jelszavas parancsoknál (/login, /register...) a jelszó helyett csillag van.
 # Játékban: /icem chatlog [játékos] [oldal]. keep-days: ennyi napnál régebbi naplókat törli.

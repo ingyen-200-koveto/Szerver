@@ -5,7 +5,7 @@
 registration:
     disabled: '&b[IceMine] &7A regisztráció most ki van kapcsolva.'
     name_taken: '&b[IceMine] &7Ezzel a névvel már regisztrált valaki.'
-    register_request: '&b[IceMine] &7Regisztrálj: &b/register <jelszó> <jelszó újra>'
+    register_request: '&b[IceMine] &7Regisztrálj a weboldalon: &bicemine.hu&7, aztán lépj be ugyanazzal a jelszóval: &b/login <jelszó>'
     command_usage: '&b[IceMine] &7Így kell: &b/register <jelszó> <jelszó újra>'
     reg_only: '&b[IceMine] &7A szerverre csak regisztrált játékosok léphetnek be.'
     success: '&b[IceMine] &aSikeres regisztráció, jó játékot!'
@@ -19,10 +19,10 @@ password:
     wrong_length: '&b[IceMine] &7A jelszó túl rövid vagy túl hosszú.'
 
 login:
-    command_usage: '&b[IceMine] &7Így kell: &b/login <jelszó>'
+    command_usage: '&b[IceMine] &7Így kell: &b/login <jelszó> &7(ugyanaz, mint a weboldalon)'
     wrong_password: '&b[IceMine] &7Rossz jelszó.'
     success: '&b[IceMine] &aSikeres bejelentkezés, jó játékot!'
-    login_request: '&b[IceMine] &7Jelentkezz be: &b/login <jelszó>'
+    login_request: '&b[IceMine] &7Jelentkezz be a weboldalas jelszavaddal: &b/login <jelszó>'
     timeout_error: '&b[IceMine] &7Lejárt az idő a bejelentkezésre. Lépj be újra!'
 
 error:
