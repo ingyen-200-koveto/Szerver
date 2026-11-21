@@ -267,12 +267,12 @@ kívülről elérhető legyen. Ha a játékos a weboldalon visszaállítja az al
 Akinek nincs weboldalas skinje, annál az IceMine nem nyúl semmihez, a `/skin` parancs ugyanúgy működik.
 Bedrock játékosoknál (ponttal kezdődő név) a saját Bedrock skinjük marad.
 
-## /report és /admin
+## /jelent és /segitseg
 
-- `/report <játékos> <indok>` (más néven `/jelent`): a jelentés a weboldalon át a Discord 🚨・reportok
+- `/jelent <játékos> <indok>` (más néven `/report`): a jelentés a weboldalon át a Discord 🚨・jelentések
   csatornájába kerül. Benne van, ki jelentett kit, melyik játékmódban (szerveren), és miért. Játékosonként
   percenként egyszer lehet.
-- `/admin [üzenet]` (más néven `/segitseg`): a Discord 🆘・admin-hívások csatornájába megy, és pingeli a
+- `/segitseg <üzenet>` (más néven `/admin`): a Discord 🆘・segítségkérések csatornájába megy, és pingeli a
   staff rangot. Játékosonként 5 percenként egyszer lehet.
 - Aki játékban is látni akarja ezeket, annak `icemine.mod.reports` jog kell (benne van az `icemine.mod.*`-ban).
 - A küldéshez a `config.yml` `icecoin.url` és `icecoin.api-key` beállítása kell, és a weboldalon is be kell

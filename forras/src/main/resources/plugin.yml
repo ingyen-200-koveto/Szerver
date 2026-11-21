@@ -15,14 +15,14 @@ commands:
     description: Kingdoms admin parancsok
     usage: /kadmin <reload|rebuild|disband|unclaim|give|rp|bank|xp|level|masswar|stopinvasion|join|setking|info>
     aliases: [ka]
-  report:
+  jelent:
     description: Játékos jelentése a staffnak
-    usage: /report <játékos> <indok>
-    aliases: [jelent, jelentes]
-  admin:
+    usage: /jelent <játékos> <indok>
+    aliases: [report, jelentes]
+  segitseg:
     description: Szól a staffnak, hogy segítség kell
-    usage: /admin [üzenet]
-    aliases: [segitseg]
+    usage: /segitseg <üzenet>
+    aliases: [admin]
   icem:
     description: IceMine parancsok (help, stats, kit, arena, rank, setspawn, reload, admin)
     usage: /icem help

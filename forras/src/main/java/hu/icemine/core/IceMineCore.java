@@ -272,8 +272,8 @@ public final class IceMineCore extends JavaPlugin {
             register(name, players, players);
         }
         hu.icemine.core.report.ReportCommands reports = new hu.icemine.core.report.ReportCommands(this);
-        register("report", reports, reports);
-        register("admin", reports, reports);
+        register("jelent", reports, reports);
+        register("segitseg", reports, reports);
         DuelsCommand duelsCommand = new DuelsCommand(this, duels);
         register("duel", duelsCommand, duelsCommand);
         register("duels", duelsCommand, duelsCommand);

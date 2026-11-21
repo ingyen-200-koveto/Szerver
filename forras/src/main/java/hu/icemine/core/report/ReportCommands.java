@@ -16,7 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-/** /report és /admin: a jelzés a weboldalon át a Discord staff csatornájába kerül, és a fent lévő staff is látja. */
+/** /jelent és /segitseg: a jelzés a weboldalon át a Discord staff csatornájába kerül, és a fent lévő staff is látja. */
 public final class ReportCommands implements CommandExecutor, TabCompleter {
 
     public static final String STAFF_PERMISSION = "icemine.mod.reports";
@@ -42,7 +42,7 @@ public final class ReportCommands implements CommandExecutor, TabCompleter {
             say(player, "&cElőbb jelentkezz be.");
             return true;
         }
-        if (command.getName().equalsIgnoreCase("admin")) {
+        if (command.getName().equalsIgnoreCase("segitseg")) {
             admin(player, args);
         } else {
             report(player, args);
@@ -52,7 +52,7 @@ public final class ReportCommands implements CommandExecutor, TabCompleter {
 
     private void report(Player player, String[] args) {
         if (args.length < 2) {
-            say(player, "&7Használat: &f/report <játékos> <indok>");
+            say(player, "&7Használat: &f/jelent <játékos> <indok>");
             return;
         }
         String target = args[0];
@@ -66,7 +66,7 @@ public final class ReportCommands implements CommandExecutor, TabCompleter {
         }
         String reason = String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)).trim();
         if (reason.length() < 3) {
-            say(player, "&cÍrd le röviden, mi történt. Pl.: &f/report " + target + " repül");
+            say(player, "&cÍrd le röviden, mi történt. Pl.: &f/jelent " + target + " repül");
             return;
         }
         if (reason.length() > 300) {
@@ -83,11 +83,15 @@ public final class ReportCommands implements CommandExecutor, TabCompleter {
                 + ",\"vilag\":" + q(player.getWorld().getName()) + "}";
         final String why = reason;
         send(player, json, "&aKöszönjük! A jelentésedet elküldtük a staffnak.", lastReport);
-        notifyStaff(player, "&c[Report] &f" + player.getName() + " &7→ &f" + targetName + " &8(" + mode + ")&7: &f" + why);
+        notifyStaff(player, "&c[Jelentés] &f" + player.getName() + " &7→ &f" + targetName + " &8(" + mode + ")&7: &f" + why);
     }
 
     private void admin(Player player, String[] args) {
         String text = String.join(" ", args).trim();
+        if (text.length() < 3) {
+            say(player, "&7Használat: &f/segitseg <üzenet>&7, pl. &f/segitseg beragadtam a falba");
+            return;
+        }
         if (text.length() > 300) {
             text = text.substring(0, 300);
         }
@@ -98,7 +102,7 @@ public final class ReportCommands implements CommandExecutor, TabCompleter {
         String json = "{\"tipus\":\"admin\",\"jatekos\":" + q(player.getName()) + ",\"szoveg\":" + q(text) + ",\"mod\":" + q(mode)
                 + ",\"vilag\":" + q(player.getWorld().getName()) + "}";
         send(player, json, "&aSzóltunk a staffnak, hamarosan jön valaki. Kérjük, várj türelemmel.", lastAdmin);
-        notifyStaff(player, "&6[Admin hívás] &f" + player.getName() + " &8(" + mode + ")" + (text.isEmpty() ? "" : "&7: &f" + text));
+        notifyStaff(player, "&6[Segítségkérés] &f" + player.getName() + " &8(" + mode + ")" + (text.isEmpty() ? "" : "&7: &f" + text));
     }
 
     private void send(Player player, String json, String ok, Map<UUID, Long> cooldown) {
@@ -184,7 +188,7 @@ public final class ReportCommands implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> out = new ArrayList<>();
-        if (command.getName().equalsIgnoreCase("report") && args.length == 1) {
+        if (command.getName().equalsIgnoreCase("jelent") && args.length == 1) {
             String start = args[0].toLowerCase(Locale.ROOT);
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (!p.equals(sender) && !p.hasMetadata("NPC") && p.getName().toLowerCase(Locale.ROOT).startsWith(start)) {
