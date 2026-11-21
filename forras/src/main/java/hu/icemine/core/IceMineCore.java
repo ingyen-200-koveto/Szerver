@@ -120,6 +120,14 @@ public final class IceMineCore extends JavaPlugin {
         } catch (Throwable ignored) {
             // ha a szerveren nincs log4j, a csendes indítás kimarad
         }
+        try {
+            org.bukkit.configuration.file.YamlConfiguration cfg = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(new java.io.File(getDataFolder(), "config.yml"));
+            if (cfg.getBoolean("hiba-figyelo.be", true)) {
+                hu.icemine.core.config.HibaFigyelo.start(cfg.getStringList("hiba-figyelo.kihagy"), cfg.getBoolean("hiba-figyelo.csak-hibak", false));
+            }
+        } catch (Throwable ignored) {
+            // log4j nélkül a hibafigyelő kimarad
+        }
         DataMove.run(getDataFolder().getParentFile(), getDataFolder().getName(), getLogger());
         try {
             hu.icemine.core.command.LibertyBansAliases.patchConfig(getDataFolder().getParentFile(), getLogger());
@@ -289,6 +297,15 @@ public final class IceMineCore extends JavaPlugin {
         for (String name : new String[]{"lobby", "spawn", "profil", "top", "penz", "fizet", "napi", "kapcsolat", "combofly", "kit", "arena", "gens", "elad"}) {
             register(name, players, players);
         }
+        safely("hibafigyelő", () -> {
+            String forras = getConfig().getString("hiba-figyelo.nev", "Lobby");
+            Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+                try {
+                    hu.icemine.core.config.HibaFigyelo.kuld(forras, json -> iceCoins().post("/api/mc/hibak", json, null));
+                } catch (Throwable ignored) {
+                }
+            }, 20L * 30, 20L * 30);
+        });
         safely("LibertyBans összekötés", () -> {
             buntetesek = new hu.icemine.core.rank.Buntetesek(this);
             buntetesek.start();
@@ -446,6 +463,10 @@ public final class IceMineCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        try {
+            hu.icemine.core.config.HibaFigyelo.stop();
+        } catch (Throwable ignored) {
+        }
         for (BukkitTask task : tasks) {
             task.cancel();
         }

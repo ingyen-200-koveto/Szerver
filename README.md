@@ -295,6 +295,18 @@ A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a Be
   Kitiltáscsökkentés oldalán mindenki látja a sajátját (lejárattal). Ehhez a `MC_API_KEY` kell, ugyanaz, mint a
   rangoknál.
 
+## Hibafigyelő (Discord)
+
+A lobby és a proxy minden figyelmeztetése és hibája (bármelyik pluginé) a weboldalon keresztül a Discordra kerül, a
+staff **⚠️・szerver-hibák** csatornába (ha még nincs, a bot az első hibánál létrehozza a jelentések csatorna
+mellett, vagy: `/beallitas szerverhibak`). Ugyanaz a hiba 30 percenként legfeljebb egyszer jön, a többit csak
+számolja („🔁 5× ugyanez”). A szokásos, ártalmatlan figyelmeztetések (offline mód, root, Vault...) ki vannak hagyva.
+
+- Lobby: `plugins/IceMine/config.yml` → `hiba-figyelo` (név, csak hibák, saját kihagyási lista). Az
+  `icecoin.url` és `icecoin.api-key` beállítást használja, külön nem kell semmi.
+- Proxy: `plugins/icemineproxy/hibak.properties` → `kulcs=` ide ugyanazt kell írni, mint a weboldal
+  `MC_API_KEY`-e (a lobbyn az `icecoin.api-key`). Utána proxy újraindítás.
+
 ## /jelent és /segitseg
 
 - `/jelent <játékos> <indok>`: a jelentés a weboldalon át a Discord 🚨・jelentések

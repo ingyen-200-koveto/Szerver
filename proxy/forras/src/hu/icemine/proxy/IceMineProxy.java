@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 public final class IceMineProxy {
 
-    public static final String VERSION = "1.1.0";
+    public static final String VERSION = "1.2.0";
     static final String REPO = "https://raw.githubusercontent.com/ingyen-200-koveto/Szerver/main/proxy/";
     static final String GEYSER_API = "https://download.geysermc.org/v2/projects/%s/versions/latest/builds/latest";
     static final Pattern SHA = Pattern.compile("\"velocity\"\\s*:\\s*\\{[^}]*\"sha256\"\\s*:\\s*\"([0-9a-fA-F]{64})\"");
@@ -68,6 +68,87 @@ public final class IceMineProxy {
         installIcon();
         Runtime.getRuntime().addShutdownHook(new Thread(this::installStaged, "IceMineProxy-frissites"));
         timer.scheduleWithFixedDelay(this::checkUpdates, 20, 30 * 60, TimeUnit.SECONDS);
+        startErrorWatch();
+    }
+
+    /**
+     * Hibafigyelő: a proxy hibái a weboldalon át a Discord szerver-hibák csatornájába. A weboldal címét és a kulcsot
+     * (MC_API_KEY, ugyanaz, mint a lobby IceMine configjában az icecoin.api-key) a plugins/icemineproxy/hibak.properties
+     * fájlba kell írni.
+     */
+    void startErrorWatch() {
+        Path file = dataDir.resolve("hibak.properties");
+        java.util.Properties props = new java.util.Properties();
+        try {
+            if (!Files.exists(file)) {
+                Files.writeString(file, String.join("\n",
+                        "# Hibafigyelő: a proxy hibái a Discord szerver-hibák csatornájába (a weboldalon keresztül).",
+                        "# kulcs: ugyanaz, mint a weboldal .env fájljában az MC_API_KEY (és a lobbyn az icecoin.api-key).",
+                        "# Ha üres, a hibafigyelő nem küld semmit. Átírás után indítsd újra a proxyt.",
+                        "be=true",
+                        "weboldal=https://icemine.hu",
+                        "kulcs=",
+                        "nev=Proxy",
+                        "csak-hibak=false",
+                        "# Vesszővel elválasztva: ha egy sor ezek valamelyikét tartalmazza, nem küldi el",
+                        "kihagy=",
+                        ""), StandardCharsets.UTF_8);
+            }
+            try (java.io.Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+                props.load(reader);
+            }
+        } catch (IOException e) {
+            warn("A hibak.properties nem olvasható: " + e.getMessage());
+            return;
+        }
+        String url = props.getProperty("weboldal", "").strip().replaceAll("/+$", "");
+        String key = props.getProperty("kulcs", "").strip();
+        if (!"true".equalsIgnoreCase(props.getProperty("be", "true").strip())) {
+            return;
+        }
+        if (url.isEmpty() || key.isEmpty()) {
+            info("Hibafigyelő: írd be a kulcsot a plugins/icemineproxy/hibak.properties fájlba, és a proxy hibái a Discordra kerülnek.");
+            return;
+        }
+        String name = props.getProperty("nev", "Proxy").strip();
+        try {
+            HibaFigyelo.start(java.util.Arrays.asList(props.getProperty("kihagy", "").split(",")), "true".equalsIgnoreCase(props.getProperty("csak-hibak", "false").strip()));
+        } catch (Throwable t) {
+            warn("Hibafigyelő nem indult el: " + t);
+            return;
+        }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                HibaFigyelo.stop();
+            } catch (Throwable ignored) {
+            }
+        }, "IceMineProxy-hibafigyelo-stop"));
+        timer.scheduleWithFixedDelay(() -> {
+            try {
+                HibaFigyelo.kuld(name, json -> postJson(url + "/api/mc/hibak", key, json));
+            } catch (Throwable ignored) {
+            }
+        }, 30, 30, TimeUnit.SECONDS);
+    }
+
+    private long lastPostWarning;
+
+    void postJson(String url, String key, String json) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                    .timeout(Duration.ofSeconds(10))
+                    .header("User-Agent", "IceMineProxy/" + VERSION)
+                    .header("Content-Type", "application/json")
+                    .header("X-IceMine-Key", key)
+                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .build();
+            int status = http.send(request, HttpResponse.BodyHandlers.discarding()).statusCode();
+            if (status == 401 && System.currentTimeMillis() - lastPostWarning > 3_600_000L) {
+                lastPostWarning = System.currentTimeMillis();
+                info("Hibafigyelő: a weboldal nem fogadta el a kulcsot (hibak.properties -> kulcs).");
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     void applySettings() {

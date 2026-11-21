@@ -160,3 +160,14 @@ leaderboards:
 # Csendes indítás: indításkor a konzolon csak a figyelmeztetések, a hibák és a végén egy összefoglaló sor látszik.
 # A logs/latest.log fájlba ilyenkor is minden bekerül. Ha mindent látni szeretnél a konzolon: false
 quiet-startup: true
+
+# Hibafigyelő: a szerver figyelmeztetései és hibái (minden pluginé) a weboldalon át a Discordra kerülnek,
+# a ⚠️・szerver-hibák csatornába. Ugyanaz a hiba 30 percenként legfeljebb egyszer jön, a többi csak számolódik.
+hiba-figyelo:
+  be: true
+  # Ez a név látszik a Discordon (pl. Lobby)
+  nev: "Lobby"
+  # true: csak a hibák (ERROR) jönnek, a figyelmeztetések (WARN) nem
+  csak-hibak: false
+  # Ha egy sor ezek közül valamelyiket tartalmazza, nem küldi el (a szokásos, ártalmatlan üzenetek már ki vannak hagyva)
+  kihagy: []
