@@ -96,14 +96,14 @@ public final class SwMap {
     }
 
     /** A ketrec padlója ennyivel van a sziget teteje fölött; a játékos eggyel fölötte áll. */
-    public static final int CAGE = 4;
+    public static final int CAGE = 3;
 
     public void build() {
         Random random = new Random(theme.ordinal() * 7919L + islands);
         for (int i = 0; i < islands; i++) {
             int[] c = island(i, islands);
             blob(cx + c[0], cz + c[1], ISLAND, random);
-            tree(cx + c[0] - 1, cy + 1, cz + c[1] - 1);
+            tree(cx + c[0] - 3, cy + 1, cz + c[1] - 1);
             for (int[] ch : islandChests()) {
                 sink.set(cx + c[0] + ch[0], cy + ch[1], cz + c[1] + ch[2], "chest");
             }
