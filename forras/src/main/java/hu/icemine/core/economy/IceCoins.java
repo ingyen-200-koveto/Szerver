@@ -211,6 +211,33 @@ public final class IceCoins {
         });
     }
 
+    /** JSON-t küld a weboldalnak a háttérben; a válasz HTTP kódját (vagy -1-et) a fő szálon adja vissza. */
+    public void post(String path, String json, java.util.function.IntConsumer done) {
+        if (!enabled || url.isEmpty()) {
+            if (done != null) {
+                done.accept(-1);
+            }
+            return;
+        }
+        Bukkit.getScheduler().runTaskAsynchronously(core, () -> {
+            int status = -1;
+            try {
+                HttpRequest request = HttpRequest.newBuilder(URI.create(url + path)).timeout(Duration.ofSeconds(8))
+                        .header("X-IceMine-Key", key).header("Content-Type", "application/json").header("User-Agent", "IceMine-Minecraft")
+                        .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8)).build();
+                status = client.send(request, HttpResponse.BodyHandlers.discarding()).statusCode();
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+            } catch (Exception exception) {
+                core.getLogger().warning("Weboldal (" + path + "): " + exception.getMessage());
+            }
+            final int result = status;
+            if (done != null && core.isEnabled()) {
+                Bukkit.getScheduler().runTask(core, () -> done.accept(result));
+            }
+        });
+    }
+
     private void warn(String text) {
         long now = System.currentTimeMillis();
         if (now - lastWarning > 600000L) {

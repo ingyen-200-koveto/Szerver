@@ -271,6 +271,9 @@ public final class IceMineCore extends JavaPlugin {
         for (String name : new String[]{"lobby", "spawn", "profil", "top", "kozmetika", "penz", "fizet", "napi", "kapcsolat", "parkour", "combofly", "kit", "arena", "gens", "elad"}) {
             register(name, players, players);
         }
+        hu.icemine.core.report.ReportCommands reports = new hu.icemine.core.report.ReportCommands(this);
+        register("report", reports, reports);
+        register("admin", reports, reports);
         DuelsCommand duelsCommand = new DuelsCommand(this, duels);
         register("duel", duelsCommand, duelsCommand);
         register("duels", duelsCommand, duelsCommand);

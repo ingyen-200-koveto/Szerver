@@ -266,6 +266,19 @@ ráteszi. A képet a SkinsRestorer a MineSkinnel hitelesíti, ezért kell, hogy 
 kívülről elérhető legyen. Ha a játékos a weboldalon visszaállítja az alap skint, a szerveren is lekerül.
 Akinek nincs weboldalas skinje, annál az IceMine nem nyúl semmihez, a `/skin` parancs ugyanúgy működik.
 Bedrock játékosoknál (ponttal kezdődő név) a saját Bedrock skinjük marad.
+
+## /report és /admin
+
+- `/report <játékos> <indok>` (más néven `/jelent`): a jelentés a weboldalon át a Discord 🚨・reportok
+  csatornájába kerül. Benne van, ki jelentett kit, melyik játékmódban (szerveren), és miért. Játékosonként
+  percenként egyszer lehet.
+- `/admin [üzenet]` (más néven `/segitseg`): a Discord 🆘・admin-hívások csatornájába megy, és pingeli a
+  staff rangot. Játékosonként 5 percenként egyszer lehet.
+- Aki játékban is látni akarja ezeket, annak `icemine.mod.reports` jog kell (benne van az `icemine.mod.*`-ban).
+- A küldéshez a `config.yml` `icecoin.url` és `icecoin.api-key` beállítása kell, és a weboldalon is be kell
+  legyen állítva az `MC_API_KEY`, ugyanazzal az értékkel. Discordon a csatornákat a `/beallitas reportok`
+  és `/beallitas adminhivasok` paranccsal adod meg.
+
 ## Lobby parkour
 
 A start kapu mögötti nyomólapra lépve indul. A pálya 56 színes gyapjú kockából áll, de mindig csak a
