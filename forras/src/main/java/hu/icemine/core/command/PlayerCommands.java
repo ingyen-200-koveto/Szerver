@@ -286,25 +286,6 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         String action = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "";
         PlayerProfile profile = core.profiles().profile(player);
         switch (action) {
-            case "toggle":
-                if (profile == null) {
-                    return;
-                }
-                boolean value = !profile.flag(ComboFly.DISPLAY, true);
-                profile.putFlag(ComboFly.DISPLAY, value);
-                profile.putFlag(ComboFly.EFFECTS, value);
-                core.messages().send(player, value ? "combo.display-on" : "combo.display-off");
-                break;
-            case "stats":
-                if (profile == null) {
-                    return;
-                }
-                long kills = profile.stat("combofly.kills");
-                long deaths = profile.stat("combofly.deaths");
-                core.messages().sendList(player, "combo.stats", "%best%", String.valueOf(profile.stat("combofly.best")),
-                        "%combos%", Text.number(profile.stat("combofly.combos")), "%kills%", Text.number(kills),
-                        "%deaths%", Text.number(deaths), "%kd%", Text.ratio(kills, deaths));
-                break;
             case "reload":
                 if (!player.hasPermission("icemine.admin.combofly")) {
                     core.messages().send(player, "general.no-permission");
@@ -318,13 +299,7 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
                 comboAdmin(player, args);
                 break;
             default:
-                String mode = core.modes().current(player);
-                if (args.length == 0 && !ComboArenaMode.ID.equals(mode)) {
-                    core.modes().sendAndReport(player, ComboArenaMode.ID);
-                    return;
-                }
-                core.messages().sendList(player, "combo.help", "%status%", core.messages().get(core.combo().activeIn(mode) ? "combo.status-on" : "combo.status-off"),
-                        "%display%", core.messages().get(profile != null && profile.flag(ComboFly.DISPLAY, true) ? "combo.status-on" : "combo.status-off"));
+                core.messages().send(player, player.hasPermission("icemine.admin.combofly") ? "general.unknown-command" : "general.no-permission");
         }
     }
 
@@ -461,8 +436,7 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             switch (name) {
                 case "combofly":
-                    return AdminCommand.filter(sender.hasPermission("icemine.admin.combofly")
-                            ? Arrays.asList("toggle", "stats", "reload", "admin") : Arrays.asList("toggle", "stats"), args[0]);
+                    return sender.hasPermission("icemine.admin.combofly") ? AdminCommand.filter(Arrays.asList("reload", "admin"), args[0]) : Collections.emptyList();
                 case "parkour":
                     return AdminCommand.filter(Arrays.asList("start", "leave"), args[0]);
                 case "gens":

@@ -473,6 +473,15 @@ public final class Migrations {
             files.save("ranks");
             notes.add("ranks.yml: új rangok (Bronz, Wizard, IceKing, Yeti és a csapat rangjai), a régi fájl: ranks.yml.regi");
         }
+        YamlConfiguration lobbyInfo = files.get("lobby");
+        if (lobbyInfo != null) {
+            java.util.List<String> combo = lobbyInfo.getStringList("info-texts.mode_combofly");
+            if (combo.removeIf(line -> line.contains("/combofly"))) {
+                lobbyInfo.set("info-texts.mode_combofly", combo);
+                files.save("lobby");
+                notes.add("lobby.yml: a ComboFly leírásból kikerült a /combofly sor (a kombó kijelzés megszűnt)");
+            }
+        }
         return notes;
     }
 

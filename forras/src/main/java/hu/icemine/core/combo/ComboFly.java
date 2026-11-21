@@ -251,39 +251,6 @@ public final class ComboFly implements Listener {
             double[] velocity = Knockback.compute(to.getX() - from.getX(), to.getZ() - from.getZ(), Math.toRadians(from.getYaw()), combo, settings, heightAboveGround(target));
             target.setVelocity(new Vector(velocity[0], velocity[1], velocity[2]));
         });
-        show(attacker, combo);
-        if (milestones.contains(combo)) {
-            effects(attacker, victim, combo);
-        }
-    }
-
-    private void show(Player attacker, int combo) {
-        if (!actionbar || combo < 2) {
-            return;
-        }
-        PlayerProfile profile = core.profiles().profile(attacker);
-        if (profile != null && !profile.flag(DISPLAY, true)) {
-            return;
-        }
-        String text = tiers.floorEntry(Math.max(1, combo)).getValue().replace("%combo%", String.valueOf(combo));
-        attacker.sendActionBar(hu.icemine.core.util.Text.color(text));
-        shownUntil.put(attacker.getUniqueId(), System.currentTimeMillis() + 1500L);
-    }
-
-    private void effects(Player attacker, Player victim, int combo) {
-        PlayerProfile profile = core.profiles().profile(attacker);
-        if (profile != null && !profile.flag(EFFECTS, true)) {
-            return;
-        }
-        Location at = victim.getLocation().add(0, 1, 0);
-        if (particles) {
-            Particle particle = combo >= 20 ? Particle.FIREWORK : (combo >= 10 ? Particle.END_ROD : Particle.SNOWFLAKE);
-            at.getWorld().spawnParticle(particle, at.getX(), at.getY(), at.getZ(), combo >= 20 ? 24 : 12, 0.4, 0.5, 0.4, 0.02);
-        }
-        if (sounds) {
-            String sound = combo >= 20 ? "minecraft:entity.firework_rocket.twinkle" : (combo >= 10 ? "minecraft:entity.player.levelup" : "minecraft:block.amethyst_block.chime");
-            attacker.playSound(attacker.getLocation(), sound, 0.7f, combo >= 10 ? 1.6f : 1.2f);
-        }
     }
 
     private void finish(List<ComboTracker.Ended> ended, String mode) {
@@ -303,9 +270,6 @@ public final class ComboFly implements Listener {
                 if (where != null) {
                     profile.maxStat(where + ".best_combo", end.count);
                 }
-            }
-            if (end.count >= endMessageFrom && actionbar && (profile == null || profile.flag(DISPLAY, true))) {
-                player.sendActionBar(core.messages().get("combo.ended", "%combo%", String.valueOf(end.count)));
             }
         }
     }

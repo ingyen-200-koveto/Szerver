@@ -60,8 +60,6 @@ combo:
     - " &7Ebben a módban: %status%  &8| &7Kijelzés: %display%"
     - " &7Üss egymás után, és tartsd a levegőben az ellenfelet!"
     - " &7Saját arénája van, a lobbyban a lila szoborral jutsz oda."
-    - " &b/combofly toggle &8- &7kijelzés és effektek ki/be"
-    - " &b/combofly stats &8- &7a kombó statisztikáid"
   stats:
     - "&b[IceMine] &7ComboFly statisztikáid"
     - " &7Legnagyobb kombó: &b%best%x"

@@ -386,12 +386,10 @@ public final class LobbyMenus {
         }
         Menu menu = new Menu("settings", 3, title("settings", "&b&lIce&f&lMine &8» &fBeállítások"));
         menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
-        toggle(menu, 10, player, profile, LobbyModule.VISIBILITY, false, Material.ENDER_EYE, "settings.visibility", true, p -> core.lobby().applyVisibility(p));
+        toggle(menu, 11, player, profile, LobbyModule.VISIBILITY, false, Material.ENDER_EYE, "settings.visibility", true, p -> core.lobby().applyVisibility(p));
         boolean canFly = player.hasPermission("icemine.cosmetic.fly");
-        toggle(menu, 12, player, profile, LobbyModule.FLY, false, Material.ELYTRA, "settings.fly", canFly, p -> core.lobby().applyFlight(p));
-        toggle(menu, 14, player, profile, ComboFly.DISPLAY, true, Material.PRISMARINE_SHARD, "settings.combo-display", true, null);
-        toggle(menu, 15, player, profile, ComboFly.EFFECTS, true, Material.FIREWORK_STAR, "settings.combo-effects", true, null);
-        toggle(menu, 16, player, profile, "board.hidden", false, Material.OAK_SIGN, "settings.scoreboard", true, p -> core.boards().rebuild(p));
+        toggle(menu, 13, player, profile, LobbyModule.FLY, false, Material.ELYTRA, "settings.fly", canFly, p -> core.lobby().applyFlight(p));
+        toggle(menu, 15, player, profile, "board.hidden", false, Material.OAK_SIGN, "settings.scoreboard", true, p -> core.boards().rebuild(p));
         back(menu, 22);
         menu.open(player);
     }
