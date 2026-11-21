@@ -212,6 +212,8 @@ public final class IceCoins {
     }
 
     /** JSON-t küld a weboldalnak a háttérben; a válasz HTTP kódját (vagy -1-et) a fő szálon adja vissza. */
+    private final java.util.Map<String, Long> postWarnings = new java.util.concurrent.ConcurrentHashMap<>();
+
     public void post(String path, String json, java.util.function.IntConsumer done) {
         if (!enabled || url.isEmpty()) {
             if (done != null) {
@@ -229,7 +231,13 @@ public final class IceCoins {
             } catch (InterruptedException exception) {
                 Thread.currentThread().interrupt();
             } catch (Exception exception) {
-                core.getLogger().warning("Weboldal (" + path + "): " + exception.getMessage());
+                long now = System.currentTimeMillis();
+                Long last = postWarnings.get(path);
+                if (last == null || now - last > 600000L) {
+                    postWarnings.put(path, now);
+                    String why = exception.getMessage() == null ? exception.getClass().getSimpleName() : exception.getMessage();
+                    core.getLogger().warning("Weboldal (" + path + "): nem érem el (" + why + ").");
+                }
             }
             final int result = status;
             if (done != null && core.isEnabled()) {

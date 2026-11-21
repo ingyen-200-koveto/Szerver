@@ -109,7 +109,7 @@ public final class WebRanks {
 
     private void lp(Player player, String action, String group) {
         core.getLogger().info("Weboldalas rang: " + player.getName() + " " + (action.equals("add") ? "megkapta" : "elvesztette") + ": " + group);
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + player.getUniqueId() + " parent " + action + " " + group);
+        Bukkit.dispatchCommand(hu.icemine.core.util.SilentSender.get(), "lp user " + player.getUniqueId() + " parent " + action + " " + group);
     }
 
     private String display(String group) {

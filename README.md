@@ -7,7 +7,8 @@ Purpur 1.20.6, Java 21.
 - `server.jar`: Purpur 1.20.6 (build 2233)
 - `eula.txt`: a Minecraft EULA elfogadása
 - `plugins/*.jar`: az IceMine plugin (`IceMine.jar`, benne minden saját rendszer és játékmód) és a külső pluginok
-  (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB, Citizens 2.0.35 b3500)
+  (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB, Citizens 2.0.35 b3500,
+  GrimAC 2.3.75 Bukkit build, LibertyBans 1.1.4 Bukkit/Paper build)
 - `forras/`: az IceMine plugin forráskódja (a szerver nem használja)
 - `proxy/`: a Velocity proxyhoz tartozó IceMineProxy plugin és a beállításai (lásd lent)
 - `kezdo/`: amit csak egyszer kell a helyére tenni (server.properties, config/paper-global.yml,
@@ -273,6 +274,26 @@ Indításkor a konzolon csak a figyelmeztetések, a hibák, a Paper „Done” s
 („✔ A szerver elindult. Indításkor N sort nem írtam ki…”). A többi plugin betöltési üzenetei is rejtve maradnak.
 A `logs/latest.log` fájlba ilyenkor is minden bekerül, ha valamit keresni kell. Indítás után minden üzenet újra
 látszik a konzolon. Kikapcsolás: `config.yml` → `quiet-startup: false`.
+A csend a Paper „Done” sora után még 15 másodpercig tart, mert a LuckPerms beállítás és a pályaépítés ekkor fut.
+A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a BedWars és ComboFly pályaépítés
+üzenetei pedig csak a logban vannak (FINE szinten).
+
+## GrimAC és LibertyBans
+
+- **GrimAC** (csalásvédelem, `plugins/GrimAC.jar`, Bukkit build): a staff a `grim.alerts` joggal kapja a
+  riasztásokat (Jn.Moderátortól felfelé), a `/grim alerts` parancs ki-be kapcsolja. Ha a ComboFly lökése
+  miatt téves riasztás jönne, írd meg, mert a Grimben modulonként állítható.
+- **LibertyBans** (kitiltás, némítás, kirúgás, figyelmeztetés, `plugins/LibertyBans.jar`, Bukkit/Paper build):
+  az első indításkor letölti a saját könyvtárait, ehhez internet kell. Magyar nyelven fut (`lang-file: 'hu'`).
+  A `/ban`, `/tempban`, `/mute`, `/tempmute`, `/kick`, `/unban`, `/unbanip` parancsot az Essentials is lefoglalja,
+  ezért ezeket az IceMine átirányítja a LibertyBansra, és kiveszi a LibertyBans configjából, hogy ne panaszkodjon
+  minden indításkor (ez a második indítástól érvényes). A többi (`/warn`, `/unmute`, `/history`, `/banlist`...)
+  eleve a LibertyBansé. Példa: `/ban Jatekos 7d csalás`, `/mute Jatekos 2h káromkodás`.
+  Jogok: Jn.Moderátor némít, kirúg, figyelmeztet; Moderátor kitilt; Sr.Moderátortól felfelé minden.
+  Ezeket az IceMine egyszer beírja a LuckPermsbe (a már kész csoportokba is).
+- Az IceMine percenként elküldi a weboldalnak az aktív kitiltásokat és némításokat, így a weboldal
+  Kitiltáscsökkentés oldalán mindenki látja a sajátját (lejárattal). Ehhez a `MC_API_KEY` kell, ugyanaz, mint a
+  rangoknál.
 
 ## /jelent és /segitseg
 
@@ -382,6 +403,11 @@ az **IceMineProxy** plugin tartja rendben, így a proxyn sem kell kézzel semmit
   portját használja, NetherNet kapcsolattal, külső signalinggal, mert az SRKHost csak egy portot ad),
 - 30 percenként megnézi, van-e újabb Geyser és Floodgate (Velocity build), és ha igen, letölti. A proxy
   következő újraindításakor kerül a helyére,
+- telepíti és frissíti a **Sonar** botvédelmet (Velocity build a Modrinthról). Velocity 3.6 vagy újabb alatt a
+  legújabbat, régebbi Velocity alatt a 2.1.49-et, mert az újabbak már 3.6-ot kérnek. A Bedrock játékosokat a
+  Sonar nem ellenőrzi (`check-geyser-players: false`),
+- beállítja a szerverlista szövegét (`velocity.toml` → `motd`, a `beallitasok.txt` utolsó sora) és az ikont
+  (`proxy/server-icon.png`). Ha a proxyn kézzel másik ikont tettél be, azt nem írja felül,
 - magát is frissíti innen (`proxy/version.txt`).
 
 Telepítés (csak egyszer): a proxy `plugins` mappájában Letöltés URL-ről:

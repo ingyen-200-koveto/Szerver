@@ -6,7 +6,7 @@
 
     <groupId>hu.icemine</groupId>
     <artifactId>icemine</artifactId>
-    <version>3.23.0</version>
+    <version>3.24.0</version>
     <packaging>jar</packaging>
     <name>IceMine</name>
     <description>IceMine Network: lobby, SkyPvP, KitPvP, ComboFly, Duels, Gens, Kingdoms - egyetlen pluginban</description>
@@ -58,6 +58,13 @@
             <version>15.12.6</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../plugins/SkinsRestorer.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>space.arim.libertybans</groupId>
+            <artifactId>libertybans-plugin-jar</artifactId>
+            <version>1.1.4</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../plugins/LibertyBans.jar</systemPath>
         </dependency>
     </dependencies>
 

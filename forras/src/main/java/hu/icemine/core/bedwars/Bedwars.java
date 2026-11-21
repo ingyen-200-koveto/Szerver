@@ -215,7 +215,7 @@ public final class Bedwars implements ModeHandler {
             }
         }, 2L, 2L));
         if (!builds.isEmpty()) {
-            core.getLogger().info("BedWars: " + builds.size() + " pályát kell felépíteni, egyesével építem őket.");
+            core.getLogger().fine("BedWars: " + builds.size() + " pályát kell felépíteni, egyesével építem őket.");
         }
         tasks.add(Bukkit.getScheduler().runTaskTimer(core, this::buildNext, 40L, 40L));
     }
@@ -262,7 +262,7 @@ public final class Bedwars implements ModeHandler {
         arena.setReady(true);
         arena.reset();
         arena.clearEntities();
-        core.getLogger().info("BedWars pálya kész: " + arena.id + " (" + arena.map.id + ", " + placer.placed() + " blokk, "
+        core.getLogger().fine("BedWars pálya kész: " + arena.id + " (" + arena.map.id + ", " + placer.placed() + " blokk, "
                 + (System.currentTimeMillis() - started) + " ms)");
     }
 

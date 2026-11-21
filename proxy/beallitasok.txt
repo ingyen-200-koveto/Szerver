@@ -3,3 +3,5 @@
 Geyser-Velocity/config.yml | bedrock.clone-remote-port = true
 Geyser-Velocity/config.yml | bedrock.transport = nethernet
 Geyser-Velocity/config.yml | bedrock.signaling.mode = nxs
+# Szerverlista szöveg (MOTD), MiniMessage formában. \n = új sor. A proxy második újraindítása után látszik.
+../velocity.toml | motd = "<gradient:#9be7ff:#3b82f6><bold>IceMine</bold></gradient> <dark_gray>»</dark_gray> <white>Magyar Minecraft szerver</white>\n<gray>BedWars, Duels, Gens, Kingdoms</gray> <dark_gray>·</dark_gray> <aqua>icemine.hu</aqua>"

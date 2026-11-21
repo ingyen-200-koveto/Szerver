@@ -165,7 +165,7 @@ public final class ReportCommands implements CommandExecutor, TabCompleter {
         core.messages().sendTagged(player, text);
     }
 
-    static String q(String value) {
+    public static String q(String value) {
         StringBuilder out = new StringBuilder("\"");
         for (char c : String.valueOf(value).toCharArray()) {
             switch (c) {

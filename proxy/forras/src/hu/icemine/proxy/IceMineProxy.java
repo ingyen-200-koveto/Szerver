@@ -28,13 +28,20 @@ import java.util.regex.Pattern;
 
 public final class IceMineProxy {
 
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.1.0";
     static final String REPO = "https://raw.githubusercontent.com/ingyen-200-koveto/Szerver/main/proxy/";
     static final String GEYSER_API = "https://download.geysermc.org/v2/projects/%s/versions/latest/builds/latest";
     static final Pattern SHA = Pattern.compile("\"velocity\"\\s*:\\s*\\{[^}]*\"sha256\"\\s*:\\s*\"([0-9a-fA-F]{64})\"");
     static final Pattern BUILD = Pattern.compile("\"build\"\\s*:\\s*(\\d+)");
+    static final String MODRINTH = "https://api.modrinth.com/v2/project/sonar/version";
+    static final String SONAR_OLD = "2.1.49";
+    static final Pattern MR_VERSION = Pattern.compile("\"version_number\"\\s*:\\s*\"([^\"]+)\"");
+    static final Pattern MR_TYPE = Pattern.compile("\"version_type\"\\s*:\\s*\"([^\"]+)\"");
+    static final Pattern MR_SHA1 = Pattern.compile("\"sha1\"\\s*:\\s*\"([0-9a-f]{40})\"");
+    static final Pattern MR_URL = Pattern.compile("\"url\"\\s*:\\s*\"(https://cdn\\.modrinth\\.com/[^\"]+\\.jar)\"");
 
-    private final Path plugins = Paths.get("plugins").toAbsolutePath();
+    private final Path root = Paths.get("").toAbsolutePath();
+    private final Path plugins = root.resolve("plugins");
     private final Path dataDir = plugins.resolve("icemineproxy");
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -58,6 +65,7 @@ public final class IceMineProxy {
         } catch (IOException ignored) {
         }
         applySettings();
+        installIcon();
         Runtime.getRuntime().addShutdownHook(new Thread(this::installStaged, "IceMineProxy-frissites"));
         timer.scheduleWithFixedDelay(this::checkUpdates, 20, 30 * 60, TimeUnit.SECONDS);
     }
@@ -80,12 +88,14 @@ public final class IceMineProxy {
         }
         for (Setting setting : Setting.parse(text)) {
             Path file = plugins.resolve(setting.file()).normalize();
-            if (!file.startsWith(plugins) || !Files.isRegularFile(file)) {
+            if (!file.startsWith(root) || !Files.isRegularFile(file)) {
                 continue;
             }
             try {
                 String original = Files.readString(file, StandardCharsets.UTF_8);
-                String changed = YamlPatch.set(original, setting.key(), setting.value());
+                String changed = file.toString().endsWith(".toml")
+                        ? TomlPatch.set(original, setting.key(), setting.value())
+                        : YamlPatch.set(original, setting.key(), setting.value());
                 if (!changed.equals(original)) {
                     Files.writeString(file, changed, StandardCharsets.UTF_8);
                     info("Beállítva: " + setting.file() + " -> " + setting.key() + " = " + setting.value());
@@ -101,6 +111,7 @@ public final class IceMineProxy {
             boolean changed = false;
             changed |= updateGeyserProject("geyser", "geyser", "Geyser-Velocity.jar");
             changed |= updateGeyserProject("floodgate", "floodgate", "floodgate-velocity.jar");
+            changed |= updateSonar();
             changed |= updateSelf();
             if (changed && !restartNoted) {
                 restartNoted = true;
@@ -145,6 +156,155 @@ public final class IceMineProxy {
         Matcher build = BUILD.matcher(json);
         info(project + " új verzió letöltve" + (build.find() ? " (build " + build.group(1) + ")" : "") + ".");
         return true;
+    }
+
+    /** A szerverlista ikonja (server-icon.png) a GitHubról. Kézzel lecserélt ikont nem ír felül. */
+    void installIcon() {
+        try {
+            Path icon = root.resolve("server-icon.png");
+            Path mark = dataDir.resolve("ikon.sha256");
+            String mine = Files.exists(mark) ? Files.readString(mark, StandardCharsets.UTF_8).strip() : "";
+            if (Files.exists(icon) && !sha256(icon).equals(mine)) {
+                return;
+            }
+            Path temp = dataDir.resolve("server-icon.png.resz");
+            if (!download(REPO + "server-icon.png", temp) || Files.size(temp) < 100) {
+                Files.deleteIfExists(temp);
+                return;
+            }
+            String got = sha256(temp);
+            if (Files.exists(icon) && got.equals(sha256(icon))) {
+                Files.deleteIfExists(temp);
+                return;
+            }
+            Files.move(temp, icon, StandardCopyOption.REPLACE_EXISTING);
+            Files.writeString(mark, got, StandardCharsets.UTF_8);
+            info("Szerverlista ikon frissítve (a proxy újraindítása után látszik).");
+        } catch (Exception e) {
+            warn("Az ikon frissítése nem sikerült: " + e.getMessage());
+        }
+    }
+
+    /** Sonar botvédelem: a Velocity verziójához illő Sonar Velocity build a Modrinthról. */
+    boolean updateSonar() throws Exception {
+        int[] velocity = velocityVersion();
+        boolean modern = velocity != null && (velocity[0] > 3 || velocity[0] == 3 && velocity[1] >= 6);
+        String json = fetchText(modern ? MODRINTH + "?loaders=%5B%22velocity%22%5D" : MODRINTH + "/" + SONAR_OLD);
+        if (json == null) {
+            return false;
+        }
+        String chosen = null;
+        for (String item : topLevelObjects(json)) {
+            Matcher type = MR_TYPE.matcher(item);
+            if (type.find() && type.group(1).equals("release")) {
+                chosen = item;
+                break;
+            }
+        }
+        if (chosen == null) {
+            return false;
+        }
+        Matcher version = MR_VERSION.matcher(chosen);
+        Matcher sha1 = MR_SHA1.matcher(chosen);
+        Matcher url = MR_URL.matcher(chosen);
+        if (!version.find() || !sha1.find() || !url.find()) {
+            return false;
+        }
+        String wanted = sha1.group(1);
+        Path jar = findJar("sonar");
+        if (jar == null) {
+            jar = plugins.resolve("Sonar-Velocity.jar");
+        } else if (wanted.equals(sha1(jar))) {
+            return false;
+        }
+        Path pending = staging.resolve("sonar.jar");
+        if (staged.containsKey(pending) && wanted.equals(sha1(pending))) {
+            return false;
+        }
+        Path temp = staging.resolve("sonar.jar.resz");
+        if (!download(url.group(1), temp)) {
+            return false;
+        }
+        if (!wanted.equals(sha1(temp))) {
+            Files.deleteIfExists(temp);
+            warn("Sonar: a letöltött fájl hibás, kihagyva.");
+            return false;
+        }
+        Files.move(temp, pending, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        staged.put(pending, jar);
+        info("Sonar " + version.group(1) + " letöltve (Velocity " + (velocity == null ? "ismeretlen" : velocity[0] + "." + velocity[1]) + ").");
+        return true;
+    }
+
+    static int[] velocityVersion() {
+        for (String name : new String[] {"com.velocitypowered.proxy.Velocity", "com.velocitypowered.api.proxy.ProxyServer"}) {
+            try {
+                Package pkg = Class.forName(name).getPackage();
+                String text = pkg == null ? null : pkg.getImplementationVersion();
+                int[] parsed = parseVersion(text);
+                if (parsed != null) {
+                    return parsed;
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        return null;
+    }
+
+    static int[] parseVersion(String text) {
+        if (text == null) {
+            return null;
+        }
+        Matcher m = Pattern.compile("(\\d+)\\.(\\d+)").matcher(text);
+        return m.find() ? new int[] {Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2))} : null;
+    }
+
+    /** Egy JSON tömb (vagy egyetlen objektum) legfelső szintű objektumai, szövegként. */
+    static List<String> topLevelObjects(String json) {
+        List<String> list = new ArrayList<>();
+        String text = json.strip();
+        int base = text.startsWith("[") ? 1 : 0;
+        int depth = 0;
+        int start = -1;
+        boolean inString = false;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (inString) {
+                if (c == '\\') {
+                    i++;
+                } else if (c == '"') {
+                    inString = false;
+                }
+                continue;
+            }
+            if (c == '"') {
+                inString = true;
+            } else if (c == '{' || c == '[') {
+                if (c == '{' && depth == base) {
+                    start = i;
+                }
+                depth++;
+            } else if (c == '}' || c == ']') {
+                depth--;
+                if (c == '}' && depth == base && start >= 0) {
+                    list.add(text.substring(start, i + 1));
+                    start = -1;
+                }
+            }
+        }
+        return list;
+    }
+
+    static String sha1(Path file) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        try (InputStream in = Files.newInputStream(file)) {
+            byte[] buffer = new byte[65536];
+            int read;
+            while ((read = in.read(buffer)) > 0) {
+                digest.update(buffer, 0, read);
+            }
+        }
+        return HexFormat.of().formatHex(digest.digest());
     }
 
     boolean updateSelf() throws Exception {

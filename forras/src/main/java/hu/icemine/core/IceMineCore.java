@@ -82,6 +82,7 @@ public final class IceMineCore extends JavaPlugin {
     private IceMineKingdoms kingdoms;
     private hu.icemine.core.bedwars.Bedwars bedwars;
     private hu.icemine.core.economy.IceCoins iceCoins;
+    private hu.icemine.core.rank.Buntetesek buntetesek;
     private hu.icemine.core.rank.NameTags nameTags;
     private final hu.icemine.core.board.TabList tabList = new hu.icemine.core.board.TabList(this);
     private final Updater updater = new Updater(this);
@@ -120,6 +121,10 @@ public final class IceMineCore extends JavaPlugin {
             // ha a szerveren nincs log4j, a csendes indítás kimarad
         }
         DataMove.run(getDataFolder().getParentFile(), getDataFolder().getName(), getLogger());
+        try {
+            hu.icemine.core.command.LibertyBansAliases.patchConfig(getDataFolder().getParentFile(), getLogger());
+        } catch (Throwable ignored) {
+        }
         if (hu.icemine.core.config.FirstSetup.run(Bukkit.getWorldContainer(), getLogger())) {
             try {
                 Thread.sleep(2000L);
@@ -141,7 +146,8 @@ public final class IceMineCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new org.bukkit.event.Listener() {
             @org.bukkit.event.EventHandler
             public void onLoaded(org.bukkit.event.server.ServerLoadEvent event) {
-                Bukkit.getScheduler().runTaskLater(IceMineCore.this, IceMineCore.this::quietDone, 20L);
+                safely("LibertyBans parancsok", hu.icemine.core.command.LibertyBansAliases::register);
+                Bukkit.getScheduler().runTaskLater(IceMineCore.this, IceMineCore.this::quietDone, 20L * 15);
             }
         }, this);
         Bukkit.getScheduler().runTaskLater(this, this::quietDone, 20L * 120);
@@ -283,6 +289,10 @@ public final class IceMineCore extends JavaPlugin {
         for (String name : new String[]{"lobby", "spawn", "profil", "top", "penz", "fizet", "napi", "kapcsolat", "combofly", "kit", "arena", "gens", "elad"}) {
             register(name, players, players);
         }
+        safely("LibertyBans összekötés", () -> {
+            buntetesek = new hu.icemine.core.rank.Buntetesek(this);
+            buntetesek.start();
+        });
         hu.icemine.core.report.ReportCommands reports = new hu.icemine.core.report.ReportCommands(this);
         register("jelent", reports, reports);
         register("segitseg", reports, reports);
@@ -469,6 +479,9 @@ public final class IceMineCore extends JavaPlugin {
         }
         ranks.clearAll();
         profiles.saveAllNow();
+        if (buntetesek != null) {
+            buntetesek.stop();
+        }
         if (iceCoins != null) {
             iceCoins.stop();
         }

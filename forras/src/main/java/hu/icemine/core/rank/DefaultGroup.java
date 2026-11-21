@@ -37,7 +37,7 @@ public final class DefaultGroup implements Listener {
         if (!core.prefixes().group(player).equalsIgnoreCase("default") || player.hasPermission("group." + group)) {
             return;
         }
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + player.getUniqueId() + " parent add " + group);
+        Bukkit.dispatchCommand(hu.icemine.core.util.SilentSender.get(), "lp user " + player.getUniqueId() + " parent add " + group);
         Bukkit.getScheduler().runTaskLater(core, () -> {
             if (player.isOnline()) {
                 core.ranks().apply(player);

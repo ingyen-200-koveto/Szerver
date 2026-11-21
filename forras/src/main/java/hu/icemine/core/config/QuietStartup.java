@@ -38,11 +38,14 @@ public final class QuietStartup {
                 return;
             }
             LoggerContext context = (LoggerContext) LogManager.getContext(false);
+            java.util.List<Appender> consoles = new java.util.ArrayList<>();
             for (Appender appender : context.getConfiguration().getAppenders().values()) {
-                String kind = appender.getClass().getSimpleName().toLowerCase(java.util.Locale.ROOT);
-                if (kind.contains("file") || appender.getName().toLowerCase(java.util.Locale.ROOT).contains("file")) {
-                    continue;
+                if (console(appender.getClass().getSimpleName(), appender.getName())) {
+                    consoles.add(appender);
                 }
+            }
+            consoles.sort(java.util.Comparator.comparing(appender -> appender.getClass().getSimpleName().contains("Terminal") ? 0 : 1));
+            for (Appender appender : consoles) {
                 if (appender instanceof AbstractFilterable) {
                     Gate gate = new Gate(UNDO.isEmpty());
                     ((AbstractFilterable) appender).addFilter(gate);
@@ -54,6 +57,19 @@ public final class QuietStartup {
             ACTIVE.set(false);
             logger.fine("Csendes indítás nem elérhető: " + error);
         }
+    }
+
+    /**
+     * Csak a konzol appenderekre teszünk szűrőt (TerminalConsole, a GUI konzol), a fájlra és a köztes
+     * Async/Rewrite appenderekre nem, különben a logs/latest.log-ból is kimaradnának a sorok.
+     */
+    static boolean console(String kind, String name) {
+        String k = kind == null ? "" : kind.toLowerCase(java.util.Locale.ROOT);
+        String n = name == null ? "" : name.toLowerCase(java.util.Locale.ROOT);
+        if (k.contains("file") || n.contains("file") || k.contains("async") || k.contains("rewrite") || n.contains("async") || n.contains("rewrite")) {
+            return false;
+        }
+        return k.contains("console") || k.contains("terminal") || n.contains("console") || n.contains("terminal");
     }
 
     /** A szerver elindult: innentől minden látszik. Visszaadja, hány sort rejtett el. */

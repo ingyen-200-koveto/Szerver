@@ -478,7 +478,7 @@ public final class ComboArenaMode extends PvpMode {
         }
         config.set("barrier-wall.built", true);
         core.configs().save(FILE);
-        core.getLogger().info("ComboFly: barrier fal a pálya köré (" + columns.size() + " oszlop, " + fromY + "-" + toY + ")...");
+        core.getLogger().fine("ComboFly: barrier fal a pálya köré (" + columns.size() + " oszlop, " + fromY + "-" + toY + ")...");
         int[] next = {0};
         org.bukkit.scheduler.BukkitTask[] task = new org.bukkit.scheduler.BukkitTask[1];
         task[0] = Bukkit.getScheduler().runTaskTimer(core, () -> {
@@ -495,7 +495,7 @@ public final class ComboArenaMode extends PvpMode {
             next[0] = end;
             if (end >= columns.size()) {
                 task[0].cancel();
-                core.getLogger().info("ComboFly: a barrier fal kész.");
+                core.getLogger().fine("ComboFly: a barrier fal kész.");
             }
         }, 40L, 2L);
     }

@@ -70,7 +70,29 @@ public final class LuckPermsSetup {
             }
         }
         create.addAll(setup);
+        for (String[] extra : EXTRA) {
+            if (!done.contains(extraKey(extra)) && (done.contains(extra[0]) || create.contains("lp creategroup " + extra[0]))) {
+                create.add("lp group " + extra[0] + " permission set " + extra[1] + " true");
+            }
+        }
         return create;
+    }
+
+    /** Később bekerült jogok: a már kész csoportok is megkapják egyszer (GrimAC, LibertyBans). */
+    static final String[][] EXTRA = {
+            {"jnmoderator", "grim.alerts"},
+            {"jnmoderator", "libertybans.mute.*"},
+            {"jnmoderator", "libertybans.kick.*"},
+            {"jnmoderator", "libertybans.warn.*"},
+            {"jnmoderator", "libertybans.list.*"},
+            {"moderator", "libertybans.ban.*"},
+            {"moderator", "grim.verbose"},
+            {"srmoderator", "libertybans.*"},
+            {"admin", "grim.*"},
+    };
+
+    static String extraKey(String[] extra) {
+        return "perm:" + extra[0] + ":" + extra[1];
     }
 
     /** A csoportok, amiket ezek a parancsok beállítanak. */
@@ -122,12 +144,17 @@ public final class LuckPermsSetup {
         logger.info("LuckPerms: beállítom a rangokat a ranks.yml alapján (" + commands.size() + " parancs)...");
         for (String command : commands) {
             try {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                Bukkit.dispatchCommand(hu.icemine.core.util.SilentSender.get(), command);
             } catch (RuntimeException exception) {
                 logger.warning("LuckPerms parancs hiba (" + command + "): " + exception.getMessage());
             }
         }
         done.addAll(groups(config));
+        for (String[] extra : EXTRA) {
+            if (done.contains(extra[0])) {
+                done.add(extraKey(extra).toLowerCase(Locale.ROOT));
+            }
+        }
         try {
             Files.write(file.toPath(), String.join("\n", done).getBytes(StandardCharsets.UTF_8));
         } catch (IOException exception) {
