@@ -15,6 +15,59 @@ final class TomlPatch {
     private TomlPatch() {
     }
 
+    /**
+     * Melyik sorban ér véget az érték: a több soros szöveg (\"\"\" vagy \'\'\') és a több soros tömb is számít.
+     * -1, ha nem találjuk a végét (ilyenkor inkább nem nyúlunk a fájlhoz).
+     */
+    static int valueEnd(List<String> lines, int start, String value) {
+        String v = value.strip();
+        for (String quote : new String[] {"\"\"\"", "'''"}) {
+            if (v.startsWith(quote)) {
+                if (v.indexOf(quote, 3) >= 0) {
+                    return start;
+                }
+                for (int j = start + 1; j < lines.size(); j++) {
+                    if (lines.get(j).contains(quote)) {
+                        return j;
+                    }
+                }
+                return -1;
+            }
+        }
+        if (v.startsWith("[")) {
+            int depth = 0;
+            for (int j = start; j < lines.size(); j++) {
+                String part = j == start ? v : lines.get(j);
+                boolean inString = false;
+                char q = 0;
+                for (int k = 0; k < part.length(); k++) {
+                    char c = part.charAt(k);
+                    if (inString) {
+                        if (c == '\\' && q == '"') {
+                            k++;
+                        } else if (c == q) {
+                            inString = false;
+                        }
+                    } else if (c == '"' || c == '\'') {
+                        inString = true;
+                        q = c;
+                    } else if (c == '#') {
+                        break;
+                    } else if (c == '[') {
+                        depth++;
+                    } else if (c == ']') {
+                        depth--;
+                    }
+                }
+                if (depth <= 0) {
+                    return j;
+                }
+            }
+            return -1;
+        }
+        return start;
+    }
+
     static String set(String text, String path, String value) {
         String newline = text.contains("\r\n") ? "\r\n" : "\n";
         List<String> lines = new ArrayList<>(Arrays.asList(text.split("\\r?\\n", -1)));
@@ -41,8 +94,15 @@ final class TomlPatch {
             }
             Matcher m = KEY.matcher(line);
             if (m.matches() && m.group(2).equals(key)) {
-                if (m.group(4).strip().equals(value.strip())) {
+                int end = valueEnd(lines, i, m.group(4));
+                if (end < 0) {
                     return text;
+                }
+                if (end == i && m.group(4).strip().equals(value.strip())) {
+                    return text;
+                }
+                for (int j = end; j > i; j--) {
+                    lines.remove(j);
                 }
                 lines.set(i, m.group(1) + key + m.group(3) + value);
                 return String.join(newline, lines);

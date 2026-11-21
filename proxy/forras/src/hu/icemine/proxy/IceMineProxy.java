@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 public final class IceMineProxy {
 
-    public static final String VERSION = "1.2.0";
+    public static final String VERSION = "1.2.1";
     static final String REPO = "https://raw.githubusercontent.com/ingyen-200-koveto/Szerver/main/proxy/";
     static final String GEYSER_API = "https://download.geysermc.org/v2/projects/%s/versions/latest/builds/latest";
     static final Pattern SHA = Pattern.compile("\"velocity\"\\s*:\\s*\\{[^}]*\"sha256\"\\s*:\\s*\"([0-9a-fA-F]{64})\"");
