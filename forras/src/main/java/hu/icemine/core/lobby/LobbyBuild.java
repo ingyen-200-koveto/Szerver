@@ -36,7 +36,7 @@ public final class LobbyBuild extends Build {
             {"gens", "-62", "lime"},
             {"duels", "62", "yellow"},
             {"bedwars", "-83", "orange"},
-            {"soon_3", "83", "gray"}
+            {"skywars", "83", "light_blue"}
     };
 
     private final int[][] height = new int[MAX_X - MIN_X + 1][MAX_Z - MIN_Z + 1];

@@ -295,6 +295,21 @@ A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a Be
   Kitiltáscsökkentés oldalán mindenki látja a sajátját (lejárattal). Ehhez a `MC_API_KEY` kell, ugyanaz, mint a
   rangoknál.
 
+## SkyWars
+
+Szigetekről indultok, a ládákból szerelkeztek fel, és az utolsó túlélő (Duóban az utolsó csapat) nyer.
+
+- Belépés: a lobbyban a SkyWars szobor, a játékmód választó (iránytű) vagy `/sw`. Mindhárom a mód választót
+  nyitja meg (Solo vagy Duó). `/sw play solo`, `/sw leave`, `/sw nez <játékos>`, `/sw stats`, `/sw top`.
+- A pályákat a plugin építi a saját világában (`ice_skywars`): 8 sziget fával és 3 ládával, középen nagyobb
+  sziget jobb ládákkal (gyémánt, varázsolt kard, gyöngy, aranyalma). Minden meccs után újraépül.
+- Menet: várakozás a ketrecben, visszaszámlálás (30 mp, tele pályánál 10 mp), a ládák a 3. és a 6. percben
+  újratöltődnek, a 9. perctől mindenki világít (végső harc), 12 perc után döntetlen.
+- Jutalom: ölésért 10, győzelemért 50 IceCoin (a rang szorzójával). Statisztika a profilban és két toplista.
+- Party: a vezető lép be, a tagok vele jönnek; Duóban egy szigetre kerülnek.
+- Beállítás: `plugins/IceMine/skywars.yml` (módok, pályák száma, témák: jég, erdő, sivatag, jutalmak).
+  Admin: `/sw list`, `/sw start|stop|rebuild <aréna>` (`icemine.admin.skywars`).
+
 ## Barátok és party
 
 - `/barat <játékos>`: barátkérés (5 percig érvényes, kattintással elfogadható). `/barat lista`: ki van fent és

@@ -284,6 +284,12 @@ public final class LobbyMenus {
         bedwars.add("&7Lerombolt ágyak: &e" + Text.number(profile.stat("bedwars.beds")));
         bedwars.add("&7Győzelmi sorozat: &e" + profile.stat("bedwars.streak") + " &8(legjobb: " + profile.stat("bedwars.best_streak") + ")");
         menu.set(39, Items.of(Material.RED_BED).name("&6&lBedWars").lore(bedwars).hideAll().build());
+        List<String> skywars = new ArrayList<>();
+        long swKills = profile.stat("skywars.kills");
+        skywars.add("&7Győzelmek: &a" + Text.number(profile.stat("skywars.wins")) + " &8| &7Meccsek: &f" + Text.number(profile.stat("skywars.games")));
+        skywars.add("&7Ölések: &a" + Text.number(swKills) + " &8| &7K/D: &f" + Text.ratio(swKills, profile.stat("skywars.deaths")));
+        skywars.add("&7Győzelmi sorozat: &e" + profile.stat("skywars.streak") + " &8(legjobb: " + profile.stat("skywars.best_streak") + ")");
+        menu.set(29, Items.of(Material.ENDER_EYE).name("&b&lSkyWars").lore(skywars).hideAll().build());
         back(menu, 49);
         menu.open(viewer);
     }

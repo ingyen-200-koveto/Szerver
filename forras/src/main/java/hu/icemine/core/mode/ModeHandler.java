@@ -26,4 +26,9 @@ public interface ModeHandler {
 
     default void shutdown() {
     }
+
+    /** Ha a mód teleport helyett menüt nyit (pl. SkyWars: mód választás), itt megnyitja és true-t ad. */
+    default boolean openMenu(Player player) {
+        return false;
+    }
 }

@@ -19,6 +19,10 @@ commands:
     description: Játékos jelentése a staffnak
     usage: /jelent <játékos> <indok>
     aliases: [jelentes]
+  sw:
+    description: SkyWars (Solo, Duó)
+    usage: /sw [play <mód>|leave|nez <játékos>|stats|top]
+    aliases: [skywars]
   barat:
     description: Barátok (lista, kérés, törlés)
     usage: /barat [játékos|lista|kerelmek|torol <játékos>]
@@ -227,6 +231,9 @@ permissions:
   icemine.mod.always-visible:
     description: Akkor is látszik, ha a többiek elrejtették a játékosokat
     default: op
+  icemine.admin.skywars:
+    description: SkyWars admin parancsok (/sw start, stop, rebuild, list)
+    default: op
   icemine.admin.mentes:
     description: /mentes parancs
     default: op
@@ -302,6 +309,7 @@ permissions:
     children:
       icemine.admin.tab: true
       icemine.admin.mentes: true
+      icemine.admin.skywars: true
       icemine.admin.info: true
       icemine.admin.setlobby: true
       icemine.admin.setspawn: true

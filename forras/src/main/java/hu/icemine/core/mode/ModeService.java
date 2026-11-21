@@ -28,10 +28,11 @@ public final class ModeService implements Listener {
 
     public static final String LOBBY = "lobby";
     public static final String CHANNEL = "BungeeCord";
-    private static final String[] INTERNAL = {"fyland", "combofly", "gens", "duels", "bedwars", "creative"};
+    private static final String[] INTERNAL = {"fyland", "combofly", "gens", "duels", "bedwars", "creative", "skywars"};
 
     public enum SendResult {
         OK,
+        MENU,
         UNKNOWN,
         CLOSED,
         SOON,
@@ -202,6 +203,10 @@ public final class ModeService implements Listener {
             if (target.equals(current(player))) {
                 return SendResult.SAME;
             }
+            ModeHandler menuHandler = handlers.get(target);
+            if (menuHandler != null && menuHandler.openMenu(player)) {
+                return SendResult.MENU;
+            }
             if (info.usesProxy()) {
                 lastSend.put(player.getUniqueId(), now);
                 core.parkour().stop(player, true);
@@ -238,6 +243,8 @@ public final class ModeService implements Listener {
         SendResult result = send(player, id, false);
         String name = id.equalsIgnoreCase(LOBBY) ? core.messages().get("mode.lobby-name") : (info(id) == null ? id : info(id).name);
         switch (result) {
+            case MENU:
+                return true;
             case OK:
                 if (!id.equalsIgnoreCase(LOBBY)) {
                     core.messages().send(player, "mode.sending", "%mode%", name);

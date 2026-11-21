@@ -195,6 +195,8 @@ menus:
       duelselo: EXPERIENCE_BOTTLE
       bedwarswins: RED_BED
       bedwarsfinals: IRON_SWORD
+      skywarswins: ENDER_EYE
+      skywarskills: DIAMOND_SWORD
   cosmetics:
     title: "&8Kozmetikák"
   settings:

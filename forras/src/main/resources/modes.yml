@@ -93,6 +93,19 @@ modes:
       - "&7Túlélés, királyságok,"
       - "&7területfoglalás és háborúk."
       - "&7Építsd fel a saját birodalmad!"
+  skywars:
+    name: "&b&lSkyWars"
+    icon: ENDER_EYE
+    slot: 12
+    color: "&b"
+    status: open
+    combat-tag: false
+    combofly: false
+    core-scoreboard: false
+    description:
+      - "&7Szigetekről indultok, a ládákból"
+      - "&7szerelkeztek fel, és az utolsó"
+      - "&7túlélő nyer. Solo és Duó."
   creative:
     name: "&5&lCreative"
     icon: AMETHYST_SHARD

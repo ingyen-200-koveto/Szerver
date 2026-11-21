@@ -233,6 +233,36 @@ public final class Migrations {
                 files.save("lobby");
             }
         }
+        if (modes.isSet("modes") && !modes.getBoolean("migrated.skywars-v1", false)) {
+            if (!modes.isSet("modes.skywars")) {
+                copyDefault(modes, "modes.skywars");
+            }
+            modes.set("migrated.skywars-v1", true);
+            files.save("modes");
+            notes.add("modes.yml: a játékmód választóba bekerült a SkyWars");
+            YamlConfiguration mainFile = files.get("config");
+            if (mainFile != null && mainFile.isSet("leaderboards.boards") && !mainFile.isSet("leaderboards.boards.skywarswins")) {
+                copyDefault(mainFile, "leaderboards.boards.skywarswins");
+                copyDefault(mainFile, "leaderboards.boards.skywarskills");
+                files.save("config");
+            }
+            YamlConfiguration lobbySw = files.get("lobby");
+            if (lobbySw != null) {
+                boolean changed = false;
+                if (lobbySw.isSet("menus.stats.icons") && !lobbySw.isSet("menus.stats.icons.skywarswins")) {
+                    copyDefault(lobbySw, "menus.stats.icons.skywarswins");
+                    copyDefault(lobbySw, "menus.stats.icons.skywarskills");
+                    changed = true;
+                }
+                if (modeStatue(lobbySw, "skywars", new String[]{"soon_3", "soon_2", "soon_1", "soon"})) {
+                    changed = true;
+                    notes.add("lobby.yml: a SkyWars szobra a lobbyban (a \"Hamarosan\" szobor helyén)");
+                }
+                if (changed) {
+                    files.save("lobby");
+                }
+            }
+        }
         if (modes.isSet("modes") && !modes.getBoolean("migrated.creative-v1", false)) {
             if (!modes.isSet("modes.creative")) {
                 copyDefault(modes, "modes.creative");
@@ -720,6 +750,35 @@ public final class Migrations {
             copyDefault(config, path);
         }
         config.set(marker, true);
+        return true;
+    }
+
+    /** Új mód szobra egy "Hamarosan" szobor helyére a főlobbyban (ha van még ilyen). */
+    static boolean modeStatue(YamlConfiguration lobby, String mode, String[] candidates) {
+        String marker = "migrated." + mode + "-statue";
+        if (lobby == null || !lobby.isConfigurationSection("npcs") || lobby.isSet("npcs.mode_" + mode) || lobby.getBoolean(marker, false)) {
+            return false;
+        }
+        ConfigurationSection npcs = lobby.getConfigurationSection("npcs");
+        String soon = null;
+        for (String candidate : candidates) {
+            if (npcs.isConfigurationSection(candidate + ".location")) {
+                soon = candidate;
+                break;
+            }
+        }
+        lobby.set(marker, true);
+        if (soon == null) {
+            return false;
+        }
+        ConfigurationSection location = npcs.getConfigurationSection(soon + ".location");
+        for (Map.Entry<String, Object> entry : location.getValues(true).entrySet()) {
+            if (!(entry.getValue() instanceof ConfigurationSection)) {
+                lobby.set("npcs.mode_" + mode + ".location." + entry.getKey(), entry.getValue());
+            }
+        }
+        hu.icemine.core.lobby.LobbyDefaults.npc(lobby, "mode_" + mode);
+        lobby.set("npcs." + soon, null);
         return true;
     }
 

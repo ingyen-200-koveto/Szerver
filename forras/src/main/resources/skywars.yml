@@ -1,0 +1,30 @@
+# SkyWars: szigetekről indultok, a ládákból szerelkeztek fel, az utolsó túlélő (vagy csapat) nyer.
+# A pályákat a plugin építi fel a saját világában, és minden meccs után újraépíti.
+world: ice_skywars
+
+# Visszaszámlálás, ha megvan a minimum létszám, és ha tele a pálya (másodperc)
+countdown: 30
+full-countdown: 10
+
+# IceCoin jutalom (a rang szorzója is számít)
+rewards:
+  kill: 10
+  win: 50
+
+# Módok. islands: szigetek száma (legfeljebb 8), team-size: fő/sziget, arenas: hány pálya legyen ebből a módból,
+# maps: jeg (Jégszigetek), erdo (Erdei szigetek), sivatag (Sivatagi szigetek)
+modes:
+  solo:
+    name: "&b&lSolo"
+    team-size: 1
+    islands: 8
+    min-players: 2
+    arenas: 2
+    maps: [jeg, erdo]
+  duo:
+    name: "&3&lDuó"
+    team-size: 2
+    islands: 8
+    min-players: 3
+    arenas: 2
+    maps: [sivatag, jeg]

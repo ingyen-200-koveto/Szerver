@@ -148,6 +148,14 @@ leaderboards:
       title: "&c&l⚔ BedWars végső ölések"
       source: stat
       key: bedwars.final_kills
+    skywarswins:
+      title: "&b&l☁ SkyWars győzelmek"
+      source: stat
+      key: skywars.wins
+    skywarskills:
+      title: "&3&l⚔ SkyWars ölések"
+      source: stat
+      key: skywars.kills
     combokills:
       title: "&d&l✦ ComboFly ölések"
       source: stat

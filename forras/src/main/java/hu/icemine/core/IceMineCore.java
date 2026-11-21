@@ -81,6 +81,7 @@ public final class IceMineCore extends JavaPlugin {
     private hu.icemine.core.modelobby.ModeLobbies modeLobbies;
     private IceMineKingdoms kingdoms;
     private hu.icemine.core.bedwars.Bedwars bedwars;
+    private hu.icemine.core.skywars.Skywars skywars;
     private hu.icemine.core.economy.IceCoins iceCoins;
     private hu.icemine.core.rank.Buntetesek buntetesek;
     private hu.icemine.core.anticheat.CsalasGyanu csalasGyanu;
@@ -236,6 +237,7 @@ public final class IceMineCore extends JavaPlugin {
         modeLobbies = new hu.icemine.core.modelobby.ModeLobbies(this);
         duels = new Duels(this);
         bedwars = new hu.icemine.core.bedwars.Bedwars(this);
+        skywars = new hu.icemine.core.skywars.Skywars(this);
         auth = new AuthHook(getLogger());
         problems.addAll(values.problems());
         safely("pénzrendszer", () -> economy.load(configs.get("economy"), problems));
@@ -288,6 +290,10 @@ public final class IceMineCore extends JavaPlugin {
             bedwars.load(configs.get(hu.icemine.core.bedwars.Bedwars.FILE), problems);
             modes.register(bedwars);
         });
+        safely("SkyWars", () -> {
+            skywars.load(configs.get(hu.icemine.core.skywars.Skywars.FILE), problems);
+            modes.register(skywars);
+        });
         safely("mód lobbyk", () -> {
             modeLobbies.load(configs.get(hu.icemine.core.modelobby.ModeLobbies.FILE), problems);
             modeLobbies.spawnAll();
@@ -296,7 +302,7 @@ public final class IceMineCore extends JavaPlugin {
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
         registerListeners(new CoreListener(this), chatLog, webLogin, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
-                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), nameTags);
+                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), new hu.icemine.core.skywars.SwListener(skywars), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
@@ -348,6 +354,8 @@ public final class IceMineCore extends JavaPlugin {
         DuelsCommand duelsCommand = new DuelsCommand(this, duels);
         register("duel", duelsCommand, duelsCommand);
         register("duels", duelsCommand, duelsCommand);
+        hu.icemine.core.skywars.SwCommand swCommand = new hu.icemine.core.skywars.SwCommand(skywars);
+        register("sw", swCommand, swCommand);
         hu.icemine.core.bedwars.BwCommand bwCommand = new hu.icemine.core.bedwars.BwCommand(bedwars);
         register("bw", bwCommand, bwCommand);
         hu.icemine.core.fyland.FyCommand fyCommand = new hu.icemine.core.fyland.FyCommand(fyland);
@@ -622,6 +630,9 @@ public final class IceMineCore extends JavaPlugin {
         if (all || file.equals(hu.icemine.core.bedwars.Bedwars.FILE)) {
             safely("BedWars", () -> bedwars.load(configs.get(hu.icemine.core.bedwars.Bedwars.FILE), problems));
         }
+        if (all || file.equals(hu.icemine.core.skywars.Skywars.FILE)) {
+            safely("SkyWars", () -> skywars.load(configs.get(hu.icemine.core.skywars.Skywars.FILE), problems));
+        }
         if (all || file.equals("modes") || file.equals(hu.icemine.core.modelobby.ModeLobbies.FILE)) {
             safely("mód lobbyk", () -> {
                 modeLobbies.load(configs.get(hu.icemine.core.modelobby.ModeLobbies.FILE), problems);
@@ -889,6 +900,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public hu.icemine.core.social.Baratok baratok() {
         return baratok;
+    }
+
+    public hu.icemine.core.skywars.Skywars skywars() {
+        return skywars;
     }
 
     public hu.icemine.core.bedwars.Bedwars bedwars() {
