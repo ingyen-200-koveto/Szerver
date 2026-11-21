@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,6 +38,8 @@ public final class IceCoins {
     private final Set<String> checked = ConcurrentHashMap.newKeySet();
     private final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).followRedirects(HttpClient.Redirect.NORMAL).build();
     private BukkitTask task;
+    private BukkitTask statusTask;
+    private volatile boolean statusBusy;
     private volatile boolean busy;
     private volatile long lastWarning;
     private boolean enabled;
@@ -63,6 +66,7 @@ public final class IceCoins {
         stop();
         if (enabled) {
             task = Bukkit.getScheduler().runTaskTimer(core, this::poll, 60L, refresh * 20L);
+            statusTask = Bukkit.getScheduler().runTaskTimer(core, this::pushStatus, 100L, refresh * 20L);
         }
     }
 
@@ -70,6 +74,10 @@ public final class IceCoins {
         if (task != null) {
             task.cancel();
             task = null;
+        }
+        if (statusTask != null) {
+            statusTask.cancel();
+            statusTask = null;
         }
     }
 
@@ -142,6 +150,57 @@ public final class IceCoins {
         } catch (Exception exception) {
             warn("nem értem el a weboldalt (" + exception.getClass().getSimpleName() + ": " + exception.getMessage() + ")");
         }
+    }
+
+    /**
+     * A weboldal Kezdőlapján látszik, melyik játékmódban hányan vannak.
+     * Ezt küldjük el (https://icemine.hu/api/mc/status): {"modes":{"lobby":3,"fyland":5,"bedwars":2}}
+     */
+    private void pushStatus() {
+        if (!enabled || statusBusy || core.modes() == null) {
+            return;
+        }
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        counts.put("lobby", 0);
+        for (String id : core.modes().ids()) {
+            hu.icemine.core.mode.ModeInfo info = core.modes().info(id);
+            if (info != null && !info.internal) {
+                counts.put(id.toLowerCase(Locale.ROOT), 0);
+            }
+        }
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.hasMetadata("NPC")) {
+                continue;
+            }
+            String id = core.modes().current(player);
+            String k = id == null ? "lobby" : id.toLowerCase(Locale.ROOT);
+            counts.merge(counts.containsKey(k) ? k : "lobby", 1, Integer::sum);
+        }
+        StringBuilder json = new StringBuilder("{\"modes\":{");
+        boolean first = true;
+        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+            if (!entry.getKey().matches("[a-z0-9_-]{1,24}")) {
+                continue;
+            }
+            json.append(first ? "" : ",").append('"').append(entry.getKey()).append("\":").append(entry.getValue());
+            first = false;
+        }
+        String body = json.append("}}").toString();
+        statusBusy = true;
+        Bukkit.getScheduler().runTaskAsynchronously(core, () -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder(URI.create(url + "/api/mc/status")).timeout(Duration.ofSeconds(8))
+                        .header("X-IceMine-Key", key).header("Content-Type", "application/json").header("User-Agent", "IceMine-Minecraft")
+                        .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8)).build();
+                client.send(request, HttpResponse.BodyHandlers.discarding());
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+            } catch (Exception ignored) {
+                // a létszám csak tájékoztató, ha most nem megy át, a következő körben újra próbáljuk
+            } finally {
+                statusBusy = false;
+            }
+        });
     }
 
     private void warn(String text) {
