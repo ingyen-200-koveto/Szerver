@@ -295,6 +295,30 @@ A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a Be
   Kitiltáscsökkentés oldalán mindenki látja a sajátját (lejárattal). Ehhez a `MC_API_KEY` kell, ugyanaz, mint a
   rangoknál.
 
+## Napi mentés
+
+Minden nap 4:00-kor (magyar idő) az IceMine elmenti az összes világot és a pluginok adatait (LuckPerms, AuthMe,
+LibertyBans, IceMine adatbázis, configok; a jar fájlok nélkül) egy zip fájlba:
+
+- itt a szerveren: `plugins/IceMine/mentesek/` (az utolsó 3 marad),
+- és feltölti a weboldal szerverére (VPS): `/var/lib/icemine/mentesek/` (az utolsó 7 marad). Így akkor is megvan,
+  ha a szolgáltatónál történik baj.
+
+Azonnali mentés: `/mentes most` (konzolból is), állapot: `/mentes`. Beállítás: `config.yml` → `mentes`.
+Ha a mentés vagy a feltöltés nem sikerül, a ⚠️・szerver-hibák csatornába jön üzenet.
+
+**Visszaállítás:** állítsd le a szervert, a fájlkezelőben töltsd fel és csomagold ki a zip-et a szerver
+főmappájába (felülírva a régit), majd indítsd el.
+
+## Büntetések és csalásgyanú a Discordon
+
+- Minden LibertyBans kitiltás, némítás, kirúgás, figyelmeztetés és feloldás kártyaként megjelenik a
+  **🔨・büntetések** csatornában (ki, kit, miért, meddig).
+- Ha a GrimAC valakit 5 percen belül 20-szor jelez, kártya megy a **🕵️・csalásgyanú** csatornába az
+  ellenőrzésekkel, „Megnézem” gombbal. Ugyanarról a játékosról 10 percenként legfeljebb egy.
+  Beállítás: `config.yml` → `csalasgyanu` (küszöb, idő, kihagyott ellenőrzések).
+- Mindkét csatornát a bot hozza létre az első kártyánál, vagy: `/beallitas buntetesek`, `/beallitas csalasgyanu`.
+
 ## Hibafigyelő (Discord)
 
 A lobby és a proxy minden figyelmeztetése és hibája (bármelyik pluginé) a weboldalon keresztül a Discordra kerül, a

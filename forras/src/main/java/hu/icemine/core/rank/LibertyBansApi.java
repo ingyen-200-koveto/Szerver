@@ -53,6 +53,53 @@ final class LibertyBansApi {
         return "{\"lista\":[" + String.join(",", items) + "]}";
     }
 
+    /** Büntetés és feloldás események: a json-t a küldőnek adja (aszinkron szálon). */
+    static void figyel(java.util.function.Consumer<String> kuld, java.util.function.Consumer<Throwable> hiba) {
+        Optional<LibertyBans> api = OmnibusProvider.getOmnibus().getRegistry().getProvider(LibertyBans.class);
+        if (api.isEmpty()) {
+            return;
+        }
+        LibertyBans lb = api.get();
+        space.arim.omnibus.events.EventConsumer<space.arim.libertybans.api.event.PostPunishEvent> uj = event -> {
+            try {
+                kuld.accept(esemeny(lb, event.getPunishment(), "uj", event.getPunishment().getOperator(), event.getTarget().orElse(null)));
+            } catch (Throwable error) {
+                hiba.accept(error);
+            }
+        };
+        space.arim.omnibus.events.EventConsumer<space.arim.libertybans.api.event.PostPardonEvent> fel = event -> {
+            try {
+                kuld.accept(esemeny(lb, event.getPunishment(), "feloldas", event.getOperator(), event.getTarget().orElse(null)));
+            } catch (Throwable error) {
+                hiba.accept(error);
+            }
+        };
+        OmnibusProvider.getOmnibus().getEventBus().registerListener(space.arim.libertybans.api.event.PostPunishEvent.class,
+                space.arim.omnibus.events.ListenerPriorities.NORMAL, uj);
+        OmnibusProvider.getOmnibus().getEventBus().registerListener(space.arim.libertybans.api.event.PostPardonEvent.class,
+                space.arim.omnibus.events.ListenerPriorities.NORMAL, fel);
+    }
+
+    private static String esemeny(LibertyBans lb, Punishment p, String mufaj, space.arim.libertybans.api.Operator op, String target) {
+        String jatekos;
+        if (p.getVictim() instanceof PlayerVictim pv) {
+            jatekos = nameOf(lb, pv.getUUID());
+        } else if (p.getVictim() instanceof space.arim.libertybans.api.CompositeVictim cv) {
+            jatekos = nameOf(lb, cv.getUUID());
+        } else {
+            jatekos = null;
+        }
+        if (jatekos == null) {
+            jatekos = target != null && target.matches("[A-Za-z0-9_.]{1,17}") ? target : "IP-cím";
+        }
+        String staff = op instanceof space.arim.libertybans.api.PlayerOperator po ? nameOf(lb, po.getUUID()) : "Konzol";
+        Instant end = p.getEndDate();
+        long until = p.getType() == PunishmentType.KICK || p.isPermanent() || end == null ? 0L : end.toEpochMilli();
+        return "{\"mufaj\":\"" + mufaj + "\",\"tipus\":\"" + p.getType().name().toLowerCase(java.util.Locale.ROOT) + "\",\"jatekos\":"
+                + Buntetesek.q(jatekos) + ",\"staff\":" + Buntetesek.q(staff == null ? "Ismeretlen" : staff) + ",\"indok\":"
+                + Buntetesek.q(p.getReason() == null ? "" : p.getReason()) + ",\"lejar\":" + until + ",\"id\":" + p.getIdentifier() + "}";
+    }
+
     private static String nameOf(LibertyBans lb, UUID id) {
         OfflinePlayer player = Bukkit.getOfflinePlayer(id);
         if (player.getName() != null) {

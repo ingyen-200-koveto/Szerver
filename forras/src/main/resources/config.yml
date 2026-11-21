@@ -171,3 +171,26 @@ hiba-figyelo:
   csak-hibak: false
   # Ha egy sor ezek közül valamelyiket tartalmazza, nem küldi el (a szokásos, ártalmatlan üzenetek már ki vannak hagyva)
   kihagy: []
+
+# Napi mentés: a világok és a pluginok adatai (jarok nélkül) egy zip fájlba: plugins/IceMine/mentesek
+# és feltöltés a weboldal szerverére (VPS: /var/lib/icemine/mentesek). Azonnal: /mentes most
+mentes:
+  be: true
+  # Mikor (magyar idő szerint)
+  idopont: "04:00"
+  # Hány mentés maradjon itt a szerveren (a VPS-en 7 marad)
+  helyi-megtart: 3
+  # Feltöltés a VPS-re (az icecoin.url és icecoin.api-key kell hozzá)
+  feltoltes: true
+
+# Csalásgyanú: ha a GrimAC valakit rövid idő alatt sokszor jelez, kártya megy a Discord 🕵️・csalásgyanú csatornába.
+csalasgyanu:
+  be: true
+  # Ennyi jelzés kell...
+  kuszob: 20
+  # ...ennyi percen belül
+  ablak-perc: 5
+  # Ugyanarról a játékosról legfeljebb ennyi percenként jön új kártya
+  szunet-perc: 10
+  # Ezekkel kezdődő Grim ellenőrzések nem számítanak (pl. ha a ComboFly miatt téves: [Simulation, Knockback])
+  kihagy-checkek: []

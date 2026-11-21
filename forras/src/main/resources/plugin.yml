@@ -19,6 +19,10 @@ commands:
     description: Játékos jelentése a staffnak
     usage: /jelent <játékos> <indok>
     aliases: [jelentes]
+  mentes:
+    description: Napi mentés (világok és adatok), /mentes most azonnal ment
+    usage: /mentes [most]
+    permission: icemine.admin.mentes
   segitseg:
     description: Szól a staffnak, hogy segítség kell
     usage: /segitseg <üzenet>
@@ -213,6 +217,9 @@ permissions:
   icemine.mod.always-visible:
     description: Akkor is látszik, ha a többiek elrejtették a játékosokat
     default: op
+  icemine.admin.mentes:
+    description: /mentes parancs
+    default: op
   icemine.mod.reports:
     description: Játékban is látja a /jelent és /segitseg jelzéseket
     default: op
@@ -284,6 +291,7 @@ permissions:
     default: op
     children:
       icemine.admin.tab: true
+      icemine.admin.mentes: true
       icemine.admin.info: true
       icemine.admin.setlobby: true
       icemine.admin.setspawn: true

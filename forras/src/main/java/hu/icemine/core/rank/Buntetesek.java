@@ -26,6 +26,14 @@ public final class Buntetesek {
             return;
         }
         task = Bukkit.getScheduler().runTaskTimerAsynchronously(core, this::push, 20L * 30, 20L * 60);
+        try {
+            LibertyBansApi.figyel(json -> {
+                Bukkit.getScheduler().runTask(core, () -> core.iceCoins().post("/api/mc/buntetes-esemeny", json, null));
+                Bukkit.getScheduler().runTaskLaterAsynchronously(core, this::push, 60L);
+            }, error -> core.getLogger().warning("LibertyBans esemény feldolgozása: " + error));
+        } catch (Throwable error) {
+            core.getLogger().warning("LibertyBans események: " + error);
+        }
     }
 
     public void stop() {

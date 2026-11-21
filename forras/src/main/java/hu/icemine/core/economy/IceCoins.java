@@ -214,6 +214,75 @@ public final class IceCoins {
     /** JSON-t küld a weboldalnak a háttérben; a válasz HTTP kódját (vagy -1-et) a fő szálon adja vissza. */
     private final java.util.Map<String, Long> postWarnings = new java.util.concurrent.ConcurrentHashMap<>();
 
+    static final long DARAB = 50L * 1024 * 1024;
+
+    /**
+     * Fájl feltöltése a weboldalra (a mentésekhez) 50 MB-os darabokban, mert a Cloudflare egyben legfeljebb
+     * 100 MB-ot enged át. Aszinkron szálról hívandó, blokkol. Visszaadja az utolsó HTTP kódot (-1: hiba).
+     */
+    public int uploadBlocking(String path, java.nio.file.Path file) throws Exception {
+        if (!enabled || url.isEmpty() || key.isEmpty()) {
+            return -1;
+        }
+        long size = java.nio.file.Files.size(file);
+        int parts = (int) Math.max(1, (size + DARAB - 1) / DARAB);
+        int status = -1;
+        for (int i = 0; i < parts; i++) {
+            long from = i * DARAB;
+            long len = Math.min(DARAB, size - from);
+            int tries = 0;
+            while (true) {
+                try (java.io.InputStream in = java.nio.file.Files.newInputStream(file)) {
+                    in.skipNBytes(from);
+                    java.io.InputStream part = new java.io.FilterInputStream(in) {
+                        long left = len;
+
+                        @Override
+                        public int read() throws java.io.IOException {
+                            if (left <= 0) {
+                                return -1;
+                            }
+                            int b = super.read();
+                            if (b >= 0) {
+                                left--;
+                            }
+                            return b;
+                        }
+
+                        @Override
+                        public int read(byte[] buf, int off, int n) throws java.io.IOException {
+                            if (left <= 0) {
+                                return -1;
+                            }
+                            int r = super.read(buf, off, (int) Math.min(n, left));
+                            if (r > 0) {
+                                left -= r;
+                            }
+                            return r;
+                        }
+                    };
+                    HttpRequest request = HttpRequest.newBuilder(URI.create(url + path + "&resz=" + i + "&osszes=" + parts))
+                            .timeout(Duration.ofMinutes(15))
+                            .header("X-IceMine-Key", key).header("Content-Type", "application/octet-stream").header("User-Agent", "IceMine-Minecraft")
+                            .POST(HttpRequest.BodyPublishers.fromPublisher(HttpRequest.BodyPublishers.ofInputStream(() -> part), len)).build();
+                    status = client.send(request, HttpResponse.BodyHandlers.discarding()).statusCode();
+                }
+                if (status >= 200 && status < 300) {
+                    break;
+                }
+                if (status == 401 || status == 507 || status == 409 || ++tries >= 3) {
+                    return status;
+                }
+                Thread.sleep(5000L);
+            }
+        }
+        return status;
+    }
+
+    public boolean hasKey() {
+        return !key.isEmpty();
+    }
+
     public void post(String path, String json, java.util.function.IntConsumer done) {
         if (!enabled || url.isEmpty()) {
             if (done != null) {

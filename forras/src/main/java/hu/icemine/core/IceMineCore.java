@@ -83,6 +83,7 @@ public final class IceMineCore extends JavaPlugin {
     private hu.icemine.core.bedwars.Bedwars bedwars;
     private hu.icemine.core.economy.IceCoins iceCoins;
     private hu.icemine.core.rank.Buntetesek buntetesek;
+    private hu.icemine.core.anticheat.CsalasGyanu csalasGyanu;
     private hu.icemine.core.rank.NameTags nameTags;
     private final hu.icemine.core.board.TabList tabList = new hu.icemine.core.board.TabList(this);
     private final Updater updater = new Updater(this);
@@ -315,6 +316,17 @@ public final class IceMineCore extends JavaPlugin {
             buntetesek = new hu.icemine.core.rank.Buntetesek(this);
             buntetesek.start();
         });
+        hu.icemine.core.backup.Mentes mentes = new hu.icemine.core.backup.Mentes(this);
+        register("mentes", mentes, mentes);
+        safely("napi mentés", mentes::start);
+        safely("csalásgyanú (GrimAC)", () -> {
+            csalasGyanu = new hu.icemine.core.anticheat.CsalasGyanu(this);
+            try {
+                csalasGyanu.start();
+            } catch (Exception error) {
+                getLogger().warning("GrimAC összekötés nem sikerült: " + error);
+            }
+        });
         hu.icemine.core.report.ReportCommands reports = new hu.icemine.core.report.ReportCommands(this);
         register("jelent", reports, reports);
         register("segitseg", reports, reports);
@@ -507,6 +519,9 @@ public final class IceMineCore extends JavaPlugin {
         profiles.saveAllNow();
         if (buntetesek != null) {
             buntetesek.stop();
+        }
+        if (csalasGyanu != null) {
+            csalasGyanu.stop();
         }
         if (iceCoins != null) {
             iceCoins.stop();
