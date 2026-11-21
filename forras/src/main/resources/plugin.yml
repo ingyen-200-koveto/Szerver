@@ -64,17 +64,10 @@ commands:
     description: Napi jutalom
     usage: /napi
     aliases: [daily]
-  kozmetika:
-    description: Kozmetikák (nyomvonalak, ölés effektek)
-    usage: /kozmetika
-    aliases: [kozmetikak, cosmetics]
   kapcsolat:
     description: Kapcsolatok
     usage: /kapcsolat
     aliases: [kapcsolatok, contacts, discord]
-  parkour:
-    description: Lobby parkour
-    usage: /parkour [leave]
   combofly:
     description: ComboFly admin (beállítások újratöltése, aréna kezelés)
     usage: /combofly <reload|admin>
@@ -134,10 +127,6 @@ commands:
     description: A leggazdagabb játékosok
     usage: /baltop
     aliases: [penztop]
-  lottery:
-    description: Lottó
-    usage: /lottery [buy <db>|status]
-    aliases: [lotto]
   kulcs:
     description: A rangod heti kulcs csomagja
     usage: /kulcs

@@ -268,7 +268,7 @@ public final class IceMineCore extends JavaPlugin {
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
         register("icem", icem, icem);
         PlayerCommands players = new PlayerCommands(this);
-        for (String name : new String[]{"lobby", "spawn", "profil", "top", "kozmetika", "penz", "fizet", "napi", "kapcsolat", "parkour", "combofly", "kit", "arena", "gens", "elad"}) {
+        for (String name : new String[]{"lobby", "spawn", "profil", "top", "penz", "fizet", "napi", "kapcsolat", "combofly", "kit", "arena", "gens", "elad"}) {
             register(name, players, players);
         }
         hu.icemine.core.report.ReportCommands reports = new hu.icemine.core.report.ReportCommands(this);
@@ -289,7 +289,7 @@ public final class IceMineCore extends JavaPlugin {
         hu.icemine.core.creative.PlotCommand plotCommand = new hu.icemine.core.creative.PlotCommand(creative);
         register("plot", plotCommand, plotCommand);
         hu.icemine.core.market.MarketCommand marketCommand = new hu.icemine.core.market.MarketCommand(market);
-        for (String name : new String[]{"ah", "trade", "shop", "sell", "baltop", "lottery", "kulcs", "market"}) {
+        for (String name : new String[]{"ah", "trade", "shop", "sell", "baltop", "kulcs", "market"}) {
             register(name, marketCommand, marketCommand);
         }
         safely("jogosultságok", () -> permissions.load(configs.get("permissions"), problems));

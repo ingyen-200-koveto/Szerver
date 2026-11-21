@@ -481,6 +481,21 @@ public final class Migrations {
                 files.save("lobby");
                 notes.add("lobby.yml: a ComboFly leírásból kikerült a /combofly sor (a kombó kijelzés megszűnt)");
             }
+            org.bukkit.configuration.ConfigurationSection infok = lobbyInfo.getConfigurationSection("info-texts");
+            boolean torolt = false;
+            if (infok != null) {
+                for (String key : infok.getKeys(false)) {
+                    java.util.List<String> sorok = lobbyInfo.getStringList("info-texts." + key);
+                    if (sorok.removeIf(line -> line.contains("/kozmetika") || line.contains("/parkour") || line.contains("/lottery"))) {
+                        lobbyInfo.set("info-texts." + key, sorok);
+                        torolt = true;
+                    }
+                }
+            }
+            if (torolt) {
+                files.save("lobby");
+                notes.add("lobby.yml: a /kozmetika, /parkour és /lottery parancs kikerült a leírásokból");
+            }
         }
         return notes;
     }

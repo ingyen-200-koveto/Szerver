@@ -136,7 +136,7 @@ public final class LobbyMenus {
         menu.set(23, button(Material.HEART_OF_THE_SEA, "mainmenu.info"), this::info);
         menu.set(24, button(Material.FEATHER, "mainmenu.parkour"), clicker -> {
             clicker.closeInventory();
-            clicker.performCommand("parkour");
+            core.parkour().teleportToStart(clicker);
         });
         menu.set(25, button(Material.EMERALD, "mainmenu.gens"), clicker -> {
             clicker.closeInventory();
