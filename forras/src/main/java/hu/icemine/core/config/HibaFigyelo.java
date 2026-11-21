@@ -29,7 +29,10 @@ public final class HibaFigyelo {
             "\"online-mode\" to \"true\"", "ADMINISTRATIVE OR ROOT USER", "OPENING YOURSELF UP", "madelinemiller.dev",
             "*****", "without Vault installed", "Features such as chat prefixes", "Unable to check your version",
             "nem lehet ellenőrizni", "Timed out waiting for world statistics", "moved too quickly", "moved wrongly",
-            "/api/mc/hibak", "Advanced terminal features", "No key layers in MapLike", "Ignoring unknown attribute");
+            "/api/mc/hibak", "Advanced terminal features", "No key layers in MapLike", "Ignoring unknown attribute",
+            "Whilst this makes it possible to use Velocity", "docs.papermc.io/velocity/security",
+            "newer plugin version available", "protectInventory feature requires ProtocolLib",
+            "Proxy mode API is enabled", "unrelocated library classes");
 
     static final class Tetel {
         final String szint;

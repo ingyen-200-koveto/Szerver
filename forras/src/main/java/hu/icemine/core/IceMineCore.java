@@ -133,6 +133,11 @@ public final class IceMineCore extends JavaPlugin {
             hu.icemine.core.command.LibertyBansAliases.patchConfig(getDataFolder().getParentFile(), getLogger());
         } catch (Throwable ignored) {
         }
+        System.setProperty("libertybans.relocationbug.disablecheck", "true");
+        try {
+            hu.icemine.core.config.ViaFix.run(getDataFolder().getParentFile(), getLogger());
+        } catch (Throwable ignored) {
+        }
         if (hu.icemine.core.config.FirstSetup.run(Bukkit.getWorldContainer(), getLogger())) {
             try {
                 Thread.sleep(2000L);
