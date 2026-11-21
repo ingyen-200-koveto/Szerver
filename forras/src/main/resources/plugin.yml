@@ -18,11 +18,10 @@ commands:
   jelent:
     description: Játékos jelentése a staffnak
     usage: /jelent <játékos> <indok>
-    aliases: [report, jelentes]
+    aliases: [jelentes]
   segitseg:
     description: Szól a staffnak, hogy segítség kell
     usage: /segitseg <üzenet>
-    aliases: [admin]
   icem:
     description: IceMine parancsok (help, stats, kit, arena, rank, setspawn, reload, admin)
     usage: /icem help

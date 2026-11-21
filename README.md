@@ -269,10 +269,10 @@ Bedrock játékosoknál (ponttal kezdődő név) a saját Bedrock skinjük marad
 
 ## /jelent és /segitseg
 
-- `/jelent <játékos> <indok>` (más néven `/report`): a jelentés a weboldalon át a Discord 🚨・jelentések
+- `/jelent <játékos> <indok>`: a jelentés a weboldalon át a Discord 🚨・jelentések
   csatornájába kerül. Benne van, ki jelentett kit, melyik játékmódban (szerveren), és miért. Játékosonként
   percenként egyszer lehet.
-- `/segitseg <üzenet>` (más néven `/admin`): a Discord 🆘・segítségkérések csatornájába megy, és pingeli a
+- `/segitseg <üzenet>`: a Discord 🆘・segítségkérések csatornájába megy, és pingeli a
   staff rangot. Játékosonként 5 percenként egyszer lehet.
 - Aki játékban is látni akarja ezeket, annak `icemine.mod.reports` jog kell (benne van az `icemine.mod.*`-ban).
 - A küldéshez a `config.yml` `icecoin.url` és `icecoin.api-key` beállítása kell, és a weboldalon is be kell
