@@ -295,20 +295,6 @@ A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a Be
   Kitiltáscsökkentés oldalán mindenki látja a sajátját (lejárattal). Ehhez a `MC_API_KEY` kell, ugyanaz, mint a
   rangoknál.
 
-## Kulcsos ládák
-
-A kulcsokat (Galactic, Legendás, `market.yml` -> `keys`) kulcsos ládánál lehet kinyitni:
-
-- **Lerakás** (admin, `icemine.admin.market`): nézz rá egy blokkra a Kingdoms vagy a OneBlock világban, és
-  `/market lada galactic` (vagy `legendas`). A blokk ender láda lesz, fölötte felirat. Levétel: rá kell nézni, és
-  `/market lada torol`. Lista: `/market lada lista`. A ládát kiütni nem lehet.
-- **Jobb klikk** a ládára: ha van nálad ilyen kulcs (kézben vagy bárhol az inventoryban), elvesz egyet, és rövid
-  pörgetés után kapsz valamit a jutalmak közül. Kulcs nélkül a láda hátralök.
-- **Bal klikk**: megmutatja, mi lehet benne, és milyen eséllyel.
-- Ha egy kulcshoz van lerakott láda, a kulcsot már csak ott lehet kinyitni. Ha nincs, a régi módon, magával a
-  kulccsal (jobb klikk).
-- Lobbyba nem lehet ládát tenni, mert a nyeremények (pénz, tárgyak) a Kingdomsba vagy a OneBlockba szólnak.
-
 ## SkyWars
 
 Szigetekről indultok, a ládákból szerelkeztek fel, és az utolsó túlélő (Duóban az utolsó csapat) nyer.
