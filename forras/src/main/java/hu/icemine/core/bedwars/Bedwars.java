@@ -370,7 +370,22 @@ public final class Bedwars implements ModeHandler {
     }
 
     public void play(Player player, BwMode mode) {
-        if (world == null || !ready(player)) {
+        if (world == null || !ready(player) || !partyEngedi(player)) {
+            return;
+        }
+        List<Player> tagok = partyTagok(player);
+        if (!tagok.isEmpty()) {
+            BwArena hely = null;
+            for (BwArena arena : arenas(mode)) {
+                if (arena.joinable() && arena.capacity() - arena.size() >= tagok.size() + 1 && (hely == null || arena.size() > hely.size())) {
+                    hely = arena;
+                }
+            }
+            if (hely == null) {
+                core.messages().sendTagged(player, "&cNincs olyan szabad pálya, ahol az egész party elférne (" + (tagok.size() + 1) + " fő). Próbáld egy nagyobb módban.");
+                return;
+            }
+            belepParty(player, tagok, hely);
             return;
         }
         BwArena arena = best(mode);
@@ -386,8 +401,54 @@ public final class Bedwars implements ModeHandler {
     }
 
     public void join(Player player, BwArena arena) {
-        if (world != null && ready(player)) {
-            arena.join(player);
+        if (world != null && ready(player) && partyEngedi(player)) {
+            List<Player> tagok = partyTagok(player);
+            if (!tagok.isEmpty() && arena.capacity() - arena.size() < tagok.size() + 1) {
+                core.messages().sendTagged(player, "&cEzen a pályán nem fér el az egész party.");
+                return;
+            }
+            if (tagok.isEmpty()) {
+                arena.join(player);
+            } else {
+                belepParty(player, tagok, arena);
+            }
+        }
+    }
+
+    /** Partyban csak a vezető léphet be, a többiek vele mennek. */
+    private boolean partyEngedi(Player player) {
+        hu.icemine.core.social.Partyk partyk = core.partyk();
+        if (partyk == null || partyk.of(player.getUniqueId()) == null || partyk.vezetoE(player.getUniqueId())) {
+            return true;
+        }
+        core.messages().sendTagged(player, "&cPartyban vagy: a BedWarsba a party vezetője léptet be mindenkit. Egyedül: &f/party kilep");
+        return false;
+    }
+
+    /** A vezető fent lévő, épp nem játszó party tagjai (nélküle). */
+    private List<Player> partyTagok(Player vezeto) {
+        hu.icemine.core.social.Partyk partyk = core.partyk();
+        List<Player> out = new ArrayList<>();
+        if (partyk == null || !partyk.vezetoE(vezeto.getUniqueId())) {
+            return out;
+        }
+        for (Player m : partyk.of(vezeto.getUniqueId()).online()) {
+            if (!m.equals(vezeto) && !partyk.elfoglalt(m) && core.auth().isLoggedIn(m) && !tracked.containsKey(m.getUniqueId())) {
+                out.add(m);
+            }
+        }
+        return out;
+    }
+
+    private void belepParty(Player vezeto, List<Player> tagok, BwArena arena) {
+        if (!arena.join(vezeto)) {
+            return;
+        }
+        for (Player m : tagok) {
+            if (arena.joinable()) {
+                arena.join(m);
+                core.messages().sendTagged(m, "&7A party vezetője beléptetett: &f" + arena.mapName());
+            }
         }
     }
 

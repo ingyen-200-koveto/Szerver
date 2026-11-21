@@ -295,6 +295,17 @@ A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a Be
   Kitiltáscsökkentés oldalán mindenki látja a sajátját (lejárattal). Ehhez a `MC_API_KEY` kell, ugyanaz, mint a
   rangoknál.
 
+## Barátok és party
+
+- `/barat <játékos>`: barátkérés (5 percig érvényes, kattintással elfogadható). `/barat lista`: ki van fent és
+  hol, a többiek mikor voltak fent utoljára. `/barat kerelmek`, `/barat torol <játékos>`. Ha egy barátod fellép
+  vagy kilép, szól. Legfeljebb 50 barát, az adatbázisban tárolva (`im_friends`).
+- `/party <játékos>`: meghívás (60 mp). Legfeljebb 8 fő. `/party lista`, `/party warp` (a tagok a vezetőhöz
+  mennek), `/pc <üzenet>` party chat, `/party kirug`, `/party atad`, `/party feloszlat`, `/party kilep`.
+- BedWarsba a vezető lép be (NPC, menü vagy `/bw play`), a fent lévő, épp nem játszó tagok vele mennek
+  ugyanarra a pályára, és ha a mód engedi (duo, trio, squad), egy csapatba kerülnek. Tagként egyedül nem lehet
+  belépni, amíg partyban vagy.
+
 ## Napi mentés
 
 Minden nap 4:00-kor (magyar idő) az IceMine elmenti az összes világot és a pluginok adatait (LuckPerms, AuthMe,

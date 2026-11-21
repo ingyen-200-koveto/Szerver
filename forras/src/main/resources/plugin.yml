@@ -19,6 +19,16 @@ commands:
     description: Játékos jelentése a staffnak
     usage: /jelent <játékos> <indok>
     aliases: [jelentes]
+  barat:
+    description: Barátok (lista, kérés, törlés)
+    usage: /barat [játékos|lista|kerelmek|torol <játékos>]
+    aliases: [baratok]
+  party:
+    description: Party (közös BedWars, warp, party chat)
+    usage: /party [játékos|lista|warp|kilep|kirug|atad|feloszlat]
+  pc:
+    description: Party chat
+    usage: /pc <üzenet>
   mentes:
     description: Napi mentés (világok és adatok), /mentes most azonnal ment
     usage: /mentes [most]

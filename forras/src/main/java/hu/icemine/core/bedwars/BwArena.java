@@ -603,6 +603,16 @@ public final class BwArena {
         for (BwPlayer data : players.values()) {
             wanted.put(data.id, data.wanted);
         }
+        if (plugin.core().partyk() != null && mode.teamSize > 1) {
+            Map<Object, List<UUID>> csoportok = new LinkedHashMap<>();
+            for (UUID id : wanted.keySet()) {
+                Object party = plugin.core().partyk().of(id);
+                if (party != null) {
+                    csoportok.computeIfAbsent(party, x -> new ArrayList<>()).add(id);
+                }
+            }
+            Balance.party(wanted, new ArrayList<>(csoportok.values()), new ArrayList<>(teams.keySet()), mode.teamSize);
+        }
         Map<UUID, TeamColor> assigned = Balance.assign(wanted, new ArrayList<>(teams.keySet()), mode.teamSize, random);
         for (BwTeam team : teams.values()) {
             team.reset();

@@ -84,6 +84,8 @@ public final class IceMineCore extends JavaPlugin {
     private hu.icemine.core.economy.IceCoins iceCoins;
     private hu.icemine.core.rank.Buntetesek buntetesek;
     private hu.icemine.core.anticheat.CsalasGyanu csalasGyanu;
+    private hu.icemine.core.social.Partyk partyk;
+    private hu.icemine.core.social.Baratok baratok;
     private hu.icemine.core.rank.NameTags nameTags;
     private final hu.icemine.core.board.TabList tabList = new hu.icemine.core.board.TabList(this);
     private final Updater updater = new Updater(this);
@@ -316,6 +318,19 @@ public final class IceMineCore extends JavaPlugin {
             buntetesek = new hu.icemine.core.rank.Buntetesek(this);
             buntetesek.start();
         });
+        partyk = new hu.icemine.core.social.Partyk(this);
+        partyk.start();
+        register("party", partyk, partyk);
+        register("pc", partyk, partyk);
+        baratok = new hu.icemine.core.social.Baratok(this);
+        safely("barátok", () -> {
+            try {
+                baratok.start();
+            } catch (Exception error) {
+                throw new RuntimeException(error);
+            }
+        });
+        register("barat", baratok, baratok);
         hu.icemine.core.backup.Mentes mentes = new hu.icemine.core.backup.Mentes(this);
         register("mentes", mentes, mentes);
         safely("napi mentés", mentes::start);
@@ -866,6 +881,14 @@ public final class IceMineCore extends JavaPlugin {
 
     public hu.icemine.core.economy.IceCoins iceCoins() {
         return iceCoins;
+    }
+
+    public hu.icemine.core.social.Partyk partyk() {
+        return partyk;
+    }
+
+    public hu.icemine.core.social.Baratok baratok() {
+        return baratok;
     }
 
     public hu.icemine.core.bedwars.Bedwars bedwars() {

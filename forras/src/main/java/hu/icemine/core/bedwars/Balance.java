@@ -14,6 +14,57 @@ public final class Balance {
     private Balance() {
     }
 
+    /**
+     * Partyk: az egy partyban lévők ugyanazt a csapatot kérik (ha elférnek egy csapatban). Ha valamelyikük már
+     * választott és ott elférnek, oda mennek, különben a legüresebb csapatba. A wanted térképet módosítja.
+     */
+    public static void party(Map<UUID, TeamColor> wanted, List<List<UUID>> groups, List<TeamColor> colors, int teamSize) {
+        Map<TeamColor, Integer> foglalt = new LinkedHashMap<>();
+        for (TeamColor c : colors) {
+            foglalt.put(c, 0);
+        }
+        java.util.Set<UUID> csoportban = new java.util.HashSet<>();
+        for (List<UUID> g : groups) {
+            csoportban.addAll(g);
+        }
+        for (Map.Entry<UUID, TeamColor> e : wanted.entrySet()) {
+            if (e.getValue() != null && !csoportban.contains(e.getKey()) && foglalt.containsKey(e.getValue())) {
+                foglalt.merge(e.getValue(), 1, Integer::sum);
+            }
+        }
+        List<List<UUID>> sorrend = new ArrayList<>(groups);
+        sorrend.sort((x, y) -> y.size() - x.size());
+        for (List<UUID> g : sorrend) {
+            if (g.size() < 2 || g.size() > teamSize) {
+                continue;
+            }
+            TeamColor cel = null;
+            for (UUID id : g) {
+                TeamColor w = wanted.get(id);
+                if (w != null && foglalt.containsKey(w) && foglalt.get(w) + g.size() <= teamSize) {
+                    cel = w;
+                    break;
+                }
+            }
+            if (cel == null) {
+                for (TeamColor c : colors) {
+                    if (foglalt.get(c) + g.size() <= teamSize && (cel == null || foglalt.get(c) < foglalt.get(cel))) {
+                        cel = c;
+                    }
+                }
+            }
+            if (cel == null) {
+                continue;
+            }
+            for (UUID id : g) {
+                if (wanted.containsKey(id)) {
+                    wanted.put(id, cel);
+                }
+            }
+            foglalt.merge(cel, g.size(), Integer::sum);
+        }
+    }
+
     public static Map<UUID, TeamColor> assign(Map<UUID, TeamColor> wanted, List<TeamColor> colors, int teamSize, Random random) {
         Map<TeamColor, List<UUID>> teams = new LinkedHashMap<>();
         for (TeamColor color : colors) {
