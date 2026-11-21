@@ -225,7 +225,7 @@ permissions:
     description: Akkor is látszik, ha a többiek elrejtették a játékosokat
     default: op
   icemine.mod.reports:
-    description: Játékban is látja a /report és /admin jelzéseket
+    description: Játékban is látja a /jelent és /segitseg jelzéseket
     default: op
   icemine.mod.*:
     description: Moderátori jogok
