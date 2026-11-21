@@ -291,5 +291,6 @@ public final class Market {
         trades.cancelAll();
         shop.saveCounters();
         specials.shutdown();
+        keys.shutdown();
     }
 }

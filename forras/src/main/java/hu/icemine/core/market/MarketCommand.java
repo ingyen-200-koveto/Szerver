@@ -145,6 +145,14 @@ public final class MarketCommand implements CommandExecutor, TabCompleter {
             }
             return;
         }
+        if (args.length >= 1 && (args[0].equalsIgnoreCase("lada") || args[0].equalsIgnoreCase("láda"))) {
+            if (sender instanceof Player p) {
+                market.keys().crateCommand(p, args);
+            } else {
+                market.core().messages().sendTagged(sender, "&cEzt játékban kell használni (rá kell nézni a blokkra).");
+            }
+            return;
+        }
         if (args.length >= 2 && args[0].equalsIgnoreCase("draw")) {
             Market.Scope scope = market.scope(args[1]);
             if (scope == null) {
@@ -168,10 +176,15 @@ public final class MarketCommand implements CommandExecutor, TabCompleter {
             case "lottery" -> args.length == 1 ? Arrays.asList("buy", "status") : List.of();
             case "market" -> {
                 if (args.length == 1) {
-                    yield Arrays.asList("give", "draw");
+                    yield Arrays.asList("give", "draw", "lada");
                 }
                 if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
                     yield null;
+                }
+                if (args.length == 2 && args[0].equalsIgnoreCase("lada")) {
+                    List<String> ids = new ArrayList<>(Arrays.asList("torol", "lista"));
+                    ids.addAll(market.keys().ids());
+                    yield ids;
                 }
                 if (args.length == 2 && args[0].equalsIgnoreCase("draw")) {
                     List<String> ids = new ArrayList<>();
