@@ -31,6 +31,7 @@ import org.bukkit.scheduler.BukkitTask;
 public final class IceCoins {
 
     private static final Pattern ENTRY = Pattern.compile("\"([a-z0-9_]{1,16})\"\\s*:\\s*\\{\\s*\"coins\"\\s*:\\s*(-?\\d+)");
+    private static final Pattern SKIN = Pattern.compile("\"([a-z0-9_]{1,16})\"\\s*:\\s*\\{[^{}]*?\"skin\"\\s*:\\s*(\\d+)(?:\\s*,\\s*\"slim\"\\s*:\\s*(true|false))?");
     private static final Pattern RANK = Pattern.compile("\"([a-z0-9_]{1,16})\"\\s*:\\s*\\{[^{}]*?\"rank\"\\s*:\\s*\"([^\"]{0,40})\"");
 
     private final IceMineCore core;
@@ -58,6 +59,9 @@ public final class IceCoins {
             url = url.substring(0, url.length() - 1);
         }
         key = config.getString("icecoin.api-key", "").trim();
+        if (core.webSkins() != null) {
+            core.webSkins().setUrl(url);
+        }
         refresh = Math.max(10, Math.min(600, config.getInt("icecoin.refresh-seconds", 30)));
         if (enabled && !url.startsWith("http")) {
             problems.add("config.yml -> icecoin.url: http:// vagy https:// kezdetű cím kell (most: " + url + ")");
@@ -131,9 +135,13 @@ public final class IceCoins {
             }
             Map<String, Long> found = parse(response.body());
             Map<String, String> ranks = parseRanks(response.body());
+            Map<String, long[]> skins = parseSkins(response.body());
             Bukkit.getScheduler().runTask(core, () -> {
                 if (core.webRanks() != null) {
                     core.webRanks().update(ranks);
+                }
+                if (core.webSkins() != null) {
+                    core.webSkins().update(names, skins);
                 }
             });
             for (String name : names) {
@@ -214,6 +222,23 @@ public final class IceCoins {
     /** A weboldalon a játékos neve (Bedrockon a pont nélkül). */
     public static String key(Player player) {
         return hu.icemine.core.WebLogin.webName(player.getName());
+    }
+
+    /** A weboldal válaszából a skinek: {"players":{"steve":{"coins":1,"rank":"VIP","skin":1712345,"slim":true}}} -> steve = [1712345, 1]. */
+    static Map<String, long[]> parseSkins(String body) {
+        Map<String, long[]> result = new HashMap<>();
+        if (body == null) {
+            return result;
+        }
+        Matcher matcher = SKIN.matcher(body);
+        while (matcher.find()) {
+            try {
+                result.put(matcher.group(1), new long[] {Long.parseLong(matcher.group(2)), "true".equals(matcher.group(3)) ? 1 : 0});
+            } catch (NumberFormatException ignored) {
+                // túl nagy szám: nem skin verzió, kihagyjuk
+            }
+        }
+        return result;
     }
 
     /** A weboldal válaszából a rangok: {"players":{"steve":{"coins":1234,"rank":"VIP"}}} -> steve = VIP. */

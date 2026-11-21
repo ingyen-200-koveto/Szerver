@@ -6,7 +6,7 @@
 
     <groupId>hu.icemine</groupId>
     <artifactId>icemine</artifactId>
-    <version>3.19.1</version>
+    <version>3.20.0</version>
     <packaging>jar</packaging>
     <name>IceMine</name>
     <description>IceMine Network: lobby, SkyPvP, KitPvP, ComboFly, Duels, Gens, Kingdoms - egyetlen pluginban</description>
@@ -23,6 +23,7 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+
     </repositories>
 
     <dependencies>
@@ -44,6 +45,13 @@
             <version>7.3.7</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../plugins/worldedit-bukkit-7.3.7.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>net.skinsrestorer</groupId>
+            <artifactId>skinsrestorer-api</artifactId>
+            <version>15.12.6</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../plugins/SkinsRestorer.jar</systemPath>
         </dependency>
     </dependencies>
 

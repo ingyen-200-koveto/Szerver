@@ -255,6 +255,17 @@ lejár, le is veszi. Csak azt veszi le, amit ő adott: a kézzel adott rangokhoz
 nyúl. Beállítás: `config.yml` -> `weboldal-rangok` (melyik weboldalas rang melyik csoport). Hogy kinek mit adott,
 a `plugins/IceMine/weboldal-rangok.yml` fájlban látszik.
 
+
+## Weboldalas skin
+
+Amit a játékos a weboldalon a Karakter oldalon feltölt skinnek, az a szerveren magától rákerül, eredeti és
+nem eredeti (tört) klienssel is. Ehhez a **SkinsRestorer** kell (`plugins/SkinsRestorer.jar`, 15.12.6, a
+Modrinthos univerzális jar, ez a Paper/Purpur szerveren fut). Az IceMine az IceCoin lekérdezéssel együtt
+(30 másodpercenként) megnézi, kinek van skinje a weboldalon, és ha új vagy megváltozott, a SkinsRestorerrel
+ráteszi. A képet a SkinsRestorer a MineSkinnel hitelesíti, ezért kell, hogy a weboldal (`icecoin.url`)
+kívülről elérhető legyen. Ha a játékos a weboldalon visszaállítja az alap skint, a szerveren is lekerül.
+Akinek nincs weboldalas skinje, annál az IceMine nem nyúl semmihez, a `/skin` parancs ugyanúgy működik.
+Bedrock játékosoknál (ponttal kezdődő név) a saját Bedrock skinjük marad.
 ## Lobby parkour
 
 A start kapu mögötti nyomólapra lépve indul. A pálya 56 színes gyapjú kockából áll, de mindig csak a

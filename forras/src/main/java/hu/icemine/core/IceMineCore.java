@@ -88,6 +88,7 @@ public final class IceMineCore extends JavaPlugin {
     private final ChatLog chatLog = new ChatLog(this);
     private final WebLogin webLogin = new WebLogin(this);
     private final hu.icemine.core.rank.WebRanks webRanks = new hu.icemine.core.rank.WebRanks(this);
+    private final hu.icemine.core.skin.WebSkins webSkins = new hu.icemine.core.skin.WebSkins(this);
     private Duels duels;
     private Npcs npcs;
     private ContactBook contacts;
@@ -795,6 +796,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public hu.icemine.core.rank.WebRanks webRanks() {
         return webRanks;
+    }
+
+    public hu.icemine.core.skin.WebSkins webSkins() {
+        return webSkins;
     }
 
     public AuthHook auth() {
