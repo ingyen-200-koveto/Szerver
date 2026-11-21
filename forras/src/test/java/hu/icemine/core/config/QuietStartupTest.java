@@ -28,4 +28,13 @@ class QuietStartupTest {
         assertEquals(0, hidden < 0 ? -1 : 0);
         assertEquals(Filter.Result.NEUTRAL, gate.filter(event(Level.INFO, "[Citizens] Loaded 12 NPCs.")));
     }
+
+    @Test
+    void onlyConsoleAppendersAreGated() {
+        org.junit.jupiter.api.Assertions.assertTrue(QuietStartup.console("TerminalConsoleAppender", "TerminalConsole"));
+        org.junit.jupiter.api.Assertions.assertTrue(QuietStartup.console("QueueLogAppender", "ServerGuiConsole"));
+        org.junit.jupiter.api.Assertions.assertFalse(QuietStartup.console("AsyncAppender", "Async"));
+        org.junit.jupiter.api.Assertions.assertFalse(QuietStartup.console("RewriteAppender", "rewrite2"));
+        org.junit.jupiter.api.Assertions.assertFalse(QuietStartup.console("RollingRandomAccessFileAppender", "File"));
+    }
 }
