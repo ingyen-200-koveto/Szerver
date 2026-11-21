@@ -267,6 +267,13 @@ kívülről elérhető legyen. Ha a játékos a weboldalon visszaállítja az al
 Akinek nincs weboldalas skinje, annál az IceMine nem nyúl semmihez, a `/skin` parancs ugyanúgy működik.
 Bedrock játékosoknál (ponttal kezdődő név) a saját Bedrock skinjük marad.
 
+## Csendes indítás
+
+Indításkor a konzolon csak a figyelmeztetések, a hibák, a Paper „Done” sora és a végén egy összefoglaló látszik
+(„✔ A szerver elindult. Indításkor N sort nem írtam ki…”). A többi plugin betöltési üzenetei is rejtve maradnak.
+A `logs/latest.log` fájlba ilyenkor is minden bekerül, ha valamit keresni kell. Indítás után minden üzenet újra
+látszik a konzolon. Kikapcsolás: `config.yml` → `quiet-startup: false`.
+
 ## /jelent és /segitseg
 
 - `/jelent <játékos> <indok>`: a jelentés a weboldalon át a Discord 🚨・jelentések

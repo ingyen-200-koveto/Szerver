@@ -114,6 +114,11 @@ public final class IceMineCore extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        try {
+            hu.icemine.core.config.QuietStartup.start(getDataFolder(), getLogger());
+        } catch (Throwable ignored) {
+            // ha a szerveren nincs log4j, a csendes indítás kimarad
+        }
         DataMove.run(getDataFolder().getParentFile(), getDataFolder().getName(), getLogger());
         if (hu.icemine.core.config.FirstSetup.run(Bukkit.getWorldContainer(), getLogger())) {
             try {
@@ -133,6 +138,13 @@ public final class IceMineCore extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        getServer().getPluginManager().registerEvents(new org.bukkit.event.Listener() {
+            @org.bukkit.event.EventHandler
+            public void onLoaded(org.bukkit.event.server.ServerLoadEvent event) {
+                Bukkit.getScheduler().runTaskLater(IceMineCore.this, IceMineCore.this::quietDone, 20L);
+            }
+        }, this);
+        Bukkit.getScheduler().runTaskLater(this, this::quietDone, 20L * 120);
         Items.init(this);
         safely("régi módok takarítása", () -> hu.icemine.core.config.OldModes.run(getDataFolder(), Bukkit.getWorldContainer(), getLogger()));
         configs = new ConfigFiles(this);
@@ -316,7 +328,7 @@ public final class IceMineCore extends JavaPlugin {
             hu.icemine.core.rank.LuckPermsSetup.run(getDataFolder(), configs.get("ranks"), getLogger());
             Bukkit.getScheduler().runTaskLater(this, ranks::refreshAll, 60L);
         }), 40L);
-        getLogger().info("IceMine " + getDescription().getVersion() + " elindult" + (problems.isEmpty() ? "." : ", " + problems.size() + " config figyelmeztetéssel."));
+        getLogger().info("\u2714 IceMine " + getDescription().getVersion() + " elindult" + (problems.isEmpty() ? "." : ", " + problems.size() + " config figyelmeztetéssel."));
     }
 
     private void safely(String name, Runnable action) {
@@ -325,6 +337,23 @@ public final class IceMineCore extends JavaPlugin {
         } catch (Throwable throwable) {
             getLogger().log(Level.SEVERE, "Hiba történt a betöltéskor: " + name + ". Ez a rész nem fog működni:", throwable);
         }
+    }
+
+    private void quietDone() {
+        int hidden;
+        int warnings;
+        try {
+            hidden = hu.icemine.core.config.QuietStartup.finish();
+            warnings = hu.icemine.core.config.QuietStartup.warnings();
+        } catch (Throwable ignored) {
+            return;
+        }
+        if (hidden < 0) {
+            return;
+        }
+        getLogger().info("\u2714 A szerver elindult. Indításkor " + hidden + " sort nem írtam ki a konzolra"
+                + (warnings > 0 ? ", figyelmeztetés vagy hiba: " + warnings + " (fent látszanak)" : ", hiba nem volt")
+                + ". A teljes napló: logs/latest.log");
     }
 
     private void registerListeners(Listener... listeners) {

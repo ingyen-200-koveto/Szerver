@@ -156,3 +156,7 @@ leaderboards:
       title: "&d&l✦ Gens prestige"
       source: stat
       key: gens.prestige_score
+
+# Csendes indítás: indításkor a konzolon csak a figyelmeztetések, a hibák és a végén egy összefoglaló sor látszik.
+# A logs/latest.log fájlba ilyenkor is minden bekerül. Ha mindent látni szeretnél a konzolon: false
+quiet-startup: true
