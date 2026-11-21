@@ -295,6 +295,23 @@ A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a Be
   Kitiltáscsökkentés oldalán mindenki látja a sajátját (lejárattal). Ehhez a `MC_API_KEY` kell, ugyanaz, mint a
   rangoknál.
 
+## Teljesítmény
+
+Az IceMine egyszer (a szerver elindulása után) átír pár értéket a configokban, a következő indítástól érvényes:
+
+- Paper (`config/paper-world-defaults.yml`): gyorsabb vöröskő (Alternate Current), kevesebb entitás ütközés,
+  optimalizált robbanás, kincses térkép keresés ki, tölcsér esemény ki, kevesebb mentett nyíl/XP gömb chunkonként.
+- Spigot (`spigot.yml`): a messzi állatok, szörnyek, falusiak ritkábban frissülnek; spawnerből jött mobok buták.
+- Bukkit (`bukkit.yml`): a fel nem használt chunkok hamarabb kikerülnek a memóriából.
+- Az arénavilágokban (BedWars, SkyWars, Duels) nincs mindig betöltve a spawn, amikor üresek.
+
+Amit ezek után kézzel átírsz, azt nem bántja (`plugins/IceMine/.optimalizalas-v1`). Kikapcsolás:
+`config.yml` → `optimalizalas.configok: false`. Ha akad a szerver: `/spark profiler`, majd pár perc múlva
+`/spark profiler --stop`, és a kapott linken látszik, mi lassít.
+
+**Velocity kulcs:** a proxy `forwarding.secret` fájljának tartalma a szerveren a `config/paper-global.yml`
+fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-global.yml`-be soha ne írd bele.
+
 ## SkyWars
 
 Szigetekről indultok, a ládákból szerelkeztek fel, és az utolsó túlélő (Duóban az utolsó csapat) nyer.

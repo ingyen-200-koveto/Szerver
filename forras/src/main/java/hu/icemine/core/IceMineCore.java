@@ -138,6 +138,7 @@ public final class IceMineCore extends JavaPlugin {
         } catch (Throwable ignored) {
         }
         System.setProperty("libertybans.relocationbug.disablecheck", "true");
+
         try {
             hu.icemine.core.config.ViaFix.run(getDataFolder().getParentFile(), getLogger());
         } catch (Throwable ignored) {
@@ -164,6 +165,11 @@ public final class IceMineCore extends JavaPlugin {
             @org.bukkit.event.EventHandler
             public void onLoaded(org.bukkit.event.server.ServerLoadEvent event) {
                 safely("LibertyBans parancsok", hu.icemine.core.command.LibertyBansAliases::register);
+                safely("teljesítmény beállítások", () -> hu.icemine.core.config.Optimalizalas.configok(Bukkit.getWorldContainer().getAbsoluteFile(),
+                        getDataFolder(), getConfig().getBoolean("optimalizalas.configok", true), getLogger()));
+                safely("arénák spawn területe", () -> hu.icemine.core.config.Optimalizalas.spawnNelkul(
+                        getConfig().isList("optimalizalas.spawn-nelkul") ? getConfig().getStringList("optimalizalas.spawn-nelkul")
+                                : java.util.List.of("ice_bedwars", "ice_skywars", "duels")));
                 Bukkit.getScheduler().runTaskLater(IceMineCore.this, IceMineCore.this::quietDone, 20L * 15);
             }
         }, this);

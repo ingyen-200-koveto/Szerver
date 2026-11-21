@@ -1,5 +1,8 @@
+# A Velocity proxy kulcsát (secret) ide kell beírni, de a GitHubra soha ne kerüljön fel!
+# A proxy forwarding.secret fájljának tartalmát másold be a szerveren lévő config/paper-global.yml fájlba
+# (proxies -> velocity -> secret), majd indítsd újra a szervert.
 proxies:
   velocity:
     enabled: true
     online-mode: false
-    secret: 'b2UhLrbQwcNKPs44jtsTD8FJZWKzp1oc'
+    secret: ''
