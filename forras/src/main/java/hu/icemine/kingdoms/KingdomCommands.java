@@ -44,7 +44,11 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
             return true;
         }
         if (player.getWorld() != plugin.world() && !(args.length > 0 && Arrays.asList("info", "top", "list", "help").contains(args[0].toLowerCase(Locale.ROOT)))) {
-            plugin.send(player, "only-in-kingdoms");
+            if (args.length == 0) {
+                plugin.core().modes().sendAndReport(player, "kingdoms");
+            } else {
+                plugin.send(player, "only-in-kingdoms");
+            }
             return true;
         }
         if (args.length == 0) {

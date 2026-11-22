@@ -29,6 +29,9 @@ public final class PermissionSetup {
         }
     }
 
+    /** Ezek a parancsok a 3.22.1-ben megszűntek, a régi permissions.yml-ben maradt soruk nem hiba. */
+    private static final java.util.Set<String> REMOVED = java.util.Set.of("kozmetika", "parkour", "lottery");
+
     private final JavaPlugin plugin;
     private final Map<String, Entry> commands = new LinkedHashMap<>();
     private final Map<String, Entry> subcommands = new LinkedHashMap<>();
@@ -46,6 +49,9 @@ public final class PermissionSetup {
         for (Map.Entry<String, Entry> entry : commands.entrySet()) {
             PluginCommand command = plugin.getCommand(entry.getKey());
             if (command == null) {
+                if (REMOVED.contains(entry.getKey())) {
+                    continue;
+                }
                 problems.add("permissions.yml -> commands." + entry.getKey() + ": nincs ilyen IceMine parancs");
                 continue;
             }

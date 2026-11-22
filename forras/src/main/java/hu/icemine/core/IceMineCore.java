@@ -399,6 +399,9 @@ public final class IceMineCore extends JavaPlugin {
             Bukkit.getScheduler().runTaskLater(this, ranks::refreshAll, 60L);
         }), 40L);
         getLogger().info("\u2714 IceMine " + getDescription().getVersion() + " elindult" + (problems.isEmpty() ? "." : ", " + problems.size() + " config figyelmeztetéssel."));
+        for (String problem : problems) {
+            getLogger().warning("Config: " + problem);
+        }
     }
 
     private void safely(String name, Runnable action) {

@@ -129,21 +129,24 @@ public final class Partyk implements CommandExecutor, TabCompleter, Listener {
         String sub = args[0].toLowerCase(Locale.ROOT);
         String nev = args.length > 1 ? args[1] : null;
         switch (sub) {
-            case "meghiv", "meghív" -> {
+            case "meghiv", "meghív", "invite" -> {
                 if (nev == null) {
                     Szoveg.kuld(core, p, "&7Használat: &f/party meghiv <játékos>");
                 } else {
                     meghiv(p, nev);
                 }
             }
-            case "elfogad" -> {
+            case "elfogad", "accept" -> {
+                if (nev == null) {
+                    nev = egyetlenMeghivo(p);
+                }
                 if (nev == null) {
                     Szoveg.kuld(core, p, "&7Használat: &f/party elfogad <játékos>");
                 } else {
                     elfogad(p, nev);
                 }
             }
-            case "kilep", "kilép" -> {
+            case "kilep", "kilép", "leave" -> {
                 if (of(p.getUniqueId()) == null) {
                     Szoveg.kuld(core, p, "&cNem vagy partyban.");
                 } else {
@@ -151,9 +154,9 @@ public final class Partyk implements CommandExecutor, TabCompleter, Listener {
                     Szoveg.kuld(core, p, "&7Kiléptél a partyból.");
                 }
             }
-            case "kirug", "kirúg" -> kirug(p, nev);
-            case "atad", "átad" -> atad(p, nev);
-            case "feloszlat" -> feloszlat(p);
+            case "kirug", "kirúg", "kick" -> kirug(p, nev);
+            case "atad", "átad", "transfer" -> atad(p, nev);
+            case "feloszlat", "disband" -> feloszlat(p);
             case "lista", "info" -> lista(p);
             case "warp", "hiv", "hív" -> warp(p);
             case "chat" -> chat(p, String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)));
@@ -212,6 +215,22 @@ public final class Partyk implements CommandExecutor, TabCompleter, Listener {
         Szoveg.kuld(core, p, "&aMeghívó elküldve: &f" + cel.getName() + "&a. 60 másodpercig érvényes.");
         Szoveg.kuld(core, cel, "&b" + p.getName() + "&f meghívott a partyjába. [[&a[Csatlakozom]|run:/party elfogad " + p.getName() + "]]");
         cel.playSound(cel.getLocation(), "minecraft:entity.experience_orb.pickup", 0.7F, 1.0F);
+    }
+
+    /** Ha pontosan egy élő meghívója van, annak a party vezetőjének a neve. */
+    private String egyetlenMeghivo(Player p) {
+        String talalt = null;
+        long most = System.currentTimeMillis();
+        for (Party party : new java.util.HashSet<>(partyja.values())) {
+            Long t = party.meghivottak.get(p.getUniqueId());
+            if (t != null && most - t <= HIVAS_IDO) {
+                if (talalt != null) {
+                    return null;
+                }
+                talalt = Bukkit.getOfflinePlayer(party.vezeto).getName();
+            }
+        }
+        return talalt;
     }
 
     private void elfogad(Player p, String nev) {

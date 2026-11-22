@@ -7,7 +7,7 @@
 #
 # LuckPermsben ugyanezekkel a jogokkal tudod finomítani, például:
 #   lp group default permission set icemine.command.top false     (a sima játékosok nem látják a /top-ot)
-#   lp group vip permission set icemine.command.kozmetika true
+#   lp group vip permission set icemine.command.napi true
 #
 # Akinek nincs joga, az ezt kapja: [IceMine] Ehhez nincs jogod!
 # A tiltott Bukkit/Paper parancsokat (/pl, /ver, /about...) a config.yml blocked-commands részében találod.
@@ -22,9 +22,7 @@ commands:
   penz:      {permission: icemine.command.penz, default: true}
   fizet:     {permission: icemine.command.fizet, default: true}
   napi:      {permission: icemine.command.napi, default: true}
-  kozmetika: {permission: icemine.command.kozmetika, default: true}
   kapcsolat: {permission: icemine.command.kapcsolat, default: true}
-  parkour:   {permission: icemine.command.parkour, default: true}
   combofly:  {permission: icemine.command.combofly, default: true}
   kit:       {permission: icemine.command.kit, default: true}
   arena:     {permission: icemine.command.arena, default: true}
@@ -43,7 +41,6 @@ commands:
   shop:      {permission: icemine.command.shop, default: true}
   sell:      {permission: icemine.command.sell, default: true}
   baltop:    {permission: icemine.command.baltop, default: true}
-  lottery:   {permission: icemine.command.lottery, default: true}
   kulcs:     {permission: icemine.command.kulcs, default: true}
   market:    {permission: icemine.admin.market, default: op}
   k:         {permission: icemine.command.kingdoms, default: true}

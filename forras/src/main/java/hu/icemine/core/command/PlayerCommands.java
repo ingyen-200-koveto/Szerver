@@ -298,6 +298,9 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
             case "admin":
                 comboAdmin(player, args);
                 break;
+            case "":
+                core.modes().sendAndReport(player, "combofly");
+                break;
             default:
                 core.messages().send(player, player.hasPermission("icemine.admin.combofly") ? "general.unknown-command" : "general.no-permission");
         }

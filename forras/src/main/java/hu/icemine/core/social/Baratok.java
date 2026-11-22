@@ -140,28 +140,28 @@ public final class Baratok implements CommandExecutor, TabCompleter, Listener {
         String sub = args[0].toLowerCase(Locale.ROOT);
         String nev = args.length > 1 ? args[1] : null;
         switch (sub) {
-            case "lista" -> lista(p);
-            case "kerelmek", "kérelmek" -> kerelmek(p);
-            case "hozzaad", "hozzáad" -> {
+            case "lista", "list" -> lista(p);
+            case "kerelmek", "kérelmek", "requests" -> kerelmek(p);
+            case "hozzaad", "hozzáad", "add" -> {
                 if (nev == null) {
                     Szoveg.kuld(core, p, "&7Használat: &f/barat hozzaad <játékos>");
                 } else {
                     hozzaad(p, nev);
                 }
             }
-            case "elfogad" -> {
+            case "elfogad", "accept" -> {
                 if (nev == null) {
                     kerelmek(p);
                 } else {
                     elfogad(p, nev);
                 }
             }
-            case "elutasit", "elutasít" -> {
+            case "elutasit", "elutasít", "deny", "decline" -> {
                 if (nev != null) {
                     elutasit(p, nev);
                 }
             }
-            case "torol", "töröl" -> {
+            case "torol", "töröl", "remove" -> {
                 if (nev == null) {
                     Szoveg.kuld(core, p, "&7Használat: &f/barat torol <játékos>");
                 } else {

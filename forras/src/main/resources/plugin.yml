@@ -87,8 +87,8 @@ commands:
     usage: /kapcsolat
     aliases: [kapcsolatok, contacts, discord]
   combofly:
-    description: ComboFly admin (beállítások újratöltése, aréna kezelés)
-    usage: /combofly <reload|admin>
+    description: ComboFly (paraméter nélkül odavisz), admin - reload, admin
+    usage: /combofly [reload|admin]
     permission: icemine.admin.combofly
   kit:
     description: Kit választó

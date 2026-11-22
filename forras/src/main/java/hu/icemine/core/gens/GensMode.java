@@ -766,6 +766,7 @@ public final class GensMode implements ModeHandler, Listener {
             player.getInventory().clear();
         }
         player.setFoodLevel(20);
+        boolean firstVisit = data != null && data.plot <= 0;
         if (data != null) {
             data.fresh = false;
             ensurePlot(player, data);
@@ -780,7 +781,9 @@ public final class GensMode implements ModeHandler, Listener {
             quests.roll(data, LocalDate.now().toString());
             updateStats(player, data);
         }
-        core.messages().send(player, "gens.welcome");
+        if (!firstVisit) {
+            core.messages().send(player, "gens.welcome");
+        }
     }
 
     @Override
