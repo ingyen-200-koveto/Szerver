@@ -308,6 +308,11 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
 - **Nagyobb sziget** (lobby 9-es elrendezés): a sziget kb. másfélszer olyan széles, két új szárnnyal.
   Nyugaton a **Jégtó** stéggel, horgászkunyhóval, náddal és tavirózsákkal. Keleten a **kilátó** (22 blokk magas,
   létrával, fent korláttal) és a **PvP aréna**. A falu főutcájáról erdei ösvények vezetnek mindkét szárnyba.
+- **Kidolgozottabb vár** (lobby 11-es elrendezés): a falakon pillérek, lőrések, alul terméskő lábazat, fent
+  párkány és lámpások. A kapun csúcsív, csapórács és kiemelt kaputorony címerrel, a hídon lámpák, az árokban
+  tavirózsák. A tornyokon kőövek és kék-fehér zászlók, a lakótorony nyeregtetőt kapott kéménnyel, kék
+  üvegablakokat, lépcsős bejáratot szőnyeggel és erkélyt. Az udvaron keresztút, lámpaoszlopok, három piaci stand,
+  szénabálák, hordók és virágok a fák körül.
 - **Láthatatlan fal** (barrier) a sziget széle körül, a felszíntől 50 blokk magasig: nem lehet leugrani vagy
   kimászni. A parkour kijáratánál (a spawn mögött) rés van, a parkour ugyanott indul, mint eddig.
 - **PvP aréna**: aki belép, felszerelést kap (vaskard, íj, vaspáncél, aranyalma), és csak az arénában lévők

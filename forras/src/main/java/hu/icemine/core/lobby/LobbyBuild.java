@@ -6,7 +6,7 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 10;
+    public static final int VERSION = 11;
     public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 136;
     public static final int CLEAR_NORTH = 100;
@@ -769,11 +769,20 @@ public final class LobbyBuild extends Build {
                         continue;
                     }
                     double n = noise(x, y * 31 + z, 51);
-                    put(x, y, z, y == 1 ? "cobblestone" : (n < 0.18 ? "mossy_stone_bricks" : (n < 0.3 ? "cracked_stone_bricks" : "stone_bricks")));
+                    String block;
+                    if (y <= 2) {
+                        block = n < 0.35 ? "mossy_cobblestone" : "cobblestone";
+                    } else if (y == 3) {
+                        block = "polished_andesite";
+                    } else {
+                        block = n < 0.18 ? "mossy_stone_bricks" : (n < 0.3 ? "cracked_stone_bricks" : "stone_bricks");
+                    }
+                    put(x, y, z, block);
                 }
                 boolean outer = Math.abs(x) == 21 || z == -81 || z == -55;
                 if (outer && Math.floorMod(x + z, 2) == 0) {
                     put(x, wallTop + 1, z, "stone_bricks");
+                    put(x, wallTop + 2, z, "stone_brick_slab[type=bottom]");
                 }
             }
         }
@@ -788,10 +797,144 @@ public final class LobbyBuild extends Build {
         }
         keep();
         well(-13, -61);
-        int[][] trees = {{14, -62}, {-16, -73}, {16, -74}};
+        castleDetails(wallTop);
+        int[][] trees = {{-16, -74}, {16, -75}};
         for (int[] tree : trees) {
             oak(tree[0], 1, tree[1], 5 + (int) (noise(tree[0], tree[1], 53) * 2), false);
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dz = -2; dz <= 2; dz++) {
+                    if ((Math.abs(dx) == 2 || Math.abs(dz) == 2) && noise(tree[0] + dx, tree[1] + dz, 54) < 0.6) {
+                        String[] flowers = {"cornflower", "azure_bluet", "lily_of_the_valley", "allium"};
+                        put(tree[0] + dx, 1, tree[1] + dz, flowers[(int) (noise(tree[0] + dz, tree[1] + dx, 55) * flowers.length)]);
+                    }
+                }
+            }
         }
+    }
+
+    /** A vár díszei: pillérek, lőrések, párkány, kapu csapóráccsal, udvari utak, standok, lámpák, tavirózsák. */
+    private void castleDetails(int wallTop) {
+        // pillérek és lőrések a külső falon
+        for (int x = -21; x <= 21; x++) {
+            for (int z = -81; z <= -55; z++) {
+                boolean outer = Math.abs(x) == 21 || z == -81 || z == -55;
+                if (!outer || (Math.abs(x) <= 7 && z == -55)) {
+                    continue;
+                }
+                int along = Math.abs(x) == 21 ? z : x;
+                int ox = Math.abs(x) == 21 ? Integer.signum(x) : 0;
+                int oz = z == -81 ? -1 : (z == -55 ? 1 : 0);
+                boolean corner = Math.abs(x) >= 17 && (z <= -77 || z >= -59);
+                if (corner) {
+                    continue;
+                }
+                if (Math.floorMod(along, 6) == 0) {
+                    for (int y = 1; y <= wallTop - 1; y++) {
+                        put(x + ox, y, z + oz, y <= 2 ? "cobblestone" : "stone_bricks");
+                    }
+                    put(x + ox, wallTop, z + oz, stairs("stone_brick", facing(-ox, -oz), true));
+                } else {
+                    put(x + ox, wallTop, z + oz, stairs("stone_brick", facing(-ox, -oz), true));
+                    if (Math.floorMod(along, 6) == 3) {
+                        put(x, 6, z, "iron_bars");
+                        put(x, 7, z, "iron_bars");
+                    }
+                }
+            }
+        }
+        // lámpások a fal tetején, belül
+        for (int x = -19; x <= 19; x += 6) {
+            put(x, wallTop + 1, -80, "lantern[hanging=false]");
+        }
+        for (int z = -76; z <= -60; z += 6) {
+            put(-20, wallTop + 1, z, "lantern[hanging=false]");
+            put(20, wallTop + 1, z, "lantern[hanging=false]");
+        }
+        // kapu: csúcsív, csapórács, kaputorony
+        for (int side = -1; side <= 1; side += 2) {
+            put(side * 2, 5, -55, stairs("stone_brick", side < 0 ? "east" : "west", true));
+            put(side * 2, 5, -56, stairs("stone_brick", side < 0 ? "east" : "west", true));
+        }
+        for (int x = -1; x <= 1; x++) {
+            put(x, 5, -55, "iron_bars");
+            put(x, 4, -55, "iron_bars");
+            put(x, 5, -56, "air");
+        }
+        for (int x = -4; x <= 4; x++) {
+            for (int y = wallTop + 1; y <= wallTop + 3; y++) {
+                put(x, y, -55, y == wallTop + 3 ? (Math.floorMod(x, 2) == 0 ? "stone_bricks" : "air") : "stone_bricks");
+                put(x, y, -56, y == wallTop + 3 ? "air" : "stone_bricks");
+            }
+            if (Math.abs(x) <= 3) {
+                put(x, wallTop + 1, -54, stairs("stone_brick", "north", true));
+            }
+        }
+        put(0, wallTop + 2, -54, "light_blue_wall_banner[facing=south]");
+        put(0, wallTop + 1, -54, "chiseled_stone_bricks");
+        put(-3, 4, -54, "lantern[hanging=false]");
+        put(3, 4, -54, "lantern[hanging=false]");
+        for (int side = -1; side <= 1; side += 2) {
+            put(side * 2, 2, -50, "lantern[hanging=false]");
+            put(side * 2, 2, -53, "lantern[hanging=false]");
+        }
+        // udvar: keresztút, lámpák, standok
+        for (int x = -18; x <= 18; x++) {
+            for (int z = -62; z <= -60; z++) {
+                if (Math.abs(x) > 2 && !(x >= -15 && x <= -11)) {
+                    put(x, 0, z, noise(x, z, 56) < 0.5 ? "gravel" : (noise(x, z, 57) < 0.6 ? "cobblestone" : "stone_bricks"));
+                }
+            }
+        }
+        for (int[] l : new int[][]{{-3, -58}, {3, -58}, {-3, -64}, {3, -64}, {-9, -63}, {9, -63}}) {
+            put(l[0], 1, l[1], "cobblestone_wall[up=true]");
+            put(l[0], 2, l[1], "spruce_fence");
+            put(l[0], 3, l[1], "lantern[hanging=false]");
+        }
+        stall(7, -58, "light_blue_wool", "white_wool");
+        stall(13, -58, "red_wool", "white_wool");
+        stall(-8, -58, "yellow_wool", "white_wool");
+        for (int[] h : new int[][]{{17, -58}, {18, -58}, {17, -59}, {-18, -64}, {-18, -65}}) {
+            put(h[0], 1, h[1], "hay_block[axis=y]");
+        }
+        put(18, 2, -58, "hay_block[axis=x]");
+        put(-17, 1, -64, "barrel[facing=up]");
+        put(-17, 1, -65, "barrel[facing=up]");
+        // tavirózsák a várárokban
+        for (int x = -25; x <= 25; x++) {
+            for (int z = -85; z <= -51; z++) {
+                boolean inner = Math.abs(x) <= 22 && z >= -82 && z <= -54;
+                if (!inner && !(Math.abs(x) <= 2 && z >= -54) && noise(x, z, 58) < 0.06) {
+                    put(x, 1, z, "lily_pad");
+                }
+            }
+        }
+    }
+
+    private static String facing(int dx, int dz) {
+        if (dx > 0) {
+            return "east";
+        }
+        if (dx < 0) {
+            return "west";
+        }
+        return dz > 0 ? "south" : "north";
+    }
+
+    /** Piaci stand: négy oszlop, csíkos ponyva, pult. */
+    private void stall(int x0, int z0, String wool, String stripe) {
+        for (int[] c : new int[][]{{0, 0}, {2, 0}, {0, 2}, {2, 2}}) {
+            put(x0 + c[0], 1, z0 - c[1], "spruce_fence");
+            put(x0 + c[0], 2, z0 - c[1], "spruce_fence");
+        }
+        for (int dx = -1; dx <= 3; dx++) {
+            for (int dz = 0; dz <= 2; dz++) {
+                put(x0 + dx, 3, z0 - dz, Math.floorMod(dx, 2) == 0 ? wool : stripe);
+            }
+        }
+        put(x0 + 1, 1, z0, "barrel[facing=up]");
+        put(x0, 1, z0 - 1, "spruce_slab[type=top]");
+        put(x0 + 2, 1, z0 - 1, "crafting_table");
+        put(x0 + 1, 1, z0 - 2, "composter");
     }
 
     private void keep() {
@@ -813,15 +956,59 @@ public final class LobbyBuild extends Build {
                     int along = alongX ? x : z;
                     boolean window = (y % 6 == 3 || y % 6 == 4) && Math.floorMod(along, 4) == 1 && !(alongX && alongZ);
                     double n = noise(x, y * 17 + z, 52);
-                    String block = window ? (alongX ? "glass_pane[east=true,west=true]" : "glass_pane[north=true,south=true]")
+                    String block = window ? (alongX ? "light_blue_stained_glass_pane[east=true,west=true]" : "light_blue_stained_glass_pane[north=true,south=true]")
                             : (n < 0.15 ? "mossy_stone_bricks" : (n < 0.27 ? "cracked_stone_bricks" : "stone_bricks"));
                     put(x, y, z, block);
                 }
-                if (wall && Math.floorMod(x + z, 2) == 0) {
-                    put(x, keepTop + 1, z, "stone_bricks");
-                }
             }
         }
+        int ridge = (kz0 + kz1) / 2;
+        int half = (kz1 - kz0) / 2 + 1;
+        for (int i = 0; i <= half; i++) {
+            int y = keepTop + 1 + i;
+            for (int x = kx0 - 1; x <= kx1 + 1; x++) {
+                if (kz0 - 1 + i < ridge) {
+                    put(x, y, kz0 - 1 + i, stairs("deepslate_tile", "south", false));
+                }
+                if (kz1 + 1 - i > ridge) {
+                    put(x, y, kz1 + 1 - i, stairs("deepslate_tile", "north", false));
+                }
+                if (kz0 - 1 + i == ridge || kz1 + 1 - i == ridge) {
+                    put(x, y, ridge, "deepslate_tiles");
+                }
+            }
+            for (int z = kz0 + i; z <= kz1 - i; z++) {
+                put(kx0, y, z, "stone_bricks");
+                put(kx1, y, z, "stone_bricks");
+            }
+        }
+        for (int y = keepTop + 1; y <= keepTop + half + 3; y++) {
+            put(kx1 - 4, y, ridge + 2, y >= keepTop + half + 2 ? "cobblestone_wall[up=true]" : "bricks");
+        }
+        put(kx1 - 4, keepTop + half + 4, ridge + 2, "campfire[lit=false]");
+        // lépcső, szőnyeg, erkély
+        for (int x = -2; x <= 2; x++) {
+            put(x, 0, kz1 + 1, "stone_bricks");
+            put(x, 1, kz1 + 1, Math.abs(x) == 2 ? "stone_bricks" : "light_blue_carpet");
+            put(x, 1, kz1 + 2, Math.abs(x) == 2 ? stairs("stone_brick", "south", false) : "air");
+        }
+        for (int z = kz1 + 2; z <= -54; z++) {
+            put(0, 1, z, "light_blue_carpet");
+        }
+        for (int x = -3; x <= 3; x++) {
+            put(x, 6, kz1 + 1, "stone_brick_slab[type=top]");
+            put(x, 6, kz1 + 2, "stone_brick_slab[type=top]");
+            put(x, 7, kz1 + 2, "spruce_fence");
+            put(x, 5, kz1 + 2, stairs("stone_brick", "north", true));
+        }
+        put(-3, 7, kz1 + 1, "spruce_fence");
+        put(3, 7, kz1 + 1, "spruce_fence");
+        for (int x = -1; x <= 1; x++) {
+            put(x, 7, kz1, "air");
+            put(x, 8, kz1, "air");
+        }
+        put(-3, 8, kz1 + 2, "lantern[hanging=false]");
+        put(3, 8, kz1 + 2, "lantern[hanging=false]");
         for (int x = -1; x <= 1; x++) {
             for (int y = 1; y <= 3; y++) {
                 put(x, y, kz1, "air");
@@ -856,8 +1043,11 @@ public final class LobbyBuild extends Build {
                         continue;
                     }
                     boolean window = y % 7 == 4 && (dx == 0 || dz == 0) && y < height - 2;
+                    boolean slit = !window && y % 7 == 4 && Math.abs(dx) == Math.abs(dz) && y < height - 2;
                     double n = noise(tx + dx, y * 13 + tz + dz, 60);
-                    put(tx + dx, y, tz + dz, window ? "glass" : (y == 0 ? "cobblestone" : (n < 0.15 ? "mossy_stone_bricks" : (n < 0.26 ? "cracked_stone_bricks" : "stone_bricks"))));
+                    String block = window ? "light_blue_stained_glass" : (slit ? "iron_bars" : (y == 0 ? "cobblestone"
+                            : (y % 7 == 0 ? "polished_andesite" : (n < 0.15 ? "mossy_stone_bricks" : (n < 0.26 ? "cracked_stone_bricks" : "stone_bricks")))));
+                    put(tx + dx, y, tz + dz, block);
                 }
             }
         }
@@ -869,7 +1059,17 @@ public final class LobbyBuild extends Build {
                 }
             }
         }
-        cone(tx, height + 2, tz, radius + 1.0, roofHeight, "deepslate_tile", "deepslate_tiles", "lightning_rod[facing=up]");
+        cone(tx, height + 2, tz, radius + 1.0, roofHeight, "deepslate_tile", "deepslate_tiles", "spruce_fence");
+        int tip = height + 2 + roofHeight + 1;
+        put(tx, tip + 1, tz, "spruce_fence");
+        put(tx, tip + 2, tz, "spruce_fence");
+        boolean blue = Math.floorMod(tx + tz, 2) == 0;
+        for (int fx = 1; fx <= 3; fx++) {
+            put(tx + fx, tip + 2, tz, blue ? "light_blue_wool" : "white_wool");
+            if (fx <= 2) {
+                put(tx + fx, tip + 1, tz, blue ? "white_wool" : "light_blue_wool");
+            }
+        }
     }
 
     private void well(int wx, int wz) {
