@@ -120,6 +120,12 @@ public final class LobbyProtection implements Listener {
         }
         Action action = event.getAction();
         Block block = event.getClickedBlock();
+        if (core.lobby().pvp().in(player) && action != Action.PHYSICAL && (block == null || action != Action.RIGHT_CLICK_BLOCK || !interactable.contains(block.getType()))) {
+            if (action == Action.RIGHT_CLICK_BLOCK) {
+                event.setUseInteractedBlock(org.bukkit.event.Event.Result.DENY);
+            }
+            return;
+        }
         if (action == Action.PHYSICAL) {
             if (block != null && !block.getType().name().endsWith("PRESSURE_PLATE")) {
                 event.setCancelled(true);
@@ -168,6 +174,9 @@ public final class LobbyProtection implements Listener {
     public void onDamage(EntityDamageEvent event) {
         Entity entity = event.getEntity();
         if (!lobby(entity)) {
+            return;
+        }
+        if (core.lobby().pvp().allowed(event)) {
             return;
         }
         event.setCancelled(true);
@@ -226,6 +235,9 @@ public final class LobbyProtection implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onLaunch(ProjectileLaunchEvent event) {
+        if (event.getEntity().getShooter() instanceof Player shooter && core.lobby().pvp().in(shooter)) {
+            return;
+        }
         if (lobby(event.getEntity())) {
             event.setCancelled(true);
         }

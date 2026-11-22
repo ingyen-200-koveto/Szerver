@@ -48,6 +48,9 @@ public final class DuplaUgras implements Listener {
         if (core.parkour() != null && core.parkour().running(p)) {
             return false;
         }
+        if (core.lobby().pvp().in(p)) {
+            return false;
+        }
         return !core.lobby().flies(p) && core.auth().isLoggedIn(p);
     }
 

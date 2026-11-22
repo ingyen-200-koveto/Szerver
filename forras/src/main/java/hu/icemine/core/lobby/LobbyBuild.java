@@ -6,9 +6,9 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 8;
+    public static final int VERSION = 9;
     public static final int COURSE_LENGTH = 56;
-    public static final int CLEAR = 90;
+    public static final int CLEAR = 136;
     public static final int CLEAR_NORTH = 100;
     public static final int CLEAR_SOUTH = 112;
 
@@ -17,11 +17,21 @@ public final class LobbyBuild extends Build {
     /** A tér szökőkútjának közepe (z) és a szobrok köre. */
     static final int FOUNTAIN_Z = -5;
     static final int STATUE_R = 16;
+    /** A sziget fél szélessége (x irányban). */
+    static final double WIDTH = 120.0;
+    /** Nyugati szárny: tó. Keleti szárny: kilátó és PvP aréna. */
+    static final int LAKE_X = -96;
+    static final int LAKE_Z = -30;
+    static final int TOWER_X = 102;
+    static final int TOWER_Z = -40;
+    static final int ARENA_X = 92;
+    static final int ARENA_Z = -14;
+    public static final double ARENA_R = 9.5;
     static final int TERRACE = 24;
     static final int BACK = 8;
 
-    private static final int MIN_X = -84;
-    private static final int MAX_X = 84;
+    private static final int MIN_X = -130;
+    private static final int MAX_X = 130;
     private static final int MIN_Z = -100;
     private static final int MAX_Z = 16;
 
@@ -65,8 +75,9 @@ public final class LobbyBuild extends Build {
         houses();
         castle();
         letters();
-        trees();
         launchPads();
+        wings();
+        trees();
         parkour();
         anchors();
     }
@@ -80,7 +91,7 @@ public final class LobbyBuild extends Build {
         double dz = z + 40;
         double p = dz > 0 ? 3.2 : 2.0;
         double rz = dz > 0 ? 49.5 : 56;
-        return Math.pow(Math.pow(Math.abs(x) / 78.0, p) + Math.pow(Math.abs(dz) / rz, p), 1.0 / p);
+        return Math.pow(Math.pow(Math.abs(x) / WIDTH, p) + Math.pow(Math.abs(dz) / rz, p), 1.0 / p);
     }
 
     private static boolean onIsland(int x, int z) {
@@ -95,13 +106,21 @@ public final class LobbyBuild extends Build {
         return fx * fz;
     }
 
+    /** A szárnyak sík részei (tó, kilátó, aréna) és az oda vezető ösvények: itt nincs hegy. */
+    static double wingMask(int x, int z) {
+        double lake = 1 - smoothstep(17, 25, dist(x - LAKE_X, z - LAKE_Z));
+        double east = 1 - smoothstep(19, 27, dist(x - 96, z + 27));
+        double road = Math.abs(x) > 40 ? 1 - smoothstep(4, 9, Math.abs(z + 38)) : 0;
+        return Math.max(lake, Math.max(east, road));
+    }
+
     private static int ground(int x, int z) {
         double bluff = (PLATFORM - 1) * smoothstep(-26, -20, z) * (1 - smoothstep(27, 41, Math.abs(x)));
         double r = shape(x, z);
         double ring = smoothstep(0.6, 0.93, r);
         double north = 1 - smoothstep(-26, -8, z);
         double rough = 0.55 + 0.45 * smooth(x, z, 13.0, 5) + 0.25 * smooth(x, z, 5.0, 6);
-        double mountain = ring * north * 30 * rough * (1 - castleMask(x, z));
+        double mountain = ring * north * 30 * rough * (1 - castleMask(x, z)) * (1 - wingMask(x, z));
         return Math.max(0, (int) Math.round(Math.max(bluff, mountain)));
     }
 
@@ -1009,6 +1028,207 @@ public final class LobbyBuild extends Build {
             use(x - 1, z - 1, x + 1, z + 1);
             oak(x, 1, z, 4 + (int) (noise(x, z, 85) * 3), i % 3 == 1);
         }
+    }
+
+    // ---- új szárnyak ----
+
+    private void wings() {
+        wingRoads();
+        lake();
+        lookout();
+        arena();
+    }
+
+    private void wingRoads() {
+        for (int side = -1; side <= 1; side += 2) {
+            int end = side < 0 ? LAKE_X + 14 : TOWER_X - 4;
+            for (int ax = 47; ax <= Math.abs(end); ax++) {
+                int x = side * ax;
+                int wobble = (int) Math.round(Math.sin(ax / 7.0) * 2);
+                for (int w = -1; w <= 1; w++) {
+                    int z = -38 + wobble + w;
+                    if (h(x, z) > -50) {
+                        path(x, z);
+                    }
+                }
+                if (ax % 12 == 0) {
+                    int z = -38 + wobble + 2;
+                    put(x, 1, z, "spruce_fence");
+                    put(x, 2, z, "lantern[hanging=false]");
+                    use(x, z, x, z);
+                }
+            }
+        }
+        int gx = ARENA_X - (int) ARENA_R - 2;
+        for (int z = -36; z <= ARENA_Z + 1; z++) {
+            for (int x = gx - 2; x <= gx; x++) {
+                path(x, z);
+            }
+        }
+    }
+
+    private void lake() {
+        double rx = 12.5;
+        double rz = 9.5;
+        for (int x = LAKE_X - 16; x <= LAKE_X + 16; x++) {
+            for (int z = LAKE_Z - 13; z <= LAKE_Z + 13; z++) {
+                double e = Math.pow((x - LAKE_X) / rx, 2) + Math.pow((z - LAKE_Z) / rz, 2);
+                if (e > 1.45) {
+                    continue;
+                }
+                use(x, z, x, z);
+                if (e <= 1.0) {
+                    int depth = 1 + (int) Math.round((1 - e) * 4);
+                    put(x, -depth - 1, z, noise(x, z, 101) < 0.5 ? "sand" : (noise(x, z, 102) < 0.5 ? "gravel" : "clay"));
+                    for (int y = -depth; y <= 0; y++) {
+                        put(x, y, z, "water");
+                    }
+                    put(x, 1, z, e > 0.35 && noise(x, z, 103) < 0.07 ? "lily_pad" : "air");
+                } else {
+                    put(x, 0, z, e < 1.2 ? "sand" : (noise(x, z, 104) < 0.5 ? "sand" : "grass_block"));
+                    put(x, -1, z, "sand");
+                    put(x, 1, z, e < 1.2 && noise(x, z, 105) < 0.12 ? "sugar_cane" : "air");
+                    if (e < 1.2 && noise(x, z, 105) < 0.06) {
+                        put(x, 2, z, "sugar_cane");
+                    }
+                }
+            }
+        }
+        int py = 1;
+        for (int x = LAKE_X + 13; x >= LAKE_X + 5; x--) {
+            for (int z = LAKE_Z - 1; z <= LAKE_Z + 1; z++) {
+                put(x, py - 1, z, "spruce_planks");
+                put(x, py, z, Math.abs(z - LAKE_Z) == 1 && Math.floorMod(x, 3) == 0 ? "spruce_fence" : "air");
+            }
+            put(x, py - 2, LAKE_Z - 1, "spruce_log");
+            put(x, py - 2, LAKE_Z + 1, "spruce_log");
+        }
+        put(LAKE_X + 5, py, LAKE_Z - 1, "spruce_fence");
+        put(LAKE_X + 5, py + 1, LAKE_Z - 1, "lantern[hanging=false]");
+        put(LAKE_X + 5, py, LAKE_Z + 1, "spruce_fence");
+        put(LAKE_X + 5, py + 1, LAKE_Z + 1, "lantern[hanging=false]");
+        put(LAKE_X + 6, py, LAKE_Z, "barrel[facing=up]");
+        cabin(LAKE_X + 11, LAKE_Z - 15);
+        layout.point("holo:lake", LAKE_X + 13.5, 3.2, LAKE_Z + 0.5, 0);
+    }
+
+    private void cabin(int x0, int z0) {
+        use(x0 - 1, z0 - 1, x0 + 6, z0 + 6);
+        for (int x = x0; x <= x0 + 5; x++) {
+            for (int z = z0; z <= z0 + 5; z++) {
+                boolean wall = x == x0 || x == x0 + 5 || z == z0 || z == z0 + 5;
+                boolean corner = (x == x0 || x == x0 + 5) && (z == z0 || z == z0 + 5);
+                put(x, 0, z, "spruce_planks");
+                for (int y = 1; y <= 3; y++) {
+                    put(x, y, z, !wall ? "air" : (corner ? "stripped_spruce_log[axis=y]" : (y == 2 && (x == x0 + 2 || z == z0 + 2) ? "glass_pane" : "spruce_planks")));
+                }
+            }
+        }
+        for (int i = 0; i <= 3; i++) {
+            for (int x = x0 - 1 + i; x <= x0 + 6 - i; x++) {
+                put(x, 4 + i, z0 - 1 + i, stairs("spruce", "south", false));
+                put(x, 4 + i, z0 + 6 - i, stairs("spruce", "north", false));
+            }
+            for (int z = z0 + i; z <= z0 + 5 - i; z++) {
+                put(x0 - 1 + i, 4 + i, z, "spruce_planks");
+                put(x0 + 6 - i, 4 + i, z, "spruce_planks");
+            }
+        }
+        put(x0 + 2, 1, z0 + 5, "spruce_door[facing=south,half=lower,hinge=left,open=false]");
+        put(x0 + 2, 2, z0 + 5, "spruce_door[facing=south,half=upper,hinge=left,open=false]");
+        put(x0 + 1, 1, z0 + 1, "barrel[facing=up]");
+        put(x0 + 4, 1, z0 + 1, "crafting_table");
+        put(x0 + 4, 2, z0 + 4, "lantern[hanging=false]");
+        put(x0 + 4, 1, z0 + 4, "spruce_planks");
+    }
+
+    private void lookout() {
+        int x0 = TOWER_X - 2;
+        int z0 = TOWER_Z - 2;
+        int height = 22;
+        use(x0 - 2, z0 - 2, x0 + 6, z0 + 6);
+        for (int x = x0; x <= x0 + 4; x++) {
+            for (int z = z0; z <= z0 + 4; z++) {
+                boolean wall = x == x0 || x == x0 + 4 || z == z0 || z == z0 + 4;
+                boolean corner = (x == x0 || x == x0 + 4) && (z == z0 || z == z0 + 4);
+                for (int y = -2; y <= height; y++) {
+                    if (wall) {
+                        boolean window = !corner && (x == x0 + 2 || z == z0 + 2) && y > 2 && y % 5 == 0;
+                        put(x, y, z, corner ? "polished_andesite" : (window ? "glass_pane" : (noise(x, y + z, 111) < 0.25 ? "mossy_stone_bricks" : "stone_bricks")));
+                    } else {
+                        put(x, y, z, y <= 0 ? "stone_bricks" : "air");
+                    }
+                }
+            }
+        }
+        for (int y = 1; y <= height; y++) {
+            put(x0 + 2, y, z0 + 3, "ladder[facing=north]");
+        }
+        put(x0 + 2, 1, z0, "air");
+        put(x0 + 2, 2, z0, "air");
+        put(x0 + 2, 0, z0 - 1, "stone_bricks");
+        for (int x = x0 - 2; x <= x0 + 6; x++) {
+            for (int z = z0 - 2; z <= z0 + 6; z++) {
+                boolean inside = x > x0 && x < x0 + 4 && z > z0 && z < z0 + 4;
+                put(x, height + 1, z, inside && x == x0 + 2 && z == z0 + 3 ? "ladder[facing=north]" : "spruce_planks");
+                boolean edge = x == x0 - 2 || x == x0 + 6 || z == z0 - 2 || z == z0 + 6;
+                put(x, height + 2, z, edge ? "spruce_fence" : "air");
+            }
+        }
+        for (int[] c : new int[][]{{x0 - 2, z0 - 2}, {x0 + 6, z0 - 2}, {x0 - 2, z0 + 6}, {x0 + 6, z0 + 6}}) {
+            put(c[0], height + 3, c[1], "lantern[hanging=false]");
+        }
+        put(x0 + 2, height + 2, z0 + 2, "air");
+        layout.point("holo:lookout", TOWER_X + 0.5, 3.4, z0 - 1.5, 0);
+    }
+
+    private void arena() {
+        int r = (int) Math.ceil(ARENA_R) + 2;
+        for (int x = ARENA_X - r; x <= ARENA_X + r; x++) {
+            for (int z = ARENA_Z - r; z <= ARENA_Z + r; z++) {
+                double d = dist(x - ARENA_X, z - ARENA_Z);
+                if (d > ARENA_R + 1.6) {
+                    continue;
+                }
+                use(x, z, x, z);
+                for (int y = 1; y <= 5; y++) {
+                    put(x, y, z, "air");
+                }
+                if (d <= ARENA_R) {
+                    double n = noise(x, z, 121);
+                    put(x, 0, z, d > ARENA_R - 1 ? "smooth_sandstone" : (n < 0.6 ? "sand" : (n < 0.85 ? "smooth_sandstone" : "red_sand")));
+                    put(x, -1, z, "sandstone");
+                } else {
+                    boolean gate = x < ARENA_X && Math.abs(z - ARENA_Z) <= 1;
+                    put(x, 0, z, "stone_bricks");
+                    if (!gate) {
+                        put(x, 1, z, "stone_bricks");
+                        put(x, 2, z, "stone_brick_wall[up=true]");
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            double a = 2 * Math.PI * i / 8 + Math.PI / 8;
+            int x = ARENA_X + (int) Math.round(Math.cos(a) * (ARENA_R + 1));
+            int z = ARENA_Z + (int) Math.round(Math.sin(a) * (ARENA_R + 1));
+            put(x, 1, z, "chiseled_stone_bricks");
+            put(x, 2, z, "chiseled_stone_bricks");
+            put(x, 3, z, "lantern[hanging=false]");
+        }
+        int gx = ARENA_X - (int) ARENA_R - 2;
+        for (int dz = -2; dz <= 2; dz += 4) {
+            for (int y = 1; y <= 4; y++) {
+                put(gx, y, ARENA_Z + dz, "stone_bricks");
+            }
+        }
+        for (int dz = -2; dz <= 2; dz++) {
+            put(gx, 5, ARENA_Z + dz, "stone_brick_slab[type=bottom]");
+        }
+        put(gx, 4, ARENA_Z, "lantern[hanging=true]");
+        layout.point("pvp:center", ARENA_X + 0.5, 1, ARENA_Z + 0.5, 0);
+        layout.point("pvp:exit", gx - 2.5, 1, ARENA_Z + 0.5, 90);
+        layout.point("holo:pvp", gx + 0.5, 6.4, ARENA_Z + 0.5, 0);
     }
 
     private void launchPads() {

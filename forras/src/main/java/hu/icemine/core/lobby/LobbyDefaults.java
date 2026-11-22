@@ -78,6 +78,12 @@ public final class LobbyDefaults {
                         "&7Profilod: &f/profil", "&7Vissza a lobbyba: &f/lobby");
             case "contacts":
                 return Arrays.asList("&3&lKapcsolatok", "&7Discord, weboldal és a többi", "&7Kattints a lakosra!");
+            case "lake":
+                return Arrays.asList("&b&lJégtó", "&7Pihenj egyet a stégen!");
+            case "lookout":
+                return Arrays.asList("&6&lKilátó", "&7Mássz fel a létrán, onnan látszik az egész sziget!");
+            case "pvp":
+                return Arrays.asList("&c&l⚔ PvP aréna ⚔", "&7Lépj be, és megkapod a felszerelést.", "&7Aki kiesik, kirepül. Kilépés: sétálj ki!");
             case "combofly_info":
                 return Arrays.asList("&d&lCOMBOFLY", "&7Üsd egymás után az ellenfelet,", "&7és ne hagyd leérni!", "&7A kombód: &f/combofly stats");
             default:

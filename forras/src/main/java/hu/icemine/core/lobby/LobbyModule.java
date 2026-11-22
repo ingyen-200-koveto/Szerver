@@ -39,6 +39,7 @@ public final class LobbyModule implements ModeHandler {
     private final LaunchPads launchPads;
     private final DuplaUgras doubleJump;
     private final Karacsony karacsony;
+    private final LobbyPvp pvp;
     private final Set<UUID> hiding = new HashSet<>();
     private final InfoTexts info = new InfoTexts();
     private World world;
@@ -67,6 +68,7 @@ public final class LobbyModule implements ModeHandler {
         this.launchPads = new LaunchPads(core);
         this.doubleJump = new DuplaUgras(core);
         this.karacsony = new Karacsony(core);
+        this.pvp = new LobbyPvp(core);
     }
 
     @Override
@@ -88,7 +90,8 @@ public final class LobbyModule implements ModeHandler {
             world = Bukkit.getWorlds().get(0);
         }
         world.setDifficulty(Difficulty.PEACEFUL);
-        world.setPVP(false);
+        // A PvP be van kapcsolva, de a lobby védelme minden sebzést tilt, kivéve az arénában lévők között.
+        world.setPVP(true);
         world.setGameRuleValue("doDaylightCycle", "false");
         world.setGameRuleValue("doWeatherCycle", "false");
         world.setGameRuleValue("doMobSpawning", "false");
@@ -114,6 +117,7 @@ public final class LobbyModule implements ModeHandler {
         world.setSpawnLocation(spawn.getBlockX(), spawn.getBlockY(), spawn.getBlockZ());
         launchPads.load(config, world, problems);
         doubleJump.load(config);
+        pvp.load(config, world);
         karacsony.start();
         loadHotbar(config, values);
         info.load(config, problems);
@@ -195,6 +199,8 @@ public final class LobbyModule implements ModeHandler {
                 String id = key.substring("holo:".length());
                 Locs.write(config, "holograms." + id + ".location", x + point.x, y + point.y, z + point.z, point.yaw);
                 LobbyDefaults.hologram(config, id);
+            } else if (key.startsWith("pvp:")) {
+                Locs.write(config, "pvp-arena." + key.substring("pvp:".length()), x + point.x, y + point.y, z + point.z, point.yaw);
             } else if (key.startsWith("npc:")) {
                 String id = key.substring("npc:".length());
                 Locs.write(config, "npcs." + id + ".location", x + point.x, y + point.y, z + point.z, point.yaw);
@@ -321,6 +327,10 @@ public final class LobbyModule implements ModeHandler {
 
     public void stopSeasonal() {
         karacsony.stop();
+    }
+
+    public LobbyPvp pvp() {
+        return pvp;
     }
 
     public DuplaUgras doubleJump() {

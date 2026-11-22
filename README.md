@@ -305,6 +305,12 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
 - **Tér** (lobby 8-as elrendezés): nagyobb tér, középen háromszintes szökőkút, a játékmód szobrok körben a tér
   szélén, köztük virágágyások. A spawn a szökőkút előtt van. Két ugratópad a téren le a faluba, kettő a faluból
   fel a térre. Az új elrendezésnél a lobby egyszer újraépül (az NPC-k és hologramok a helyükre kerülnek).
+- **Nagyobb sziget** (lobby 9-es elrendezés): a sziget kb. másfélszer olyan széles, két új szárnnyal.
+  Nyugaton a **Jégtó** stéggel, horgászkunyhóval, náddal és tavirózsákkal. Keleten a **kilátó** (22 blokk magas,
+  létrával, fent korláttal) és a **PvP aréna**. A falu főutcájáról erdei ösvények vezetnek mindkét szárnyba.
+- **PvP aréna**: aki belép, felszerelést kap (vaskard, íj, vaspáncél, aranyalma), és csak az arénában lévők
+  üthetik egymást. Aki kiesne, kirepül a kapu elé, és visszakapja a lobby tárgyait (nincs halál, nincs
+  tárgyvesztés). Kilépés: sétálj ki. A kiütések száma: `lobby.pvp_kills` statisztika.
 - **Dupla ugrás**: ugrás közben még egy szóköz előrelök és felemel (parkour közben és VIP repülésnél nincs).
   `lobby.yml` -> `double-jump` (enabled, power, height).
 - **Karácsony**: december 1. és január 6. között nagy karácsonyfa nő ki a szökőkútból csillaggal és díszekkel,

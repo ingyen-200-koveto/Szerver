@@ -305,7 +305,7 @@ public final class IceMineCore extends JavaPlugin {
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
         registerListeners(new CoreListener(this), chatLog, webLogin, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
-                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), new hu.icemine.core.skywars.SwListener(skywars), lobby.doubleJump(), nameTags);
+                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), new hu.icemine.core.skywars.SwListener(skywars), lobby.doubleJump(), lobby.pvp(), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
@@ -742,7 +742,7 @@ public final class IceMineCore extends JavaPlugin {
                 continue;
             }
             String tag = Items.tagOf(item);
-            boolean lobbyItem = tag != null && (tag.startsWith("lobby:") || tag.startsWith("parkour:"));
+            boolean lobbyItem = tag != null && (tag.startsWith("lobby:") || tag.startsWith("parkour:") || tag.startsWith("lobbypvp:"));
             boolean pvpItem = Items.kitOf(item) != null || (tag != null && tag.startsWith("pvp:"));
             boolean modeLobbyItem = tag != null && tag.startsWith(hu.icemine.core.modelobby.ModeLobbies.ITEM);
             if ((lobbyItem && !inLobby) || (pvpItem && !inPvp) || (modeLobbyItem && !inModeLobby)) {
