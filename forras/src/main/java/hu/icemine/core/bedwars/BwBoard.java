@@ -39,7 +39,7 @@ public final class BwBoard {
             if (chat != null) {
                 team.setColor(chat);
             }
-            team.setPrefix(Text.color(color.chat + "&l" + color.letter + " " + color.chat));
+            team.setPrefix(Text.color(color.chat + "⚑ " + color.chat));
             team.setAllowFriendlyFire(false);
             team.setCanSeeFriendlyInvisibles(true);
         }

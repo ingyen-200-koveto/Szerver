@@ -445,6 +445,7 @@ Különleges tárgyak a boltban (Hasznos cuccok):
 - **Ezüstmoly** (24 vas): hógolyó, ahova becsapódik, ott kikel egy ezüstmoly, ami 15 mp-ig harcol érted.
 - **Mentőplatform** (1 smaragd): jobb klikkre nyálkaplatform jön alád, ha leesnél. 10 mp után eltűnik, 15 mp-enként használható.
 - **Varázstej** (4 arany): megiszod, és 30 mp-ig nem kapnak el a csapdák.
+Meccs közben a játékosok neve előtt a csapat színű ⚑ zászló áll (fejük fölött és a TAB-ban is), a nevük is ilyen színű, a bőrpáncéljuk a csapat színében van.
 A gólem és az ezüstmoly által okozott ölés a gazdájáé. Admin: `/bw give <játékos> <tárgy>` (meccsben lévő játékosnak).
 
 Pályák (4-es elrendezés): a szigetek alja mélyebb és csipkés, a peremük körül alacsonyabb párkány van. A csapat szigeteken

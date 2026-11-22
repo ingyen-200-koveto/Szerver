@@ -515,7 +515,7 @@ public final class Bedwars implements ModeHandler {
         if (data == null || data.team == null) {
             return null;
         }
-        return data.team.chat + "&l" + data.team.letter + " " + data.team.chat;
+        return data.team.chat + "⚑ " + data.team.chat;
     }
 
     // ---- statisztika, jutalom ----
