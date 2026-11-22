@@ -104,7 +104,7 @@ public final class BwMap extends Build {
      * 3: még messzebb egymástól a csapat szigetek és a gyémánt szigetek.
      * Ha változik, a már felépített arénák egyszer újraépülnek (a régi elrendezést blokkra pontosan eltakarítjuk).
      */
-    public static final int LAYOUT = 3;
+    public static final int LAYOUT = 4;
 
     private final Theme theme;
     private final int layout;
@@ -310,10 +310,98 @@ public final class BwMap extends Build {
 
     /** A sziget alja: középen mély, a szélén vékony, kicsit szabálytalan. */
     private void underside(int x, int z, double closeness, int maxDepth, int salt, int topY) {
-        int depth = 2 + (int) Math.round(closeness * closeness * maxDepth + smooth(cx + x, cz + z, 4.0, salt) * 3.0 * closeness);
+        double c = Math.max(0.0, closeness);
+        int depth = 2 + (int) Math.round(Math.pow(c, 1.5) * maxDepth * 1.35 + smooth(cx + x, cz + z, 3.0, salt) * 4.0 * c);
+        if (noise(x, z, salt + 7) < 0.16 * c + 0.03) {
+            depth += 1 + (int) (noise(z, x, salt + 8) * 4);
+        }
         for (int y = -depth; y <= -1; y++) {
             put(x, topY + y, z, underBlock(x, y, z, depth));
         }
+    }
+
+    /** Alacsonyabb párkány a sziget pereme körül, hogy ne legyen egyenes a széle. */
+    private void ledge(int x, int z, int topY, int salt) {
+        if (noise(x, z, salt) < 0.25) {
+            return;
+        }
+        put(x, topY - 1, z, ledgeBlock(x, z));
+        put(x, topY - 2, z, underBlock(x, -2, z, 3));
+        if (noise(z, x, salt + 1) < 0.5) {
+            put(x, topY - 3, z, underBlock(x, -3, z, 3));
+        }
+        if (theme == Theme.JEGCSUCS && noise(x, z, salt + 2) < 0.5) {
+            put(x, topY, z, "snow[layers=" + (1 + (int) (noise(x, z, salt + 3) * 3)) + "]");
+        } else if (theme == Theme.TOLGYES && noise(x, z, salt + 2) < 0.25) {
+            put(x, topY, z, "short_grass");
+        }
+    }
+
+    private String ledgeBlock(int x, int z) {
+        double n = noise(x, z, 520);
+        switch (theme) {
+            case JEGCSUCS:
+                return n < 0.6 ? "snow_block" : "packed_ice";
+            case SZIKLAVAR:
+                return n < 0.5 ? "mossy_cobblestone" : (n < 0.8 ? "cobblestone" : "andesite");
+            case HOMOKKO:
+                return n < 0.6 ? "sandstone" : "sand";
+            default:
+                return n < 0.7 ? "grass_block" : "moss_block";
+        }
+    }
+
+    /** Kis kő, bokor, hókupac a szabad helyekre. */
+    private void decor(int x, int y, int z, int salt) {
+        double n = noise(x, z, salt);
+        if (n > 0.05) {
+            return;
+        }
+        double m = noise(z, x, salt + 1);
+        switch (theme) {
+            case JEGCSUCS:
+                if (m < 0.5) {
+                    put(x, y, z, "snow_block");
+                    put(x, y + 1, z, "snow[layers=3]");
+                } else {
+                    put(x, y, z, "packed_ice");
+                    put(x, y + 1, z, "blue_ice");
+                }
+                break;
+            case SZIKLAVAR:
+                put(x, y, z, m < 0.5 ? "mossy_cobblestone" : "cobblestone");
+                put(x, y + 1, z, m < 0.3 ? "mossy_cobblestone_slab[type=bottom]" : "fern");
+                break;
+            case HOMOKKO:
+                put(x, y, z, m < 0.5 ? "sandstone" : "smooth_sandstone");
+                put(x, y + 1, z, "sandstone_slab[type=bottom]");
+                break;
+            default:
+                put(x, y, z, m < 0.6 ? "oak_leaves[persistent=true]" : "mossy_cobblestone");
+                if (m < 0.3) {
+                    put(x, y + 1, z, "oak_leaves[persistent=true]");
+                }
+        }
+    }
+
+    private String wallBlock() {
+        switch (theme) {
+            case SZIKLAVAR:
+                return "stone_brick_wall";
+            case HOMOKKO:
+                return "sandstone_wall";
+            case JEGCSUCS:
+                return "spruce_fence";
+            default:
+                return "oak_fence";
+        }
+    }
+
+    private void lampPost(int x, int y, int z, int height) {
+        for (int i = 0; i < height; i++) {
+            put(x, y + i, z, i == 0 && theme != Theme.JEGCSUCS ? (theme == Theme.SZIKLAVAR ? "stone_bricks" : wood() + "_log[axis=y]") : wallBlock());
+        }
+        put(x, y + height, z, light());
     }
 
     private void flora(int x, int y, int z, int salt) {
@@ -472,6 +560,10 @@ public final class BwMap extends Build {
             for (int b = -11; b <= 11; b++) {
                 double d = Math.cbrt(Math.pow(Math.abs(a), 3) + Math.pow(Math.abs(b), 3));
                 if (d > ISLAND) {
+                    if (d <= ISLAND + 1.3 && !(a <= -10 && Math.abs(b) <= 2)) {
+                        int[] lp = slot.at(a, b);
+                        ledge(lp[0], lp[1], 0, 521);
+                    }
                     continue;
                 }
                 int[] p = slot.at(a, b);
@@ -491,7 +583,7 @@ public final class BwMap extends Build {
                     }
                 }
                 put(p[0], 0, p[1], top);
-                underside(p[0], p[1], 1.0 - d / (ISLAND + 0.6), 9, 509, 0);
+                underside(p[0], p[1], 1.0 - d / (ISLAND + 0.6), 12, 509, 0);
             }
         }
         // nyak a pálya közepe felé, itt kezdődnek a hidak
@@ -535,6 +627,26 @@ public final class BwMap extends Build {
             }
         }
         spot("generator", team, gen[0] + 0.5, 1, gen[1] + 0.5, 0);
+        // tető a generátor fölé, négy oszlopon
+        for (int a = 6; a <= 10; a++) {
+            for (int b = -2; b <= 2; b++) {
+                int[] p = slot.at(a, b);
+                boolean corner = (a == 6 || a == 10) && Math.abs(b) == 2;
+                if (corner) {
+                    for (int y = 1; y <= 3; y++) {
+                        put(p[0], y, p[1], theme == Theme.SZIKLAVAR ? "stone_brick_wall" : (theme == Theme.HOMOKKO ? "sandstone_wall" : wood() + "_fence"));
+                    }
+                }
+                boolean edge = a == 6 || a == 10 || Math.abs(b) == 2;
+                put(p[0], 4, p[1], edge ? wood() + "_slab[type=bottom]" : c + "_wool");
+            }
+        }
+        int[] genLamp = slot.at(8, 0);
+        put(genLamp[0], 3, genLamp[1], "lantern[hanging=true]");
+        for (int side = -1; side <= 1; side += 2) {
+            int[] lp = slot.at(5, side * 2);
+            lampPost(lp[0], 1, lp[1], 2);
+        }
 
         // bolt (bal) és fejlesztések (jobb)
         booth(slot, 3, -6, team, wood());
@@ -558,7 +670,8 @@ public final class BwMap extends Build {
         put(flag2[0], 5, flag2[1], c + "_wool");
         put(flag2[0], 4, flag2[1], c + "_wool");
 
-        int[][] busy = {slot.at(2, 0), slot.at(8, 0), shop, upgrade, slot.at(7, 7), slot.at(7, -7), flag, slot.at(-6, 3), slot.at(-6, -3)};
+        int[][] busy = {slot.at(2, 0), slot.at(8, 0), shop, upgrade, slot.at(7, 7), slot.at(7, -7), flag, slot.at(-6, 3), slot.at(-6, -3),
+                slot.at(5, 2), slot.at(5, -2), slot.at(-1, 0), slot.at(10, 2), slot.at(10, -2)};
         for (int[] p : free) {
             boolean ok = true;
             for (int[] q : busy) {
@@ -569,6 +682,7 @@ public final class BwMap extends Build {
             }
             if (ok) {
                 flora(p[0], 1, p[1], 510);
+                decor(p[0], 1, p[1], 522);
             }
         }
     }
@@ -591,20 +705,33 @@ public final class BwMap extends Build {
         }
         int[] back = slot.at(a, b + out);
         put(back[0], 3, back[1], TeamColor.values()[team].block + "_wool");
+        put(back[0], 2, back[1], TeamColor.values()[team].block + "_wool");
+        for (int da = -1; da <= 1; da += 2) {
+            int[] p = slot.at(a + da, b - out);
+            put(p[0], 1, p[1], wood + "_fence");
+            put(p[0], 2, p[1], light());
+        }
+        for (int da = -1; da <= 1; da++) {
+            int[] p = slot.at(a + da, b);
+            put(p[0], 5, p[1], wood + "_slab[type=bottom]");
+        }
     }
 
     // ---- gyémánt szigetek ----
 
     private void diamondIsland(int x, int z) {
         double radius = 5.2;
-        for (int dx = -6; dx <= 6; dx++) {
-            for (int dz = -6; dz <= 6; dz++) {
+        for (int dx = -7; dx <= 7; dx++) {
+            for (int dz = -7; dz <= 7; dz++) {
                 double d = dist(dx, dz);
                 if (d > radius) {
+                    if (d <= radius + 1.3) {
+                        ledge(x + dx, z + dz, 0, 523);
+                    }
                     continue;
                 }
                 put(x + dx, 0, z + dz, d > radius - 1.0 ? rim() : ground(x + dx, z + dz));
-                underside(x + dx, z + dz, 1.0 - d / (radius + 0.6), 6, 511, 0);
+                underside(x + dx, z + dz, 1.0 - d / (radius + 0.6), 9, 511, 0);
                 if (d > 2.2 && d < radius - 1.0) {
                     flora(x + dx, 1, z + dz, 512);
                 }
@@ -616,6 +743,15 @@ public final class BwMap extends Build {
             }
         }
         spot("diamond", -1, x + 0.5, 1, z + 0.5, 0);
+        for (int sx = -1; sx <= 1; sx += 2) {
+            for (int sz = -1; sz <= 1; sz += 2) {
+                int px = x + sx * 2;
+                int pz = z + sz * 2;
+                put(px, 1, pz, theme == Theme.HOMOKKO ? "chiseled_sandstone" : (theme == Theme.SZIKLAVAR ? "chiseled_stone_bricks" : "polished_diorite"));
+                put(px, 2, pz, wallBlock());
+                put(px, 3, pz, light());
+            }
+        }
         int ox = x + (x > 0 ? 3 : -3);
         int oz = z + (z > 0 ? 3 : -3);
         switch (theme) {
@@ -645,10 +781,13 @@ public final class BwMap extends Build {
         double radius = big ? 15.5 : 13.0;
         int top = 2;
         int r = (int) Math.ceil(radius);
-        for (int x = -r; x <= r; x++) {
-            for (int z = -r; z <= r; z++) {
+        for (int x = -r - 2; x <= r + 2; x++) {
+            for (int z = -r - 2; z <= r + 2; z++) {
                 double d = dist(x, z);
                 if (d > radius) {
+                    if (d <= radius + 1.5) {
+                        ledge(x, z, top, 524);
+                    }
                     continue;
                 }
                 String block;
@@ -662,7 +801,11 @@ public final class BwMap extends Build {
                 put(x, top, z, block);
                 put(x, top - 1, z, underBlock(x, -1, z, 4));
                 put(x, top - 2, z, underBlock(x, -2, z, 4));
-                underside(x, z, 1.0 - d / (radius + 0.6), 14, 513, top - 2);
+                underside(x, z, 1.0 - d / (radius + 0.6), 17, 513, top - 2);
+                if (d > 4.5 && d < radius - 2.0 && Math.abs(Math.abs(x) - 7) > 2 && Math.abs(Math.abs(z) - 7) > 2 && Math.abs(x) > 2 && Math.abs(z) > 2) {
+                    flora(x, top + 1, z, 525);
+                    decor(x, top + 1, z, 526);
+                }
             }
         }
         List<int[]> emeralds = new ArrayList<>();

@@ -118,6 +118,16 @@ public final class BwListener implements Listener {
             warn(player, problem);
             return;
         }
+        if (block.getType() == Material.CHEST && "torony".equals(BwItems.tag(event.getItemInHand()))) {
+            event.setCancelled(true);
+            ItemStack item = player.getInventory().getItem(event.getHand());
+            if (item != null) {
+                item.setAmount(item.getAmount() - 1);
+                player.getInventory().setItem(event.getHand(), item.getAmount() <= 0 ? null : item);
+            }
+            plugin.specials().tower(player, arena, block);
+            return;
+        }
         if (block.getType() == Material.TNT) {
             event.setCancelled(true);
             ItemStack item = player.getInventory().getItem(event.getHand());

@@ -23,6 +23,7 @@ public final class BwPlayer {
     public UUID lastDamager;
     public long lastDamageAt;
     public long lastFireball;
+    public long trapImmuneUntil;
 
     public BwPlayer(UUID id, String name) {
         this.id = id;

@@ -919,7 +919,7 @@ public final class BwArena {
                     continue;
                 }
                 Player intruder = Bukkit.getPlayer(data.id);
-                if (intruder == null || !nearBase(intruder.getLocation(), team.base, BwMap.ISLAND)) {
+                if (intruder == null || !nearBase(intruder.getLocation(), team.base, BwMap.ISLAND) || data.trapImmuneUntil > System.currentTimeMillis()) {
                     continue;
                 }
                 Trap trap = team.traps.poll();

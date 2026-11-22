@@ -438,6 +438,20 @@ Benne van: csapatválasztás, generátorok (vas, arany, gyémánt, smaragd, szin
 csapatfejlesztések (élesség, védelem, sietség, kovácsműhely, gyógyító kút), 4 féle csapda (sorban 3 db),
 ágy rombolás, végső ölés, újraéledés, néző mód, statisztika, toplista, jutalom pénz (a rang szorzójával), ölés effektek.
 
+Különleges tárgyak a boltban (Hasznos cuccok):
+- **Hídtojás** (1 smaragd): eldobva egyenes, 3 széles gyapjúhidat húz maga után a csapatod színében.
+- **Felpattanó torony** (24 vas): rakd le a ládát, és pár pillanat alatt felhúz egy tornyot létrával, fent lőréssel.
+- **Őrző vasgólem** (120 vas): 4 percig védi a szigetet, és megtámadja a közelbe jövő ellenséget. A neve fölött látszik, meddig marad.
+- **Ezüstmoly** (24 vas): hógolyó, ahova becsapódik, ott kikel egy ezüstmoly, ami 15 mp-ig harcol érted.
+- **Mentőplatform** (1 smaragd): jobb klikkre nyálkaplatform jön alád, ha leesnél. 10 mp után eltűnik, 15 mp-enként használható.
+- **Varázstej** (4 arany): megiszod, és 30 mp-ig nem kapnak el a csapdák.
+A gólem és az ezüstmoly által okozott ölés a gazdájáé. Admin: `/bw give <játékos> <tárgy>` (meccsben lévő játékosnak).
+
+Pályák (4-es elrendezés): a szigetek alja mélyebb és csipkés, a peremük körül alacsonyabb párkány van. A csapat szigeteken
+a generátor fölött tető áll a csapat színével, a boltoknál lámpások, az ösvény mellett lámpaoszlopok, a szabad helyeken
+kövek, bokrok, hókupacok (a pálya témájától függően). A gyémánt szigeteken négy lámpás oszlop, a közép nagyobb és díszesebb.
+Az új elrendezésnél a pályák egyszer újraépülnek az indításkor (pályánként pár másodperc).
+
 Beszállás: a BedWars lobbyban (`lobby_bedwars`) négy szobor áll, Solo, Duó, 3v3v3v3 és 4v4v4v4. Rákattintasz, és már
 viszlek is a legjobb szabad arénába, parancs nem kell. A szobrok fölött látszik, hányan játszanak az adott módban.
 A szobrok a `plugins/IceMine/modelobbies.yml` fájlban vannak (`lobbies.bedwars.npcs`), áthelyezés: állj oda, és

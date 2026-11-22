@@ -35,7 +35,7 @@ public final class Shop {
     public static final String[] AXE_NAMES = {"Fa", "Kő", "Vas", "Gyémánt"};
 
     public enum Kind {
-        ITEM, WOOL, TERRACOTTA, GLASS, SWORD, ARMOR, PICKAXE, AXE, SHEARS, POTION, FIREBALL
+        ITEM, WOOL, TERRACOTTA, GLASS, SWORD, ARMOR, PICKAXE, AXE, SHEARS, POTION, FIREBALL, SPECIAL
     }
 
     public static final class Offer {
@@ -114,8 +114,14 @@ public final class Shop {
         add(new Offer("enderpearl", "hasznos", "Enderpearl", "ENDER_PEARL", 1, emerald, 4, Kind.ITEM, 0, "Teleport oda, ahova dobod."));
         add(new Offer("viz", "hasznos", "Vödör víz", "WATER_BUCKET", 1, gold, 3, Kind.ITEM, 0, "Lassítja a támadókat, eloltja a tüzet."));
         add(new Offer("szivacs", "hasznos", "Szivacs", "SPONGE", 4, gold, 3, Kind.ITEM, 0, "Felszívja a vizet."));
+        add(new Offer("hidtojas", "hasznos", "Hídtojás", "EGG", 1, emerald, 1, Kind.SPECIAL, 0, "Dobd el, és hidat húz maga után."));
+        add(new Offer("torony", "hasznos", "Felpattanó torony", "CHEST", 1, iron, 24, Kind.SPECIAL, 0, "Rakd le, és pár pillanat alatt", "felhúz egy tornyot létrával."));
+        add(new Offer("golem", "hasznos", "Őrző vasgólem", "IRON_GOLEM_SPAWN_EGG", 1, iron, 120, Kind.SPECIAL, 0, "4 percig védi a szigetet,", "megtámadja az ellenséget."));
+        add(new Offer("ezustmoly", "hasznos", "Ezüstmoly", "SNOWBALL", 1, iron, 24, Kind.SPECIAL, 0, "Ahova becsapódik, ezüstmoly", "kel ki, ami 15 mp-ig harcol érted."));
+        add(new Offer("mentoplatform", "hasznos", "Mentőplatform", "BLAZE_ROD", 1, emerald, 1, Kind.SPECIAL, 0, "Jobb klikk: nyálkaplatform alád.", "Ha leesnél, megment. 10 mp után eltűnik."));
+        add(new Offer("varazstej", "hasznos", "Varázstej", "MILK_BUCKET", 1, gold, 4, Kind.SPECIAL, 0, "Megiszod, és 30 mp-ig", "nem kapnak el a csapdák."));
         quick.addAll(Arrays.asList("gyapju", "kokard", "lancpancel", "csakany", "ij", "gyorsasag", "tnt",
-                "terrakotta", "vaskard", "vaspancel", "balta", "nyil", "ugras", "viz",
+                "terrakotta", "vaskard", "vaspancel", "balta", "nyil", "hidtojas", "viz",
                 "uveg", "gyemantkard", "gyemantpancel", "ollo", "tuzgolyo", "aranyalma", "enderpearl"));
     }
 
@@ -239,6 +245,8 @@ public final class Shop {
                 return potion(offer);
             case FIREBALL:
                 return BwItems.tagged(BwItems.item(Material.FIRE_CHARGE, offer.amount, "&6Tűzgolyó"), "fireball");
+            case SPECIAL:
+                return BwItems.tagged(BwItems.item(material, offer.amount, "&e" + offer.name), offer.id);
             default:
                 ItemStack item = new ItemStack(material, offer.amount);
                 for (String extra : offer.extra) {

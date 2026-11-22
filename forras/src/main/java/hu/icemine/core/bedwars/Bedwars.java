@@ -80,6 +80,12 @@ public final class Bedwars implements ModeHandler {
         return settings;
     }
 
+    private final Specials specials = new Specials(this);
+
+    public Specials specials() {
+        return specials;
+    }
+
     public Shop shop() {
         return shop;
     }

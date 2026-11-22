@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 public final class BwCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> PLAYER = List.of("play", "join", "leave", "list", "stats", "nez", "top", "help");
-    private static final List<String> ADMIN = List.of("start", "stop", "rebuild", "reload");
+    private static final List<String> ADMIN = List.of("start", "stop", "rebuild", "reload", "give");
 
     private final Bedwars plugin;
 
@@ -79,6 +79,7 @@ public final class BwCommand implements CommandExecutor, TabCompleter {
             case "stop":
             case "rebuild":
             case "reload":
+            case "give":
                 admin(sender, sub, args);
                 return true;
             default:
@@ -217,6 +218,20 @@ public final class BwCommand implements CommandExecutor, TabCompleter {
             for (String problem : problems) {
                 sender.sendMessage(hu.icemine.core.util.Text.color("&e- &7" + problem));
             }
+            return;
+        }
+        if (sub.equals("give")) {
+            org.bukkit.entity.Player target = args.length >= 3 ? org.bukkit.Bukkit.getPlayerExact(args[1]) : null;
+            Shop.Offer offer = args.length >= 3 ? plugin.shop().offers().get(args[2].toLowerCase(java.util.Locale.ROOT)) : null;
+            BwArena in = target == null ? null : plugin.arenaOf(target);
+            BwPlayer data = in == null ? null : in.data(target);
+            if (offer == null || data == null || data.team == null) {
+                sender.sendMessage(hu.icemine.core.util.Text.color("&cHasználat: /bw give <játékos> <tárgy> (a játékos legyen meccsben). Tárgyak: &f"
+                        + String.join(", ", plugin.shop().offers().keySet())));
+                return;
+            }
+            BwItems.give(target, plugin.shop().product(offer, in.team(data.team)));
+            sender.sendMessage(hu.icemine.core.util.Text.color("&aOdaadtam: &f" + offer.name + " &a-> &f" + target.getName()));
             return;
         }
         if (args.length < 2) {
