@@ -6,7 +6,7 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 9;
+    public static final int VERSION = 10;
     public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 136;
     public static final int CLEAR_NORTH = 100;
@@ -78,6 +78,7 @@ public final class LobbyBuild extends Build {
         launchPads();
         wings();
         trees();
+        barrier();
         parkour();
         anchors();
     }
@@ -1027,6 +1028,39 @@ public final class LobbyBuild extends Build {
             }
             use(x - 1, z - 1, x + 1, z + 1);
             oak(x, 1, z, 4 + (int) (noise(x, z, 85) * 3), i % 3 == 1);
+        }
+    }
+
+    /** A sziget széle körül láthatatlan fal, hogy ne lehessen leugrani vagy kimászni. A parkour kijáratánál rés van. */
+    static final int BARRIER_TOP = 50;
+
+    static boolean parkourGap(int x, int z) {
+        return Math.abs(x) <= 6 && z > 0;
+    }
+
+    private void barrier() {
+        int[][] around = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int x = MIN_X; x <= MAX_X; x++) {
+            for (int z = MIN_Z; z <= MAX_Z; z++) {
+                int top = h(x, z);
+                if (top < -50 || parkourGap(x, z)) {
+                    continue;
+                }
+                boolean edge = false;
+                for (int[] d : around) {
+                    if (h(x + d[0], z + d[1]) < -50) {
+                        edge = true;
+                        break;
+                    }
+                }
+                if (!edge) {
+                    continue;
+                }
+                int from = onPlatform(x, z) ? PLATFORM + 1 : Math.max(top, 0) + 1;
+                for (int y = from; y <= BARRIER_TOP; y++) {
+                    put(x, y, z, "barrier");
+                }
+            }
         }
     }
 
