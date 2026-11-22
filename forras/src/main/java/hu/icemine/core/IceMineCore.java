@@ -305,7 +305,7 @@ public final class IceMineCore extends JavaPlugin {
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
         registerListeners(new CoreListener(this), chatLog, webLogin, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
-                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), new hu.icemine.core.skywars.SwListener(skywars), nameTags);
+                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), new hu.icemine.core.skywars.SwListener(skywars), lobby.doubleJump(), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
@@ -506,6 +506,12 @@ public final class IceMineCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        try {
+            if (lobby != null) {
+                lobby.stopSeasonal();
+            }
+        } catch (Throwable ignored) {
+        }
         try {
             hu.icemine.core.config.HibaFigyelo.stop();
         } catch (Throwable ignored) {

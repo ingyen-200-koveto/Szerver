@@ -6,14 +6,17 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 7;
+    public static final int VERSION = 8;
     public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 90;
     public static final int CLEAR_NORTH = 100;
     public static final int CLEAR_SOUTH = 112;
 
     static final int PLATFORM = 5;
-    static final double ARC = 15.5;
+    static final double ARC = 20.5;
+    /** A tér szökőkútjának közepe (z) és a szobrok köre. */
+    static final int FOUNTAIN_Z = -5;
+    static final int STATUE_R = 16;
     static final int TERRACE = 24;
     static final int BACK = 8;
 
@@ -55,6 +58,7 @@ public final class LobbyBuild extends Build {
     public void build() {
         terrain();
         platform();
+        plazaFountain();
         stairs();
         roads();
         fountain();
@@ -92,7 +96,7 @@ public final class LobbyBuild extends Build {
     }
 
     private static int ground(int x, int z) {
-        double bluff = (PLATFORM - 1) * smoothstep(-21, -15, z) * (1 - smoothstep(27, 41, Math.abs(x)));
+        double bluff = (PLATFORM - 1) * smoothstep(-26, -20, z) * (1 - smoothstep(27, 41, Math.abs(x)));
         double r = shape(x, z);
         double ring = smoothstep(0.6, 0.93, r);
         double north = 1 - smoothstep(-26, -8, z);
@@ -202,15 +206,126 @@ public final class LobbyBuild extends Build {
         return z <= 0 && dist(x, z) <= ARC;
     }
 
-    private static boolean bed(int x, int z) {
+    /** Virágágyások a szökőkút és a szobrok között, az utak (küllők) kihagyásával. */
+    static final double[] BED_ANGLES = {-72.5, -51.5, -30.5, 30.5, 51.5, 72.5};
+
+    static boolean bed(int x, int z) {
+        for (double a : BED_ANGLES) {
+            double bx = Math.sin(Math.toRadians(a)) * STATUE_R;
+            double bz = -Math.cos(Math.toRadians(a)) * STATUE_R;
+            if (dist(x - bx, z - bz) <= 2.2) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Az utak a tér közepéből a szobrokhoz. */
+    static boolean spoke(int x, int z) {
+        for (String[] slot : SLOTS) {
+            double a = Math.toRadians(Double.parseDouble(slot[1]));
+            double ux = Math.sin(a);
+            double uz = -Math.cos(a);
+            double t = x * ux + z * uz;
+            if (t > 0 && t < STATUE_R && Math.abs(x * uz - z * ux) <= 1.1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static String plazaFloor(int x, int z) {
         double d = dist(x, z);
-        return z <= -2 && Math.abs(x) >= 4 && d <= 10.2 && !(Math.abs(x) <= 5 && z > -5);
+        double f = dist(x, z - FOUNTAIN_Z);
+        if (dist(x, z - 3) <= 1.2) {
+            return "sea_lantern";
+        }
+        if (dist(x, z - 3) <= 2.2) {
+            return "light_blue_concrete";
+        }
+        if (f > 6.4 && f <= 8.0) {
+            return Math.floorMod((int) Math.round(Math.toDegrees(Math.atan2(x, z - FOUNTAIN_Z)) / 15), 2) == 0 ? "polished_diorite" : "smooth_quartz";
+        }
+        if (Math.abs(d - STATUE_R) <= 0.8 && z <= 2) {
+            return "smooth_stone";
+        }
+        if (spoke(x, z) && f > 6.4) {
+            return Math.floorMod(x + z, 4) == 0 ? "chiseled_stone_bricks" : "stone_bricks";
+        }
+        if (Math.abs(x) <= 1 && z > 3) {
+            return Math.floorMod(z, 3) == 0 ? "chiseled_stone_bricks" : "stone_bricks";
+        }
+        if (Math.abs(x) <= 2 && z < -(int) ARC + 4) {
+            return Math.floorMod(z, 3) == 0 ? "chiseled_stone_bricks" : "stone_bricks";
+        }
+        return noise(x, z, 23) < 0.15 ? "andesite" : "polished_andesite";
+    }
+
+    /** Háromszintes szökőkút a tér közepén: alsó medence, középen oszlop egy tállal, a tetején világítás. */
+    private void plazaFountain() {
+        int fz = FOUNTAIN_Z;
+        for (int x = -7; x <= 7; x++) {
+            for (int z = -7; z <= 7; z++) {
+                double d = dist(x, z);
+                if (d > 6.4) {
+                    continue;
+                }
+                if (d > 5.5) {
+                    put(x, PLATFORM, fz + z, "prismarine_bricks");
+                    put(x, PLATFORM + 1, fz + z, "prismarine_brick_slab[type=bottom]");
+                } else {
+                    put(x, PLATFORM - 1, fz + z, Math.abs(d - 4.2) < 0.5 && Math.floorMod(x + z, 2) == 0 ? "sea_lantern" : "dark_prismarine");
+                    put(x, PLATFORM, fz + z, "water");
+                    put(x, PLATFORM + 1, fz + z, "air");
+                }
+            }
+        }
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                for (int y = PLATFORM; y <= PLATFORM + 2; y++) {
+                    put(x, y, fz + z, x == 0 && z == 0 ? "prismarine_bricks" : (y == PLATFORM + 2 ? "prismarine_bricks" : "prismarine"));
+                }
+            }
+        }
+        for (int x = -3; x <= 3; x++) {
+            for (int z = -3; z <= 3; z++) {
+                double d = dist(x, z);
+                if (d > 3.2) {
+                    continue;
+                }
+                if (d > 2.3) {
+                    put(x, PLATFORM + 3, fz + z, "dark_prismarine");
+                    put(x, PLATFORM + 4, fz + z, "prismarine_brick_slab[type=bottom]");
+                } else {
+                    put(x, PLATFORM + 2, fz + z, "prismarine_bricks");
+                    put(x, PLATFORM + 3, fz + z, "water");
+                }
+            }
+        }
+        for (int y = PLATFORM + 3; y <= PLATFORM + 5; y++) {
+            put(0, y, fz, "prismarine_bricks");
+        }
+        for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            put(d[0], PLATFORM + 6, fz + d[1], "water");
+            put(d[0] * 2, PLATFORM + 6, fz + d[1] * 2, "dark_prismarine");
+        }
+        for (int[] d : new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}}) {
+            put(d[0], PLATFORM + 6, fz + d[1], "dark_prismarine");
+        }
+        put(0, PLATFORM + 6, fz, "blue_ice");
+        put(0, PLATFORM + 7, fz, "sea_lantern");
+        put(0, PLATFORM + 8, fz, "end_rod[facing=up]");
+        for (int[] c : new int[][]{{-8, -8}, {8, -8}, {-8, 7}, {8, 7}}) {
+            put(c[0], PLATFORM + 1, fz + c[1], "chiseled_stone_bricks");
+            put(c[0], PLATFORM + 2, fz + c[1], "spruce_fence");
+            put(c[0], PLATFORM + 3, fz + c[1], "lantern[hanging=false]");
+        }
     }
 
     private void platform() {
         int r = TERRACE + 1;
         for (int x = -r; x <= r; x++) {
-            for (int z = -17; z <= BACK + 1; z++) {
+            for (int z = -(int) ARC - 2; z <= BACK + 1; z++) {
                 if (!onPlatform(x, z)) {
                     continue;
                 }
@@ -220,19 +335,8 @@ public final class LobbyBuild extends Build {
                     double n = noise(x, z + y, 20);
                     put(x, y, z, y >= PLATFORM - 1 ? "stone_bricks" : (n < 0.2 ? "mossy_stone_bricks" : (n < 0.35 ? "cracked_stone_bricks" : "stone_bricks")));
                 }
-                double d = dist(x, z);
-                String floor;
-                if (d <= 1.5) {
-                    floor = "sea_lantern";
-                } else if (d <= 2.6) {
-                    floor = "light_blue_concrete";
-                } else if (d <= 3.4) {
-                    floor = "smooth_stone";
-                } else if (Math.abs(x) <= 2 && z < -3) {
-                    floor = Math.floorMod(z, 3) == 0 ? "chiseled_stone_bricks" : "stone_bricks";
-                } else if (Math.abs(x) <= 1 && z > 3) {
-                    floor = Math.floorMod(z, 3) == 0 ? "chiseled_stone_bricks" : "stone_bricks";
-                } else if (bed(x, z)) {
+                String floor = plazaFloor(x, z);
+                if (bed(x, z)) {
                     boolean edge = !bed(x + 1, z) || !bed(x - 1, z) || !bed(x, z + 1) || !bed(x, z - 1);
                     floor = edge ? "polished_andesite" : "grass_block";
                     if (!edge) {
@@ -244,10 +348,6 @@ public final class LobbyBuild extends Build {
                             put(x, PLATFORM + 1, z, flowers[(int) (noise(x, z, 22) * flowers.length)]);
                         }
                     }
-                } else if (Math.abs(d - 6.9) < 0.5) {
-                    floor = "andesite";
-                } else {
-                    floor = noise(x, z, 23) < 0.15 ? "andesite" : "polished_andesite";
                 }
                 put(x, PLATFORM, z, floor);
                 if (!bed(x, z)) {
@@ -258,11 +358,14 @@ public final class LobbyBuild extends Build {
                 }
             }
         }
-        for (int side = -1; side <= 1; side += 2) {
-            bush(side * 7, PLATFORM + 1, -7);
+        for (double a : BED_ANGLES) {
+            int bx = (int) Math.round(Math.sin(Math.toRadians(a)) * STATUE_R);
+            int bz = (int) Math.round(-Math.cos(Math.toRadians(a)) * STATUE_R);
+            put(bx, PLATFORM + 1, bz, "flowering_azalea_leaves[persistent=true]");
+            put(bx, PLATFORM + 2, bz, "azalea_leaves[persistent=true]");
         }
         for (int x = -r; x <= r; x++) {
-            for (int z = -17; z <= BACK + 1; z++) {
+            for (int z = -(int) ARC - 2; z <= BACK + 1; z++) {
                 if (!onPlatform(x, z)) {
                     continue;
                 }
@@ -281,8 +384,8 @@ public final class LobbyBuild extends Build {
         }
         for (String[] slot : SLOTS) {
             double angle = Math.toRadians(Double.parseDouble(slot[1]));
-            int px = (int) Math.round(Math.sin(angle) * 12);
-            int pz = (int) Math.round(-Math.cos(angle) * 12);
+            int px = (int) Math.round(Math.sin(angle) * STATUE_R);
+            int pz = (int) Math.round(-Math.cos(angle) * STATUE_R);
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     put(px + dx, PLATFORM, pz + dz, dx == 0 && dz == 0 ? slot[2] + "_concrete" : "polished_andesite");
@@ -326,7 +429,7 @@ public final class LobbyBuild extends Build {
 
     private void stairs() {
         for (int k = 0; k < PLATFORM; k++) {
-            int z = -16 - k;
+            int z = -(int) ARC - 1 - k;
             int y = PLATFORM - 1 - k;
             boolean lamp = k == 1;
             for (int x = -3; x <= 3; x++) {
@@ -433,7 +536,7 @@ public final class LobbyBuild extends Build {
         }
     }
 
-    private static final class House {
+    static final class House {
         final int x;
         final int z;
         final int sx;
@@ -455,8 +558,7 @@ public final class LobbyBuild extends Build {
         }
     }
 
-    private void houses() {
-        House[] list = {
+    static final House[] HOUSES = {
                 new House(-11, -28, 9, 7, 2, "east", "acacia", "white_terracotta"),
                 new House(11, -28, 9, 7, 2, "west", "acacia", "smooth_sandstone"),
                 new House(-24, -28, 7, 9, 1, "north", "spruce", "smooth_sandstone"),
@@ -470,6 +572,9 @@ public final class LobbyBuild extends Build {
                 new House(-37, -47, 9, 7, 2, "south", "acacia", "smooth_sandstone"),
                 new House(37, -47, 9, 7, 2, "south", "acacia", "white_terracotta")
         };
+
+    private void houses() {
+        House[] list = HOUSES;
         for (House house : list) {
             house(house);
         }
@@ -907,8 +1012,17 @@ public final class LobbyBuild extends Build {
     }
 
     private void launchPads() {
-        pad("bal", -2, -33, -4.5, PLATFORM + 1.2, -8.5);
-        pad("jobb", 2, -33, 5.5, PLATFORM + 1.2, -8.5);
+        pad("bal", -2, -33, -9.5, PLATFORM + 1.2, -2.5);
+        pad("jobb", 2, -33, 10.5, PLATFORM + 1.2, -2.5);
+        padAt("ter_bal", -2, PLATFORM, -(int) ARC + 3, -6.5, 1.2, -31.5);
+        padAt("ter_jobb", 2, PLATFORM, -(int) ARC + 3, 7.5, 1.2, -31.5);
+    }
+
+    private void padAt(String id, int x, int y, int z, double tx, double ty, double tz) {
+        put(x, y, z, "gold_block");
+        put(x, y + 1, z, "light_weighted_pressure_plate");
+        layout.point("launch:" + id, x, y + 1, z, 0);
+        layout.point("launch:" + id + ":target", tx, ty, tz, 0);
     }
 
     private void pad(String id, int x, int z, double tx, double ty, double tz) {
@@ -929,7 +1043,7 @@ public final class LobbyBuild extends Build {
     }
 
     private void anchors() {
-        layout.point("spawn", 0.5, PLATFORM + 1, 0.5, 180);
+        layout.point("spawn", 0.5, PLATFORM + 1, 3.5, 180);
         layout.point("holo:welcome", 0.5, PLATFORM + 5.5, -13.5, 0);
         layout.point("holo:parkour_start", 0.5, PLATFORM + 2.7, BACK - 1.5, 0);
         layout.point("npc:daily", -4.5, PLATFORM + 1, BACK - 2.5, 180);

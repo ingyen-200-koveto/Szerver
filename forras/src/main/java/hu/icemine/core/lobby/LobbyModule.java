@@ -37,6 +37,8 @@ public final class LobbyModule implements ModeHandler {
 
     private final IceMineCore core;
     private final LaunchPads launchPads;
+    private final DuplaUgras doubleJump;
+    private final Karacsony karacsony;
     private final Set<UUID> hiding = new HashSet<>();
     private final InfoTexts info = new InfoTexts();
     private World world;
@@ -63,6 +65,8 @@ public final class LobbyModule implements ModeHandler {
     public LobbyModule(IceMineCore core) {
         this.core = core;
         this.launchPads = new LaunchPads(core);
+        this.doubleJump = new DuplaUgras(core);
+        this.karacsony = new Karacsony(core);
     }
 
     @Override
@@ -109,6 +113,8 @@ public final class LobbyModule implements ModeHandler {
         }
         world.setSpawnLocation(spawn.getBlockX(), spawn.getBlockY(), spawn.getBlockZ());
         launchPads.load(config, world, problems);
+        doubleJump.load(config);
+        karacsony.start();
         loadHotbar(config, values);
         info.load(config, problems);
         problems.addAll(values.problems());
@@ -127,6 +133,7 @@ public final class LobbyModule implements ModeHandler {
         applyLayout(config, build.layout(), x, y, z);
         config.set("built", true);
         config.set("layout", LobbyBuild.VERSION);
+        config.set("christmas-applied", false);
         core.configs().save("lobby");
         core.configs().save("parkour");
         core.getLogger().info("A lobby elkészült: " + placer.placed() + " blokk, " + cleared + " régi blokk eltávolítva, "
@@ -306,13 +313,27 @@ public final class LobbyModule implements ModeHandler {
         inventory.setHeldItemSlot(0);
     }
 
+    /** Repülhet-e most a lobbyban (VIP repülés bekapcsolva). */
+    public boolean flies(Player player) {
+        PlayerProfile profile = core.profiles().profile(player);
+        return player.hasPermission("icemine.cosmetic.fly") && profile != null && profile.flag(FLY, false);
+    }
+
+    public void stopSeasonal() {
+        karacsony.stop();
+    }
+
+    public DuplaUgras doubleJump() {
+        return doubleJump;
+    }
+
     public void applyFlight(Player player) {
         PlayerProfile profile = core.profiles().profile(player);
         boolean fly = player.hasPermission("icemine.cosmetic.fly") && profile != null && profile.flag(FLY, false);
         if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) {
             return;
         }
-        player.setAllowFlight(fly);
+        player.setAllowFlight(fly || (inLobby(player) && doubleJump.hasznalhatja(player)));
         if (!fly) {
             player.setFlying(false);
         }

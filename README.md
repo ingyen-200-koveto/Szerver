@@ -300,6 +300,17 @@ A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a Be
 A proxy `forwarding.secret` fájljának tartalma a szerveren a `config/paper-global.yml`
 fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-global.yml`-be soha ne írd bele.
 
+## Lobby: tér, dupla ugrás, karácsony
+
+- **Tér** (lobby 8-as elrendezés): nagyobb tér, középen háromszintes szökőkút, a játékmód szobrok körben a tér
+  szélén, köztük virágágyások. A spawn a szökőkút előtt van. Két ugratópad a téren le a faluba, kettő a faluból
+  fel a térre. Az új elrendezésnél a lobby egyszer újraépül (az NPC-k és hologramok a helyükre kerülnek).
+- **Dupla ugrás**: ugrás közben még egy szóköz előrelök és felemel (parkour közben és VIP repülésnél nincs).
+  `lobby.yml` -> `double-jump` (enabled, power, height).
+- **Karácsony**: december 1. és január 6. között nagy karácsonyfa nő ki a szökőkútból csillaggal és díszekkel,
+  a házak gerendáin színes fényfüzér világít, havazik, és felirat van a fa fölött. Utána magától visszaáll.
+  `lobby.yml` -> `christmas: auto` (vagy `on` / `off`).
+
 ## SkyWars
 
 Szigetekről indultok, a ládákból szerelkeztek fel, és az utolsó túlélő (Duóban az utolsó csapat) nyer.

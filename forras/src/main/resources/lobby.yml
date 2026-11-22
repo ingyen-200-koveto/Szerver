@@ -337,4 +337,12 @@ spawn: {}
 portals: {}
 holograms: {}
 npcs: {}
+# Karácsonyi lobby (fa a szökőkútból, fényfüzér a házakon, havazás): auto = dec. 1. és jan. 6. között magától,
+# on = mindig, off = soha
+christmas: auto
+# Dupla ugrás a lobbyban (ugrás közben még egy szóköz). power: előre, height: fel.
+double-jump:
+  enabled: true
+  power: 1.25
+  height: 0.85
 launchpads: {}
