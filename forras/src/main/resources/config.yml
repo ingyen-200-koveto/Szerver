@@ -202,11 +202,3 @@ csalasgyanu:
   szunet-perc: 10
   # Ezekkel kezdődő Grim ellenőrzések nem számítanak (pl. ha a ComboFly miatt téves: [Simulation, Knockback])
   kihagy-checkek: []
-
-# Teljesítmény: az IceMine egyszer átír pár értéket a Paper (config/paper-world-defaults.yml), a Spigot és a Bukkit
-# configban (messzi entitások ritkábban frissülnek, gyorsabb vöröskő, kevesebb ütközésszámolás...). Amit utána
-# kézzel átírsz, azt többet nem bántja. Kikapcsolás: configok: false
-optimalizalas:
-  configok: true
-  # Ezekben a világokban nincs mindig betöltve a spawn (üres arénáknál nem kell)
-  spawn-nelkul: [ice_bedwars, ice_skywars, duels]

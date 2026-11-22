@@ -19,12 +19,12 @@ class OptimalizalasTest {
     @Test
     void onlyExistingKeysAreChanged() throws Exception {
         File f = dir.resolve("paper.yml").toFile();
-        Files.writeString(f.toPath(), "misc:\n  redstone-implementation: VANILLA\ncollisions:\n  max-entity-collisions: 8\n");
+        Files.writeString(f.toPath(), "misc:\n  redstone-implementation: ALTERNATE_CURRENT\ncollisions:\n  max-entity-collisions: 2\n");
         int db = Optimalizalas.patch(f, Optimalizalas.PAPER, Logger.getAnonymousLogger());
         assertEquals(2, db);
         YamlConfiguration y = YamlConfiguration.loadConfiguration(f);
-        assertEquals("ALTERNATE_CURRENT", y.getString("misc.redstone-implementation"));
-        assertEquals(2, y.getInt("collisions.max-entity-collisions"));
+        assertEquals("VANILLA", y.getString("misc.redstone-implementation"));
+        assertEquals(8, y.getInt("collisions.max-entity-collisions"));
         assertFalse(y.contains("hopper.disable-move-event"));
         assertEquals(0, Optimalizalas.patch(f, Optimalizalas.PAPER, Logger.getAnonymousLogger()));
     }

@@ -8,7 +8,7 @@ Purpur 1.20.6, Java 21.
 - `eula.txt`: a Minecraft EULA elfogadása
 - `plugins/*.jar`: az IceMine plugin (`IceMine.jar`, benne minden saját rendszer és játékmód) és a külső pluginok
   (ViaVersion, ViaBackwards, ViaRewind, AuthMe, LuckPerms, WorldEdit, EssentialsX, TAB, Citizens 2.0.35 b3500,
-  GrimAC 2.3.75 Bukkit build, LibertyBans 1.1.4 Bukkit/Paper build, Chunky 1.4.40 Bukkit/Paper build)
+  GrimAC 2.3.75 Bukkit build, LibertyBans 1.1.4 Bukkit/Paper build)
 - `forras/`: az IceMine plugin forráskódja (a szerver nem használja)
 - `proxy/`: a Velocity proxyhoz tartozó IceMineProxy plugin és a beállításai (lásd lent)
 - `kezdo/`: amit csak egyszer kell a helyére tenni (server.properties, config/paper-global.yml,
@@ -295,24 +295,9 @@ A LuckPerms parancsok válaszai (`[LP] ...`) már nem kerülnek a konzolra, a Be
   Kitiltáscsökkentés oldalán mindenki látja a sajátját (lejárattal). Ehhez a `MC_API_KEY` kell, ugyanaz, mint a
   rangoknál.
 
-## Teljesítmény
+## Velocity kulcs
 
-Az IceMine egyszer (a szerver elindulása után) átír pár értéket a configokban, a következő indítástól érvényes:
-
-- Paper (`config/paper-world-defaults.yml`): gyorsabb vöröskő (Alternate Current), kevesebb entitás ütközés,
-  optimalizált robbanás, kincses térkép keresés ki, tölcsér esemény ki, kevesebb mentett nyíl/XP gömb chunkonként.
-- Spigot (`spigot.yml`): a messzi állatok, szörnyek, falusiak ritkábban frissülnek; spawnerből jött mobok buták.
-- Bukkit (`bukkit.yml`): a fel nem használt chunkok hamarabb kikerülnek a memóriából.
-- Az arénavilágokban (BedWars, SkyWars, Duels) nincs mindig betöltve a spawn, amikor üresek.
-
-Amit ezek után kézzel átírsz, azt nem bántja (`plugins/IceMine/.optimalizalas-v1`). Kikapcsolás:
-`config.yml` → `optimalizalas.configok: false`. Ha akad a szerver: `/spark profiler`, majd pár perc múlva
-`/spark profiler --stop`, és a kapott linken látszik, mi lassít.
-
-**Kingdoms előre generálása (Chunky):** a konzolba: `chunky world kingdoms`, `chunky radius 3000`, `chunky start`.
-Pár óráig fut, közben lehet játszani, de jobb éjjel indítani. Megállítás: `chunky pause`, folytatás: `chunky continue`.
-
-**Velocity kulcs:** a proxy `forwarding.secret` fájljának tartalma a szerveren a `config/paper-global.yml`
+A proxy `forwarding.secret` fájljának tartalma a szerveren a `config/paper-global.yml`
 fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-global.yml`-be soha ne írd bele.
 
 ## SkyWars

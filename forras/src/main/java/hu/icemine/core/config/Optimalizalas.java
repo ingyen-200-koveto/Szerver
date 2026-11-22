@@ -10,69 +10,64 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
- * Egyszeri teljesítmény beállítások a Paper, Spigot és Bukkit configban (a következő indítástól érvényesek),
- * és az arénavilágok spawn területének kikapcsolása (üresen ne legyen betöltve). Amit utána kézzel átírsz,
- * azt többet nem bántja (plugins/IceMine/.optimalizalas-v1).
+ * A 3.30.0-s teljesítmény beállítások visszavonása: ha a szerveren lefutottak (plugins/IceMine/.optimalizalas-v1),
+ * egyszer visszaírja az eredeti Paper, Spigot és Bukkit értékeket és az arénák spawn területét, majd törli a jelzőt.
  */
 public final class Optimalizalas {
 
     static final String MARKER = ".optimalizalas-v1";
 
     static final Object[][] PAPER = {
-            {"chunks.max-auto-save-chunks-per-tick", 12},
-            {"chunks.prevent-moving-into-unloaded-chunks", true},
-            {"chunks.entity-per-chunk-save-limit.arrow", 16},
-            {"chunks.entity-per-chunk-save-limit.experience_orb", 16},
-            {"chunks.entity-per-chunk-save-limit.snowball", 8},
-            {"chunks.entity-per-chunk-save-limit.ender_pearl", 8},
-            {"chunks.entity-per-chunk-save-limit.egg", 8},
-            {"chunks.entity-per-chunk-save-limit.fireball", 8},
-            {"chunks.entity-per-chunk-save-limit.small_fireball", 8},
-            {"collisions.max-entity-collisions", 2},
-            {"entities.armor-stands.do-collision-entity-lookups", false},
-            {"environment.optimize-explosions", true},
-            {"environment.treasure-maps.enabled", false},
-            {"hopper.disable-move-event", true},
-            {"hopper.ignore-occluding-blocks", true},
-            {"misc.redstone-implementation", "ALTERNATE_CURRENT"},
-            {"tick-rates.grass-spread", 4},
-            {"tick-rates.mob-spawner", 2},
+            {"chunks.max-auto-save-chunks-per-tick", 24},
+            {"chunks.prevent-moving-into-unloaded-chunks", false},
+            {"chunks.entity-per-chunk-save-limit.arrow", -1},
+            {"chunks.entity-per-chunk-save-limit.experience_orb", -1},
+            {"chunks.entity-per-chunk-save-limit.snowball", -1},
+            {"chunks.entity-per-chunk-save-limit.ender_pearl", -1},
+            {"chunks.entity-per-chunk-save-limit.egg", -1},
+            {"chunks.entity-per-chunk-save-limit.fireball", -1},
+            {"chunks.entity-per-chunk-save-limit.small_fireball", -1},
+            {"collisions.max-entity-collisions", 8},
+            {"entities.armor-stands.do-collision-entity-lookups", true},
+            {"environment.optimize-explosions", false},
+            {"environment.treasure-maps.enabled", true},
+            {"hopper.disable-move-event", false},
+            {"hopper.ignore-occluding-blocks", false},
+            {"misc.redstone-implementation", "VANILLA"},
+            {"tick-rates.grass-spread", 1},
+            {"tick-rates.mob-spawner", 1},
     };
 
     static final Object[][] SPIGOT = {
-            {"world-settings.default.entity-activation-range.animals", 16},
-            {"world-settings.default.entity-activation-range.monsters", 24},
-            {"world-settings.default.entity-activation-range.misc", 8},
-            {"world-settings.default.entity-activation-range.water", 8},
-            {"world-settings.default.entity-activation-range.villagers", 16},
-            {"world-settings.default.entity-activation-range.tick-inactive-villagers", false},
-            {"world-settings.default.nerf-spawner-mobs", true},
+            {"world-settings.default.entity-activation-range.animals", 32},
+            {"world-settings.default.entity-activation-range.monsters", 32},
+            {"world-settings.default.entity-activation-range.misc", 16},
+            {"world-settings.default.entity-activation-range.water", 16},
+            {"world-settings.default.entity-activation-range.villagers", 32},
+            {"world-settings.default.entity-activation-range.tick-inactive-villagers", true},
+            {"world-settings.default.nerf-spawner-mobs", false},
     };
 
     static final Object[][] BUKKIT = {
-            {"chunk-gc.period-in-ticks", 400},
+            {"chunk-gc.period-in-ticks", 600},
     };
 
     private Optimalizalas() {
     }
 
-    /** onLoad-ban: a configok átírása egyszer. */
-    public static void configok(File serverRoot, File dataFolder, boolean enabled, Logger logger) {
+    /** A szerver elindulása után: ha a 3.30.0 átírta a configokat, egyszer visszaállítja őket. */
+    public static void visszavon(File serverRoot, File dataFolder, List<String> worlds, Logger logger) {
         File marker = new File(dataFolder, MARKER);
-        if (!enabled || marker.exists()) {
+        if (!marker.exists()) {
             return;
         }
         int db = 0;
         db += patch(new File(serverRoot, "config/paper-world-defaults.yml"), PAPER, logger);
         db += patch(new File(serverRoot, "spigot.yml"), SPIGOT, logger);
         db += patch(new File(serverRoot, "bukkit.yml"), BUKKIT, logger);
-        try {
-            dataFolder.mkdirs();
-            marker.createNewFile();
-        } catch (java.io.IOException ignored) {
-        }
-        if (db > 0) {
-            logger.info("Teljesítmény beállítások: " + db + " érték átírva a Paper/Spigot/Bukkit configban, a következő indítástól érvényes.");
+        spawnVissza(worlds);
+        if (marker.delete()) {
+            logger.info("A 3.30.0 teljesítmény beállításai visszaállítva (" + db + " érték), a következő indítástól érvényes.");
         }
     }
 
@@ -101,17 +96,17 @@ public final class Optimalizalas {
         return db;
     }
 
-    /** A megadott világokban nincs mindig betöltött spawn terület (spawnChunkRadius = 0). */
+    /** A spawn terület vissza az alapra (spawnChunkRadius = 2), ha 0-ra volt állítva. */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static void spawnNelkul(List<String> worlds) {
+    static void spawnVissza(List<String> worlds) {
         GameRule rule = GameRule.getByName("spawnChunkRadius");
         if (rule == null) {
             return;
         }
         for (String name : worlds) {
             World w = Bukkit.getWorld(name);
-            if (w != null && !Integer.valueOf(0).equals(w.getGameRuleValue(rule))) {
-                w.setGameRule(rule, 0);
+            if (w != null && Integer.valueOf(0).equals(w.getGameRuleValue(rule))) {
+                w.setGameRule(rule, 2);
             }
         }
     }
