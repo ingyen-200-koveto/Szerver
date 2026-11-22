@@ -74,6 +74,9 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
             case "napi":
                 daily(player);
                 break;
+            case "szint":
+                level(player, args);
+                break;
             case "kozmetika":
                 core.menus().cosmetics(player);
                 break;
@@ -110,6 +113,28 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
                 break;
         }
         return true;
+    }
+
+    private void level(Player player, String[] args) {
+        Player target = args.length > 0 ? org.bukkit.Bukkit.getPlayerExact(args[0]) : player;
+        if (target == null) {
+            core.messages().sendTagged(player, "&c" + args[0] + " most nincs fent.");
+            return;
+        }
+        hu.icemine.core.data.PlayerProfile profile = core.profiles().profile(target);
+        long xp = profile == null ? 0 : profile.stat(hu.icemine.core.level.Levels.XP);
+        long[] lv = hu.icemine.core.level.Levels.progress(xp);
+        String c = hu.icemine.core.level.Levels.color((int) lv[0]);
+        player.sendMessage(Text.color(""));
+        player.sendMessage(Text.color(" &b&l✦ &f" + target.getName() + " &7szintje: " + c + "&l" + lv[0] + "."));
+        if (lv[2] > 0) {
+            player.sendMessage(Text.color(" " + hu.icemine.core.level.Levels.bar(lv[1], lv[2], 20) + " &f" + lv[1] + "&7/&f" + lv[2] + " XP"));
+            player.sendMessage(Text.color(" &7Még &f" + (lv[2] - lv[1]) + " XP &7a következő szintig."));
+        } else {
+            player.sendMessage(Text.color(" &7Elérte a legmagasabb szintet."));
+        }
+        player.sendMessage(Text.color(" &8XP-t minden játékból kapsz: győzelem, ölés, ágytörés, kibányászott blokk..."));
+        player.sendMessage(Text.color(""));
     }
 
     private void spawn(Player player) {

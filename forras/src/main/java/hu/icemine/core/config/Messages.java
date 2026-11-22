@@ -50,8 +50,49 @@ public final class Messages {
         return config == null ? DEFAULT_PREFIX : config.getString("prefix", DEFAULT_PREFIX);
     }
 
+    /** Játékmódonkénti prefix (pl. "BedWars • "); null = az alap IceMine prefix (lobby, konzol). */
+    public interface ModePrefix {
+        String of(CommandSender sender);
+    }
+
+    private static volatile ModePrefix modePrefix;
+
+    public static void modePrefix(ModePrefix value) {
+        modePrefix = value;
+    }
+
+    /** A címzettnek szóló prefix: játékmódban a mód neve, a lobbyban az IceMine. */
+    public String prefix(CommandSender sender) {
+        ModePrefix current = modePrefix;
+        String mode = current == null || sender == null ? null : current.of(sender);
+        return mode != null ? mode : prefix();
+    }
+
+    /** A szövegben lévő IceMine prefixet a címzett játékmódjának prefixére cseréli. */
+    public String localize(CommandSender sender, String colored) {
+        if (colored == null) {
+            return null;
+        }
+        String mine = prefix();
+        String target = prefix(sender);
+        if (target.equals(mine)) {
+            return colored;
+        }
+        String from = Text.color(mine);
+        String to = Text.color(target);
+        if (colored.contains(from)) {
+            return colored.replace(from, to);
+        }
+        String fromTrim = from.trim();
+        return colored.contains(fromTrim) ? colored.replace(fromTrim, to.trim()) : colored;
+    }
+
     public String prefixed(String key, String... pairs) {
         return Text.color(prefix() + Text.replace(raw(key), pairs));
+    }
+
+    public String prefixed(CommandSender sender, String key, String... pairs) {
+        return localize(sender, Text.color(prefix(sender) + Text.replace(raw(key), pairs)));
     }
 
     /**
@@ -72,7 +113,7 @@ public final class Messages {
 
     public void sendTagged(CommandSender sender, String text) {
         if (sender != null && text != null && !text.isBlank()) {
-            sender.sendMessage(tagged(text));
+            sender.sendMessage(localize(sender, tagged(text)));
         }
     }
 
@@ -92,7 +133,7 @@ public final class Messages {
 
     public void send(CommandSender sender, String key, String... pairs) {
         if (sender != null) {
-            sender.sendMessage(prefixed(key, pairs));
+            sender.sendMessage(prefixed(sender, key, pairs));
         }
     }
 
@@ -101,7 +142,7 @@ public final class Messages {
             return;
         }
         for (String line : withHeader(list(key, pairs), Text.color(prefix()))) {
-            sender.sendMessage(line);
+            sender.sendMessage(localize(sender, line));
         }
     }
 

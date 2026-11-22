@@ -324,6 +324,21 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
   a házak gerendáin színes fényfüzér világít, havazik, és felirat van a fa fölött. Utána magától visszaáll.
   `lobby.yml` -> `christmas: auto` (vagy `on` / `off`).
 
+## Szintek, rejtett ajándékok, hóvihar
+
+- **Szintek**: minden játékból XP jár (győzelem, ölés, ágytörés, kibányászott blokk, Gens aratás, parkour, hópehely...).
+  A szint a név előtt látszik a chatben, a TAB-ban és a fej fölött (`[12✦]`, a színe a szinttel változik). Szintlépéskor
+  Kristály jár (szint × 10, minden 10. szintnél +250, és mindenki látja). `/szint [játékos]` mutatja a haladást.
+  Toplista: `szint`. Beállítás: `config.yml` -> `levels` (XP szabályok, jutalmak, ki/be).
+- **Rejtett ajándékok**: 10 ajándékdoboz-fej van elrejtve a lobbyban (házakban, a várban, a kilátó tetején, a tónál...).
+  Kattints rá: 25 Kristály és 20 XP darabonként, mind a 10-ért 1000 Kristály. A helyek a `lobby.yml` -> `secret-heads.places`
+  részben vannak, átírhatók.
+- **Hóvihar**: 40 percenként 3 percre hóvihar jön a lobbyban, varázs hópelyhek jelennek meg a földön. Odasétálsz,
+  felveszed, 5 Kristály és 2 XP. A végén kiírja, ki gyűjtötte a legtöbbet. Kézzel: `/icem admin hovihar`.
+  Beállítás: `lobby.yml` -> `snowstorm`.
+- **Játékmód prefix**: játékmódban az üzenetek előtt a mód neve áll (pl. `BedWars • Ehhez nincs jogod`),
+  a lobbyban marad az `[IceMine]`. Kikapcsolás: `messages_hu.yml` -> `mode-prefix: false`.
+
 ## SkyWars
 
 Szigetekről indultok, a ládákból szerelkeztek fel, és az utolsó túlélő (Duóban az utolsó csapat) nyer.

@@ -5,6 +5,8 @@
 # Ha átírsz valamit: /icem reload messages_hu
 
 prefix: "&b[IceMine] &7"
+# Játékmódban a prefix a mód neve (pl. "BedWars • "), a lobbyban marad az IceMine. false = mindenhol IceMine.
+mode-prefix: true
 
 general:
   no-permission: "Ehhez nincs jogod!"

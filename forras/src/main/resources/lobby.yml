@@ -184,6 +184,7 @@ menus:
   stats:
     title: "&8Toplisták"
     icons:
+      szint: EXPERIENCE_BOTTLE
       fyland: GRASS_BLOCK
       gens: EMERALD
       parkour: LEATHER_BOOTS
@@ -346,3 +347,19 @@ double-jump:
   power: 1.25
   height: 0.85
 launchpads: {}
+
+# 10 elrejtett ajándékdoboz-fej a lobbyban (háztetőkön, a várban, a kilátón...). Kattints rá, ha megtaláltad.
+# A helyek az első indításkor kerülnek ide (places), utána átírhatod őket.
+secret-heads:
+  enabled: true
+  reward: 25
+  reward-all: 1000
+
+# Hóvihar: időnként sűrű havazás, varázs hópelyhek a földön, felvételükért Kristály jár.
+# Kézzel indítás: /icem admin hovihar
+snowstorm:
+  enabled: true
+  every-minutes: 40
+  seconds: 180
+  flakes: 30
+  reward: 5

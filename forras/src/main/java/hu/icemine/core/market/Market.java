@@ -217,7 +217,7 @@ public final class Market {
     }
 
     void click(Player player, String key, String... pairs) {
-        player.sendMessage(ClickText.line(core.messages().prefix() + text(key, pairs), "&7Kattints: &f%value%", "&7Kattints"));
+        player.sendMessage(ClickText.line(core.messages().prefix(player) + text(key, pairs), "&7Kattints: &f%value%", "&7Kattints"));
     }
 
     void broadcast(Scope scope, String key, String... pairs) {

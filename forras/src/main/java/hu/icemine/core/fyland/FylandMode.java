@@ -430,7 +430,7 @@ public final class FylandMode implements ModeHandler, Listener {
     }
 
     void click(Player player, String key, String... pairs) {
-        player.sendMessage(ClickText.line(core.messages().prefix() + text(key, pairs), "&7Kattints: &f%value%", "&7Kattints"));
+        player.sendMessage(ClickText.line(core.messages().prefix(player) + text(key, pairs), "&7Kattints: &f%value%", "&7Kattints"));
     }
 
     void tell(FyIsland island, String key, String... pairs) {

@@ -125,6 +125,12 @@ public final class BoardService implements Listener {
         values.put("%icecoin%", core.iceCoins() == null ? "-" : core.iceCoins().display(player));
         values.put("%gens_money%", core.economy().format("gens", profile == null ? 0 : profile.balance("gens")));
         values.put("%discord%", core.configs().get("scoreboard").getString("discord", ""));
+        if (core.levels() != null) {
+            long[] lv = hu.icemine.core.level.Levels.progress(profile == null ? 0 : profile.stat(hu.icemine.core.level.Levels.XP));
+            values.put("%level%", hu.icemine.core.level.Levels.color((int) lv[0]) + lv[0]);
+            values.put("%level_xp%", lv[1] + "/" + lv[2]);
+            values.put("%level_bar%", hu.icemine.core.level.Levels.bar(lv[1], lv[2], 10));
+        }
         values.put("%combo_best%", String.valueOf(profile == null ? 0 : profile.stat("combofly.best")));
         long combatMillis = core.combat().tagged(player) ? Math.max(0L, core.combat().remainingMillis(player)) : 0L;
         values.put("%combat_time%", seconds(combatMillis / 1000.0));
@@ -300,7 +306,10 @@ public final class BoardService implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        String format = Text.color(chatFormat
+        String levelTag = core.levels() != null && core.levels().chat() ? core.levels().tag(player) : "";
+        String base = chatFormat.contains("%level%") ? chatFormat : "%level%" + chatFormat;
+        String format = Text.color(base
+                .replace("%level%", levelTag)
                 .replace("%prefix%", core.prefixes().prefix(player))
                 .replace("%suffix%", core.prefixes().suffix(player))
                 .replace("%chatcolor%", "&f")

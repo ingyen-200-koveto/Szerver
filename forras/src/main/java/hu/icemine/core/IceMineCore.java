@@ -99,6 +99,7 @@ public final class IceMineCore extends JavaPlugin {
     private ContactBook contacts;
     private Cosmetics cosmetics;
     private ParkourService parkour;
+    private hu.icemine.core.level.Levels levels;
     private BoardService boards;
     private Leaderboards leaderboards;
     private InventoryStore inventories;
@@ -195,6 +196,20 @@ public final class IceMineCore extends JavaPlugin {
             }
         });
         messages = new Messages(configs, getLogger());
+        Messages.modePrefix(sender -> {
+            if (!(sender instanceof Player player) || modes == null || !configs.get("messages_hu").getBoolean("mode-prefix", true)) {
+                return null;
+            }
+            String id = modes.current(player);
+            if (modes.currentHandler(player) instanceof hu.icemine.core.modelobby.ModeLobbies.ModeLobby lobbyOfMode) {
+                id = lobbyOfMode.mode();
+            }
+            if (id == null || hu.icemine.core.mode.ModeService.LOBBY.equals(id)) {
+                return null;
+            }
+            hu.icemine.core.mode.ModeInfo info = modes.info(id);
+            return info == null || info.name == null || info.name.isBlank() ? null : info.name + " &8• &7";
+        });
         database = new Database(getLogger());
         YamlConfiguration main = configs.get("config");
         Values values = new Values("config.yml", main::get);
@@ -228,6 +243,7 @@ public final class IceMineCore extends JavaPlugin {
         contacts = new ContactBook(this);
         cosmetics = new Cosmetics(this);
         parkour = new ParkourService(this);
+        levels = new hu.icemine.core.level.Levels(this);
         boards = new BoardService(this);
         leaderboards = new Leaderboards(this);
         inventories = new InventoryStore(new File(getDataFolder(), "inventories"), getLogger());
@@ -255,6 +271,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("parkour", () -> parkour.load(configs.get("parkour"), problems));
         safely("toplisták", () -> leaderboards.load(main, problems));
         safely("IceCoin", () -> iceCoins.load(main, problems));
+        safely("szintek", () -> levels.load(main.getConfigurationSection("levels")));
         safely("névtáblák", () -> nameTags.load(main));
         safely("frissítés", () -> updater.load(main));
         safely("chat napló", () -> chatLog.load(main));
@@ -305,13 +322,13 @@ public final class IceMineCore extends JavaPlugin {
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
         registerListeners(new CoreListener(this), chatLog, webLogin, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
-                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), bedwars.specials(), new hu.icemine.core.skywars.SwListener(skywars), lobby.doubleJump(), lobby.pvp(), nameTags);
+                fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), bedwars.specials(), new hu.icemine.core.skywars.SwListener(skywars), lobby.doubleJump(), lobby.pvp(), lobby.fejek(), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
         hu.icemine.core.command.IcemCommand icem = new hu.icemine.core.command.IcemCommand(this, admin);
         register("icem", icem, icem);
         PlayerCommands players = new PlayerCommands(this);
-        for (String name : new String[]{"lobby", "spawn", "profil", "top", "penz", "fizet", "napi", "kapcsolat", "combofly", "kit", "arena", "gens", "elad"}) {
+        for (String name : new String[]{"lobby", "spawn", "profil", "top", "penz", "fizet", "napi", "szint", "kapcsolat", "combofly", "kit", "arena", "gens", "elad"}) {
             register(name, players, players);
         }
         safely("hibafigyelő", () -> {
@@ -615,6 +632,7 @@ public final class IceMineCore extends JavaPlugin {
             safely("toplisták", () -> leaderboards.load(main, problems));
             leaderboards.refresh();
             safely("IceCoin", () -> iceCoins.load(main, problems));
+            safely("szintek", () -> levels.load(main.getConfigurationSection("levels")));
             safely("névtáblák", () -> nameTags.load(main));
             safely("frissítés", () -> updater.load(main));
             safely("chat napló", () -> chatLog.load(main));
@@ -844,6 +862,10 @@ public final class IceMineCore extends JavaPlugin {
 
     public Cosmetics cosmetics() {
         return cosmetics;
+    }
+
+    public hu.icemine.core.level.Levels levels() {
+        return levels;
     }
 
     public ParkourService parkour() {

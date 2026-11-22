@@ -15,7 +15,7 @@ final class Szoveg {
         if (to == null) {
             return;
         }
-        String line = core.messages().prefix() + text;
+        String line = core.messages().prefix(to) + text;
         if (to instanceof Player player) {
             player.sendMessage(ClickText.line(line, "&7Kattints: &f%value%", "&7Megnyitás"));
         } else {

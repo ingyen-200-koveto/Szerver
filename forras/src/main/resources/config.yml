@@ -110,6 +110,10 @@ quit-message: "&8[&c-&8] %prefix%%player%"
 leaderboards:
   size: 10
   boards:
+    szint:
+      title: "&b&l✦ Legmagasabb szint"
+      source: stat
+      key: level.xp
     fyland:
       title: "&a&l⛏ OneBlock blokkok"
       source: stat
@@ -202,3 +206,31 @@ csalasgyanu:
   szunet-perc: 10
   # Ezekkel kezdődő Grim ellenőrzések nem számítanak (pl. ha a ComboFly miatt téves: [Simulation, Knockback])
   kihagy-checkek: []
+
+# Szintek: minden játékból XP jár, a szint a név előtt látszik (chat, TAB, fej fölött).
+levels:
+  enabled: true
+  chat: true
+  nametag: true
+  # szintlépéskor ennyi Kristály szintenként (szint x ennyi), minden 10. szintnél plusz a reward-every-10
+  reward-per-level: 10
+  reward-every-10: 250
+  # XP szabályok: "xp" vagy "xp / ennyi egységenként". A *.kills minden módra jó, ahol nincs külön szabály.
+  xp:
+    bedwars.wins: "60"
+    bedwars.final_kills: "8"
+    bedwars.kills: "4"
+    bedwars.beds: "20"
+    bedwars.games: "10"
+    skywars.wins: "60"
+    skywars.kills: "8"
+    skywars.games: "10"
+    duels.wins: "25"
+    duels.played: "5"
+    combofly.combos: "1"
+    lobby.pvp_kills: "2"
+    gens.quests: "25"
+    gens.harvested: "1 / 40"
+    fyland.blocks: "1 / 15"
+    parkour3.completions: "30"
+    lobby.snowflakes: "2"

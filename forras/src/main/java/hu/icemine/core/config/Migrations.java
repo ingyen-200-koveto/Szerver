@@ -59,9 +59,35 @@ public final class Migrations {
             files.save("config");
             notes.add("config.yml: új toplista (ComboFly ölések)");
         }
+        if (main.isSet("leaderboards.boards") && !main.isSet("leaderboards.boards.szint")) {
+            copyDefault(main, "leaderboards.boards.szint");
+            files.save("config");
+            notes.add("config.yml: új toplista (szint)");
+        }
+        if (!main.isSet("levels") && main.getDefaults() != null && main.getDefaults().isSet("levels")) {
+            copyDefault(main, "levels");
+            files.save("config");
+            notes.add("config.yml: szintek (levels) beállításai");
+        }
         YamlConfiguration lobby = files.get("lobby");
         if (lobby.isSet("menus.stats.icons") && !lobby.isSet("menus.stats.icons.combokills")) {
             lobby.set("menus.stats.icons.combokills", "AMETHYST_SHARD");
+            files.save("lobby");
+        }
+        if (lobby.getDefaults() != null && (!lobby.isSet("secret-heads.enabled") || !lobby.isSet("snowstorm"))) {
+            if (!lobby.isSet("secret-heads.enabled")) {
+                lobby.set("secret-heads.enabled", lobby.getDefaults().getBoolean("secret-heads.enabled", true));
+                lobby.set("secret-heads.reward", lobby.getDefaults().getLong("secret-heads.reward", 25));
+                lobby.set("secret-heads.reward-all", lobby.getDefaults().getLong("secret-heads.reward-all", 1000));
+            }
+            if (!lobby.isSet("snowstorm")) {
+                copyDefault(lobby, "snowstorm");
+            }
+            files.save("lobby");
+            notes.add("lobby.yml: rejtett ajándékok és hóvihar");
+        }
+        if (lobby.isSet("menus.stats.icons") && !lobby.isSet("menus.stats.icons.szint")) {
+            lobby.set("menus.stats.icons.szint", "EXPERIENCE_BOTTLE");
             files.save("lobby");
         }
         YamlConfiguration messages = files.get("messages_hu");

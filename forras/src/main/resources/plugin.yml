@@ -82,6 +82,10 @@ commands:
     description: Napi jutalom
     usage: /napi
     aliases: [daily]
+  szint:
+    description: A szinted és az XP-d (minden játékból jön)
+    usage: /szint [játékos]
+    aliases: [level, lvl, szintem]
   kapcsolat:
     description: Kapcsolatok
     usage: /kapcsolat

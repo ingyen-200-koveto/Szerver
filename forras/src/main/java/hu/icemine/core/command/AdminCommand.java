@@ -111,6 +111,13 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             case "info":
                 info(sender);
                 break;
+            case "hovihar":
+                if (!sender.isOp() && !sender.hasPermission("icemine.admin.hovihar")) {
+                    core.messages().send(sender, "general.no-permission");
+                    break;
+                }
+                core.messages().sendTagged(sender, core.lobby().hovihar().indit() ? "&aHóvihar indítva a lobbyban." : "&cMost nem indítható (már tart, vagy nincs lobby világ).");
+                break;
             default:
                 core.messages().sendList(sender, "admin.help");
         }

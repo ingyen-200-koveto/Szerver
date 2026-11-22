@@ -39,6 +39,8 @@ public final class LobbyModule implements ModeHandler {
     private final LaunchPads launchPads;
     private final DuplaUgras doubleJump;
     private final Karacsony karacsony;
+    private final RejtettFejek fejek;
+    private final Hovihar hovihar;
     private final LobbyPvp pvp;
     private final Set<UUID> hiding = new HashSet<>();
     private final InfoTexts info = new InfoTexts();
@@ -68,6 +70,8 @@ public final class LobbyModule implements ModeHandler {
         this.launchPads = new LaunchPads(core);
         this.doubleJump = new DuplaUgras(core);
         this.karacsony = new Karacsony(core);
+        this.fejek = new RejtettFejek(core);
+        this.hovihar = new Hovihar(core);
         this.pvp = new LobbyPvp(core);
     }
 
@@ -119,6 +123,8 @@ public final class LobbyModule implements ModeHandler {
         doubleJump.load(config);
         pvp.load(config, world);
         karacsony.start();
+        fejek.load(config, world);
+        hovihar.load(config);
         loadHotbar(config, values);
         info.load(config, problems);
         problems.addAll(values.problems());
@@ -325,8 +331,17 @@ public final class LobbyModule implements ModeHandler {
         return player.hasPermission("icemine.cosmetic.fly") && profile != null && profile.flag(FLY, false);
     }
 
+    public RejtettFejek fejek() {
+        return fejek;
+    }
+
+    public Hovihar hovihar() {
+        return hovihar;
+    }
+
     public void stopSeasonal() {
         karacsony.stop();
+        hovihar.stop();
     }
 
     public LobbyPvp pvp() {

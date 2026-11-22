@@ -116,9 +116,25 @@ public final class PlayerProfile {
         dirtyStats.add(key);
     }
 
+    /** Statisztika-változás figyelő (pl. a szintrendszer XP-je). */
+    public interface StatHook {
+        void changed(PlayerProfile profile, String key, long before, long after);
+    }
+
+    private static volatile StatHook hook;
+
+    public static void hook(StatHook value) {
+        hook = value;
+    }
+
     public long addStat(String key, long delta) {
-        long value = stat(key) + delta;
+        long before = stat(key);
+        long value = before + delta;
         setStat(key, value);
+        StatHook current = hook;
+        if (current != null && delta > 0) {
+            current.changed(this, key, before, value);
+        }
         return value;
     }
 

@@ -22,6 +22,7 @@ commands:
   penz:      {permission: icemine.command.penz, default: true}
   fizet:     {permission: icemine.command.fizet, default: true}
   napi:      {permission: icemine.command.napi, default: true}
+  szint:     {permission: icemine.command.szint, default: true}
   kapcsolat: {permission: icemine.command.kapcsolat, default: true}
   combofly:  {permission: icemine.command.combofly, default: true}
   kit:       {permission: icemine.command.kit, default: true}

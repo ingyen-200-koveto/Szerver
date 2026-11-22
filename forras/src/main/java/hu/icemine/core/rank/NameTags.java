@@ -85,18 +85,19 @@ public final class NameTags implements Listener {
                 return team;
             }
         }
+        String level = core.levels() != null && core.levels().nametag() ? core.levels().tag(player) : "";
         if (!showRank) {
-            return "";
+            return level;
         }
         String prefix = core.prefixes().prefix(player);
         if (prefix != null && !Text.strip(Text.color(prefix)).isBlank()) {
-            return prefix.endsWith(" ") ? prefix : prefix + " ";
+            return level + (prefix.endsWith(" ") ? prefix : prefix + " ");
         }
         Ranks.Rank rank = core.ranks().of(player);
         if (rank == null || rank.id.equals("default")) {
-            return "";
+            return level.isEmpty() ? "" : level + "&f";
         }
-        return rank.name + " &f";
+        return level + rank.name + " &f";
     }
 
     private boolean active(Player player) {

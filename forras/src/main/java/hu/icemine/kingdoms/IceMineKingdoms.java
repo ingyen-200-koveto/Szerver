@@ -455,7 +455,8 @@ public final class IceMineKingdoms extends Module {
                 }
             }
             for (String line : getConfig().getStringList("messages.first-join")) {
-                player.sendMessage(Text.color(line.replace("%player%", player.getName())));
+                String colored = Text.color(line.replace("%player%", player.getName()));
+                player.sendMessage(core().messages() != null ? core().messages().localize(player, colored) : colored);
             }
         }
         player.teleport(saved != null ? saved : spawn);
@@ -569,7 +570,8 @@ public final class IceMineKingdoms extends Module {
     /** Üzenet kulcs alapján (kingdoms.yml: messages), az IceMine prefixszel. */
     public void send(CommandSender sender, String key, String... pairs) {
         if (sender != null) {
-            sender.sendMessage(Text.color(prefix() + replace(raw(key), pairs)));
+            String line = Text.color(prefix() + replace(raw(key), pairs));
+            sender.sendMessage(core().messages() != null ? core().messages().localize(sender, line) : line);
         }
     }
 
