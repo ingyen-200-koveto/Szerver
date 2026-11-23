@@ -187,9 +187,10 @@ public final class Duels implements Listener, ModeHandler {
                         DuelArenaBuild build = new DuelArenaBuild((j1, k1, l1, s3) -> {}, l, b0, i1, s, s1);
                         build.build();
                         ArenaSlot slot = new ArenaSlot(s2, s.toLowerCase(Locale.ROOT), s1, this.world, l, b0, i1, build.layout());
-                        if (!config.getBoolean("built." + s2, false)) {
+                        String builtTheme = config.isString("built." + s2) ? config.getString("built." + s2) : null;
+                        if (!s1.equals(builtTheme)) {
                             this.rebuild(slot);
-                            config.set("built." + s2, true);
+                            config.set("built." + s2, s1);
                             flag = true;
                         }
 
@@ -237,6 +238,31 @@ public final class Duels implements Listener, ModeHandler {
                 entity.remove();
             }
         }
+    }
+
+    /** A mód arénáinak pályái (témái): téma -> {szabad, összes}. */
+    public Map<String, int[]> themes(DuelKit kit) {
+        Map<String, int[]> out = new LinkedHashMap<>();
+        for (ArenaSlot slot : this.slots) {
+            if (slot.type.equals(kit.arena)) {
+                int[] c = out.computeIfAbsent(slot.theme, t -> new int[2]);
+                c[1]++;
+                if (slot.free()) {
+                    c[0]++;
+                }
+            }
+        }
+        return out;
+    }
+
+    public static String themeName(String theme) {
+        return switch (theme) {
+            case "forest" -> "&aErdő";
+            case "desert" -> "&eSivatag";
+            case "ice" -> "&bJég";
+            case "nether" -> "&cNether";
+            default -> "&f" + theme;
+        };
     }
 
     public Map<String, DuelKit> kits() {
@@ -308,7 +334,19 @@ public final class Duels implements Listener, ModeHandler {
 
     private boolean inLobby(Player player) {
         String s = this.core.modes().current(player);
-        return s == null || s.equals("lobby") || s.startsWith("lobby_");
+        return s == null || s.equals("lobby") || s.startsWith("lobby_") || s.equals(hu.icemine.core.combo.ComboArenaMode.ID);
+    }
+
+    /** Honnan jött a kihívás (ComboFlyból oda megy vissza a meccs után). */
+    private final Map<UUID, String> origin = new HashMap<>();
+
+    private void rememberOrigin(Player player) {
+        String s = this.core.modes().current(player);
+        if (hu.icemine.core.combo.ComboArenaMode.ID.equals(s) || (hu.icemine.core.modelobby.ModeLobbies.PREFIX + hu.icemine.core.combo.ComboArenaMode.ID).equals(s)) {
+            this.origin.put(player.getUniqueId(), hu.icemine.core.combo.ComboArenaMode.ID);
+        } else {
+            this.origin.remove(player.getUniqueId());
+        }
     }
 
     private boolean available(Player player, boolean flag) {
@@ -432,6 +470,22 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     private ArenaSlot freeSlot(DuelKit kit) {
+        return this.freeSlot(kit, null);
+    }
+
+    /** Szabad aréna a módhoz; ha van megadott pálya (téma), abból választ, ha ott nincs szabad, bármelyikből. */
+    ArenaSlot freeSlot(DuelKit kit, String theme) {
+        if (theme != null) {
+            List<ArenaSlot> themed = new ArrayList<>();
+            for (ArenaSlot slot : this.slots) {
+                if (slot.free() && slot.type.equals(kit.arena) && slot.theme.equals(theme)) {
+                    themed.add(slot);
+                }
+            }
+            if (!themed.isEmpty()) {
+                return themed.get((int) (Math.random() * themed.size()));
+            }
+        }
         List<ArenaSlot> result = new ArrayList<>();
 
         for (ArenaSlot slot : this.slots) {
@@ -444,6 +498,10 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     public void invite(Player player, Player player1, String s, int i) {
+        this.invite(player, player1, s, i, null);
+    }
+
+    public void invite(Player player, Player player1, String s, int i, String theme) {
         DuelKit kit = this.kit(s);
         if (kit == null) {
             this.core.messages().send(player, "duels.unknown-mode");
@@ -459,13 +517,14 @@ public final class Duels implements Listener, ModeHandler {
                 } else {
                     this.invites
                         .computeIfAbsent(player1.getUniqueId(), uuid -> new HashMap<>())
-                        .put(player.getUniqueId(), new Duels.Invite(player.getUniqueId(), kit.id, i));
-                    this.core.messages().send(player, "duels.invite-sent", "%player%", player1.getName(), "%mode%", kit.name, "%rounds%", this.rounds(i));
+                        .put(player.getUniqueId(), new Duels.Invite(player.getUniqueId(), kit.id, i, theme));
+                    String modeText = kit.name + (theme == null ? "" : " &8(&7pálya: " + themeName(theme) + "&8)");
+                    this.core.messages().send(player, "duels.invite-sent", "%player%", player1.getName(), "%mode%", modeText, "%rounds%", this.rounds(i));
                     player1.sendMessage(
                         Text.color(
                             this.core
                                 .messages()
-                                .prefixed("duels.invite-received", "%player%", player.getName(), "%mode%", kit.name, "%rounds%", this.rounds(i))
+                                .prefixed(player1, "duels.invite-received", "%player%", player.getName(), "%mode%", modeText, "%rounds%", this.rounds(i))
                         )
                     );
                     String s1 = this.core.messages().raw("duels.invite-buttons").replace("%player%", player.getName());
@@ -514,7 +573,9 @@ public final class Duels implements Listener, ModeHandler {
                         map.remove(invite.from);
                         this.leaveQueue(player, false);
                         this.leaveQueue(player2, false);
-                        this.start(kit, false, invite.bestOf, player2, player);
+                        this.rememberOrigin(player);
+                        this.rememberOrigin(player2);
+                        this.start(kit, false, invite.bestOf, player2, player, invite.theme);
                     }
                 }
             } else {
@@ -562,7 +623,11 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     void start(DuelKit kit, boolean flag, int i, Player player, Player player1) {
-        ArenaSlot slot = this.freeSlot(kit);
+        this.start(kit, flag, i, player, player1, null);
+    }
+
+    void start(DuelKit kit, boolean flag, int i, Player player, Player player1, String theme) {
+        ArenaSlot slot = this.freeSlot(kit, theme);
         if (slot == null) {
             this.core.messages().send(player, "duels.no-arena");
             this.core.messages().send(player1, "duels.no-arena");
@@ -910,6 +975,10 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     void sendHome(Player player) {
+        String from = this.origin.remove(player.getUniqueId());
+        if (from != null && this.core.modes().send(player, from, true) == hu.icemine.core.mode.ModeService.SendResult.OK) {
+            return;
+        }
         Location location = this.core.modeLobbies() != null && this.core.modeLobbies().has("duels") ? this.core.modeLobbies().entry("duels") : null;
         if (location == null) {
             this.core.modes().send(player, "lobby", true);
@@ -1449,10 +1518,17 @@ public final class Duels implements Listener, ModeHandler {
         final int bestOf;
         final long at;
 
+        final String theme;
+
         Invite(UUID uuid, String s, int i) {
+            this(uuid, s, i, null);
+        }
+
+        Invite(UUID uuid, String s, int i, String theme) {
             this.from = uuid;
             this.kit = s;
             this.bestOf = i;
+            this.theme = theme;
             this.at = System.currentTimeMillis();
         }
     }

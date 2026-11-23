@@ -67,11 +67,19 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
                         this.core.messages().send(player, "general.no-player");
                     } else {
                         int i = args.length > 2 && args[2].equalsIgnoreCase("bo3") ? 3 : 1;
+                        String here = this.core.modes().current(player);
+                        boolean inCombo = hu.icemine.core.combo.ComboArenaMode.ID.equals(here)
+                            || (hu.icemine.core.modelobby.ModeLobbies.PREFIX + hu.icemine.core.combo.ComboArenaMode.ID).equals(here);
                         if (args.length > 1 && args[1].equalsIgnoreCase("bo3")) {
-                            byte b0 = 3;
-                            this.duels.menu().chooseForInvite(player, player1, b0);
+                            if (inCombo && this.duels.kit("combofly") != null) {
+                                this.duels.menu().chooseMap(player, player1, "combofly", 3);
+                            } else {
+                                this.duels.menu().chooseForInvite(player, player1, 3);
+                            }
                         } else if (args.length > 1) {
-                            this.duels.invite(player, player1, args[1], i);
+                            this.duels.menu().chooseMap(player, player1, args[1].toLowerCase(Locale.ROOT), i);
+                        } else if (inCombo && this.duels.kit("combofly") != null) {
+                            this.duels.menu().chooseMap(player, player1, "combofly", 1);
                         } else {
                             this.duels.menu().chooseForInvite(player, player1, 1);
                         }

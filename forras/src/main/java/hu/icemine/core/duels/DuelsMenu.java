@@ -7,6 +7,7 @@ import hu.icemine.core.util.Items;
 import hu.icemine.core.util.Text;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -214,7 +215,7 @@ public final class DuelsMenu {
                 if (player4 == null) {
                     this.core.messages().send(player3, "general.no-player");
                 } else {
-                    this.duels.invite(player3, player4, s, i);
+                    this.chooseMap(player3, player4, s, i);
                 }
             });
         }
@@ -228,5 +229,63 @@ public final class DuelsMenu {
             player3 -> this.chooseForInvite(player3, player1, i > 1 ? 1 : 3)
         );
         menu.open(player);
+    }
+
+    /** Pályaválasztás a kihíváshoz. Ha a módnak csak egy pályája van, egyből küldi. */
+    public void chooseMap(Player player, Player target, String kitId, int bestOf) {
+        DuelKit kit = this.duels.kit(kitId);
+        if (kit == null) {
+            this.core.messages().send(player, "duels.unknown-mode");
+            return;
+        }
+        Map<String, int[]> themes = this.duels.themes(kit);
+        if (themes.size() <= 1) {
+            this.duels.invite(player, target, kit.id, bestOf, null);
+            return;
+        }
+        Menu menu = new Menu("duels-map", 3, "&8Pálya: " + Text.strip(Text.color(kit.name)) + " &8- &f" + target.getName());
+        menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
+        int[] slots = {10, 11, 12, 13, 14, 15, 16};
+        int n = 0;
+        for (Map.Entry<String, int[]> e : themes.entrySet()) {
+            if (n >= slots.length - 1) {
+                break;
+            }
+            String theme = e.getKey();
+            int free = e.getValue()[0];
+            menu.set(slots[n++], Items.of(themeIcon(theme)).name(Duels.themeName(theme))
+                    .lore(List.of("&7Szabad aréna: " + (free > 0 ? "&a" : "&c") + free + "&7/" + e.getValue()[1],
+                            free > 0 ? "" : "&7Ha foglalt, egy másik pályán indul.",
+                            "", "&e» Kattints, és küldöm a kihívást!")).hideAll().build(), p -> {
+                p.closeInventory();
+                Player t = Bukkit.getPlayer(target.getUniqueId());
+                if (t == null) {
+                    this.core.messages().send(p, "general.no-player");
+                } else {
+                    this.duels.invite(p, t, kit.id, bestOf, theme);
+                }
+            });
+        }
+        menu.set(slots[slots.length - 1], Items.of(Material.COMPASS).name("&fVéletlen pálya")
+                .lore(List.of("&7Bármelyik szabad arénán.", "", "&e» Kattints, és küldöm a kihívást!")).hideAll().build(), p -> {
+            p.closeInventory();
+            Player t = Bukkit.getPlayer(target.getUniqueId());
+            if (t == null) {
+                this.core.messages().send(p, "general.no-player");
+            } else {
+                this.duels.invite(p, t, kit.id, bestOf, null);
+            }
+        });
+        menu.open(player);
+    }
+
+    private static Material themeIcon(String theme) {
+        return switch (theme) {
+            case "forest" -> Material.OAK_SAPLING;
+            case "desert" -> Material.SAND;
+            case "ice" -> Material.PACKED_ICE;
+            case "nether" -> Material.NETHERRACK;
+            default -> Material.GRASS_BLOCK;
+        };
     }
 }

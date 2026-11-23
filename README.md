@@ -330,6 +330,14 @@ Ha a party vezetője belép egy játékmódba (vagy annak a lobbyjába), a szaba
 Szabad az, aki a lobbyban vagy egy mód lobbyjában van, és nincs meccsben, harcban. A vezető kikapcsolhatja:
 `/party kovetes` (be/ki).
 
+## Kihívás pályaválasztással (Duels és ComboFly)
+
+`/duel <játékos>` -> menü: mód, utána **pálya** (Erdő, Sivatag, Jég, Nether vagy Véletlen), és megy a kihívás.
+A ComboFlyban (és a ComboFly lobbyjában) a `/duel <játékos>` egyből a pályaválasztót nyitja ComboFly módra,
+és a meccs után mindketten visszakerülnek a ComboFlyba. Ha a választott pályán nincs szabad aréna, egy másikon indul.
+A `duels.yml` -> `built` most a pálya témáját is megjegyzi: ha egy aréna nem a megfelelő témával épült, újraépül
+(a frissítés utáni első indításkor egyszer az összes Duels aréna újraépül).
+
 ## Duels: edzés bot ellen
 
 `/duels bot` (vagy a Duels menüben a zombifej) - gépi ellenfél egy szabad arénában, három szinten:
