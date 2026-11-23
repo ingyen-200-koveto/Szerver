@@ -1460,9 +1460,7 @@ public final class LobbyBuild extends Build {
         layout.point("spawn", 0.5, PLATFORM + 1, 3.5, 180);
         layout.point("holo:welcome", 0.5, PLATFORM + 5.5, -13.5, 0);
         layout.point("holo:parkour_start", 0.5, PLATFORM + 2.7, BACK - 1.5, 0);
-        layout.point("npc:daily", -4.5, PLATFORM + 1, BACK - 2.5, 180);
         layout.point("npc:contacts", 5.5, PLATFORM + 1, BACK - 2.5, 180);
-        layout.point("holo:info_commands", -7 + 0.5, PLATFORM + 3.0, BACK - 1.5, 0);
         layout.point("holo:info_rules", -12 + 0.5, PLATFORM + 3.0, BACK - 1.5, 0);
         layout.point("holo:info_server", 7 + 0.5, PLATFORM + 3.0, BACK - 1.5, 0);
         layout.point("holo:info_contacts", 12 + 0.5, PLATFORM + 3.0, BACK - 1.5, 0);

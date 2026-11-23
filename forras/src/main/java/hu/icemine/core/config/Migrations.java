@@ -493,6 +493,7 @@ public final class Migrations {
         notes.addAll(compassV2(files::get, files::save));
         notes.addAll(cosmeticsRemoved(files::get, files::save));
         notes.addAll(blockedV2(files::get, files::save));
+        notes.addAll(dailyRemoved(files::get, files::save));
         YamlConfiguration economyFile = files.get("economy");
         if (economyFile != null && economyFile.isSet("currencies") && !economyFile.isSet("currencies.dollar")) {
             copyDefault(economyFile, "currencies.dollar");
@@ -749,6 +750,29 @@ public final class Migrations {
         }
         ranks.set("migrated.ranks-v2", true);
         return true;
+    }
+
+    /** 3.50: a napi jutalom és a Hasznos parancsok (hologram, NPC, info gomb, szöveg) kikerült. */
+    static List<String> dailyRemoved(java.util.function.Function<String, YamlConfiguration> get, java.util.function.Consumer<String> save) {
+        List<String> notes = new ArrayList<>();
+        YamlConfiguration lobby = get.apply("lobby");
+        if (lobby != null && !lobby.getBoolean("migrated.daily-removed", false)) {
+            lobby.set("npcs.daily", null);
+            lobby.set("holograms.info_commands", null);
+            lobby.set("menus.info.items.commands", null);
+            lobby.set("info-texts.commands", null);
+            lobby.set("migrated.daily-removed", true);
+            save.accept("lobby");
+            notes.add("lobby.yml: napi jutalom NPC és Hasznos parancsok törölve");
+        }
+        YamlConfiguration economy = get.apply("economy");
+        if (economy != null && !economy.getBoolean("migrated.daily-removed", false)) {
+            economy.set("daily.enabled", false);
+            economy.set("migrated.daily-removed", true);
+            save.accept("economy");
+            notes.add("economy.yml: napi jutalom kikapcsolva");
+        }
+        return notes;
     }
 
     /** 3.49: kivett parancsok (játékosoknak): combofly, sw, bw, arena, kapcsolat, discord, top, hub, l, napi, penz, fizet, baltop. */

@@ -44,7 +44,8 @@ pay:
   cooldown-seconds: 5
 
 daily:
-  enabled: true
+  # A napi jutalom ki van kapcsolva (3.50.0)
+  enabled: false
   currency: kristaly
   amount: 150
   # Minden egymás utáni nap után ennyivel több (legfeljebb max-streak napig nő)

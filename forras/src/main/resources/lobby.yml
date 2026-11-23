@@ -129,16 +129,6 @@ menus:
           - ""
           - "&e» Kattints a teljes listáért!"
         action: "info:rules"
-      commands:
-        slot: 15
-        material: OAK_SIGN
-        name: "&a&lHasznos parancsok"
-        lore:
-          - "&f/lobby&7, &f/spawn&7, &f/napi&7, &f/profil"
-          - ""
-          - "&e» Kattints, és a parancsokra"
-          - "&e  a chatben is rá tudsz nyomni!"
-        action: "info:commands"
 
 # A chatre kiírt információk. A chatben a /parancsokra és a linkekre rá lehet kattintani.
 # Saját kattintható rész: [[szöveg|run:/parancs]], [[szöveg|suggest:/parancs ]], [[szöveg|url:https://...]]
@@ -162,15 +152,6 @@ info-texts:
     - " &7- Ne hirdess más szervert."
     - " &7- Harc közben ne lépj ki."
     - " &7Ha valaki szabályt szeg, szólj a [[&b&nDiscordon|url:https://discord.gg/icemine]]&7!"
-    - "&8&m                                             "
-  commands:
-    - "&8&m                                             "
-    - " &a&lHasznos parancsok &8(kattints rájuk!)"
-    - " &f/lobby &8- &7vissza a lobbyba"
-    - " &f/spawn &8- &7a játékmód kezdőpontja"
-    - " &f/profil &8- &7a statisztikáid"
-    - " &f/party &8| &f/barat &8- &7party és barátok"
-    - " &f/duel <név> &8- &7párbajra hívás"
     - "&8&m                                             "
   mode_fyland:
     - "&8&m                                             "
@@ -248,7 +229,7 @@ spawn: {}
 portals: {}
 holograms: {}
 npcs: {}
-# Karácsonyi lobby (fa a szökőkútból, fényfüzér a házakon, havazás): auto = dec. 1. és jan. 6. között magától,
+# Karácsonyi lobby (fa a tér közepén, fényfüzér a házakon, havazás): auto = dec. 1. és jan. 6. között magától,
 # on = mindig, off = soha
 christmas: auto
 # Dupla ugrás a lobbyban (ugrás közben még egy szóköz). power: előre, height: fel.

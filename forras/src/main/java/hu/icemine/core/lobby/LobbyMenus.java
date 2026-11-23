@@ -71,7 +71,7 @@ public final class LobbyMenus {
     }
 
     /**
-     * Főmenü: innen minden elérhető (játékmódok, kitek, Duels, profil, toplisták, rangok, napi jutalom, kozmetikák,
+     * Főmenü: innen minden elérhető (játékmódok, kitek, Duels, profil, toplisták, rangok,
      * beállítások, kapcsolatok, információk, parkour). Megnyitás: a lobby NPC-k és tárgyak "menu:main" művelete.
      */
     public void main(Player player) {
@@ -110,16 +110,6 @@ public final class LobbyMenus {
         menu.set(13, Items.head(player).name("&b&l" + player.getName()).lore(summary).build(), clicker -> open(clicker, "profile"));
         menu.set(14, button(Material.GOLD_INGOT, "mainmenu.stats"), this::stats);
         menu.set(15, button(Material.NETHER_STAR, "mainmenu.ranks"), clicker -> core.ranks().openMenu(clicker));
-        boolean daily = dailyReady(profile);
-        Items dailyItem = Items.of(daily ? Material.CHEST_MINECART : Material.MINECART).name(core.messages().raw("mainmenu.daily.name"))
-                .lore(core.messages().list(daily ? "mainmenu.daily.ready" : "mainmenu.daily.taken")).hideAll();
-        if (daily) {
-            dailyItem.glow();
-        }
-        menu.set(16, dailyItem.build(), clicker -> {
-            clicker.closeInventory();
-            clicker.performCommand("napi");
-        });
         menu.set(19, button(Material.COMPARATOR, "mainmenu.settings"), this::settings);
         menu.set(20, button(Material.BOOK, "mainmenu.contacts"), clicker -> {
             clicker.closeInventory();
@@ -143,17 +133,6 @@ public final class LobbyMenus {
 
     private org.bukkit.inventory.ItemStack button(Material icon, String key) {
         return Items.of(icon).name(core.messages().raw(key + ".name")).lore(core.messages().list(key + ".lore")).hideAll().build();
-    }
-
-    private static boolean dailyReady(PlayerProfile profile) {
-        if (profile == null) {
-            return false;
-        }
-        try {
-            return Long.parseLong(profile.setting("daily.last", "0")) < java.time.LocalDate.now().toEpochDay();
-        } catch (NumberFormatException exception) {
-            return true;
-        }
     }
 
     private void back(Menu menu, int slot) {

@@ -60,9 +60,7 @@ public final class CommandGuard implements Listener {
         String name = normalize(event.getMessage());
         if (name.equals("help") || name.equals("?")) {
             event.setCancelled(true);
-            if (!core.lobby().info().send(player, "commands", core.boards()::global)) {
-                core.messages().send(player, "general.no-permission");
-            }
+            core.messages().send(player, "general.unknown-command");
             return;
         }
         if (blocked().contains(name)) {

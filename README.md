@@ -75,8 +75,9 @@ Akinek nincs joga, ezt kapja: `[IceMine] Ehhez nincs jogod!`
 A `/pl`, `/plugins`, `/ver`, `/version`, `/about` és a többi pluginlistát vagy verziót mutató parancs
 (LuckPerms, TAB, ViaVersion) a játékosoknak le van tiltva, és a TAB-os kiegészítésben sem látszik.
 A 3.49.0-tól a játékosok ezeket sem használhatják: `/combofly`, `/sw`, `/bw`, `/arena`, `/kapcsolat`, `/discord`,
-`/top`, `/hub`, `/l`, `/napi`, `/penz` (`/bal`), `/fizet` (`/pay`), `/baltop`. Helyettük a menük és a lobby
-gombjai vannak (a SkyWars portál, a napi jutalom gomb stb. továbbra is működik). A `/lobby` megmaradt.
+`/top`, `/hub`, `/l`, `/napi`, `/penz` (`/bal`), `/fizet` (`/pay`), `/baltop`, `/help`. Helyettük a menük és a lobby
+gombjai vannak (a SkyWars portál stb. továbbra is működik). A `/lobby` megmaradt. A 3.50.0-tól a napi jutalom
+(NPC, menü gomb) és a Hasznos parancsok (hologram, info gomb) is kikerült.
 A lista: `plugins/IceMine/config.yml` -> `blocked-commands`. Az OP-k és az `icemine.admin.commands`
 joggal rendelkezők használhatják. Az Essentials parancsait is csak az használhatja, akinek megvan hozzá
 az `essentials.<parancs>` joga.
