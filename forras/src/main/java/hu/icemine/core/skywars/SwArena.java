@@ -203,6 +203,31 @@ public final class SwArena {
 
     // ---- be- és kilépés ----
 
+    private void buildCage(int island, SwCages.Cage style) {
+        try {
+            new SwMap(new Placer(world, plugin.core().getLogger()), cx, cy, cz, map, mode.islands).cage(island, style);
+        } catch (Exception exception) {
+            plugin.core().getLogger().warning("SkyWars ketrec: " + exception.getMessage());
+        }
+    }
+
+    /** Várakozás közben ketrecet váltott: a szigete ketrece azonnal átépül (duóban az számít, aki elsőként jött). */
+    public void refreshCage(Player p) {
+        Adat d = players.get(p.getUniqueId());
+        if (d == null || state == State.PLAYING || state == State.ENDING) {
+            return;
+        }
+        for (Adat a : players.values()) {
+            if (a.island == d.island) {
+                if (a.id.equals(p.getUniqueId())) {
+                    buildCage(d.island, plugin.cages().selected(p));
+                    teleport(p, cageSpawn(d.island));
+                }
+                return;
+            }
+        }
+    }
+
     public boolean join(Player p) {
         if (!joinable()) {
             send(p, state == State.PLAYING || state == State.ENDING ? "&cEz a meccs már megy." : "&cEz a pálya tele van.");
@@ -221,17 +246,15 @@ public final class SwArena {
             }
         }
         if (first) {
-            try {
-                new SwMap(new Placer(world, plugin.core().getLogger()), cx, cy, cz, map, mode.islands).cage(island, plugin.cages().selected(p));
-            } catch (Exception exception) {
-                plugin.core().getLogger().warning("SkyWars ketrec: " + exception.getMessage());
-            }
+            buildCage(island, plugin.cages().selected(p));
         }
         players.put(p.getUniqueId(), new Adat(p.getUniqueId(), p.getName(), island));
         plugin.track(p, this);
         reset(p, GameMode.ADVENTURE);
         teleport(p, cageSpawn(island));
         p.getInventory().setItem(8, Items.of(Material.RED_BED).name("&c&lKilépés &7(jobb klikk)").tag("sw:leave").build());
+        p.getInventory().setItem(4, Items.of(Material.LIGHT_BLUE_STAINED_GLASS).name("&b&lKetrec választó &7(jobb klikk)")
+                .lore(java.util.List.of("&7Válaszd ki, milyen ketrecben várj.")).hideAll().tag("sw:cage").build());
         boards.put(p.getUniqueId(), new BwBoard(p, "&b&lSKYWARS"));
         broadcast("&b" + p.getName() + " &7csatlakozott. &8(" + players.size() + "/" + capacity() + ")");
         if (mode.teamSize > 1) {

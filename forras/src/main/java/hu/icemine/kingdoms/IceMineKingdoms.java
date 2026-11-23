@@ -58,6 +58,7 @@ public final class IceMineKingdoms extends Module {
     private Invasions invasions;
     private Borders borders;
     private KingdomMenus menus;
+    private SellChestShop sellChests;
     private Donations donations;
     private KingdomFly fly;
     private World world;
@@ -93,6 +94,9 @@ public final class IceMineKingdoms extends Module {
         }
         List<String> problems = new ArrayList<>();
         settings.load(getConfig(), problems);
+        if (sellChests != null) {
+            sellChests.load();
+        }
         for (String problem : problems) {
             getLogger().warning(problem);
         }
@@ -109,6 +113,8 @@ public final class IceMineKingdoms extends Module {
         invasions = new Invasions(this);
         borders = new Borders(this);
         menus = new KingdomMenus(this);
+        sellChests = new SellChestShop(this);
+        sellChests.load();
         donations = new Donations(this);
         fly = new KingdomFly(this);
         try {
@@ -195,6 +201,10 @@ public final class IceMineKingdoms extends Module {
 
     public Borders borders() {
         return borders;
+    }
+
+    SellChestShop sellChests() {
+        return sellChests;
     }
 
     public KingdomMenus menus() {
@@ -433,7 +443,7 @@ public final class IceMineKingdoms extends Module {
     void enter(Player player) {
         KPlayer data = manager.player(player);
         data.lastSeen = System.currentTimeMillis();
-        if (!player.hasPermission("icemine.kingdoms.bypass")) {
+        if (!player.hasPermission("icemine.kingdoms.bypass") || player.getGameMode() == GameMode.ADVENTURE) {
             player.setGameMode(GameMode.SURVIVAL);
         }
         player.setFlying(false);

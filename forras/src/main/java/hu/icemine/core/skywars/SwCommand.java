@@ -68,11 +68,6 @@ public final class SwCommand implements CommandExecutor, TabCompleter {
                 }
             }
             case "stats", "stat" -> stats(sender, args.length > 1 ? args[1] : null);
-            case "ketrec", "ketrecek", "cage", "cages" -> {
-                if (sender instanceof Player player) {
-                    plugin.cages().menu(player);
-                }
-            }
             case "top" -> {
                 for (String board : new String[]{"skywarswins", "skywarskills"}) {
                     for (String line : plugin.core().leaderboards().lines(board)) {
@@ -94,7 +89,7 @@ public final class SwCommand implements CommandExecutor, TabCompleter {
     private void help(CommandSender s) {
         say(s, "&b&lSkyWars");
         for (String line : new String[]{"&f/sw &7- mód választó", "&f/sw play <solo|duo> &7- beszállás", "&f/sw leave &7- kilépés",
-                "&f/sw nez <játékos> &7- néző", "&f/sw stats [játékos]", "&f/sw top", "&f/sw ketrec &7- ketrecek"}) {
+                "&f/sw nez <játékos> &7- néző", "&f/sw stats [játékos]", "&f/sw top"}) {
             s.sendMessage(hu.icemine.core.util.Text.color(line));
         }
         if (s.hasPermission(Skywars.ADMIN)) {
@@ -152,7 +147,7 @@ public final class SwCommand implements CommandExecutor, TabCompleter {
         List<String> out = new ArrayList<>();
         String a = args[args.length - 1].toLowerCase(Locale.ROOT);
         if (args.length == 1) {
-            List<String> subs = new ArrayList<>(List.of("play", "leave", "nez", "stats", "top", "ketrec"));
+            List<String> subs = new ArrayList<>(List.of("play", "leave", "nez", "stats", "top"));
             if (sender.hasPermission(Skywars.ADMIN)) {
                 subs.addAll(List.of("start", "stop", "rebuild", "list"));
             }

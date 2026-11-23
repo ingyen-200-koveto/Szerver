@@ -225,6 +225,9 @@ public final class SwListener implements Listener {
         if (arena(p) != null && "sw:leave".equals(Items.tagOf(event.getItem()))) {
             event.setCancelled(true);
             arena(p).leave(p, true);
+        } else if (arena(p) != null && "sw:cage".equals(Items.tagOf(event.getItem()))) {
+            event.setCancelled(true);
+            plugin.cages().menu(p);
         }
     }
 }

@@ -315,6 +315,56 @@ public final class IceCoins {
         });
     }
 
+    /** Az IceCoin költés eredménye: OK, nincs elég, nincs fiók, vagy nem érem el a weboldalt. */
+    public enum Spend { OK, NOT_ENOUGH, NO_ACCOUNT, ERROR }
+
+    /**
+     * IceCoin levonása a weboldalon (pl. játékon belüli vásárláshoz). Az id egyedi azonosító: ha a kérés
+     * kétszer megy el, a weboldal csak egyszer vonja le. A done a fő szálon fut, a második érték az új egyenleg.
+     */
+    public void spend(Player player, long amount, String item, java.util.function.BiConsumer<Spend, Long> done) {
+        String name = key(player);
+        if (!enabled || url.isEmpty() || key.isEmpty() || amount <= 0) {
+            done.accept(Spend.ERROR, null);
+            return;
+        }
+        String id = java.util.UUID.randomUUID().toString();
+        String json = "{\"name\":\"" + name + "\",\"amount\":" + amount + ",\"item\":\"" + item.replace("\\", "").replace("\"", "") + "\",\"id\":\"" + id + "\"}";
+        Bukkit.getScheduler().runTaskAsynchronously(core, () -> {
+            Spend result = Spend.ERROR;
+            Long balance = null;
+            for (int attempt = 0; attempt < 2 && result == Spend.ERROR; attempt++) {
+                try {
+                    HttpRequest request = HttpRequest.newBuilder(URI.create(url + "/api/mc/ic-koltes")).timeout(Duration.ofSeconds(8))
+                            .header("X-IceMine-Key", key).header("Content-Type", "application/json").header("User-Agent", "IceMine-Minecraft")
+                            .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8)).build();
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    Matcher m = Pattern.compile("\"coins\"\\s*:\\s*(-?\\d+)").matcher(response.body());
+                    balance = m.find() ? Long.parseLong(m.group(1)) : null;
+                    result = switch (response.statusCode()) {
+                        case 200 -> Spend.OK;
+                        case 402 -> Spend.NOT_ENOUGH;
+                        case 404 -> Spend.NO_ACCOUNT;
+                        default -> Spend.ERROR;
+                    };
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception exception) {
+                    core.getLogger().warning("IceCoin költés: nem érem el a weboldalt (" + exception.getMessage() + ").");
+                }
+            }
+            if (balance != null) {
+                coins.put(name, balance);
+            }
+            final Spend r = result;
+            final Long b = balance;
+            if (core.isEnabled()) {
+                Bukkit.getScheduler().runTask(core, () -> done.accept(r, b));
+            }
+        });
+    }
+
     private void warn(String text) {
         long now = System.currentTimeMillis();
         if (now - lastWarning > 600000L) {

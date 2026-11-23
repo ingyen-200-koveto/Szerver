@@ -45,6 +45,34 @@ public final class Specials implements Listener {
 
     static final String TAG = "market:special:";
     static final String SELL_CHEST = "sellchest";
+    /** Eladó láda szorzóval (1,5x, 2x, 5x): ennyiszer annyit fizet, mint a sima. */
+    static final Map<String, Double> SELL_VARIANTS = new LinkedHashMap<>(Map.of());
+
+    static {
+        SELL_VARIANTS.put(SELL_CHEST, 1.0);
+        SELL_VARIANTS.put("sellchest_15", 1.5);
+        SELL_VARIANTS.put("sellchest_2", 2.0);
+        SELL_VARIANTS.put("sellchest_5", 5.0);
+    }
+
+    static boolean isSell(String type) {
+        return type != null && SELL_VARIANTS.containsKey(type);
+    }
+
+    static double multiplier(String type) {
+        return SELL_VARIANTS.getOrDefault(type, 1.0);
+    }
+
+    /** A szorzó szépen kiírva: 1,5x, 2x, 5x. */
+    public static String multiplierText(String type) {
+        double m = multiplier(type);
+        return (m == Math.rint(m) ? String.valueOf((long) m) : String.valueOf(m).replace('.', ',')) + "x";
+    }
+
+    /** Az összes eladó láda fajta (a sima és a szorzósak). */
+    public static java.util.Set<String> sellTypes() {
+        return SELL_VARIANTS.keySet();
+    }
     static final String CRAFTER = "crafter";
     static final String FARM_BLOCK = "farmblock";
 
@@ -173,7 +201,7 @@ public final class Specials implements Listener {
 
     static Material block(String type) {
         return switch (type) {
-            case SELL_CHEST -> Material.CHEST;
+            case SELL_CHEST, "sellchest_15", "sellchest_2", "sellchest_5" -> Material.CHEST;
             case CRAFTER -> Material.DROPPER;
             case FARM_BLOCK -> Material.LODESTONE;
             default -> null;
@@ -184,6 +212,12 @@ public final class Specials implements Listener {
         Material material = block(type);
         if (material == null) {
             return null;
+        }
+        if (isSell(type) && !type.equals(SELL_CHEST)) {
+            List<String> lore = new ArrayList<>(lores.getOrDefault(SELL_CHEST, List.of()));
+            lore.add("");
+            lore.add("&eEladási szorzó: &6&l" + multiplierText(type));
+            return Items.of(material).name(names.getOrDefault(SELL_CHEST, SELL_CHEST) + " &e&l" + multiplierText(type)).lore(lore).glow().tag(TAG + type).build();
         }
         return Items.of(material).name(names.getOrDefault(type, type)).lore(lores.getOrDefault(type, List.of())).glow().tag(TAG + type).build();
     }
@@ -217,7 +251,7 @@ public final class Specials implements Listener {
         }
         Player player = event.getPlayer();
         Market.Scope scope = market.scopeOf(event.getBlock().getWorld());
-        List<String> scopes = allowed.getOrDefault(type, List.of());
+        List<String> scopes = allowed.getOrDefault(isSell(type) ? SELL_CHEST : type, List.of());
         if (scope == null || (!scopes.isEmpty() && !scopes.contains(scope.id()))) {
             event.setCancelled(true);
             market.send(player, "special-wrong-place");
@@ -243,7 +277,7 @@ public final class Specials implements Listener {
         if (type.equals(FARM_BLOCK)) {
             tickets(entry, true);
         }
-        market.send(event.getPlayer(), "special-placed-" + type, "%radius%", String.valueOf(farmRadius * 2 + 1));
+        market.send(event.getPlayer(), "special-placed-" + (isSell(type) ? SELL_CHEST : type), "%radius%", String.valueOf(farmRadius * 2 + 1));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -361,7 +395,7 @@ public final class Specials implements Listener {
                 remove(entry);
                 continue;
             }
-            switch (entry.type) {
+            switch (isSell(entry.type) ? SELL_CHEST : entry.type) {
                 case SELL_CHEST -> {
                     long earned = 0;
                     if (pickup) {
@@ -401,7 +435,7 @@ public final class Specials implements Listener {
         }
         if (ticks % 300 == 0) {
             for (Placed entry : placed.values()) {
-                if (entry.type.equals(SELL_CHEST) && entry.earned > 0) {
+                if (isSell(entry.type) && entry.earned > 0) {
                     market.store().saveSpecial(entry.row());
                 }
             }
@@ -431,7 +465,7 @@ public final class Specials implements Listener {
             inventory.setContents(contents);
             block.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, block.getLocation().add(0.5, 1.1, 0.5), 6, 0.3, 0.2, 0.3, 0);
         }
-        return Math.round(total);
+        return Math.round(total * multiplier(entry.type));
     }
 
     private long pickup(Placed entry, Block block) {
@@ -450,7 +484,7 @@ public final class Specials implements Listener {
             market.shop().sold(entry.scope, stack, stack.getAmount());
             item.remove();
         }
-        return Math.round(total);
+        return Math.round(total * multiplier(entry.type));
     }
 
     /** A craftoló tartalmának tömörítése (pl. 9 vasrúd = 1 vasblokk). Ha az eredmény nem fér el, nem csinál semmit. */
@@ -514,7 +548,7 @@ public final class Specials implements Listener {
 
     void shutdown() {
         for (Placed entry : placed.values()) {
-            if (entry.type.equals(SELL_CHEST) && entry.earned > 0) {
+            if (isSell(entry.type) && entry.earned > 0) {
                 market.store().saveSpecial(entry.row());
             }
         }

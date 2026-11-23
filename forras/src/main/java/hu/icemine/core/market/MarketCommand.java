@@ -181,7 +181,8 @@ public final class MarketCommand implements CommandExecutor, TabCompleter {
                     yield ids;
                 }
                 if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
-                    List<String> ids = new ArrayList<>(Arrays.asList(Specials.SELL_CHEST, Specials.CRAFTER, Specials.FARM_BLOCK));
+                    List<String> ids = new ArrayList<>(Specials.sellTypes());
+                    ids.addAll(Arrays.asList(Specials.CRAFTER, Specials.FARM_BLOCK));
                     for (String key : market.keys().ids()) {
                         ids.add("key:" + key);
                     }

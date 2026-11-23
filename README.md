@@ -413,11 +413,13 @@ A ComboFlyból indított párbaj után a ComboFly pálya spawnjára kerülsz vis
 
 SkyWarsban a ketrecben (várakozás, visszaszámlálás) nem lehet az inventoryban a tárgyakat arrébb tenni.
 
-**Ketrecek**: a meccs elején mindenki a saját választott ketrecében vár. Az alap ketrec mindenkinek megvan, a többit
-feladatokkal lehet feloldani: Jégkocka (5 meccs), Hóvihar (10 ölés), Smaragd (3 győzelem), Arany (25 ölés), Láva
-(50 ölés), Ametiszt (10 győzelem), Szivárvány (3 győzelem egymás után), Gyémánt (25 győzelem), Obszidián (100 ölés),
-Jégkirály (50 győzelem). Választás: a SkyWars lobby hotbarján a Ketrecek gomb, a SkyWars menüben, vagy `/sw ketrec`.
-A menü mutatja a haladást. Jog: `icemine.skywars.cage.<id>` egy ketrechez, `icemine.skywars.cage.all` mindhez.
+**Ketrecek**: a meccs elején mindenki a saját választott ketrecében vár. Az alap ketrec mindenkinek megvan, a többi 17-et
+feladatokkal lehet feloldani: Jégkocka (20 meccs), Hóvihar (30 ölés), Smaragd (10 győzelem), Tökfej (50 meccs), Zselé
+(60 ölés), Arany (100 ölés), Óceán (25 győzelem), TNT (150 ölés), Láva (200 ölés), Ametiszt (40 győzelem), Nether
+(150 meccs), End (60 győzelem), Szivárvány (5 győzelem egymás után), Redstone (8 győzelem egymás után), Gyémánt
+(100 győzelem), Obszidián (400 ölés), Jégkirály (200 győzelem). Választás: a ketrecben várakozva a hotbar közepén lévő
+Ketrec választóval (a ketrec azonnal átépül), a SkyWars lobby hotbarján vagy a SkyWars menüben. A menü mutatja a
+haladást. Jog: `icemine.skywars.cage.<id>` egy ketrechez, `icemine.skywars.cage.all` mindhez.
 
 ## Barátok és party
 
@@ -580,6 +582,14 @@ Beállítás: `plugins/IceMine/kingdoms.yml` (árak, limitek, hatalom, háború,
 A régi királyságok, földek és otthonok az első indításkor maguktól átjönnek az új rendszerbe
 (a régi fájl `kingdoms.yml.regi` néven megmarad).
 
+
+**Eladó ládák IceCoinért**: `/k eladolada` vagy a királyság menüben az Eladó ládák gomb. Sima (300 IC), 1,5x (800 IC),
+2x (1500 IC) és 5x (4000 IC) szorzós láda: ennyiszer annyit fizet az eladott tárgyakért. Az árak a `kingdoms.yml`-ben
+(`sellchest-shop`). Az IceCoint a weboldal vonja le (`/api/mc/ic-koltes`, ehhez kell az `icecoin.api-key`), a láda csak
+sikeres levonás után kerül a játékoshoz. Admin: `/market give <játékos> sellchest_15|sellchest_2|sellchest_5`.
+
+A Kingdomsban mindenki túlélő módban van (az adminok is, ha kalandor módban jönnének), így a vadonban és a saját
+földjeiken ki tudják ütni a blokkokat.
 ## Proxy (Velocity) és Bedrock
 
 A Bedrock játékosok a proxyn lévő Geyser és Floodgate pluginon keresztül jönnek be. Ezeket és a beállításaikat

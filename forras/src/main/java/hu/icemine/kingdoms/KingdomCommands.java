@@ -18,7 +18,7 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
     private static final List<String> SUBS = Arrays.asList("create", "disband", "invite", "join", "kick", "leave", "info", "home", "sethome", "spawn",
             "claim", "unclaim", "unclaimall", "autoclaim", "map", "nexus", "bank", "deposit", "withdraw", "np", "donate", "upgrade", "ally", "truce",
             "neutral", "enemy", "relations", "nation", "invade", "surrender", "shield", "pacifist", "top", "list", "members", "ranks", "rank",
-            "promote", "demote", "king", "chat", "announce", "lore", "structures", "turrets", "sell", "extractor", "fly", "champion", "war", "settings", "open", "help");
+            "promote", "demote", "king", "chat", "announce", "lore", "structures", "turrets", "sell", "extractor", "fly", "champion", "war", "settings", "open", "help", "eladolada");
     private static final List<String> NATION_SUBS = Arrays.asList("create", "invite", "join", "leave", "kick", "disband", "info", "donate");
     private static final List<String> ADMIN_SUBS = Arrays.asList("reload", "rebuild", "disband", "unclaim", "give", "rp", "bank", "xp", "level",
             "masswar", "stopinvasion", "join", "setking", "info");
@@ -104,6 +104,7 @@ final class KingdomCommands implements CommandExecutor, TabCompleter {
                 }
             }
             case "map" -> plugin.showMap(player);
+            case "eladolada", "eladoladak", "ladabolt", "sellchest", "sellchests" -> plugin.sellChests().open(player);
             case "nexus" -> {
                 Kingdom kingdom = km().mine(player);
                 if (kingdom != null && arg != null && (arg.equalsIgnoreCase("open") || arg.equalsIgnoreCase("menu"))) {

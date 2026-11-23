@@ -146,6 +146,7 @@ public final class KingdomMenus {
             main(p);
         });
         menu.set(34, button(Material.BOOK, "&f&lNapló", "&7Mi történt a királyságban."), p -> log(p, kingdom, 0));
+        menu.set(47, button(Material.CHEST, "&6&lEladó ládák", "&7Sima, 1,5x, 2x és 5x szorzós", "&7eladó láda IceCoinért.", "", "&b▶ Bolt"), p -> plugin.sellChests().open(p));
         menu.set(49, button(Material.BARRIER, "&c&lBezárás"), Player::closeInventory);
         menu.open(player);
     }
