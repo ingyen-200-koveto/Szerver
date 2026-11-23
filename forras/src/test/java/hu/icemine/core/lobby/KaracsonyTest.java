@@ -33,6 +33,9 @@ class KaracsonyTest {
             }
         }
         assertTrue(housesTouched > 100, "a fények a gerendákon vannak: " + housesTouched);
-        assertEquals("end_rod[facing=up]", lobby.get("0;" + (100 + LobbyBuild.PLATFORM + 8) + ";" + LobbyBuild.FOUNTAIN_Z));
+        String trunk = "0;" + (100 + LobbyBuild.PLATFORM + 1) + ";" + LobbyBuild.FOUNTAIN_Z;
+        assertEquals("spruce_log", overlay.get(trunk));
+        assertEquals("air", lobby.get(trunk));
+        assertEquals("sea_lantern", lobby.get("0;" + (100 + LobbyBuild.PLATFORM) + ";" + LobbyBuild.FOUNTAIN_Z));
     }
 }

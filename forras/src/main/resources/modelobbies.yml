@@ -110,6 +110,29 @@ lobbies:
       top2:
         toplist: duelselo
         lines: []
+  skywars:
+    world: lobby_skywars
+    theme: snow
+    built: false
+    color: light_blue
+    title: "SKYWARS"
+    title-split: 3
+    center: {x: 0, y: 100, z: 0}
+    # A portál és a Játék gomb a SkyWars menüt nyitja meg (Solo vagy Duó)
+    play-command: "sw"
+    holograms:
+      play:
+        lines: ["&b&lSKYWARS", "&7Kattints rám, vagy lépj", "&7be a portálba!"]
+        action: play
+      info:
+        lines: ["&e&lHogyan játszd?", "&7Kattints rám!"]
+        action: "info:mode_skywars"
+      top1:
+        toplist: skywarswins
+        lines: []
+      top2:
+        toplist: skywarskills
+        lines: []
   bedwars:
     world: lobby_bedwars
     theme: bedwars

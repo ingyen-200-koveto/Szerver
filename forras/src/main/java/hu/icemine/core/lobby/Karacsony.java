@@ -21,7 +21,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
- * Karácsonyi lobby: december 1. és január 6. között nagy karácsonyfa nő ki a tér szökőkútjából, a házak gerendáin
+ * Karácsonyi lobby: december 1. és január 6. között nagy karácsonyfa nő a tér közepén, a házak gerendáin
  * színes fényfüzér világít, és havazik. Utána minden magától visszaáll. lobby.yml -> christmas: auto | on | off.
  */
 public final class Karacsony {
@@ -174,10 +174,10 @@ public final class Karacsony {
         felirat = null;
     }
 
-    /** A díszítés: fa a szökőkút tetején, fényfüzér a házak felső gerendáin. */
+    /** A díszítés: fa a tér közepén, fényfüzér a házak felső gerendáin. */
     static final class Disz extends Build {
 
-        static final int BASE = LobbyBuild.PLATFORM + 8;
+        static final int BASE = LobbyBuild.PLATFORM + 1;
         static final int TOP = BASE + 14;
 
         Disz(Sink sink, int cx, int cy, int cz) {

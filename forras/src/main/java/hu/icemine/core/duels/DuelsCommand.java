@@ -89,6 +89,12 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
     }
 
     private void duels(Player player, String[] args) {
+        String where = this.core.modes().current(player);
+        if (hu.icemine.core.combo.ComboArenaMode.ID.equals(where)
+                || (hu.icemine.core.modelobby.ModeLobbies.PREFIX + hu.icemine.core.combo.ComboArenaMode.ID).equals(where)) {
+            this.core.messages().send(player, "duels.not-in-combofly");
+            return;
+        }
         if (args.length == 0) {
             this.duels.menu().open(player);
         } else {

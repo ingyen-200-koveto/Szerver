@@ -614,6 +614,7 @@ modelobby:
       - "&7Vissza a főlobbyba."
 
 duels:
+  not-in-combofly: "&cComboFlyban a /duels nem használható. Párbajra hívni így tudsz: &f/duel <név>"
   ranked: "&6Ranked"
   unranked: "&7Unranked"
   already-playing: "Már egy meccsben vagy."

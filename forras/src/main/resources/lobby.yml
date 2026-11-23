@@ -323,6 +323,14 @@ info-texts:
     - " &7Védd meg az ágyad: amíg áll, újraéledsz. Rombold le a többiekét!"
     - " &7Nézőként: /bw nez <név>"
     - "&8&m                                             "
+  mode_skywars:
+    - "&8&m                                             "
+    - " &b&lSkyWars &8- &7hogyan játszd?"
+    - " &7Válassz módot a menüben (/sw): Solo vagy Duó."
+    - " &7Mindenki a saját szigetén kezd. A ládákban fegyvert,"
+    - " &7páncélt és blokkokat találsz, középen jobb cuccot."
+    - " &7Építs hidat, lökd le a többieket. Aki utolsónak marad, nyer."
+    - "&8&m                                             "
   parkour:
     - "&8&m                                             "
     - " &b&lJégparkour"

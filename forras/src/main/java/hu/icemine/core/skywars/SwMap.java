@@ -51,12 +51,12 @@ public final class SwMap {
         }
     }
 
-    public static final int RADIUS = 30;
-    public static final int ISLAND = 4;
-    public static final int CENTER = 7;
+    public static final int RADIUS = 42;
+    public static final int ISLAND = 7;
+    public static final int CENTER = 11;
     /** Ennyi blokkra van a pálya széle a középponttól (a takarításhoz). */
     public static final int REACH = RADIUS + ISLAND + 8;
-    public static final int BELOW = 12;
+    public static final int BELOW = 16;
     public static final int ABOVE = 30;
 
     private final Build.Sink sink;
@@ -83,14 +83,14 @@ public final class SwMap {
 
     /** A sziget ládái (relatív x, y, z a sziget közepéhez). */
     public static List<int[]> islandChests() {
-        return List.of(new int[]{-2, 1, 1}, new int[]{1, 1, -2}, new int[]{2, 1, 2});
+        return List.of(new int[]{-3, 1, 2}, new int[]{2, 1, -4}, new int[]{4, 1, 3});
     }
 
     public static List<int[]> centerChests() {
         List<int[]> out = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             double a = 2 * Math.PI * i / 6;
-            out.add(new int[]{(int) Math.round(Math.cos(a) * 3), 1, (int) Math.round(Math.sin(a) * 3)});
+            out.add(new int[]{(int) Math.round(Math.cos(a) * 5), 1, (int) Math.round(Math.sin(a) * 5)});
         }
         return out;
     }
@@ -103,7 +103,8 @@ public final class SwMap {
         for (int i = 0; i < islands; i++) {
             int[] c = island(i, islands);
             blob(cx + c[0], cz + c[1], ISLAND, random);
-            tree(cx + c[0] - 3, cy + 1, cz + c[1] - 1);
+            tree(cx + c[0] - 4, cy + 1, cz + c[1] - 2);
+            rocks(cx + c[0] + 4, cz + c[1] - 1, random);
             for (int[] ch : islandChests()) {
                 sink.set(cx + c[0] + ch[0], cy + ch[1], cz + c[1] + ch[2], "chest");
             }
@@ -128,12 +129,21 @@ public final class SwMap {
                     continue;
                 }
                 sink.set(x0 + dx, cy, z0 + dz, theme.top);
-                int depth = 2 + (int) Math.round((edge - d) * 1.3) + random.nextInt(2);
+                int depth = 2 + (int) Math.round((edge - d) * 1.1) + random.nextInt(2);
                 for (int y = 1; y <= depth; y++) {
                     sink.set(x0 + dx, cy - y, z0 + dz, y <= 2 ? theme.sub : theme.rock);
                 }
             }
         }
+    }
+
+    /** Kis kőkupac a sziget szélén, benne egy-két érccel (csákánnyal kibányászható). */
+    private void rocks(int x, int z, Random random) {
+        String[] ores = {"coal_ore", "iron_ore", theme.rock, theme.rock};
+        for (int[] p : new int[][]{{0, 0}, {1, 0}, {0, 1}, {-1, 0}, {0, -1}}) {
+            sink.set(x + p[0], cy + 1, z + p[1], ores[random.nextInt(ores.length)]);
+        }
+        sink.set(x, cy + 2, z, theme.rock);
     }
 
     private void tree(int x, int y, int z) {

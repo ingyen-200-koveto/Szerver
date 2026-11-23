@@ -327,6 +327,13 @@ public final class Migrations {
             copyDefault(lobbies, "lobbies.duels");
             files.save("modelobbies");
         }
+        if (lobbies != null && lobbies.isSet("lobbies") && !lobbies.getBoolean("migrated.skywars-lobby-v1", false)) {
+            if (!lobbies.isSet("lobbies.skywars")) {
+                copyDefault(lobbies, "lobbies.skywars");
+            }
+            lobbies.set("migrated.skywars-lobby-v1", true);
+            files.save("modelobbies");
+        }
         if (modes.isSet("modes") && !modes.getBoolean("migrated.bedwars-v1", false)) {
             // a régi, külön pluginos Bedwars bejegyzései helyett az IceMine saját BedWars módja
             modes.set("modes.bedwars", null);

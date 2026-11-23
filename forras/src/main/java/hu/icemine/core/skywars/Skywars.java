@@ -298,7 +298,10 @@ public final class Skywars implements ModeHandler {
     }
 
     void sendHome(Player p) {
-        Location l = core.lobby().spawn(p);
+        Location l = core.modeLobbies() != null && core.modeLobbies().has(ID) ? core.modeLobbies().entry(ID) : null;
+        if (l == null || l.getWorld() == null) {
+            l = core.lobby().spawn(p);
+        }
         if (l != null) {
             core.guard().allowNext(p);
             p.teleport(l);
@@ -417,7 +420,7 @@ public final class Skywars implements ModeHandler {
 
     @Override
     public boolean openMenu(Player p) {
-        if (tracked.containsKey(p.getUniqueId())) {
+        if (tracked.containsKey(p.getUniqueId()) || (core.modeLobbies() != null && core.modeLobbies().has(ID))) {
             return false;
         }
         menu(p);

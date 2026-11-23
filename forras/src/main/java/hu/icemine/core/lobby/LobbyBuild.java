@@ -6,7 +6,7 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 11;
+    public static final int VERSION = 12;
     public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 136;
     public static final int CLEAR_NORTH = 100;
@@ -14,7 +14,7 @@ public final class LobbyBuild extends Build {
 
     static final int PLATFORM = 5;
     static final double ARC = 20.5;
-    /** A tér szökőkútjának közepe (z) és a szobrok köre. */
+    /** A tér közepén lévő hópehely-minta közepe (z) és a szobrok köre. */
     static final int FOUNTAIN_Z = -5;
     static final int STATUE_R = 16;
     /** A sziget fél szélessége (x irányban). */
@@ -68,7 +68,7 @@ public final class LobbyBuild extends Build {
     public void build() {
         terrain();
         platform();
-        plazaFountain();
+        plazaLamps();
         stairs();
         roads();
         fountain();
@@ -226,7 +226,7 @@ public final class LobbyBuild extends Build {
         return z <= 0 && dist(x, z) <= ARC;
     }
 
-    /** Virágágyások a szökőkút és a szobrok között, az utak (küllők) kihagyásával. */
+    /** Virágágyások a tér közepe és a szobrok között, az utak (küllők) kihagyásával. */
     static final double[] BED_ANGLES = {-72.5, -51.5, -30.5, 30.5, 51.5, 72.5};
 
     static boolean bed(int x, int z) {
@@ -263,6 +263,17 @@ public final class LobbyBuild extends Build {
         if (dist(x, z - 3) <= 2.2) {
             return "light_blue_concrete";
         }
+        if (f <= 6.4) {
+            int zz = z - FOUNTAIN_Z;
+            if (f <= 1.0) {
+                return "sea_lantern";
+            }
+            boolean ray = x == 0 || zz == 0 || Math.abs(x) == Math.abs(zz);
+            if (ray && f <= 5.2) {
+                return f > 3.9 && f <= 4.6 ? "blue_ice" : "light_blue_concrete";
+            }
+            return f > 5.6 ? "polished_diorite" : "smooth_quartz";
+        }
         if (f > 6.4 && f <= 8.0) {
             return Math.floorMod((int) Math.round(Math.toDegrees(Math.atan2(x, z - FOUNTAIN_Z)) / 15), 2) == 0 ? "polished_diorite" : "smooth_quartz";
         }
@@ -281,60 +292,9 @@ public final class LobbyBuild extends Build {
         return noise(x, z, 23) < 0.15 ? "andesite" : "polished_andesite";
     }
 
-    /** Háromszintes szökőkút a tér közepén: alsó medence, középen oszlop egy tállal, a tetején világítás. */
-    private void plazaFountain() {
+    /** Négy lámpa a tér közepén lévő minta sarkainál. */
+    private void plazaLamps() {
         int fz = FOUNTAIN_Z;
-        for (int x = -7; x <= 7; x++) {
-            for (int z = -7; z <= 7; z++) {
-                double d = dist(x, z);
-                if (d > 6.4) {
-                    continue;
-                }
-                if (d > 5.5) {
-                    put(x, PLATFORM, fz + z, "prismarine_bricks");
-                    put(x, PLATFORM + 1, fz + z, "prismarine_brick_slab[type=bottom]");
-                } else {
-                    put(x, PLATFORM - 1, fz + z, Math.abs(d - 4.2) < 0.5 && Math.floorMod(x + z, 2) == 0 ? "sea_lantern" : "dark_prismarine");
-                    put(x, PLATFORM, fz + z, "water");
-                    put(x, PLATFORM + 1, fz + z, "air");
-                }
-            }
-        }
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                for (int y = PLATFORM; y <= PLATFORM + 2; y++) {
-                    put(x, y, fz + z, x == 0 && z == 0 ? "prismarine_bricks" : (y == PLATFORM + 2 ? "prismarine_bricks" : "prismarine"));
-                }
-            }
-        }
-        for (int x = -3; x <= 3; x++) {
-            for (int z = -3; z <= 3; z++) {
-                double d = dist(x, z);
-                if (d > 3.2) {
-                    continue;
-                }
-                if (d > 2.3) {
-                    put(x, PLATFORM + 3, fz + z, "dark_prismarine");
-                    put(x, PLATFORM + 4, fz + z, "prismarine_brick_slab[type=bottom]");
-                } else {
-                    put(x, PLATFORM + 2, fz + z, "prismarine_bricks");
-                    put(x, PLATFORM + 3, fz + z, "water");
-                }
-            }
-        }
-        for (int y = PLATFORM + 3; y <= PLATFORM + 5; y++) {
-            put(0, y, fz, "prismarine_bricks");
-        }
-        for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
-            put(d[0], PLATFORM + 6, fz + d[1], "water");
-            put(d[0] * 2, PLATFORM + 6, fz + d[1] * 2, "dark_prismarine");
-        }
-        for (int[] d : new int[][]{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}}) {
-            put(d[0], PLATFORM + 6, fz + d[1], "dark_prismarine");
-        }
-        put(0, PLATFORM + 6, fz, "blue_ice");
-        put(0, PLATFORM + 7, fz, "sea_lantern");
-        put(0, PLATFORM + 8, fz, "end_rod[facing=up]");
         for (int[] c : new int[][]{{-8, -8}, {8, -8}, {-8, 7}, {8, 7}}) {
             put(c[0], PLATFORM + 1, fz + c[1], "chiseled_stone_bricks");
             put(c[0], PLATFORM + 2, fz + c[1], "spruce_fence");

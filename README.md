@@ -305,8 +305,8 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
 
 ## Lobby: tér, dupla ugrás, karácsony
 
-- **Tér** (lobby 8-as elrendezés): nagyobb tér, középen háromszintes szökőkút, a játékmód szobrok körben a tér
-  szélén, köztük virágágyások. A spawn a szökőkút előtt van. Két ugratópad a téren le a faluba, kettő a faluból
+- **Tér** (lobby 8-as elrendezés): nagyobb tér, a játékmód szobrok körben a tér
+  szélén, köztük virágágyások. A tér közepén hópehely minta van (a 12-es elrendezéstől nincs szökőkút), a spawn előtte. Két ugratópad a téren le a faluba, kettő a faluból
   fel a térre. Az új elrendezésnél a lobby egyszer újraépül (az NPC-k és hologramok a helyükre kerülnek).
 - **Nagyobb sziget** (lobby 9-es elrendezés): a sziget kb. másfélszer olyan széles, két új szárnnyal.
   Nyugaton a **Jégtó** stéggel, horgászkunyhóval, náddal és tavirózsákkal. Keleten a **kilátó** (22 blokk magas,
@@ -323,7 +323,7 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
   tárgyvesztés). Kilépés: sétálj ki. A kiütések száma: `lobby.pvp_kills` statisztika.
 - **Dupla ugrás**: ugrás közben még egy szóköz előrelök és felemel (parkour közben és VIP repülésnél nincs).
   `lobby.yml` -> `double-jump` (enabled, power, height).
-- **Karácsony**: december 1. és január 6. között nagy karácsonyfa nő ki a szökőkútból csillaggal és díszekkel,
+- **Karácsony**: december 1. és január 6. között nagy karácsonyfa nő a tér közepén csillaggal és díszekkel,
   a házak gerendáin színes fényfüzér világít, havazik, és felirat van a fa fölött. Utána magától visszaáll.
   `lobby.yml` -> `christmas: auto` (vagy `on` / `off`).
 
@@ -388,9 +388,11 @@ van, egyből átkerül a szigetre. `/fy tagok`, `/fy kirug`, `/fy atad`, `/fy ki
 
 Szigetekről indultok, a ládákból szerelkeztek fel, és az utolsó túlélő (Duóban az utolsó csapat) nyer.
 
-- Belépés: a lobbyban a SkyWars szobor, a játékmód választó (iránytű) vagy `/sw`. Mindhárom a mód választót
-  nyitja meg (Solo vagy Duó). `/sw play solo`, `/sw leave`, `/sw nez <játékos>`, `/sw stats`, `/sw top`.
-- A pályákat a plugin építi a saját világában (`ice_skywars`): 8 sziget fával és 3 ládával, középen nagyobb
+- Belépés: a lobbyban a SkyWars szobor vagy a játékmód választó (iránytű) a SkyWars saját lobbyjába visz
+  (`lobby_skywars`). Ott a portál vagy a Játék hologram nyitja meg a mód választót (Solo vagy Duó). `/sw` is ezt nyitja.
+  Meccs után is ide kerülsz vissza. `/sw play solo`, `/sw leave`, `/sw nez <játékos>`, `/sw stats`, `/sw top`.
+- A pályákat a plugin építi a saját világában (`ice_skywars`): 8 sziget (kb. 15 blokk széles) fával, kőkupaccal
+  és 3 ládával, középen nagyobb (kb. 23 blokk)
   sziget jobb ládákkal (gyémánt, varázsolt kard, gyöngy, aranyalma). Minden meccs után újraépül.
 - Menet: várakozás a ketrecben, visszaszámlálás (30 mp, tele pályánál 10 mp), a ládák a 3. és a 6. percben
   újratöltődnek, a 9. perctől mindenki világít (végső harc), 12 perc után döntetlen.
@@ -398,6 +400,9 @@ Szigetekről indultok, a ládákból szerelkeztek fel, és az utolsó túlélő 
 - Party: a vezető lép be, a tagok vele jönnek; Duóban egy szigetre kerülnek.
 - Beállítás: `plugins/IceMine/skywars.yml` (módok, pályák száma, témák: jég, erdő, sivatag, jutalmak).
   Admin: `/sw list`, `/sw start|stop|rebuild <aréna>` (`icemine.admin.skywars`).
+
+
+ComboFlyban (a pályán és a ComboFly lobbyban) a `/duels` nem használható, párbajra hívni `/duel <név>` paranccsal lehet.
 
 ## Barátok és party
 
