@@ -11,8 +11,16 @@ public final class ComboArenaBuild extends Build {
     static final int BALCONY_Y = 5;
     static final int BALCONY_Z = -16;
 
+    /** Duels arénának épül: nincs nézőerkély, a két játékos a kupola két végén, középen kezd. */
+    private final boolean duel;
+
     public ComboArenaBuild(Sink sink, int cx, int cy, int cz) {
+        this(sink, cx, cy, cz, false);
+    }
+
+    public ComboArenaBuild(Sink sink, int cx, int cy, int cz, boolean duel) {
         super(sink, cx, cy, cz);
+        this.duel = duel;
     }
 
     @Override
@@ -20,9 +28,20 @@ public final class ComboArenaBuild extends Build {
         island();
         floor();
         dome();
-        balcony();
+        if (!duel) {
+            balcony();
+        }
         crystals();
         spikes();
+        if (duel) {
+            double back = DOME - 3.5;
+            layout.point("spawn:red", 0.5, 1, -back + 0.5, 0);
+            layout.point("spawn:blue", 0.5, 1, back + 0.5, 180);
+            layout.point("fall", 0, -3, 0, 0);
+            int r = (int) Math.ceil(DOME) + 2;
+            layout.areas.put("bounds", new hu.icemine.core.build.Layout.Area(-r, -4, -r, r, (int) Math.ceil(HEIGHT) + 1, r));
+            return;
+        }
         layout.point("spawn", 0.5, BALCONY_Y + 1, BALCONY_Z + 0.5, 0);
         layout.point("safe", 0.5, BALCONY_Y + 1, BALCONY_Z + 0.5, 7.5);
     }
@@ -231,7 +250,7 @@ public final class ComboArenaBuild extends Build {
             double angle = Math.toRadians(i * 45 + 22.5);
             int x = (int) Math.round(Math.cos(angle) * 21);
             int z = (int) Math.round(Math.sin(angle) * 21);
-            if (z < -12 && Math.abs(x) < 10) {
+            if (!duel && z < -12 && Math.abs(x) < 10) {
                 continue;
             }
             int height = 2 + (int) (noise(x, z, 80) * 3);

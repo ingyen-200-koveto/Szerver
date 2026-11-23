@@ -189,7 +189,9 @@ public final class Duels implements Listener, ModeHandler {
                         byte b0 = 100;
                         int i1 = i * 160;
                         String s2 = s + "-" + (k + 1);
-                        DuelArenaBuild build = new DuelArenaBuild((j1, k1, l1, s3) -> {}, l, b0, i1, s, s1);
+                        hu.icemine.core.build.Build build = s.equalsIgnoreCase("combofly")
+                            ? new hu.icemine.core.combo.ComboArenaBuild((j1, k1, l1, s3) -> {}, l, b0, i1, true)
+                            : new DuelArenaBuild((j1, k1, l1, s3) -> {}, l, b0, i1, s, s1);
                         build.build();
                         ArenaSlot slot = new ArenaSlot(s2, s.toLowerCase(Locale.ROOT), s1, this.world, l, b0, i1, build.layout());
                         String builtTheme = config.isString("built." + s2) ? config.getString("built." + s2) : null;
@@ -261,7 +263,11 @@ public final class Duels implements Listener, ModeHandler {
         Placer placer = new Placer(this.world, this.core.getLogger());
         int[] aint = slot.bounds;
         placer.clear(aint[0] - 2, aint[1] - 2, aint[2] - 2, aint[3] + 2, aint[4] + 2, aint[5] + 2);
-        new DuelArenaBuild(placer, slot.x, slot.y, slot.z, slot.type, slot.theme).build();
+        if (slot.type.equals("combofly")) {
+            new hu.icemine.core.combo.ComboArenaBuild(ComboTema.sink(placer, slot.theme), slot.x, slot.y, slot.z, true).build();
+        } else {
+            new DuelArenaBuild(placer, slot.x, slot.y, slot.z, slot.type, slot.theme).build();
+        }
         this.clearEntities(slot);
     }
 

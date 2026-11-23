@@ -74,6 +74,16 @@ public final class Migrations {
             lobby.set("menus.stats.icons.combokills", "AMETHYST_SHARD");
             files.save("lobby");
         }
+        YamlConfiguration duelsCfg = files.get("duels");
+        if (duelsCfg != null && duelsCfg.isSet("arenas") && !duelsCfg.isSet("arenas.combofly")) {
+            duelsCfg.set("arenas.combofly.count", 4);
+            duelsCfg.set("arenas.combofly.themes", java.util.List.of("ice", "nether", "desert", "forest"));
+            if ("classic".equals(duelsCfg.getString("modes.combofly.arena"))) {
+                duelsCfg.set("modes.combofly.arena", "combofly");
+            }
+            files.save("duels");
+            notes.add("duels.yml: ComboFly kupola arénák (a két játékos a két végén kezd)");
+        }
         if (lobby.getDefaults() != null && (!lobby.isSet("secret-heads.enabled") || !lobby.isSet("snowstorm"))) {
             if (!lobby.isSet("secret-heads.enabled")) {
                 lobby.set("secret-heads.enabled", lobby.getDefaults().getBoolean("secret-heads.enabled", true));

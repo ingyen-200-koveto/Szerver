@@ -333,7 +333,8 @@ Szabad az, aki a lobbyban vagy egy mód lobbyjában van, és nincs meccsben, har
 ## Kihívás pályaválasztással (Duels és ComboFly)
 
 `/duel <játékos>` -> menü: mód, utána **pálya** (Erdő, Sivatag, Jég, Nether vagy Véletlen), és megy a kihívás.
-A ComboFlyban (és a ComboFly lobbyjában) a `/duel <játékos>` egyből a pályaválasztót nyitja ComboFly módra,
+A ComboFly kihívás saját **ComboFly kupolákban** megy (Jég, Nether, Sivatag, Erdő): a két játékos a kupola két
+végén, középen kezd, egymással szemben. A ComboFlyban (és a ComboFly lobbyjában) a `/duel <játékos>` egyből a pályaválasztót nyitja ComboFly módra,
 és a meccs után mindketten visszakerülnek a ComboFlyba. Ha a választott pályán nincs szabad aréna, egy másikon indul.
 A `duels.yml` -> `built` most a pálya témáját is megjegyzi: ha egy aréna nem a megfelelő témával épült, újraépül
 (a frissítés utáni első indításkor egyszer az összes Duels aréna újraépül).
@@ -342,7 +343,7 @@ A `duels.yml` -> `built` most a pálya témáját is megjegyzi: ha egy aréna ne
 
 1. Menj a Duels világba (op): `/execute in minecraft:duels run tp @s 0 120 3000` (messze a gyári arénáktól), és
    kreatívban építsd meg a pályát.
-2. `/duels palya uj <azonosító> [típus]` - típus: `classic` (ComboFly, Classic, NoDebuff, OP, Axe, Sword...) vagy `sumo`.
+2. `/duels palya uj <azonosító> [típus]` - típus: `combofly` (ComboFly pálya), `classic` (Classic, NoDebuff, OP, Axe, Sword...) vagy `sumo`.
 3. Állj az egyik kezdőpontra, nézz az ellenfél felé: `/duels palya piros`. A másikra: `/duels palya kek`.
 4. A pálya alsó sarkába: `/duels palya sarok1`, az átellenes felső sarkába: `/duels palya sarok2`
    (ez a doboz a pálya határa; ha valaki az alja alá esik, kiesett).
