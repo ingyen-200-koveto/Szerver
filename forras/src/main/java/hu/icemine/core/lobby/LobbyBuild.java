@@ -6,7 +6,7 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 12;
+    public static final int VERSION = 13;
     public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 136;
     public static final int CLEAR_NORTH = 100;
@@ -1057,8 +1057,8 @@ public final class LobbyBuild extends Build {
         int scale = 2;
         int width = word.length * 5 * scale + (word.length - 1) * 2;
         int left = -width / 2;
-        int base = 30;
-        int front = -72;
+        int base = 22;
+        int front = -47;
         int rows = 7 * scale;
         boolean[][] fill = new boolean[width + 2][rows + 2];
         int x = 0;

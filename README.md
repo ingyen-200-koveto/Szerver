@@ -327,6 +327,8 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
   tárgyvesztés). Kilépés: sétálj ki. A kiütések száma: `lobby.pvp_kills` statisztika.
 - **Dupla ugrás**: ugrás közben még egy szóköz előrelök és felemel (parkour közben és VIP repülésnél nincs).
   `lobby.yml` -> `double-jump` (enabled, power, height).
+- **IceMine felirat** (lobby 13-as elrendezés): közelebb került a spawnhoz, a vár elé (z = -47), hogy
+  jobban látszódjon. A Játékmódok iránytű neve kiemelt (fénylik, saját leírással).
 - **Karácsony**: december 1. és január 6. között nagy karácsonyfa nő a tér közepén csillaggal és díszekkel,
   a házak gerendáin színes fényfüzér világít, havazik, és felirat van a fa fölött. Utána magától visszaáll.
   `lobby.yml` -> `christmas: auto` (vagy `on` / `off`).
@@ -382,8 +384,9 @@ van, egyből átkerül a szigetre. `/fy tagok`, `/fy kirug`, `/fy atad`, `/fy ki
 - **Rejtett ajándékok**: 10 ajándékdoboz-fej van elrejtve a lobbyban (házakban, a várban, a kilátó tetején, a tónál...).
   Kattints rá: 25 Kristály és 20 XP darabonként, mind a 10-ért 1000 Kristály. A helyek a `lobby.yml` -> `secret-heads.places`
   részben vannak, átírhatók.
-- **Hóvihar**: 40 percenként 3 percre hóvihar jön a lobbyban, varázs hópelyhek jelennek meg a földön. Odasétálsz,
-  felveszed, 5 Kristály és 2 XP. A végén kiírja, ki gyűjtötte a legtöbbet. Kézzel: `/icem admin hovihar`.
+- **Hóvihar**: 40 percenként 3 percre hóvihar jön a lobbyban, varázs hópelyhek lebegnek a föld fölött (csak
+  szilárd talaj fölött, kerítésen, lámpán nem). Odasétálsz, felveszed, 5 Kristály és 2 XP. A vihar végén a fel nem
+  szedett pelyhek eltűnnek. A végén kiírja, ki gyűjtötte a legtöbbet. Kézzel: `/icem admin hovihar`.
   Beállítás: `lobby.yml` -> `snowstorm`.
 - **Játékmód prefix**: játékmódban az üzenetek előtt a mód neve áll (pl. `BedWars • Ehhez nincs jogod`),
   a lobbyban marad az `[IceMine]`. Kikapcsolás: `messages_hu.yml` -> `mode-prefix: false`.
@@ -407,6 +410,9 @@ Szigetekről indultok, a ládákból szerelkeztek fel, és az utolsó túlélő 
 
 
 ComboFlyban (a pályán és a ComboFly lobbyban) a `/duels` nem használható, párbajra hívni `/duel <név>` paranccsal lehet.
+A ComboFlyból indított párbaj után a ComboFly pálya spawnjára kerülsz vissza (ahonnan leugrasz), nem a lobbyba.
+
+SkyWarsban a ketrecben (várakozás, visszaszámlálás) nem lehet az inventoryban a tárgyakat arrébb tenni.
 
 ## Barátok és party
 

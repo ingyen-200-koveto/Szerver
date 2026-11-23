@@ -174,6 +174,38 @@ public final class SwListener implements Listener {
         }
     }
 
+    /** A ketrecben (várakozás, visszaszámlálás) nem lehet a tárgyakat (pl. a Kilépés ágyat) arrébb tenni. */
+    @EventHandler(priority = EventPriority.LOW)
+    public void onInvClick(org.bukkit.event.inventory.InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof Player p && locked(p, event.getView())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onInvDrag(org.bukkit.event.inventory.InventoryDragEvent event) {
+        if (event.getWhoClicked() instanceof Player p && locked(p, event.getView())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onSwap(org.bukkit.event.player.PlayerSwapHandItemsEvent event) {
+        SwArena a = arena(event.getPlayer());
+        if (a != null && !harc(a, event.getPlayer())) {
+            event.setCancelled(true);
+        }
+    }
+
+    private boolean locked(Player p, org.bukkit.inventory.InventoryView view) {
+        SwArena a = arena(p);
+        if (a == null || harc(a, p) || p.getGameMode() == org.bukkit.GameMode.CREATIVE) {
+            return false;
+        }
+        org.bukkit.event.inventory.InventoryType top = view.getTopInventory().getType();
+        return top == org.bukkit.event.inventory.InventoryType.CRAFTING || top == org.bukkit.event.inventory.InventoryType.PLAYER;
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onOpen(InventoryOpenEvent event) {
         if (event.getPlayer() instanceof Player p) {

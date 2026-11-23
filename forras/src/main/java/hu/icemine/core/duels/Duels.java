@@ -1047,6 +1047,15 @@ public final class Duels implements Listener, ModeHandler {
 
     void sendHome(Player player) {
         String from = this.origin.remove(player.getUniqueId());
+        hu.icemine.core.combo.ComboArenaMode combo = this.core.comboArena();
+        if (hu.icemine.core.combo.ComboArenaMode.ID.equals(from) && combo != null && combo.world() != null) {
+            Location spawn = combo.spawn(player);
+            if (spawn != null && spawn.getWorld() != null) {
+                this.core.guard().allowNext(player);
+                player.teleport(spawn);
+                return;
+            }
+        }
         if (from != null && this.core.modes().send(player, from, true) == hu.icemine.core.mode.ModeService.SendResult.OK) {
             return;
         }

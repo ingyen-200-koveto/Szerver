@@ -143,6 +143,11 @@ public final class Hovihar {
                 continue;
             }
             Location at = d.getLocation();
+            double phase = tickek * 0.45 + (d.getEntityId() % 17);
+            d.setInterpolationDelay(0);
+            d.setInterpolationDuration(5);
+            d.setTransformation(new Transformation(new Vector3f(0F, (float) (Math.sin(phase) * 0.22), 0F), new AxisAngle4f(),
+                    new Vector3f(0.7F, 0.7F, 0.7F), new AxisAngle4f()));
             world.spawnParticle(Particle.END_ROD, at, 1, 0.15, 0.15, 0.15, 0.0);
             for (Player p : world.getPlayers()) {
                 if (p.getLocation().add(0, 0.9, 0).distanceSquared(at) <= 2.6) {
@@ -176,14 +181,15 @@ public final class Hovihar {
 
     private void ujPehely(World world) {
         ThreadLocalRandom r = ThreadLocalRandom.current();
-        for (int probe = 0; probe < 12; probe++) {
+        for (int probe = 0; probe < 30; probe++) {
             double angle = r.nextDouble(Math.PI * 2);
             double dist = 6 + r.nextDouble(sugar);
             int x = cx + (int) Math.round(Math.cos(angle) * dist);
             int z = cz + (int) Math.round(Math.sin(angle) * dist);
             Block top = world.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING);
             Material m = top.getType();
-            if (m == Material.BARRIER || m == Material.WATER || m.isAir() || top.getY() < 60 || top.getY() > 140) {
+            if (m == Material.BARRIER || m == Material.WATER || m.isAir() || !m.isOccluding() || top.getY() < 60 || top.getY() > 140
+                    || !top.getRelative(0, 1, 0).getType().isAir() || !top.getRelative(0, 2, 0).getType().isAir()) {
                 continue;
             }
             Location at = top.getLocation().add(0.5, 1.6, 0.5);
@@ -214,6 +220,9 @@ public final class Hovihar {
         pelyhek.clear();
         kovetkezo = System.currentTimeMillis() + perc * 60_000L;
         World world = core.lobby() == null ? null : core.lobby().world();
+        if (world != null) {
+            takarit(world);
+        }
         if (!bejelent || world == null) {
             return;
         }

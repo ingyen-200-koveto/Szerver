@@ -490,6 +490,7 @@ public final class Migrations {
         }
         notes.addAll(newModes(files));
         notes.addAll(hotbarV3(files::get, files::save));
+        notes.addAll(compassV2(files::get, files::save));
         YamlConfiguration economyFile = files.get("economy");
         if (economyFile != null && economyFile.isSet("currencies") && !economyFile.isSet("currencies.dollar")) {
             copyDefault(economyFile, "currencies.dollar");
@@ -746,6 +747,27 @@ public final class Migrations {
         }
         ranks.set("migrated.ranks-v2", true);
         return true;
+    }
+
+    /** 3.45: szebb iránytű (Játékmódok) a lobby hotbaron, ha a régi alapértelmezett név van beállítva. */
+    static List<String> compassV2(java.util.function.Function<String, YamlConfiguration> get, java.util.function.Consumer<String> save) {
+        List<String> notes = new ArrayList<>();
+        YamlConfiguration lobby = get.apply("lobby");
+        if (lobby == null || !lobby.isSet("hotbar.items.selector") || lobby.getBoolean("migrated.compass-v2", false)) {
+            return notes;
+        }
+        if ("&b[IceMine] &fJátékmódok".equals(lobby.getString("hotbar.items.selector.name"))) {
+            org.bukkit.configuration.Configuration defaults = lobby.getDefaults();
+            if (defaults != null) {
+                lobby.set("hotbar.items.selector.name", defaults.getString("hotbar.items.selector.name"));
+                lobby.set("hotbar.items.selector.glow", true);
+                lobby.set("hotbar.items.selector.lore", defaults.getStringList("hotbar.items.selector.lore"));
+                notes.add("lobby.yml: szebb Játékmódok iránytű");
+            }
+        }
+        lobby.set("migrated.compass-v2", true);
+        save.accept("lobby");
+        return notes;
     }
 
     /** 3.12: a lobby hotbarról kikerült a profil és a kozmetikák, az iránytű középre, a parkour a bal szélre került. */

@@ -235,7 +235,11 @@ public final class LobbyModule implements ModeHandler {
             String base = "hotbar.items." + id + ".";
             int slot = values.integer(base + "slot", 0, 0, 8);
             Material material = Items.material(values.text(base + "material", "PAPER"), Material.PAPER);
-            ItemStack item = Items.of(material).name(values.text(base + "name", id)).lore(config.getStringList(base + "lore")).hideAll().tag("lobby:" + id).build();
+            Items builder = Items.of(material).name(values.text(base + "name", id)).lore(config.getStringList(base + "lore")).hideAll().tag("lobby:" + id);
+            if (config.getBoolean(base + "glow", false)) {
+                builder.glow();
+            }
+            ItemStack item = builder.build();
             hotbar.add(new HotbarItem(id, slot, item, values.text(base + "action", "")));
         }
     }
