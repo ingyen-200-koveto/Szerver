@@ -270,6 +270,10 @@ ráteszi. A képet a SkinsRestorer a MineSkinnel hitelesíti, ezért kell, hogy 
 kívülről elérhető legyen. Ha a játékos a weboldalon visszaállítja az alap skint, a szerveren is lekerül.
 Akinek nincs weboldalas skinje, annál az IceMine nem nyúl semmihez, a `/skin` parancs ugyanúgy működik.
 Bedrock játékosoknál (ponttal kezdődő név) a saját Bedrock skinjük marad.
+A SkinsRestorer csak ezen a szerveren van, a proxyn nincs. Velocity mögött magától „proxy módba” kapcsolna, és akkor
+egy skint sem tenne fel, ezért az IceMine induláskor a `plugins/SkinsRestorer/config.yml`-ben a
+`proxyMode.detection` értékét `DISABLED`-re írja (`config.yml` → `skins.backend-only: true`). Ha a proxyra is
+felkerül a SkinsRestorer, ezt írd `false`-ra. A skinhez az IceCoin kulcs (`icecoin.api-key`) is kell.
 
 ## Csendes indítás
 

@@ -127,6 +127,9 @@ public final class IceMineCore extends JavaPlugin {
         }
         try {
             org.bukkit.configuration.file.YamlConfiguration cfg = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(new java.io.File(getDataFolder(), "config.yml"));
+            if (cfg.getBoolean("skins.backend-only", true)) {
+                hu.icemine.core.skin.SkinProxyFix.apply(getDataFolder().getParentFile(), getLogger());
+            }
             if (cfg.getBoolean("hiba-figyelo.be", true)) {
                 hu.icemine.core.config.HibaFigyelo.start(cfg.getStringList("hiba-figyelo.kihagy"), cfg.getBoolean("hiba-figyelo.csak-hibak", false));
             }

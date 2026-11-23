@@ -15,6 +15,11 @@ database:
   ssl: false
 
 # IceCoin: a játékosok weboldalas egyenlege. A scoreboard ezt mutatja (%icecoin%), a szerver csak olvassa.
+skins:
+  # A SkinsRestorer csak ezen a szerveren van, a proxyn nincs. Induláskor kikapcsoljuk a proxy módját,
+  # különben Velocity mögött nem tenné fel a weboldalas skineket. Ha a proxyra is felteszed, írd false-ra.
+  backend-only: true
+
 icecoin:
   enabled: true
   # A weboldal címe (ahol a játékosok regisztrálnak)
