@@ -905,10 +905,10 @@ default-ranks:
 
 # Eladó ládák IceCoinért (/k eladolada vagy a királyság menüben). Az ár IceCoinban, 0 = nem vehető.
 sellchest-shop:
-  sellchest: 300
-  sellchest_15: 800
-  sellchest_2: 1500
-  sellchest_5: 4000
+  sellchest: 590
+  sellchest_15: 990
+  sellchest_2: 1450
+  sellchest_5: 2100
 
 help:
   - "&8&m          &r &6&lKingdoms &8&m          "

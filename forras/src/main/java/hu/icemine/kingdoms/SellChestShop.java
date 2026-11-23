@@ -35,7 +35,15 @@ final class SellChestShop {
 
     void load() {
         prices.clear();
-        long[] defaults = {300, 800, 1500, 4000};
+        org.bukkit.configuration.file.FileConfiguration config = plugin.getConfig();
+        if (config.getLong("sellchest-shop.sellchest", -1) == 300 && config.getLong("sellchest-shop.sellchest_5", -1) == 4000) {
+            config.set("sellchest-shop.sellchest", 590);
+            config.set("sellchest-shop.sellchest_15", 990);
+            config.set("sellchest-shop.sellchest_2", 1450);
+            config.set("sellchest-shop.sellchest_5", 2100);
+            plugin.saveConfig();
+        }
+        long[] defaults = {590, 990, 1450, 2100};
         for (int i = 0; i < TYPES.length; i++) {
             prices.put(TYPES[i], Math.max(0, plugin.getConfig().getLong("sellchest-shop." + TYPES[i], defaults[i])));
         }
