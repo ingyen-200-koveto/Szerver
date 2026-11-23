@@ -328,6 +328,9 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
   `lobby.yml` -> `double-jump` (enabled, power, height).
 - **IceMine felirat** (lobby 13-as elrendezés): közelebb került a spawnhoz, a vár elé (z = -47), hogy
   jobban látszódjon. A Játékmódok iránytű neve kiemelt (fénylik, saját leírással).
+- **Saját módosítások a lobbyban**: ha adminként kreatívban építesz vagy bontasz a lobbyban (vagy WorldEdittel
+  módosítasz), az IceMine ezt megjegyzi (`lobby.yml` -> `keep-build: true`), és a frissítései többé nem építik újra
+  a lobbyt, így a módosításod megmarad. Az új IceMine lobbyhoz: `/icemine rebuild lobby confirm` (ekkor elvész).
 - **Karácsony**: december 1. és január 6. között nagy karácsonyfa nő a tér közepén csillaggal és díszekkel,
   a házak gerendáin színes fényfüzér világít, havazik, és felirat van a fa fölött. Utána magától visszaáll.
   `lobby.yml` -> `christmas: auto` (vagy `on` / `off`).

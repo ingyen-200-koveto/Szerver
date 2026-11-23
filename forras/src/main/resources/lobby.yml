@@ -19,6 +19,11 @@
 # Üres = a szerver fő világa (a server.properties level-name értéke)
 world: ""
 built: false
+# Ha egy admin épít vagy bont a lobbyban (kreatívban, vagy WorldEdittel), ez magától true lesz, és az IceMine
+# frissítései többé nem építik újra a lobbyt, így a módosításaid megmaradnak.
+# Az új IceMine lobby változathoz: /icemine rebuild lobby confirm (ekkor a módosításaid elvesznek).
+keep-build: false
+
 center:
   x: 0
   y: 100

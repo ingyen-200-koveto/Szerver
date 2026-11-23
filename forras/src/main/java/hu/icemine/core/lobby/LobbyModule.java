@@ -111,8 +111,12 @@ public final class LobbyModule implements ModeHandler {
         voidY = values.decimal("void-y", 40, -64, 300);
         joinToLobby = values.bool("join-to-lobby", true);
         pvpItemsCleanup = values.bool("cleanup-foreign-items", true);
-        if (!config.getBoolean("built", false) || config.getInt("layout", 1) < LobbyBuild.VERSION) {
+        boolean keep = config.getBoolean("keep-build", false);
+        if (!config.getBoolean("built", false) || (!keep && config.getInt("layout", 1) < LobbyBuild.VERSION)) {
             build(config);
+        } else if (keep && config.getInt("layout", 1) < LobbyBuild.VERSION) {
+            core.getLogger().info("A lobbyt nem építem újra, mert módosítottad (lobby.yml -> keep-build: true). "
+                    + "Ha mégis az új változat kell: /icemine rebuild lobby confirm (a módosításaid elvesznek).");
         }
         spawn = Locs.read(config.getConfigurationSection("spawn"), world);
         if (spawn == null) {
@@ -150,9 +154,25 @@ public final class LobbyModule implements ModeHandler {
                 + (System.currentTimeMillis() - start) + " ms.");
     }
 
+    /**
+     * Egy admin épített vagy bontott a lobbyban: ettől kezdve az IceMine frissítései nem építik újra a lobbyt,
+     * hogy a módosítás megmaradjon (lobby.yml -> keep-build: true).
+     */
+    public void markEdited(Player player) {
+        YamlConfiguration config = core.configs().get("lobby");
+        if (config == null || config.getBoolean("keep-build", false)) {
+            return;
+        }
+        config.set("keep-build", true);
+        core.configs().save("lobby");
+        core.messages().sendTagged(player, "&aA lobby módosításaid megmaradnak: az IceMine frissítései mostantól nem építik újra a lobbyt.");
+        core.getLogger().info(player.getName() + " módosította a lobbyt, ezért a frissítések már nem építik újra (keep-build: true).");
+    }
+
     public void rebuild() {
         YamlConfiguration config = core.configs().get("lobby");
         config.set("built", false);
+        config.set("keep-build", false);
         build(config);
         launchPads.load(config, world, new ArrayList<>());
         core.reloadLobbyParts();

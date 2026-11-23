@@ -81,6 +81,32 @@ public final class LobbyProtection implements Listener {
         return player.getGameMode() == GameMode.CREATIVE && player.hasPermission("icemine.admin.build");
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEditBreak(BlockBreakEvent event) {
+        if (lobby(event.getPlayer()) && builder(event.getPlayer())) {
+            core.lobby().markEdited(event.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEditPlace(BlockPlaceEvent event) {
+        if (lobby(event.getPlayer()) && builder(event.getPlayer())) {
+            core.lobby().markEdited(event.getPlayer());
+        }
+    }
+
+    /** WorldEdit (//set, //paste...) nem küld blokk eseményt, ezért a parancsából tudjuk, hogy módosított. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEditCommand(org.bukkit.event.player.PlayerCommandPreprocessEvent event) {
+        String message = event.getMessage().toLowerCase(Locale.ROOT);
+        if (lobby(event.getPlayer()) && event.getPlayer().hasPermission("icemine.admin.build")
+                && (message.startsWith("//") || message.startsWith("/worldedit:/"))
+                && !message.startsWith("//wand") && !message.startsWith("//pos") && !message.startsWith("//sel") && !message.startsWith("//copy")
+                && !message.startsWith("//hpos") && !message.startsWith("//size") && !message.startsWith("//count") && !message.startsWith("//distr")) {
+            core.lobby().markEdited(event.getPlayer());
+        }
+    }
+
     @EventHandler(priority = EventPriority.LOW)
     public void onBreak(BlockBreakEvent event) {
         if (lobby(event.getPlayer()) && !builder(event.getPlayer())) {
