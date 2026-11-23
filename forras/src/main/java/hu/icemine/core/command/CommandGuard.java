@@ -67,7 +67,7 @@ public final class CommandGuard implements Listener {
         }
         if (blocked().contains(name)) {
             event.setCancelled(true);
-            core.messages().send(player, "general.no-permission");
+            core.messages().send(player, "general.unknown-command");
             return;
         }
         if (core.auth() != null && !core.auth().isLoggedIn(player)) {

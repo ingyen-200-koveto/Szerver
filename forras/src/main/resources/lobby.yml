@@ -169,9 +169,8 @@ info-texts:
     - " &f/lobby &8- &7vissza a lobbyba"
     - " &f/spawn &8- &7a játékmód kezdőpontja"
     - " &f/profil &8- &7a statisztikáid"
-    - " &f/penz &8| [[&f/fizet|suggest:/fizet ]] &8- &7pénz, utalás"
-    - " &f/napi &8- &7napi jutalom"
-    - " &f/kapcsolat &8- &7elérhetőségeink"
+    - " &f/party &8| &f/barat &8- &7party és barátok"
+    - " &f/duel <név> &8- &7párbajra hívás"
     - "&8&m                                             "
   mode_fyland:
     - "&8&m                                             "

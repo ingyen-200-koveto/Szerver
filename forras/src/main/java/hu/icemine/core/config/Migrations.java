@@ -492,6 +492,7 @@ public final class Migrations {
         notes.addAll(hotbarV3(files::get, files::save));
         notes.addAll(compassV2(files::get, files::save));
         notes.addAll(cosmeticsRemoved(files::get, files::save));
+        notes.addAll(blockedV2(files::get, files::save));
         YamlConfiguration economyFile = files.get("economy");
         if (economyFile != null && economyFile.isSet("currencies") && !economyFile.isSet("currencies.dollar")) {
             copyDefault(economyFile, "currencies.dollar");
@@ -748,6 +749,34 @@ public final class Migrations {
         }
         ranks.set("migrated.ranks-v2", true);
         return true;
+    }
+
+    /** 3.49: kivett parancsok (játékosoknak): combofly, sw, bw, arena, kapcsolat, discord, top, hub, l, napi, penz, fizet, baltop. */
+    static List<String> blockedV2(java.util.function.Function<String, YamlConfiguration> get, java.util.function.Consumer<String> save) {
+        List<String> notes = new ArrayList<>();
+        YamlConfiguration config = get.apply("config");
+        if (config == null || config.getBoolean("migrated.blocked-v2", false)) {
+            return notes;
+        }
+        List<String> list = new ArrayList<>(config.getStringList("blocked-commands"));
+        for (String name : List.of("combofly", "sw", "skywars", "bw", "bedwars", "arena", "arenak", "arenas", "kapcsolat", "kapcsolatok", "contacts", "discord", "top", "toplista", "leaderboard", "hub", "l", "napi", "daily", "penz", "balance", "bal", "money", "fizet", "pay", "utal", "baltop", "penztop", "balancetop")) {
+            if (!list.contains(name)) {
+                list.add(name);
+            }
+        }
+        config.set("blocked-commands", list);
+        YamlConfiguration lobby = get.apply("lobby");
+        if (lobby != null && lobby.getStringList("info-texts.commands").stream().anyMatch(line -> line.contains("/kapcsolat"))) {
+            org.bukkit.configuration.Configuration defaults = lobby.getDefaults();
+            if (defaults != null) {
+                lobby.set("info-texts.commands", defaults.getStringList("info-texts.commands"));
+                save.accept("lobby");
+            }
+        }
+        config.set("migrated.blocked-v2", true);
+        save.accept("config");
+        notes.add("config.yml: kivett parancsok a blocked-commands listában");
+        return notes;
     }
 
     /** 3.46: a kozmetikák (nyomvonal, ölés effekt) kikerültek: a beállításuk és a rangoknál a felsorolásuk is. */
