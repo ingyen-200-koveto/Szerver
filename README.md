@@ -324,6 +324,12 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
   a házak gerendáin színes fényfüzér világít, havazik, és felirat van a fa fölött. Utána magától visszaáll.
   `lobby.yml` -> `christmas: auto` (vagy `on` / `off`).
 
+## Party követés
+
+Ha a party vezetője belép egy játékmódba (vagy annak a lobbyjába), a szabad tagok automatikusan vele mennek.
+Szabad az, aki a lobbyban vagy egy mód lobbyjában van, és nincs meccsben, harcban. A vezető kikapcsolhatja:
+`/party kovetes` (be/ki).
+
 ## Duels: edzés bot ellen
 
 `/duels bot` (vagy a Duels menüben a zombifej) - gépi ellenfél egy szabad arénában, három szinten:

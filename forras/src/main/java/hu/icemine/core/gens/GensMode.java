@@ -629,7 +629,11 @@ public final class GensMode implements ModeHandler, Listener {
         markFarm(player);
         save(data, true);
         core.messages().sendList(player, "gens.first-join", "%player%", player.getName());
+        justCreated.add(player.getUniqueId());
     }
+
+    /** Akik most kaptak farmot: nekik az üdvözlés helyett az első belépés szövege megy. */
+    private final java.util.Set<java.util.UUID> justCreated = new java.util.HashSet<>();
 
     private boolean farmReady(Player player) {
         PlayerProfile profile = core.profiles().profile(player);
@@ -781,6 +785,7 @@ public final class GensMode implements ModeHandler, Listener {
             quests.roll(data, LocalDate.now().toString());
             updateStats(player, data);
         }
+        firstVisit |= justCreated.remove(player.getUniqueId());
         if (!firstVisit) {
             core.messages().send(player, "gens.welcome");
         }

@@ -32,6 +32,8 @@ public final class Partyk implements CommandExecutor, TabCompleter, Listener {
     public static final class Party {
         public UUID vezeto;
         public final Set<UUID> tagok = new LinkedHashSet<>();
+        /** Ha a vezető belép egy módba, a szabad tagok vele mennek. */
+        public boolean kovetes = true;
         final Map<UUID, Long> meghivottak = new ConcurrentHashMap<>();
 
         Party(UUID vezeto) {
@@ -159,6 +161,7 @@ public final class Partyk implements CommandExecutor, TabCompleter, Listener {
             case "feloszlat", "disband" -> feloszlat(p);
             case "lista", "info" -> lista(p);
             case "warp", "hiv", "hív" -> warp(p);
+            case "kovetes", "követés", "follow" -> kovetesKapcsolo(p);
             case "chat" -> chat(p, String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length)));
             case "segitseg", "help" -> sugo(p);
             default -> meghiv(p, args[0]);
@@ -172,6 +175,7 @@ public final class Partyk implements CommandExecutor, TabCompleter, Listener {
                 "&f/party <játékos> &7- meghívás",
                 "&f/party lista &7- kik vannak benne",
                 "&f/party warp &7- a tagok hozzád jönnek (vezető)",
+                "&f/party kovetes &7- a tagok veled jönnek, ha belépsz egy módba (be/ki)",
                 "&f/pc <üzenet> &7- party chat",
                 "&f/party kirug <játékos>&7, &f/party atad <játékos>&7, &f/party feloszlat",
                 "&f/party kilep &7- kilépés",
@@ -369,6 +373,44 @@ public final class Partyk implements CommandExecutor, TabCompleter, Listener {
             db++;
         }
         Szoveg.kuld(core, p, db == 0 ? "&7Senkit nem tudtam idehívni (mindenki játékban van)." : "&a" + db + " tagot idehívtam.");
+    }
+
+    private void kovetesKapcsolo(Player p) {
+        Party party = vezetokent(p);
+        if (party == null) {
+            return;
+        }
+        party.kovetes = !party.kovetes;
+        mindenkinek(party, party.kovetes
+                ? "&aKövetés bekapcsolva: &7ha " + p.getName() + " belép egy játékmódba, a party vele megy."
+                : "&7Követés kikapcsolva: mindenki maga választ játékmódot.");
+    }
+
+    /** A ModeService hívja, amikor valaki sikeresen belépett egy módba (vagy annak lobbyjába). */
+    public void kovet(Player vezeto, String mod) {
+        Party party = of(vezeto.getUniqueId());
+        if (party == null || !party.kovetes || !vezeto.getUniqueId().equals(party.vezeto) || !vezeto.isOnline()) {
+            return;
+        }
+        String itt = core.modes().current(vezeto);
+        String lobbyja = hu.icemine.core.modelobby.ModeLobbies.PREFIX + mod;
+        if (itt == null || !(itt.equals(mod) || itt.equals(lobbyja))) {
+            return;
+        }
+        String nev = core.modes().info(mod) == null ? mod : core.modes().info(mod).name;
+        for (Player m : party.online()) {
+            if (m.equals(vezeto) || elfoglalt(m)) {
+                continue;
+            }
+            String ahol = core.modes().current(m);
+            boolean szabad = hu.icemine.core.mode.ModeService.LOBBY.equals(ahol) || (ahol != null && ahol.startsWith(hu.icemine.core.modelobby.ModeLobbies.PREFIX));
+            if (!szabad || itt.equals(ahol)) {
+                continue;
+            }
+            if (core.modes().sendFollow(m, itt.equals(lobbyja) ? mod : mod) == hu.icemine.core.mode.ModeService.SendResult.OK) {
+                Szoveg.kuld(core, m, "&7A party vezetője ide ment: " + nev + "&7, jössz vele. &8(/party kilep, ha nem szeretnéd)");
+            }
+        }
     }
 
     /** Épp játszik-e (BedWars arénában vagy Duels meccsen), mert akkor nem visszük sehova. */

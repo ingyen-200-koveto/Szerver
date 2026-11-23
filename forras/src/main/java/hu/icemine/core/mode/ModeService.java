@@ -165,6 +165,21 @@ public final class ModeService implements Listener {
     }
 
     public SendResult send(Player player, String id, boolean force) {
+        SendResult result = sendInner(player, id, force);
+        if (result == SendResult.OK && id != null && !LOBBY.equalsIgnoreCase(id) && core.partyk() != null) {
+            String target = id.toLowerCase(Locale.ROOT);
+            Bukkit.getScheduler().runTaskLater(core, () -> core.partyk().kovet(player, target), 5L);
+        }
+        return result;
+    }
+
+    /** Party-követéshez: a várakozási időt nem nézzük, mert nem a tag kérte. */
+    public SendResult sendFollow(Player player, String id) {
+        lastSend.remove(player.getUniqueId());
+        return sendInner(player, id, false);
+    }
+
+    private SendResult sendInner(Player player, String id, boolean force) {
         if (!core.auth().isLoggedIn(player)) {
             return SendResult.NOT_LOGGED_IN;
         }
