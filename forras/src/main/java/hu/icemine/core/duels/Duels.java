@@ -869,7 +869,6 @@ public final class Duels implements Listener, ModeHandler {
             Player player = match.player(side);
             Player player1 = match.player(side == DuelKit.Side.RED ? DuelKit.Side.BLUE : DuelKit.Side.RED);
             if (player != null && player1 != null) {
-                this.core.cosmetics().playKill(player, player1.getLocation());
             }
 
             if (match.wins(side) >= match.needed()) {

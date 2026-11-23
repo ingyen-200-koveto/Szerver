@@ -21,7 +21,6 @@ import hu.icemine.core.economy.Economy;
 import hu.icemine.core.gens.GensMenu;
 import hu.icemine.core.gens.GensMode;
 import hu.icemine.core.lobby.ContactBook;
-import hu.icemine.core.lobby.Cosmetics;
 import hu.icemine.core.lobby.Holograms;
 import hu.icemine.core.lobby.LobbyMenus;
 import hu.icemine.core.lobby.LobbyModule;
@@ -97,7 +96,6 @@ public final class IceMineCore extends JavaPlugin {
     private Duels duels;
     private Npcs npcs;
     private ContactBook contacts;
-    private Cosmetics cosmetics;
     private ParkourService parkour;
     private hu.icemine.core.level.Levels levels;
     private BoardService boards;
@@ -244,7 +242,6 @@ public final class IceMineCore extends JavaPlugin {
         holograms = new Holograms(this);
         npcs = new Npcs(this);
         contacts = new ContactBook(this);
-        cosmetics = new Cosmetics(this);
         parkour = new ParkourService(this);
         levels = new hu.icemine.core.level.Levels(this);
         boards = new BoardService(this);
@@ -324,7 +321,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("scoreboard", () -> boards.load(configs.get("scoreboard"), problems));
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
-        registerListeners(new CoreListener(this), chatLog, webLogin, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, duels.bot(), parkour, boards, new MenuListener(this),
+        registerListeners(new CoreListener(this), chatLog, webLogin, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, modeLobbies, duels, duels.bot(), parkour, boards, new MenuListener(this),
                 fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), bedwars.specials(), new hu.icemine.core.skywars.SwListener(skywars), lobby.doubleJump(), lobby.pvp(), lobby.fejek(), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);
@@ -468,7 +465,6 @@ public final class IceMineCore extends JavaPlugin {
     private void loadLobbyParts(List<String> problems) {
         safely("lobbyvédelem", () -> protection.load(configs.get("lobby").getStringList("protection.allow-interact")));
         safely("portálok", () -> portals.load(configs.get("lobby"), problems));
-        safely("kozmetikák", () -> cosmetics.load(configs.get("lobby"), problems));
         safely("kapcsolatok", () -> contacts.load(configs.get("contacts"), problems));
     }
 
@@ -498,7 +494,6 @@ public final class IceMineCore extends JavaPlugin {
             combo.tick();
             parkour.tick();
         }, 5L, 5L));
-        tasks.add(Bukkit.getScheduler().runTaskTimer(this, cosmetics::tick, 4L, 4L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, creative::tick, 1L, 1L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, combat::tick, 10L, 10L));
         tasks.add(Bukkit.getScheduler().runTaskTimer(this, nameTags::tick, 20L, 5L));
@@ -861,10 +856,6 @@ public final class IceMineCore extends JavaPlugin {
 
     public ContactBook contacts() {
         return contacts;
-    }
-
-    public Cosmetics cosmetics() {
-        return cosmetics;
     }
 
     public hu.icemine.core.level.Levels levels() {

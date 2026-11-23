@@ -554,7 +554,6 @@ public final class Bedwars implements ModeHandler {
 
     public void killEffect(Player player, Location at) {
         if (at != null) {
-            core.cosmetics().playKill(player, at);
         }
     }
 

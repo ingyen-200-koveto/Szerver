@@ -47,6 +47,7 @@ public final class Skywars implements ModeHandler {
     private final Map<UUID, SwArena> tracked = new HashMap<>();
     private final List<BukkitTask> tasks = new ArrayList<>();
     private final Deque<SwArena> builds = new ArrayDeque<>();
+    private final SwCages cages = new SwCages(this);
     private World world;
     private int countdown = 30;
     private int fullCountdown = 10;
@@ -55,6 +56,10 @@ public final class Skywars implements ModeHandler {
 
     public Skywars(IceMineCore core) {
         this.core = core;
+    }
+
+    public SwCages cages() {
+        return cages;
     }
 
     public IceMineCore core() {
@@ -348,6 +353,9 @@ public final class Skywars implements ModeHandler {
             st.add("&fGyőzelmi sorozat: &e" + pr.stat("skywars.streak") + " &8(legjobb: " + pr.stat("skywars.best_streak") + ")");
         }
         menu.set(13, Items.of(Material.BOOK).name("&e&lStatisztikád").lore(color(st)).build());
+        menu.set(22, Items.of(Material.LIGHT_BLUE_STAINED_GLASS).name("&b&lKetrecek")
+                .lore(color(List.of("&7Válaszd ki, milyen ketrecben várj", "&7a meccs elején. Feladatokkal oldhatod fel.", "", "&e» Kattints!"))).hideAll().build(),
+                c -> cages.menu(c));
         menu.open(p);
     }
 
@@ -395,7 +403,6 @@ public final class Skywars implements ModeHandler {
 
     void killEffect(Player p, Location at) {
         try {
-            core.cosmetics().playKill(p, at);
         } catch (RuntimeException ignored) {
         }
     }

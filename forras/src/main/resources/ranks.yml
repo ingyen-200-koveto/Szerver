@@ -1,7 +1,7 @@
 # IceMine rangok
 #
 # Ebben a fájlban azt állítod be, hogy egy LuckPerms csoport mit kap az IceMine-ban:
-# kozmetikákat, pénz szorzót és egyéb jogokat, és azt, hogy a LuckPermsben milyen legyen (luckperms rész).
+# pénz szorzót és egyéb jogokat, és azt, hogy a LuckPermsben milyen legyen (luckperms rész).
 #
 # group: a LuckPerms csoport neve (kisbetű, ékezet és + jel nélkül, pl. sradmin).
 #        A játékos a legmagasabb olyan rangot kapja, aminek a csoportjában benne van.
@@ -12,7 +12,6 @@
 #
 # kits:        kit azonosítók (comboarena.yml). Amelyik kit egy rangnál szerepel, azt csak ez a rang
 #              és az erősebbek használhatják. Ami sehol nem szerepel, ingyenes.
-# cosmetics:   kozmetikák (lobby.yml -> cosmetics), pl. trail.kristaly, kill.villam
 # permissions: IceMine jogok, amiket a rang kap (pl. icemine.cosmetic.fly = repülés a lobbyban)
 # coin-multiplier: ennyivel szorozzuk a jutalmakat (BedWars, Gens, OneBlock eladás, napi jutalom)
 # perks:       ez csak a rang menüben (/icem rank) jelenik meg, leírásnak
@@ -38,10 +37,8 @@ ranks:
     icon: GRAY_DYE
     coin-multiplier: 1.0
     kits: []
-    cosmetics: [trail.ho, kill.szilank]
     permissions: []
-    perks:
-      - "&7Hónyom és jégszilánk effekt"
+    perks: []
     luckperms:
       weight: 1
       display: "Játékos"
@@ -52,10 +49,8 @@ ranks:
     icon: COPPER_INGOT
     coin-multiplier: 1.1
     kits: []
-    cosmetics: [trail.felho]
     permissions: []
     perks:
-      - "&7Felhő nyomvonal"
       - "&710% pénz bónusz"
     luckperms:
       weight: 10
@@ -67,10 +62,8 @@ ranks:
     icon: AMETHYST_SHARD
     coin-multiplier: 1.25
     kits: []
-    cosmetics: [kill.szivek, kill.tuzijatek]
     permissions: [icemine.chat.color, icemine.gens.autosell, icemine.kingdoms.extractor]
     perks:
-      - "&7Szívek és tűzijáték ölés effekt"
       - "&7Gens: automatikus eladás"
       - "&7Színes chat"
       - "&7Kingdoms: összes Kitermelő egyszerre (/k extractor)"
@@ -86,10 +79,8 @@ ranks:
     icon: PACKED_ICE
     coin-multiplier: 1.5
     kits: []
-    cosmetics: [trail.fagy, trail.kristaly, kill.lelek]
     permissions: [icemine.cosmetic.fly, icemine.gens.backpack.large, icemine.gens.bonus.2, icemine.kingdoms.fly]
     perks:
-      - "&7Fagy és kristály nyomvonal, lélek effekt"
       - "&7Repülés a lobbyban"
       - "&7Gens: nagy hátizsák, +20% extra termés"
       - "&7Kingdoms: repülés a saját földeken (/k fly)"
@@ -105,10 +96,8 @@ ranks:
     icon: SNOW_BLOCK
     coin-multiplier: 2.0
     kits: []
-    cosmetics: [trail.szikra, kill.villam, kill.robbanas]
     permissions: [icemine.gens.bonus.4]
     perks:
-      - "&7Minden kozmetika"
       - "&7Gens: +40% extra termés"
       - "&7Dupla pénz"
     luckperms:
@@ -122,7 +111,6 @@ ranks:
     icon: PINK_DYE
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: []
     perks:
       - "&7YouTuberek, streamerek"
@@ -137,7 +125,6 @@ ranks:
     icon: BRICKS
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: [icemine.admin.build]
     perks:
       - "&7Építhet a lobbyban és a védett helyeken"
@@ -152,7 +139,6 @@ ranks:
     icon: LIGHT_BLUE_DYE
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: [icemine.mod.stats]
     perks:
       - "&7Némítás, kirúgás"
@@ -167,7 +153,6 @@ ranks:
     icon: BLUE_DYE
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: [icemine.mod.*]
     perks:
       - "&7Ideiglenes kitiltás, inventory nézés"
@@ -183,7 +168,6 @@ ranks:
     icon: LAPIS_LAZULI
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: []
     perks:
       - "&7Végleges kitiltás, eltűnés"
@@ -199,7 +183,6 @@ ranks:
     icon: REDSTONE
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: [icemine.admin.*, icemine.command.admin]
     perks:
       - "&7Adminisztrátori jogok"
@@ -215,7 +198,6 @@ ranks:
     icon: REDSTONE_BLOCK
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: [icemine.kingdoms.admin, icemine.admin.bedwars, icemine.admin.duels, icemine.admin.fyland]
     perks:
       - "&7Minden játékmód adminisztrálása"
@@ -231,7 +213,6 @@ ranks:
     icon: COMMAND_BLOCK
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: []
     perks:
       - "&7A szerver fejlesztője"
@@ -247,7 +228,6 @@ ranks:
     icon: CYAN_DYE
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: []
     perks:
       - "&7A csapat vezetője"
@@ -263,7 +243,6 @@ ranks:
     icon: DRAGON_HEAD
     coin-multiplier: 2.0
     kits: []
-    cosmetics: []
     permissions: []
     perks:
       - "&7A szerver tulajdonosa"

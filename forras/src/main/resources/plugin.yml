@@ -185,47 +185,12 @@ permissions:
   icemine.chat.color:
     description: Színkódok használata a chatben
     default: op
+  icemine.skywars.cage.all:
+    description: Minden SkyWars ketrec feladat nélkül
+    default: op
   icemine.cosmetic.fly:
     description: Repülés a lobbyban
     default: op
-  icemine.cosmetic.trail.ho:
-    default: true
-  icemine.cosmetic.trail.kristaly:
-    default: op
-  icemine.cosmetic.trail.fagy:
-    default: op
-  icemine.cosmetic.trail.felho:
-    default: op
-  icemine.cosmetic.trail.szikra:
-    default: op
-  icemine.cosmetic.kill.szilank:
-    default: true
-  icemine.cosmetic.kill.villam:
-    default: op
-  icemine.cosmetic.kill.tuzijatek:
-    default: op
-  icemine.cosmetic.kill.szivek:
-    default: op
-  icemine.cosmetic.kill.lelek:
-    default: op
-  icemine.cosmetic.kill.robbanas:
-    default: op
-  icemine.cosmetic.*:
-    description: Minden kozmetika
-    default: op
-    children:
-      icemine.cosmetic.kill.szilank: true
-      icemine.cosmetic.kill.villam: true
-      icemine.cosmetic.kill.tuzijatek: true
-      icemine.cosmetic.kill.szivek: true
-      icemine.cosmetic.kill.lelek: true
-      icemine.cosmetic.kill.robbanas: true
-      icemine.cosmetic.fly: true
-      icemine.cosmetic.trail.ho: true
-      icemine.cosmetic.trail.kristaly: true
-      icemine.cosmetic.trail.fagy: true
-      icemine.cosmetic.trail.felho: true
-      icemine.cosmetic.trail.szikra: true
   icemine.mod.stats:
     description: Más játékosok statisztikájának lekérése
     default: op

@@ -213,6 +213,20 @@ public final class SwArena {
             send(p, "&cEz a pálya tele van.");
             return false;
         }
+        boolean first = true;
+        for (Adat a : players.values()) {
+            if (a.island == island) {
+                first = false;
+                break;
+            }
+        }
+        if (first) {
+            try {
+                new SwMap(new Placer(world, plugin.core().getLogger()), cx, cy, cz, map, mode.islands).cage(island, plugin.cages().selected(p));
+            } catch (Exception exception) {
+                plugin.core().getLogger().warning("SkyWars ketrec: " + exception.getMessage());
+            }
+        }
         players.put(p.getUniqueId(), new Adat(p.getUniqueId(), p.getName(), island));
         plugin.track(p, this);
         reset(p, GameMode.ADVENTURE);

@@ -58,8 +58,7 @@ A `/icemine` és az `/im` is működik. A régi parancsok (`/lobby`, `/spawn`, `
 **Játékmód választó** (iránytű a hotbaron): OneBlock (fűblokk), Gens (gyémánt kapa),
 Duels (netherit kard), BedWars (piros ágy), Kingdoms (aranyblokk), ComboFly és Creative.
 
-**Kozmetikák:** a nyomvonalak és az ölés effektek csak a lobbyban (és a játékmódok lobbyjaiban) látszanak,
-játék közben nem. Visszakapcsolás: `plugins/IceMine/lobby.yml` -> `cosmetics.lobby-only: false`.
+A kozmetikák (nyomvonalak, ölés effektek) a 3.46.0-tól nincsenek, a menüből és a rangokból is kikerültek.
 
 ### Chat napló
 
@@ -95,7 +94,7 @@ az `essentials.<parancs>` joga.
 ### Rangok
 
 A rangokat az IceMine magától létrehozza a LuckPermsben az első indításkor (előtag, súly, név, szülő rang, jogok).
-Minden a `plugins/IceMine/ranks.yml`-ben van: mit kap a rang az IceMine-ban (kozmetikák, pénz szorzó, jogok) és
+Minden a `plugins/IceMine/ranks.yml`-ben van: mit kap a rang az IceMine-ban (pénz szorzó, jogok) és
 milyen a LuckPermsben (`luckperms` rész). Mindegyik rang megkapja a gyengébbek IceMine jutalmait is.
 
 | Rang | LuckPerms csoport | Súly | Szülő |
@@ -413,6 +412,12 @@ ComboFlyban (a pályán és a ComboFly lobbyban) a `/duels` nem használható, p
 A ComboFlyból indított párbaj után a ComboFly pálya spawnjára kerülsz vissza (ahonnan leugrasz), nem a lobbyba.
 
 SkyWarsban a ketrecben (várakozás, visszaszámlálás) nem lehet az inventoryban a tárgyakat arrébb tenni.
+
+**Ketrecek**: a meccs elején mindenki a saját választott ketrecében vár. Az alap ketrec mindenkinek megvan, a többit
+feladatokkal lehet feloldani: Jégkocka (5 meccs), Hóvihar (10 ölés), Smaragd (3 győzelem), Arany (25 ölés), Láva
+(50 ölés), Ametiszt (10 győzelem), Szivárvány (3 győzelem egymás után), Gyémánt (25 győzelem), Obszidián (100 ölés),
+Jégkirály (50 győzelem). Választás: a SkyWars lobby hotbarján a Ketrecek gomb, a SkyWars menüben, vagy `/sw ketrec`.
+A menü mutatja a haladást. Jog: `icemine.skywars.cage.<id>` egy ketrechez, `icemine.skywars.cage.all` mindhez.
 
 ## Barátok és party
 

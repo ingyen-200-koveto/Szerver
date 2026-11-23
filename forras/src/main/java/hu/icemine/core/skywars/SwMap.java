@@ -179,6 +179,33 @@ public final class SwMap {
         }
     }
 
+    /** Egy sziget ketrece a játékos választott stílusában (az alap ketrec a pálya üvegéből). */
+    public void cage(int index, SwCages.Cage style) {
+        int[] c = island(index, islands);
+        if (style == null || style.floor() == null) {
+            cage(cx + c[0], cz + c[1], true);
+            return;
+        }
+        int x0 = cx + c[0];
+        int z0 = cz + c[1];
+        int floor = cy + CAGE;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                sink.set(x0 + dx, floor, z0 + dz, style.floor());
+                sink.set(x0 + dx, floor + 4, z0 + dz, dx == 0 && dz == 0 ? style.roof() : wallAt(style, dx, 4, dz));
+                if (dx != 0 || dz != 0) {
+                    for (int dy = 1; dy <= 3; dy++) {
+                        sink.set(x0 + dx, floor + dy, z0 + dz, wallAt(style, dx, dy, dz));
+                    }
+                }
+            }
+        }
+    }
+
+    private static String wallAt(SwCages.Cage style, int dx, int dy, int dz) {
+        return SwCages.RAINBOW.equals(style.wall()) ? SwCages.rainbow(dx, dy, dz) : style.wall();
+    }
+
     public void cages(boolean place) {
         for (int i = 0; i < islands; i++) {
             int[] c = island(i, islands);

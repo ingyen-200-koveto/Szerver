@@ -117,7 +117,6 @@ public final class ModeLobbies implements Listener {
         public void enter(Player player) {
             core.lobby().reset(player);
             giveHotbar(player, this);
-            core.cosmetics().refresh(player);
             ModeInfo info = core.modes().info(mode);
             core.messages().send(player, "modelobby.welcome", "%mode%", info == null ? mode : info.name);
         }
@@ -425,8 +424,10 @@ public final class ModeLobbies implements Listener {
                 .lore(core.messages().list("modelobby.item.play-lore")).hideAll().tag(ITEM + "play").build());
         inventory.setItem(1, Items.of(Material.COMPASS).name(core.messages().raw("modelobby.item.selector"))
                 .lore(core.messages().list("modelobby.item.selector-lore")).hideAll().tag(ITEM + "selector").build());
-        inventory.setItem(4, Items.of(Material.AMETHYST_SHARD).name(core.messages().raw("modelobby.item.cosmetics"))
-                .lore(core.messages().list("modelobby.item.cosmetics-lore")).hideAll().tag(ITEM + "cosmetics").build());
+        if ("skywars".equals(lobby.mode)) {
+            inventory.setItem(4, Items.of(Material.LIGHT_BLUE_STAINED_GLASS).name("&b&lKetrecek &7(jobb klikk)")
+                    .lore(java.util.List.of("&7Válaszd ki, milyen ketrecben", "&7várj a meccs elején.")).hideAll().tag(ITEM + "cages").build());
+        }
         inventory.setItem(8, Items.of(Material.RED_BED).name(core.messages().raw("modelobby.item.back"))
                 .lore(core.messages().list("modelobby.item.back-lore")).hideAll().tag(ITEM + "back").build());
         inventory.setHeldItemSlot(0);
@@ -455,8 +456,10 @@ public final class ModeLobbies implements Listener {
             case "selector":
                 core.menus().open(player, "selector");
                 break;
-            case "cosmetics":
-                core.menus().cosmetics(player);
+            case "cages":
+                if (core.skywars() != null) {
+                    core.skywars().cages().menu(player);
+                }
                 break;
             case "main":
                 core.menus().open(player, "selector");

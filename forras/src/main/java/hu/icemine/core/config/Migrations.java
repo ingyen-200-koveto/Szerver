@@ -491,6 +491,7 @@ public final class Migrations {
         notes.addAll(newModes(files));
         notes.addAll(hotbarV3(files::get, files::save));
         notes.addAll(compassV2(files::get, files::save));
+        notes.addAll(cosmeticsRemoved(files::get, files::save));
         YamlConfiguration economyFile = files.get("economy");
         if (economyFile != null && economyFile.isSet("currencies") && !economyFile.isSet("currencies.dollar")) {
             copyDefault(economyFile, "currencies.dollar");
@@ -747,6 +748,36 @@ public final class Migrations {
         }
         ranks.set("migrated.ranks-v2", true);
         return true;
+    }
+
+    /** 3.46: a kozmetikák (nyomvonal, ölés effekt) kikerültek: a beállításuk és a rangoknál a felsorolásuk is. */
+    static List<String> cosmeticsRemoved(java.util.function.Function<String, YamlConfiguration> get, java.util.function.Consumer<String> save) {
+        List<String> notes = new ArrayList<>();
+        YamlConfiguration lobby = get.apply("lobby");
+        if (lobby != null && !lobby.getBoolean("migrated.cosmetics-removed", false)) {
+            lobby.set("cosmetics", null);
+            lobby.set("menus.cosmetics", null);
+            lobby.set("migrated.cosmetics-removed", true);
+            save.accept("lobby");
+            notes.add("lobby.yml: kozmetikák törölve");
+        }
+        YamlConfiguration ranks = get.apply("ranks");
+        if (ranks != null && ranks.isConfigurationSection("ranks") && !ranks.getBoolean("migrated.cosmetics-removed", false)) {
+            java.util.Set<String> old = java.util.Set.of("&7Hónyom és jégszilánk effekt", "&7Felhő nyomvonal", "&7Szívek és tűzijáték ölés effekt",
+                    "&7Fagy és kristály nyomvonal, lélek effekt", "&7Minden kozmetika");
+            for (String id : ranks.getConfigurationSection("ranks").getKeys(false)) {
+                String base = "ranks." + id + ".";
+                ranks.set(base + "cosmetics", null);
+                List<String> perks = new ArrayList<>(ranks.getStringList(base + "perks"));
+                if (perks.removeIf(old::contains)) {
+                    ranks.set(base + "perks", perks);
+                }
+            }
+            ranks.set("migrated.cosmetics-removed", true);
+            save.accept("ranks");
+            notes.add("ranks.yml: kozmetikák kivéve a rangokból");
+        }
+        return notes;
     }
 
     /** 3.45: szebb iránytű (Játékmódok) a lobby hotbaron, ha a régi alapértelmezett név van beállítva. */

@@ -44,10 +44,10 @@ class RanksTest {
     void strongerRanksInheritEverything() {
         Ranks ranks = shipped(new ArrayList<>());
         Ranks.Rank legend = ranks.byId("yeti");
-        assertTrue(legend.granted().contains("icemine.cosmetic.trail.felho"));
+        assertTrue(legend.granted().contains("icemine.gens.backpack.large"));
         assertTrue(legend.granted().contains("icemine.cosmetic.fly"));
         assertTrue(ranks.byId("tulajdonos").granted().contains("icemine.admin.*"));
-        assertTrue(ranks.byId("tulajdonos").granted().contains("icemine.cosmetic.trail.felho"), "a csapat rangjai a Yeti jutalmait is megkapják");
+        assertTrue(ranks.byId("tulajdonos").granted().contains("icemine.gens.bonus.4"), "a csapat rangjai a Yeti jutalmait is megkapják");
         assertFalse(ranks.byId("bronz").granted().contains("icemine.cosmetic.fly"));
         assertTrue(ranks.byId("iceking").multiplier > ranks.byId("bronz").multiplier);
     }

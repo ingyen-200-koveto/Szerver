@@ -414,7 +414,6 @@ public final class LobbyModule implements ModeHandler {
         applyFlight(player);
         applyVisibility(player);
         hideFromHiders(player);
-        core.cosmetics().refresh(player);
     }
 
     @Override

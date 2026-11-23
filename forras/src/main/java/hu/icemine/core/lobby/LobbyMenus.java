@@ -59,9 +59,6 @@ public final class LobbyMenus {
             case "stats":
                 stats(player);
                 break;
-            case "cosmetics":
-                cosmetics(player);
-                break;
             case "settings":
                 settings(player);
                 break;
@@ -123,13 +120,12 @@ public final class LobbyMenus {
             clicker.closeInventory();
             clicker.performCommand("napi");
         });
-        menu.set(19, button(Material.AMETHYST_SHARD, "mainmenu.cosmetics"), this::cosmetics);
-        menu.set(20, button(Material.COMPARATOR, "mainmenu.settings"), this::settings);
-        menu.set(21, button(Material.BOOK, "mainmenu.contacts"), clicker -> {
+        menu.set(19, button(Material.COMPARATOR, "mainmenu.settings"), this::settings);
+        menu.set(20, button(Material.BOOK, "mainmenu.contacts"), clicker -> {
             clicker.closeInventory();
             core.contacts().chat(clicker);
         });
-        menu.set(22, button(Material.RED_BED, "mainmenu.lobby"), clicker -> {
+        menu.set(21, button(Material.RED_BED, "mainmenu.lobby"), clicker -> {
             clicker.closeInventory();
             core.modes().sendAndReport(clicker, hu.icemine.core.mode.ModeService.LOBBY);
         });
@@ -317,72 +313,6 @@ public final class LobbyMenus {
         menu.set(22, Items.head(player).name(core.messages().raw("selector.profile.name")).lore(core.messages().list("selector.profile.lore")).build(), clicker -> open(clicker, "profile"));
         back(menu, 49);
         menu.open(player);
-    }
-
-    public void cosmetics(Player player) {
-        Menu menu = new Menu("cosmetics", 6, title("cosmetics", "&b&lIce&f&lMine &8» &fKozmetikák"));
-        menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
-        menu.set(4, Items.of(Material.BLAZE_POWDER).name(core.messages().raw("cosmetics.trails-title"))
-                .lore(core.messages().list("cosmetics.trails-lore")).hideAll().build());
-        Cosmetics.Trail current = core.cosmetics().current(player);
-        int slot = 10;
-        for (Cosmetics.Trail trail : core.cosmetics().trails().values()) {
-            if (slot > 16) {
-                break;
-            }
-            boolean selected = current != null && current.id.equals(trail.id);
-            menu.set(slot++, cosmeticItem(player, trail, selected), clicker -> {
-                if (!clicker.hasPermission(trail.permission)) {
-                    core.messages().send(clicker, "cosmetics.no-permission");
-                    return;
-                }
-                core.cosmetics().select(clicker, selected ? null : trail.id);
-                core.messages().send(clicker, selected ? "cosmetics.disabled" : "cosmetics.enabled", "%name%", trail.name);
-                cosmetics(clicker);
-            });
-        }
-        menu.set(22, Items.of(Material.IRON_SWORD).name(core.messages().raw("cosmetics.kills-title"))
-                .lore(core.messages().list("cosmetics.kills-lore")).hideAll().build());
-        Cosmetics.KillEffect currentKill = core.cosmetics().currentKill(player);
-        slot = 28;
-        for (Cosmetics.KillEffect effect : core.cosmetics().killEffects().values()) {
-            if (slot > 34) {
-                break;
-            }
-            boolean selected = currentKill != null && currentKill.id.equals(effect.id);
-            menu.set(slot++, cosmeticItem(player, effect, selected), clicker -> {
-                if (!clicker.hasPermission(effect.permission)) {
-                    core.messages().send(clicker, "cosmetics.no-permission");
-                    return;
-                }
-                core.cosmetics().selectKill(clicker, selected ? null : effect.id);
-                core.messages().send(clicker, selected ? "cosmetics.disabled" : "cosmetics.enabled", "%name%", effect.name);
-                if (!selected) {
-                    core.cosmetics().playKill(clicker, clicker.getLocation().add(clicker.getLocation().getDirection().setY(0).normalize().multiply(2.5)));
-                }
-                cosmetics(clicker);
-            });
-        }
-        back(menu, 49);
-        menu.open(player);
-    }
-
-    private org.bukkit.inventory.ItemStack cosmeticItem(Player player, Cosmetics.Effect effect, boolean selected) {
-        List<String> lore = new ArrayList<>(effect.description);
-        lore.add("");
-        boolean owned = player.hasPermission(effect.permission);
-        if (selected) {
-            lore.add(core.messages().raw("cosmetics.selected"));
-        } else if (owned) {
-            lore.add(core.messages().raw("cosmetics.click"));
-        } else {
-            lore.add(core.messages().raw("cosmetics.locked"));
-        }
-        Items item = Items.of(owned ? effect.icon : Material.GRAY_DYE).name(effect.name).lore(lore).hideAll();
-        if (selected) {
-            item.glow();
-        }
-        return item.build();
     }
 
     public void settings(Player player) {

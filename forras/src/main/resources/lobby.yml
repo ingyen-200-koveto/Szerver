@@ -74,111 +74,6 @@ hotbar:
         - "&7Hasznos tudnivalók a szerverről."
       action: "menu:info"
 
-# Kozmetikák: a nyomvonal és az ölés effekt csak a lobbyban (és a játékmódok lobbyjaiban) látszik,
-# játék közben nem, és a parkour futás alatt sem. Ha mégis minden módban kellenek: lobby-only: false
-# Az ölés effektet kiválasztáskor a lobbyban egyszer megmutatja.
-# Megnyitás: iránytű / hotbar
-# Jog: icemine.cosmetic.trail.<id> és icemine.cosmetic.kill.<id> (LuckPerms-szel rangokhoz adhatod)
-cosmetics:
-  lobby-only: true
-  # Ezekben a világokban nincs nyomvonal (pl. "kingdoms")
-  disabled-worlds: []
-  trails:
-    ho:
-      name: "&fHópelyhek"
-      icon: SNOWBALL
-      particle: SNOWFLAKE
-      count: 3
-      permission: icemine.cosmetic.trail.ho
-      description:
-        - "&7Hópelyhek szállingóznak utánad."
-    kristaly:
-      name: "&bKristálypor"
-      icon: END_ROD
-      particle: END_ROD
-      count: 2
-      permission: icemine.cosmetic.trail.kristaly
-      description:
-        - "&7Csillogó kristálypor nyomvonal."
-    fagy:
-      name: "&3Fagyos szikrák"
-      icon: PRISMARINE_CRYSTALS
-      particle: ELECTRIC_SPARK
-      count: 3
-      permission: icemine.cosmetic.trail.fagy
-      description:
-        - "&7Pattogó, fagyos szikrák."
-    felho:
-      name: "&7Felhők"
-      icon: WHITE_WOOL
-      particle: CLOUD
-      count: 2
-      permission: icemine.cosmetic.trail.felho
-      description:
-        - "&7Mintha felhőkön járnál."
-    szikra:
-      name: "&eÜnnepi szikrák"
-      icon: FIREWORK_STAR
-      particle: FIREWORK
-      count: 2
-      permission: icemine.cosmetic.trail.szikra
-      description:
-        - "&7Tűzijáték szikrák minden lépésnél."
-  kill-effects:
-    szilank:
-      name: "&bJégszilánkok"
-      icon: ICE
-      particle: BLOCK
-      block: ICE
-      count: 40
-      sound: "minecraft:block.glass.break"
-      permission: icemine.cosmetic.kill.szilank
-      description:
-        - "&7Az ellenfél jégszilánkokra törik."
-    villam:
-      name: "&eVillámcsapás"
-      icon: LIGHTNING_ROD
-      lightning: true
-      permission: icemine.cosmetic.kill.villam
-      description:
-        - "&7Villám csap le oda, ahol meghalt."
-    tuzijatek:
-      name: "&dTűzijáték"
-      icon: FIREWORK_ROCKET
-      particle: FIREWORK
-      count: 60
-      sound: "minecraft:entity.firework_rocket.twinkle"
-      permission: icemine.cosmetic.kill.tuzijatek
-      description:
-        - "&7Ünnepeld meg minden öléssel!"
-    szivek:
-      name: "&cSzívek"
-      icon: RED_DYE
-      particle: HEART
-      count: 14
-      sound: "minecraft:entity.player.levelup"
-      permission: icemine.cosmetic.kill.szivek
-      description:
-        - "&7Kedvesen búcsúzol tőle."
-    lelek:
-      name: "&3Lélekláng"
-      icon: SOUL_LANTERN
-      particle: SOUL_FIRE_FLAME
-      count: 45
-      sound: "minecraft:particle.soul_escape"
-      permission: icemine.cosmetic.kill.lelek
-      description:
-        - "&7Kék lángok csapnak fel."
-    robbanas:
-      name: "&6Robbanás"
-      icon: TNT
-      particle: EXPLOSION
-      count: 3
-      sound: "minecraft:entity.generic.explode"
-      permission: icemine.cosmetic.kill.robbanas
-      description:
-        - "&7Látványos, de senkinek nem árt."
-
 menus:
   main:
     title: "&8Főmenü"
@@ -203,8 +98,6 @@ menus:
       bedwarsfinals: IRON_SWORD
       skywarswins: ENDER_EYE
       skywarskills: DIAMOND_SWORD
-  cosmetics:
-    title: "&8Kozmetikák"
   settings:
     title: "&8Beállítások"
   info:
