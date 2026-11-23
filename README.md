@@ -338,6 +338,19 @@ A ComboFlyban (és a ComboFly lobbyjában) a `/duel <játékos>` egyből a pály
 A `duels.yml` -> `built` most a pálya témáját is megjegyzi: ha egy aréna nem a megfelelő témával épült, újraépül
 (a frissítés utáni első indításkor egyszer az összes Duels aréna újraépül).
 
+### Saját pálya hozzáadása a pályaválasztóhoz
+
+1. Menj a Duels világba (op): `/execute in minecraft:duels run tp @s 0 120 3000` (messze a gyári arénáktól), és
+   kreatívban építsd meg a pályát.
+2. `/duels palya uj <azonosító> [típus]` - típus: `classic` (ComboFly, Classic, NoDebuff, OP, Axe, Sword...) vagy `sumo`.
+3. Állj az egyik kezdőpontra, nézz az ellenfél felé: `/duels palya piros`. A másikra: `/duels palya kek`.
+4. A pálya alsó sarkába: `/duels palya sarok1`, az átellenes felső sarkába: `/duels palya sarok2`
+   (ez a doboz a pálya határa; ha valaki az alja alá esik, kiesett).
+5. Opcionális: `/duels palya nev &6Arany vár`, `/duels palya ikon` (a kezedben lévő tárgy lesz az ikon).
+6. `/duels palya kesz` - azonnal megjelenik a pályaválasztóban. Lista: `/duels palya lista`, törlés: `/duels palya torol <id>`.
+Saját pálya építős módokhoz (BuildUHC, Bridge) nem használható, mert azokat a meccs után újra kell építeni.
+A pályák a `duels.yml` -> `custom-arenas` részben vannak.
+
 ## Duels: edzés bot ellen
 
 `/duels bot` (vagy a Duels menüben a zombifej) - gépi ellenfél egy szabad arénában, három szinten:

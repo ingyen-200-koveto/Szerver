@@ -20,6 +20,30 @@ public final class ArenaSlot {
     public final double fallY;
     Match match;
     boolean training;
+    /** Saját építésű pálya (a /duels palya paranccsal felvéve): nem generáljuk újra, csak építés nélküli módokhoz. */
+    public final boolean custom;
+    public final String displayName;
+    public final org.bukkit.Material icon;
+
+    /** Saját pálya: két kezdőpont, két sarok, a leesési magasság a határ alja alatt 3-mal. */
+    ArenaSlot(String id, String type, String name, org.bukkit.Material icon, World world, Location red, Location blue, int[] bounds) {
+        this.id = id;
+        this.type = type;
+        this.theme = "custom:" + id;
+        this.world = world;
+        this.x = bounds[0];
+        this.y = bounds[1];
+        this.z = bounds[2];
+        this.red = red;
+        this.blue = blue;
+        this.bounds = bounds;
+        this.goalRed = null;
+        this.goalBlue = null;
+        this.fallY = bounds[1] - 3;
+        this.custom = true;
+        this.displayName = name;
+        this.icon = icon;
+    }
 
     ArenaSlot(String s, String s1, String s2, World world, int i, int j, int k, Layout layout) {
         this.id = s;
@@ -38,6 +62,9 @@ public final class ArenaSlot {
         this.goalBlue = this.area(layout.areas.get("goal:blue"));
         Layout.Point fall = layout.points.get("fall");
         this.fallY = j + (fall == null ? -10.0 : fall.y);
+        this.custom = false;
+        this.displayName = null;
+        this.icon = null;
     }
 
     private int[] area(Layout.Area area) {

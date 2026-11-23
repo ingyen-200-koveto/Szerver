@@ -67,6 +67,11 @@ public final class Duels implements Listener, ModeHandler {
     private final Map<UUID, Duels.Last> lastMatch = new HashMap<>();
     private final Map<UUID, Boolean> rankedChoice = new HashMap<>();
     private final BotEdzes bot = new BotEdzes(this);
+    private final CustomArenas customArenas = new CustomArenas(this);
+
+    CustomArenas customArenas() {
+        return customArenas;
+    }
     private final DuelsMenu menu;
     private World world;
     private int kFactor = 32;
@@ -205,9 +210,54 @@ public final class Duels implements Listener, ModeHandler {
                 this.core.configs().save("duels");
             }
         }
+        this.loadCustom(config, list);
+    }
+
+    /** A saját építésű pályák a duels.yml -> custom-arenas részből. */
+    private void loadCustom(YamlConfiguration config, List<String> list) {
+        ConfigurationSection custom = config.getConfigurationSection("custom-arenas");
+        if (custom == null) {
+            return;
+        }
+        for (String id : custom.getKeys(false)) {
+            ConfigurationSection c = custom.getConfigurationSection(id);
+            if (c == null) {
+                continue;
+            }
+            Location red = CustomArenas.parse(this.world, c.getString("red"));
+            Location blue = CustomArenas.parse(this.world, c.getString("blue"));
+            List<Integer> b = c.getIntegerList("bounds");
+            if (red == null || blue == null || b.size() != 6) {
+                list.add("duels.yml -> custom-arenas." + id + ": hiányzik a kezdőpont vagy a határ");
+                continue;
+            }
+            Material icon = Material.matchMaterial(c.getString("icon", "GRASS_BLOCK"));
+            int[] bounds = {Math.min(b.get(0), b.get(3)), Math.min(b.get(1), b.get(4)), Math.min(b.get(2), b.get(5)),
+                    Math.max(b.get(0), b.get(3)), Math.max(b.get(1), b.get(4)), Math.max(b.get(2), b.get(5))};
+            this.slots.add(new ArenaSlot("custom-" + id, c.getString("type", "classic").toLowerCase(Locale.ROOT),
+                    c.getString("name", id), icon == null ? Material.GRASS_BLOCK : icon, this.world, red, blue, bounds));
+        }
+    }
+
+    /** Új saját pálya felvétele menet közben (újraindítás nélkül). */
+    void addCustom(ArenaSlot slot) {
+        this.slots.removeIf(other -> other.id.equals(slot.id) && other.free());
+        this.slots.add(slot);
+    }
+
+    boolean removeCustom(String id) {
+        return this.slots.removeIf(other -> other.custom && other.id.equals("custom-" + id) && other.free());
+    }
+
+    List<ArenaSlot> slotsView() {
+        return java.util.Collections.unmodifiableList(this.slots);
     }
 
     void rebuild(ArenaSlot slot) {
+        if (slot.custom) {
+            this.clearEntities(slot);
+            return;
+        }
         Placer placer = new Placer(this.world, this.core.getLogger());
         int[] aint = slot.bounds;
         placer.clear(aint[0] - 2, aint[1] - 2, aint[2] - 2, aint[3] + 2, aint[4] + 2, aint[5] + 2);
@@ -244,7 +294,7 @@ public final class Duels implements Listener, ModeHandler {
     public Map<String, int[]> themes(DuelKit kit) {
         Map<String, int[]> out = new LinkedHashMap<>();
         for (ArenaSlot slot : this.slots) {
-            if (slot.type.equals(kit.arena)) {
+            if (slot.type.equals(kit.arena) && !(slot.custom && kit.usesBlocks())) {
                 int[] c = out.computeIfAbsent(slot.theme, t -> new int[2]);
                 c[1]++;
                 if (slot.free()) {
@@ -253,6 +303,21 @@ public final class Duels implements Listener, ModeHandler {
             }
         }
         return out;
+    }
+
+    /** A saját pályák neve és ikonja téma szerint. */
+    public ArenaSlot customSlot(String theme) {
+        for (ArenaSlot slot : this.slots) {
+            if (slot.custom && slot.theme.equals(theme)) {
+                return slot;
+            }
+        }
+        return null;
+    }
+
+    public String themeDisplay(String theme) {
+        ArenaSlot custom = theme != null && theme.startsWith("custom:") ? this.customSlot(theme) : null;
+        return custom != null ? custom.displayName : themeName(theme);
     }
 
     public static String themeName(String theme) {
@@ -478,7 +543,7 @@ public final class Duels implements Listener, ModeHandler {
         if (theme != null) {
             List<ArenaSlot> themed = new ArrayList<>();
             for (ArenaSlot slot : this.slots) {
-                if (slot.free() && slot.type.equals(kit.arena) && slot.theme.equals(theme)) {
+                if (slot.free() && slot.type.equals(kit.arena) && slot.theme.equals(theme) && !(slot.custom && kit.usesBlocks())) {
                     themed.add(slot);
                 }
             }
@@ -489,7 +554,7 @@ public final class Duels implements Listener, ModeHandler {
         List<ArenaSlot> result = new ArrayList<>();
 
         for (ArenaSlot slot : this.slots) {
-            if (slot.free() && slot.type.equals(kit.arena)) {
+            if (slot.free() && slot.type.equals(kit.arena) && !(slot.custom && kit.usesBlocks())) {
                 result.add(slot);
             }
         }
@@ -518,7 +583,7 @@ public final class Duels implements Listener, ModeHandler {
                     this.invites
                         .computeIfAbsent(player1.getUniqueId(), uuid -> new HashMap<>())
                         .put(player.getUniqueId(), new Duels.Invite(player.getUniqueId(), kit.id, i, theme));
-                    String modeText = kit.name + (theme == null ? "" : " &8(&7pálya: " + themeName(theme) + "&8)");
+                    String modeText = kit.name + (theme == null ? "" : " &8(&7pálya: " + this.themeDisplay(theme) + "&8)");
                     this.core.messages().send(player, "duels.invite-sent", "%player%", player1.getName(), "%mode%", modeText, "%rounds%", this.rounds(i));
                     player1.sendMessage(
                         Text.color(

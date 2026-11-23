@@ -243,9 +243,9 @@ public final class DuelsMenu {
             this.duels.invite(player, target, kit.id, bestOf, null);
             return;
         }
-        Menu menu = new Menu("duels-map", 3, "&8Pálya: " + Text.strip(Text.color(kit.name)) + " &8- &f" + target.getName());
+        Menu menu = new Menu("duels-map", themes.size() > 6 ? 5 : 3, "&8Pálya: " + Text.strip(Text.color(kit.name)) + " &8- &f" + target.getName());
         menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
-        int[] slots = {10, 11, 12, 13, 14, 15, 16};
+        int[] slots = themes.size() > 6 ? new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34} : new int[]{10, 11, 12, 13, 14, 15, 16};
         int n = 0;
         for (Map.Entry<String, int[]> e : themes.entrySet()) {
             if (n >= slots.length - 1) {
@@ -253,7 +253,8 @@ public final class DuelsMenu {
             }
             String theme = e.getKey();
             int free = e.getValue()[0];
-            menu.set(slots[n++], Items.of(themeIcon(theme)).name(Duels.themeName(theme))
+            ArenaSlot own = theme.startsWith("custom:") ? this.duels.customSlot(theme) : null;
+            menu.set(slots[n++], Items.of(own != null ? own.icon : themeIcon(theme)).name(this.duels.themeDisplay(theme))
                     .lore(List.of("&7Szabad aréna: " + (free > 0 ? "&a" : "&c") + free + "&7/" + e.getValue()[1],
                             free > 0 ? "" : "&7Ha foglalt, egy másik pályán indul.",
                             "", "&e» Kattints, és küldöm a kihívást!")).hideAll().build(), p -> {

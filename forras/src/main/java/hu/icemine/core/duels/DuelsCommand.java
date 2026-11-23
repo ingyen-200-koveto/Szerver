@@ -102,6 +102,12 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
 
                     this.duels.join(player, args[1], args.length > 2 && args[2].equalsIgnoreCase("ranked"));
                     return;
+                case "palya":
+                case "pálya":
+                case "arena":
+                case "map":
+                    this.duels.customArenas().command(player, args);
+                    return;
                 case "bot":
                 case "edzes":
                 case "edzés":
