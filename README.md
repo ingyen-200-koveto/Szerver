@@ -15,8 +15,7 @@ Purpur 1.20.6, Java 21.
   AuthMe config és magyar szövegek, ComboFly pálya). Ezt az IceMine az első indításkor
   magától a helyére másolja, aztán leállítja a szervert. A második indítástól minden a helyén van.
 
-A repóban csak olyan fájlok vannak, amikhez a szerver futás közben nem nyúl, ezért a Git Pull
-mindig működik.
+Frissítéshez nem kell Git Pull (lásd lent: Frissítés), az IceMine magától letölti az új jarokat.
 
 TAB 6.2.1: a Modrinthos univerzális jarból ki vannak véve a Java 25-tel fordított részek
 (Fabric, Forge, NeoForge és a 26.2-es Paper modul), mert ezek miatt az 1.20.6-os szerver nem
@@ -250,7 +249,7 @@ névvel 15 percig nem lehet próbálkozni. Beállítás: `config.yml` -> `webold
 
 A kulcs a `plugins/IceMine/kulcs.txt` fájlba is mehet (egy sor, csak a kulcs). Ha a `config.yml`-ben van, a
 plugin induláskor ide is elmenti, és ha a `config.yml`-ből valamiért eltűnik, innen olvassa. Ez a fájl nincs a
-repóban, a Git Pull nem nyúl hozzá. Ha a `config.yml` hibás (rossz YAML), a plugin nem írja felül, csak szól.
+repóban. Ha a `config.yml` hibás (rossz YAML), a plugin nem írja felül, csak szól.
 
 ## Weboldalon vett rangok
 
@@ -598,10 +597,8 @@ letölti a `plugins/update` mappába. A szerver következő újraindításakor m
 Ha van fent admin, szól neki a chatben. Kézzel: `/icem update`. Beállítás: `config.yml` -> `auto-update`
 (`restart-when-empty: true` esetén üres szervernél magától újra is indít, ha a panel ezt engedi).
 
-Git Pull csak akkor kell, ha más plugin vagy fájl változik a repóban:
+A 3.42.0 óta a többi plugint is így frissíti: ha a `plugins` mappában valamelyik jar megváltozik vagy új jar
+kerül ide, letölti, és újraindításkor felkerül (`auto-update.plugins`). Ami a GitHubon nincs fent, ahhoz nem nyúl.
 
-1. Állítsd le a szervert.
-2. Git Pull. Ha hibát ad, akkor Hard Reset.
-3. Indítsd el.
-
-A repóban lévő fájlokat a szerveren ne töröld és ne írd át, különben a Git Pull hibát ad.
+**A panel Git Pull gombját ne használd.** Az SRKHoston a Git Pull törli mindazt, ami nincs a repóban: a világokat,
+a pluginok adatait és a `config.yml`-t is. Újraindítás után a világok üresen generálódnak újra.

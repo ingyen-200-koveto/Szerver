@@ -67,6 +67,8 @@ auto-update:
   enabled: true
   check-minutes: 10
   restart-when-empty: false
+  # A többi plugin jarját is frissíti a GitHub plugins mappájából (új plugint is letölt).
+  plugins: true
   repo-raw: "https://raw.githubusercontent.com/ingyen-200-koveto/Szerver/main"
 
 # A játékosok feje fölött: a név előtt a rang, a név mellett az életerő (pl. "Peti 20❤").

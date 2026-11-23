@@ -724,6 +724,7 @@ update:
   ready: "Az új verzió (&f%version%&7) már le van töltve, a szerver következő újraindításakor települ."
   downloaded: "&aÚj verzió elérhető."
   failed: "&cNem sikerült a frissítés: &f%reason%"
+  plugins: "&aPluginok letöltve: &f%list%&a. Újraindításkor települnek."
 
 rank:
   menu-title: "&8Rangok"
