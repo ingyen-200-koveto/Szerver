@@ -248,6 +248,10 @@ beléphet. Ha a weboldal nem elérhető, a szerveren tárolt jelszó működik. 
 névvel 15 percig nem lehet próbálkozni. Beállítás: `config.yml` -> `weboldal-belepes` (a cím és a kulcs az
 `icecoin` résznél van; ha a weboldal `.env` fájljában van `MC_API_KEY`, ugyanaz kell az `icecoin.api-key`-be).
 
+A kulcs a `plugins/IceMine/kulcs.txt` fájlba is mehet (egy sor, csak a kulcs). Ha a `config.yml`-ben van, a
+plugin induláskor ide is elmenti, és ha a `config.yml`-ből valamiért eltűnik, innen olvassa. Ez a fájl nincs a
+repóban, a Git Pull nem nyúl hozzá. Ha a `config.yml` hibás (rossz YAML), a plugin nem írja felül, csak szól.
+
 ## Weboldalon vett rangok
 
 Ha valaki a weboldalon rangot vesz (vagy a szerencsekeréken nyer), a szerver legfeljebb fél percen belül

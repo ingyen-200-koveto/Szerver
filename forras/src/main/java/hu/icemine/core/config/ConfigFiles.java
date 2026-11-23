@@ -54,9 +54,16 @@ public final class ConfigFiles {
         return config;
     }
 
+    /** Hibás YAML miatt alapértékekkel futó fájlok: ezeket nem írjuk felül, hogy a beállítások ne vesszenek el. */
+    private final java.util.Set<String> broken = new java.util.HashSet<>();
+
     public void save(String name) {
         YamlConfiguration config = files.get(name);
         if (config == null) {
+            return;
+        }
+        if (broken.contains(name)) {
+            plugin.getLogger().warning(name + ".yml hibás, ezért nem írom felül (különben elvesznének a beállításaid). Javítsd ki, és indítsd újra.");
             return;
         }
         try {
@@ -73,6 +80,7 @@ public final class ConfigFiles {
     }
 
     private void load(String name) {
+        broken.remove(name);
         File file = new File(plugin.getDataFolder(), name + ".yml");
         if (!file.exists()) {
             try {
@@ -95,8 +103,9 @@ public final class ConfigFiles {
             try {
                 config.load(file);
             } catch (IOException | InvalidConfigurationException exception) {
-                problems.add(name + ".yml: hibás YAML, a beépített alapértékeket használom. Részletek: " + firstLine(exception.getMessage()));
+                problems.add(name + ".yml: hibás YAML, a beépített alapértékeket használom, és a fájlt nem írom felül. Részletek: " + firstLine(exception.getMessage()));
                 config = new YamlConfiguration();
+                broken.add(name);
             }
         }
         config.setDefaults(defaults);

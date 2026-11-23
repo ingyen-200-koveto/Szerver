@@ -58,7 +58,7 @@ public final class IceCoins {
         while (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
-        key = config.getString("icecoin.api-key", "").trim();
+        key = ApiKulcs.resolve(core.getDataFolder(), config.getString("icecoin.api-key", ""), core.getLogger());
         if (core.webSkins() != null) {
             core.webSkins().setUrl(url);
         }

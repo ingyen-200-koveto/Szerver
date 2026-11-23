@@ -65,7 +65,7 @@ public final class WebLogin implements Listener {
         while (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
-        key = main.getString("icecoin.api-key", "").trim();
+        key = hu.icemine.core.economy.ApiKulcs.resolve(core.getDataFolder(), main.getString("icecoin.api-key", ""), core.getLogger());
         site = main.getString("weboldal-belepes.weboldal", "").trim();
         if (site.isEmpty()) {
             site = url.replaceFirst("^https?://", "");
