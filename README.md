@@ -324,6 +324,20 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
   a házak gerendáin színes fényfüzér világít, havazik, és felirat van a fa fölött. Utána magától visszaáll.
   `lobby.yml` -> `christmas: auto` (vagy `on` / `off`).
 
+## Duels: edzés bot ellen
+
+`/duels bot` (vagy a Duels menüben a zombifej) - gépi ellenfél egy szabad arénában, három szinten:
+- **Könnyű**: 10 szív, lassú, egyenesen jön.
+- **Közepes**: 13 szív, átlagos, oldalra kitér.
+- **Nehéz**: 16 szív, gyors, kitér és ugrálva (kritikusan) üt.
+A bot ugyanazt a páncélt és fegyvert kapja, mint te. `/duels bot nehez nodebuff` - másik mód (csak sima PvP módok).
+Kilépés: `/duels kilep`. Legyőzések: `duels.bot.<szint>` statisztika (XP és Kristály nem jár érte, hogy ne lehessen farmolni).
+
+## OneBlock: közös sziget
+
+`/fy meghiv <név>` -> a másik a `/fy elfogad` (vagy a chatben az [ELFOGADOM]) paranccsal csatlakozik, és ha a lobbyban
+van, egyből átkerül a szigetre. `/fy tagok`, `/fy kirug`, `/fy atad`, `/fy kilep`.
+
 ## Szintek, rejtett ajándékok, hóvihar
 
 - **Szintek**: minden játékból XP jár (győzelem, ölés, ágytörés, kibányászott blokk, Gens aratás, parkour, hópehely...).

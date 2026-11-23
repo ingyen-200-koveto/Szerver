@@ -19,6 +19,7 @@ public final class ArenaSlot {
     public final int[] goalBlue;
     public final double fallY;
     Match match;
+    boolean training;
 
     ArenaSlot(String s, String s1, String s2, World world, int i, int j, int k, Layout layout) {
         this.id = s;
@@ -53,7 +54,7 @@ public final class ArenaSlot {
     }
 
     public boolean free() {
-        return this.match == null;
+        return this.match == null && !this.training;
     }
 
     static boolean inside(int[] aint, Location location) {

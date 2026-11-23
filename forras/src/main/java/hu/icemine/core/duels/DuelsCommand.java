@@ -94,8 +94,26 @@ public final class DuelsCommand implements CommandExecutor, TabCompleter {
 
                     this.duels.join(player, args[1], args.length > 2 && args[2].equalsIgnoreCase("ranked"));
                     return;
+                case "bot":
+                case "edzes":
+                case "edzés":
+                    if (args.length < 2) {
+                        this.duels.bot().menu(player);
+                    } else {
+                        BotEdzes.Szint szint = BotEdzes.Szint.of(args[1]);
+                        if (szint == null) {
+                            this.core.messages().sendTagged(player, "&7Használat: &f/duels bot <konnyu|kozepes|nehez> [mód]");
+                        } else {
+                            this.duels.bot().start(player, szint, args.length > 2 ? args[2].toLowerCase(Locale.ROOT) : null);
+                        }
+                    }
+                    return;
                 case "leave":
                 case "kilep":
+                    if (this.duels.bot().training(player)) {
+                        this.duels.bot().leaveCommand(player);
+                        return;
+                    }
                     if (this.duels.spectating(player)) {
                         this.duels.stopSpectating(player);
                     } else if (!this.duels.leaveQueue(player, true)) {

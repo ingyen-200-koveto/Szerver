@@ -66,6 +66,7 @@ public final class Duels implements Listener, ModeHandler {
     private final Map<UUID, Map<UUID, Duels.Invite>> invites = new HashMap<>();
     private final Map<UUID, Duels.Last> lastMatch = new HashMap<>();
     private final Map<UUID, Boolean> rankedChoice = new HashMap<>();
+    private final BotEdzes bot = new BotEdzes(this);
     private final DuelsMenu menu;
     private World world;
     private int kFactor = 32;
@@ -80,6 +81,18 @@ public final class Duels implements Listener, ModeHandler {
 
     public IceMineCore core() {
         return this.core;
+    }
+
+    public BotEdzes bot() {
+        return bot;
+    }
+
+    ArenaSlot freeSlotFor(DuelKit kit) {
+        return freeSlot(kit);
+    }
+
+    void resetPlayer(Player player) {
+        reset(player);
     }
 
     public DuelsMenu menu() {
@@ -984,7 +997,7 @@ public final class Duels implements Listener, ModeHandler {
     @Override
     public void enter(Player player) {
         if (!this.matches.containsKey(player.getUniqueId()) && !this.watching.containsKey(player.getUniqueId()) && !player.hasPermission("icemine.admin.build")
-            )
+            && !this.bot.training(player))
          {
             Bukkit.getScheduler()
                 .runTask(
@@ -993,7 +1006,8 @@ public final class Duels implements Listener, ModeHandler {
                         if (player.isOnline()
                             && player.getWorld() == this.world
                             && !this.matches.containsKey(player.getUniqueId())
-                            && !this.watching.containsKey(player.getUniqueId())) {
+                            && !this.watching.containsKey(player.getUniqueId())
+                            && !this.bot.training(player)) {
                             this.sendHome(player);
                         }
                     }
@@ -1006,6 +1020,7 @@ public final class Duels implements Listener, ModeHandler {
         if (this.matches.containsKey(player.getUniqueId())) {
             this.forfeit(player);
         }
+        this.bot.quit(player);
 
         if (this.watching.containsKey(player.getUniqueId())) {
             Match match = this.watching.remove(player.getUniqueId());
@@ -1043,6 +1058,7 @@ public final class Duels implements Listener, ModeHandler {
     }
 
     public void shutdownAll() {
+        this.bot.shutdown();
         for (Match match : this.running()) {
             if (match.state != Match.State.ENDED) {
                 this.end(match, null);
@@ -1153,7 +1169,13 @@ public final class Duels implements Listener, ModeHandler {
     public void onDamage(EntityDamageEvent event) {
         Match match = this.fighting(event.getEntity());
         if (match == null) {
-            if (event.getEntity() instanceof Player && event.getEntity().getWorld() == this.world) {
+            if (event.getEntity() instanceof Player trainee && event.getEntity().getWorld() == this.world) {
+                if (this.bot.training(trainee)) {
+                    if (this.bot.lethal(trainee, event.getFinalDamage())) {
+                        event.setCancelled(true);
+                    }
+                    return;
+                }
                 event.setCancelled(true);
             }
         } else {

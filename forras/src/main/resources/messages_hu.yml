@@ -661,6 +661,7 @@ duels:
     - " &f/duel accept &8| &f/duel deny &8- &7kihívás elfogadása"
     - " &f/duel rematch &8- &7visszavágó"
     - " &f/duels spectate <név> &8- &7nézőként"
+    - " &f/duels bot [konnyu|kozepes|nehez] &8- &7edzés bot ellen"
     - " &f/duels leave &8- &7kilépés a sorból vagy a nézésből"
     - "&8&m                                             "
   menu:

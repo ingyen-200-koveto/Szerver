@@ -1415,6 +1415,15 @@ public final class FylandMode implements ModeHandler, Listener {
         tell(target, "joined", "%player%", player.getName());
         if (inWorld(player)) {
             teleport(player, home(target));
+        } else {
+            String here = core.modes().current(player);
+            boolean free = hu.icemine.core.mode.ModeService.LOBBY.equals(here) || (hu.icemine.core.modelobby.ModeLobbies.PREFIX + ID).equals(here);
+            if (free && !core.combat().tagged(player)) {
+                core.guard().allowNext(player);
+                player.teleport(home(target));
+            } else {
+                core.messages().sendTagged(player, "&7A szigetre a &f/fy &7paranccsal jutsz el.");
+            }
         }
     }
 

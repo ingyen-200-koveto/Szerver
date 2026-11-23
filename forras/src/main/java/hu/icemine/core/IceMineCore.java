@@ -321,7 +321,7 @@ public final class IceMineCore extends JavaPlugin {
         safely("scoreboard", () -> boards.load(configs.get("scoreboard"), problems));
         configs.report(problems);
         lobbyClicks = new hu.icemine.core.lobby.LobbyClicks(this);
-        registerListeners(new CoreListener(this), chatLog, webLogin, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, parkour, boards, new MenuListener(this),
+        registerListeners(new CoreListener(this), chatLog, webLogin, new hu.icemine.core.rank.DefaultGroup(this), modes, guard, combat, combo, protection, portals, npcs, holograms, lobbyClicks, cosmetics, modeLobbies, duels, duels.bot(), parkour, boards, new MenuListener(this),
                 fyland, comboArena, gens, market.trades(), market.specials(), market.lottery(), market.keys(), new hu.icemine.core.command.CommandGuard(this), new hu.icemine.core.bedwars.BwListener(bedwars), bedwars.specials(), new hu.icemine.core.skywars.SwListener(skywars), lobby.doubleJump(), lobby.pvp(), lobby.fejek(), nameTags);
         getServer().getMessenger().registerOutgoingPluginChannel(this, ModeService.CHANNEL);
         AdminCommand admin = new AdminCommand(this);

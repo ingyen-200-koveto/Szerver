@@ -87,6 +87,13 @@ public final class DuelsMenu {
                 this.open(player1);
             }
         );
+        menu.set(
+            46,
+            Items.of(Material.ZOMBIE_HEAD).name("&b&lEdzés bot ellen")
+                .lore(List.of("&7Gyakorolj egy gépi ellenféllel,", "&7könnyű, közepes vagy nehéz szinten.", "", "&e» Kattints a választáshoz!"))
+                .hideAll().build(),
+            player1 -> this.duels.bot().menu(player1)
+        );
         menu.set(49, Items.head(player).name(this.raw("duels.menu.stats")).lore(this.statsLore(player)).build(), this::stats);
         menu.set(
             50,
