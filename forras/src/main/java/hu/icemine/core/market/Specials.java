@@ -194,8 +194,20 @@ public final class Specials implements Listener {
                 scopes.add(scope.toLowerCase(Locale.ROOT));
             }
             allowed.put(type, scopes);
-            names.put(type, config.getString("specials." + type + ".name", type));
-            lores.put(type, config.getStringList("specials." + type + ".lore"));
+            names.put(type, config.getString("specials." + type + ".name", switch (type) {
+                case SELL_CHEST -> "&6&lEladó láda";
+                case CRAFTER -> "&b&lCraftoló";
+                default -> "&a&lFarm blokk";
+            }));
+            List<String> lore = config.getStringList("specials." + type + ".lore");
+            if (lore.isEmpty()) {
+                lore = switch (type) {
+                    case SELL_CHEST -> List.of("&7Eladja, amit beleteszel, és felszívja", "&7és eladja, ami a közelébe esik.", "&7A pénz a tiéd, akkor is, ha nem vagy fent.");
+                    case CRAFTER -> List.of("&7A beletett vasat, aranyat, gyémántot,", "&7szenet, vöröskövet... blokká tömöríti.");
+                    default -> List.of("&7Betöltve tartja a körülötte lévő chunkokat.");
+                };
+            }
+            lores.put(type, lore);
         }
     }
 

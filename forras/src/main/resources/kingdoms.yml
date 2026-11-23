@@ -903,7 +903,7 @@ default-ranks:
     max-claims: 0
     permissions: [BUILD, INTERACT, USE, NEXUS, HOME, INVADE]
 
-# Eladó ládák IceCoinért (/k eladolada vagy a királyság menüben). Az ár IceCoinban, 0 = nem vehető.
+# Eladó ládák IceCoinért a Kingdomsban (/shop -> Különleges). Az ár IceCoinban.
 sellchest-shop:
   sellchest: 590
   sellchest_15: 990
@@ -932,7 +932,6 @@ help:
   - " &e/k fly &8- &7repülés a saját földeteken &8(rang kell hozzá)"
   - " &e/k extractor &8- &7az összes Kitermelő begyűjtése &8(rang kell hozzá)"
   - " &e/k spawn &8- &7vissza a városba"
-  - " &e/k eladolada &8- &7eladó ládák IceCoinért (1x, 1,5x, 2x, 5x)"
 
 admin-help:
   - "&6&lKingdoms admin"

@@ -586,7 +586,7 @@ A régi királyságok, földek és otthonok az első indításkor maguktól átj
 (a régi fájl `kingdoms.yml.regi` néven megmarad).
 
 
-**Eladó ládák IceCoinért**: `/k eladolada` vagy a királyság menüben az Eladó ládák gomb. Sima (590 IC), 1,5x (990 IC),
+**Eladó ládák IceCoinért**: a Kingdomsban a `/shop` Különleges kategóriájában (a pénzes eladó láda helyett). Sima (590 IC), 1,5x (990 IC),
 2x (1450 IC) és 5x (2100 IC) szorzós láda: ennyiszer annyit fizet az eladott tárgyakért. Az árak a `kingdoms.yml`-ben
 (`sellchest-shop`). Az IceCoint a weboldal vonja le (`/api/mc/ic-koltes`, ehhez kell az `icecoin.api-key`), a láda csak
 sikeres levonás után kerül a játékoshoz. Admin: `/market give <játékos> sellchest_15|sellchest_2|sellchest_5`.

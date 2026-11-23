@@ -218,11 +218,17 @@ public final class DynamicShop {
         if (scope == null || category == null) {
             return;
         }
-        List<Entry> entries = new ArrayList<>();
+        List<Object> entries = new ArrayList<>();
+        boolean icChests = "kingdoms".equals(scope.id()) && market.core().kingdoms() != null && market.core().kingdoms().sellChests() != null;
         for (Entry entry : category.entries) {
-            if (entry.in(scope.id())) {
-                entries.add(entry);
+            if (!entry.in(scope.id())) {
+                continue;
             }
+            if (icChests && Specials.isSell(entry.special)) {
+                entries.addAll(Specials.sellTypes());
+                continue;
+            }
+            entries.add(entry);
         }
         int pages = Math.max(1, (entries.size() + INNER.length - 1) / INNER.length);
         int current = Math.max(0, Math.min(pages - 1, page));
@@ -233,7 +239,12 @@ public final class DynamicShop {
             if (index >= entries.size()) {
                 break;
             }
-            Entry entry = entries.get(index);
+            if (entries.get(index) instanceof String chestType) {
+                var shop = market.core().kingdoms().sellChests();
+                menu.set(INNER[i], shop.icon(player, chestType), clicker -> shop.confirm(clicker, chestType, () -> openCategory(clicker, id, current)));
+                continue;
+            }
+            Entry entry = (Entry) entries.get(index);
             menu.set(INNER[i], display(scope, entry), clicker -> {
                 buy(clicker, scope, entry);
                 openCategory(clicker, id, current);

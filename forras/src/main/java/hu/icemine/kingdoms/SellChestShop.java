@@ -20,7 +20,7 @@ import org.bukkit.inventory.ItemStack;
  * Eladó ládák IceCoinért a Kingdomsban: sima, 1,5x, 2x és 5x szorzós. Az árak a kingdoms.yml-ben
  * (sellchest-shop), az IceCoint a weboldal vonja le, a láda csak sikeres levonás után kerül a játékoshoz.
  */
-final class SellChestShop {
+public final class SellChestShop {
 
     private static final String[] TYPES = {"sellchest", "sellchest_15", "sellchest_2", "sellchest_5"};
     private static final Material[] ICONS = {Material.CHEST, Material.CHEST, Material.CHEST, Material.CHEST};
@@ -53,7 +53,33 @@ final class SellChestShop {
         return plugin.core().market() == null ? null : plugin.core().market().specials();
     }
 
-    void open(Player player) {
+    /** A /shop Különleges kategóriájában mutatott ikon: a láda IceCoin árral. */
+    public ItemStack icon(Player player, String type) {
+        Specials specials = specials();
+        ItemStack base = specials == null ? null : specials.item(type);
+        if (base == null) {
+            return new ItemStack(Material.CHEST);
+        }
+        IceCoins coins = plugin.core().iceCoins();
+        List<String> lore = new ArrayList<>();
+        lore.add("&7Eladja, amit beleteszel vagy a");
+        lore.add("&7közelébe esik, és a pénz a tiéd.");
+        lore.add("&eEladási szorzó: &6&l" + Specials.multiplierText(type));
+        lore.add("");
+        lore.add("&7Ár: &b" + prices.getOrDefault(type, 0L) + " IceCoin");
+        lore.add("&7IceCoinod: &b" + (coins == null ? "-" : coins.display(player)));
+        lore.add("");
+        lore.add("&e» Kattints a vásárláshoz");
+        ItemStack icon = Items.of(Material.CHEST).name(displayName(base)).lore(lore).glow().hideAll().build();
+        icon.setAmount(switch (type) {
+            case "sellchest_2" -> 2;
+            case "sellchest_5" -> 5;
+            default -> 1;
+        });
+        return icon;
+    }
+
+    public void open(Player player) {
         Specials specials = specials();
         if (specials == null) {
             player.sendMessage(Text.color("&cA piac most nem elérhető."));
@@ -84,7 +110,7 @@ final class SellChestShop {
             lore.add("&e» Kattints a vásárláshoz");
             ItemStack icon = Items.of(ICONS[i]).name(displayName(base)).lore(lore).glow().hideAll().build();
             icon.setAmount(new int[]{1, 1, 2, 5}[i]);
-            menu.set(slots[i], icon, p -> confirm(p, type));
+            menu.set(slots[i], icon, p -> confirm(p, type, () -> open(p)));
         }
         menu.set(22, Items.of(Material.BOOK).name("&e&lMi ez?").lore(List.of("&7Az IceCoint a weboldalon kapod", "&7(vásárlás, szavazás, kerék).", "&7A láda csak a Kingdomsban rakható le.")).build());
         menu.open(player);
@@ -95,7 +121,7 @@ final class SellChestShop {
         return item != null && item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : "Eladó láda";
     }
 
-    private void confirm(Player player, String type) {
+    public void confirm(Player player, String type, Runnable back) {
         long price = prices.getOrDefault(type, 0L);
         Specials specials = specials();
         if (price <= 0 || specials == null) {
@@ -105,7 +131,7 @@ final class SellChestShop {
         menu.frame(Material.GRAY_STAINED_GLASS_PANE, null);
         menu.set(13, specials.item(type));
         menu.set(11, Items.of(Material.LIME_CONCRETE).name("&a&lMegveszem").lore(List.of("&7Ár: &b" + price + " IceCoin")).build(), p -> buy(p, type, price));
-        menu.set(15, Items.of(Material.RED_CONCRETE).name("&c&lMégse").build(), this::open);
+        menu.set(15, Items.of(Material.RED_CONCRETE).name("&c&lMégse").build(), p -> back.run());
         menu.open(player);
     }
 

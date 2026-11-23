@@ -203,7 +203,7 @@ public final class IceMineKingdoms extends Module {
         return borders;
     }
 
-    SellChestShop sellChests() {
+    public SellChestShop sellChests() {
         return sellChests;
     }
 
