@@ -280,6 +280,7 @@ permissions:
     default: op
     children:
       icemine.admin.tab: true
+      icemine.admin.gens: true
       icemine.admin.mentes: true
       icemine.admin.skywars: true
       icemine.admin.info: true
