@@ -385,7 +385,7 @@ messages:
   kulcs-cooldown: "A következő csomagot &f%time% &7múlva kérheted."
   kulcs-claimed: "Megkaptad a(z) %rank% &7heti csomagját: &f%keys%"
   # pénz toplista
-  baltop-header: "&b[IceMine] &fLeggazdagabbak &8(%scope%&8)"
+  baltop-header: "&b&lIceMine &8• &fLeggazdagabbak &8(%scope%&8)"
   baltop-line: " &e#%place% &f%player% &8- %money%"
   baltop-empty: "Még senkinek nincs pénze itt."
   # admin

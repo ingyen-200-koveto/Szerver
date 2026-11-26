@@ -108,7 +108,7 @@ public final class Hovihar {
             p.sendTitle(Text.color("&b&l❄ HÓVIHAR ❄"), Text.color("&7Gyűjtsd a varázs hópelyheket!"), 10, 60, 15);
             p.playSound(p.getLocation(), Sound.ITEM_ELYTRA_FLYING, 0.6F, 0.6F);
         }
-        String msg = Text.color("&b[IceMine] &fHóvihar a lobbyban! &7" + hossz / 60 + " percig varázs hópelyhek hullanak, sétálj oda és szedd fel őket.");
+        String msg = Text.color("&b&lIceMine &8• &fHóvihar a lobbyban! &7" + hossz / 60 + " percig varázs hópelyhek hullanak, sétálj oda és szedd fel őket.");
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.getWorld() != world) {
                 p.sendMessage(msg);

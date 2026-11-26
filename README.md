@@ -208,7 +208,7 @@ A Gensbe belépve (3.64.0-tól) rögtön a Gens központba kerülsz: egy nagy fa
 tó stéggel, óriásfák, lebegő hamburgerek), a közepén a közös farm. A téren lévő portál a saját szigetedre visz.
 Külön Gens módlobby már nincs (modelobbies.yml -> lobbies.gens.enabled: false).
 
-A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban), az AuthMe üzenetei is ezzel jönnek, belépéskor
+A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban), máshol `IceMine •` (a régi `[IceMine]` helyett), az AuthMe üzenetei is ezzel jönnek, belépéskor
 csak annyi jelenik meg, hogy "Sikeres bejelentkezés, jó játékot!" (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
 A módlobbyk felirata magától feljebb kerül, ha belelógna egy épületbe.
 

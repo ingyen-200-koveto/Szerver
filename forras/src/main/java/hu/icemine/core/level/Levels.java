@@ -225,7 +225,7 @@ public final class Levels {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 1.2F);
         core.messages().sendTagged(player, "&aSzintet léptél! &7Most " + c + to + ". szintű &7vagy, kaptál &f" + core.economy().format(currency, coins) + "&7-t.");
         if (to % 10 == 0) {
-            String text = Text.color("&b[IceMine] &f" + player.getName() + " &7elérte a " + c + "&l" + to + ". szintet&7!");
+            String text = Text.color("&b&lIceMine &8• &f" + player.getName() + " &7elérte a " + c + "&l" + to + ". szintet&7!");
             for (Player other : Bukkit.getOnlinePlayers()) {
                 other.sendMessage(text);
             }

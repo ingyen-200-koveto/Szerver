@@ -695,7 +695,7 @@ public final class GensMode implements ModeHandler, Listener {
         buildFarm(data, GensBuild.PLOT_CLEAR);
         markFarm(player);
         save(data, true);
-        core.messages().sendList(player, "gens.first-join", "%player%", player.getName());
+        org.bukkit.Bukkit.getScheduler().runTaskLater(core, () -> core.messages().sendList(player, "gens.first-join", "%player%", player.getName()), 5L);
         justCreated.add(player.getUniqueId());
     }
 

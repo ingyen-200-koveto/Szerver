@@ -949,10 +949,10 @@ admin-help:
   - " &8Kreatív módban, adminként mindenhol építhetsz."
 
 messages:
-  # A prefix a messages_hu.yml-ből jön (&b[IceMine] &7), itt nem kell beállítani.
+  # A prefix a messages_hu.yml-ből jön (&b&lIceMine &8• &7), itt nem kell beállítani.
   first-join:
     - ""
-    - " &b[IceMine] &7Szia &f%player%&7, üdv a királyságok földjén!"
+    - " &b&lIceMine &8• &7Szia &f%player%&7, üdv a királyságok földjén!"
     - " &7Itt túlélő módban vagy. Kaptál pár alap cuccot, a többit szerezd meg."
     - " &7Alapíts királyságot (&f/k create <név>&7) vagy kérj meghívást valakitől."
     - " &7A város és a foglalt földek védettek, a vadonban viszont bármi megtörténhet."

@@ -350,6 +350,26 @@ public final class Migrations {
             lobbies.set("migrated.gens-village-v1", true);
             files.save("modelobbies");
         }
+        for (String name : new String[]{"messages_hu", "kingdoms", "contacts", "market", "lobby", "modelobbies", "scoreboard"}) {
+            YamlConfiguration file = files.get(name);
+            if (file == null || file.getBoolean("migrated.prefix-dot-v1", false)) {
+                continue;
+            }
+            for (String key : file.getKeys(true)) {
+                Object value = file.get(key);
+                if (value instanceof String text && text.contains("[IceMine]")) {
+                    file.set(key, newPrefix(text));
+                } else if (value instanceof java.util.List<?> list && list.stream().anyMatch(o -> o instanceof String t && t.contains("[IceMine]"))) {
+                    java.util.List<Object> fixed = new java.util.ArrayList<>();
+                    for (Object o : list) {
+                        fixed.add(o instanceof String t ? newPrefix(t) : o);
+                    }
+                    file.set(key, fixed);
+                }
+            }
+            file.set("migrated.prefix-dot-v1", true);
+            files.save(name);
+        }
         YamlConfiguration boards = files.get("scoreboard");
         if (boards != null && !boards.getBoolean("migrated.gens-title-v1", false)) {
             if (!boards.isSet("titles.gens")) {
@@ -1069,6 +1089,12 @@ public final class Migrations {
         hu.icemine.core.lobby.LobbyDefaults.npc(lobby, "mode_creative");
         lobby.set("npcs." + soon, null);
         return true;
+    }
+
+    /** A régi "[IceMine]" előtag helyett "IceMine •", ahogy a játékmódoknál. */
+    static String newPrefix(String text) {
+        return text.replace("&b[IceMine] &7", "&b&lIceMine &8• &7").replace("&b[IceMine] ", "&b&lIceMine &8• ")
+                .replace("&b[IceMine]\n", "&b&lIceMine\n").replace("[IceMine]", "IceMine •");
     }
 
     private static void copyDefault(YamlConfiguration config, String path) {

@@ -4,7 +4,7 @@
 # Minden chat üzenet elé automatikusan odakerül a prefix, ezt itt egy helyen tudod átírni.
 # Ha átírsz valamit: /icem reload messages_hu
 
-prefix: "&b[IceMine] &7"
+prefix: "&b&lIceMine &8• &7"
 # A főlobbyban ez a prefix kerül az üzenetek elé (a játékmódokban a mód neve)
 lobby-prefix: "&b&lLobby &8• &7"
 # Játékmódban a prefix a mód neve (pl. "BedWars • "), a főlobbyban a lobby-prefix. false = mindenhol IceMine.
@@ -20,7 +20,7 @@ general:
   load-failed: "Nem sikerült betölteni az adataidat. Próbálj meg pár másodperc múlva újra belépni!"
   first-join:
     - ""
-    - " &b[IceMine] &7Szia &f%player%&7, jó, hogy itt vagy!"
+    - " &b&lIceMine &8• &7Szia &f%player%&7, jó, hogy itt vagy!"
     - " &7Kattints a platformon egy szoborra, vagy válassz az &biránytűvel&7."
     - " &7Ha elakadnál, nézz rá a könyvre a hotbaron, ott vannak az elérhetőségeink."
     - ""
@@ -60,17 +60,17 @@ combo:
   disabled: "A ComboFly &ckikapcsolva&7."
   admin-reset: "&f%player% &7kombó statisztikái törölve."
   help:
-    - "&b[IceMine] &3&lComboFly"
+    - "&b&lIceMine &8• &3&lComboFly"
     - " &7Ebben a módban: %status%  &8| &7Kijelzés: %display%"
     - " &7Üss egymás után, és tartsd a levegőben az ellenfelet!"
     - " &7Saját arénája van, a lobbyban a lila szoborral jutsz oda."
   stats:
-    - "&b[IceMine] &7ComboFly statisztikáid"
+    - "&b&lIceMine &8• &7ComboFly statisztikáid"
     - " &7Legnagyobb kombó: &b%best%x"
     - " &7Kombók száma: &f%combos%"
     - " &7Ölések: &a%kills% &8| &7Halálok: &c%deaths% &8| &7K/D: &f%kd%"
   admin-info:
-    - "&b[IceMine] &7ComboFly: &f%player%"
+    - "&b&lIceMine &8• &7ComboFly: &f%player%"
     - " &7Most: &b%current%x &8| &7Mód: &f%mode% &8(%active%&8)"
     - " &7Rekord: &b%best%x &8| &7Kombók: &f%combos%"
 
@@ -181,7 +181,7 @@ spawn:
   lobby: "&7Visszakerültél a lobby spawnra."
 
 contacts:
-  header: "&b[IceMine] &3&lKapcsolatok &8(kattints a megnyitáshoz)"
+  header: "&b&lIceMine &8• &3&lKapcsolatok &8(kattints a megnyitáshoz)"
   empty: "Még nincs beállítva elérhetőség."
 
 leaderboard:
@@ -283,7 +283,7 @@ gens:
   welcome: "Üdv a Gensben! Arass a kapáddal, a menüt a &f/gens &7paranccsal nyitod meg."
   first-join:
     - ""
-    - " &b[IceMine] &7Szia &f%player%&7, ez itt a közös farm!"
+    - " &b&lIceMine &8• &7Szia &f%player%&7, ez itt a közös farm!"
     - " &7Bal klikk a kapával a beérett növényre: &faratás&7. Pár mp múlva visszanő."
     - " &7Új földet &fjobb klikkel &7veszel a földre kattintva, a termést a &fhordónál &7adod el (vagy &f/elad&7)."
     - " &7A saját szigeted a generátoroké: &f/gens home&7. Kapa fejlesztés: &füllő &7vagy &f/gens kapa&7."
@@ -317,14 +317,14 @@ gens:
   farm:
     converted:
       - ""
-      - " &b[IceMine] &a&lÚj Gens! &7Nincsenek többé generátorok: mostantól farmolsz."
+      - " &b&lIceMine &8• &a&lÚj Gens! &7Nincsenek többé generátorok: mostantól farmolsz."
       - " &7A szigeted farmmá alakult, &f%fields% &7föld van nyitva (a régi szinted szerint)."
       - " &7A régi generátoraidért (&f%generators% &7db) és a megmaradt termésért kaptál &f%money%&7-t."
       - " &7Fogd a kapát, és arass! Súgó: &f/gens"
       - ""
     converted-empty:
       - ""
-      - " &b[IceMine] &a&lÚj Gens! &7Nincsenek többé generátorok: mostantól farmolsz."
+      - " &b&lIceMine &8• &a&lÚj Gens! &7Nincsenek többé generátorok: mostantól farmolsz."
       - " &7A szigeted farmmá alakult, &f%fields% &7föld van nyitva (a régi szinted szerint)."
       - " &7Fogd a kapát, és arass! Súgó: &f/gens"
       - ""
@@ -570,7 +570,7 @@ gens:
 
 admin:
   help:
-    - "&b[IceMine] &fAdmin parancsok &8(/icem admin ...)"
+    - "&b&lIceMine &8• &fAdmin parancsok &8(/icem admin ...)"
     - " &b/icem admin setlobby &8- &7lobby spawn ide"
     - " &b/icem admin setportal <mód> [sugár] [magasság] &8- &7portál ide"
     - " &b/icem admin givecurrency|takecurrency|setcurrency <játékos> <összeg> [pénznem]"
@@ -582,7 +582,7 @@ admin:
     - " &b/icem admin rebuild <lobby|combofly|gens> confirm"
     - " &b/icem admin combattag clear <játékos> &8| &b/icem admin info"
   info:
-    - "&b[IceMine] &fÁllapot"
+    - "&b&lIceMine &8• &fÁllapot"
     - " &7Verzió: &f%version% &8| &7Adatbázis: &f%database%"
     - " &7Online: &f%online% &8| &7Betöltött profil: &f%profiles%"
     - " &7Harcban: &f%tagged% &8| &7Futó kombók: &f%combos%"
@@ -609,7 +609,7 @@ admin:
   rebuilding: "Építem: &f%target%&7, ez eltarthat pár másodpercig..."
   rebuilt: "Kész: &f%target%"
   combat-cleared: "&f%player% &7kikerült a harcból."
-  stats-header: "&b[IceMine] &f&l%player% &8(%rank%&8)"
+  stats-header: "&b&lIceMine &8• &f&l%player% &8(%rank%&8)"
 
 modelobby:
   welcome: "Üdv a %mode% &7lobbyban! Lépj be a portálba, ha indulnál."
@@ -672,7 +672,7 @@ duels:
   top-header: "&eDuels toplisták"
   help:
     - "&8&m                                             "
-    - " &b[IceMine] &e&lDuels"
+    - " &b&lIceMine &8• &e&lDuels"
     - " &f/duels &8- &7menü, módok, ranked sor"
     - " &f/duel <név> [mód] [bo3] &8- &7kihívás"
     - " &f/duel accept &8| &f/duel deny &8- &7kihívás elfogadása"
@@ -712,7 +712,7 @@ duels:
       - "&e» Kattints a váltáshoz!"
 
 icem:
-  help-header: "&b[IceMine] &fParancsok"
+  help-header: "&b&lIceMine &8• &fParancsok"
   help-line: " &b%usage% &8- &7%description%"
   help-footer: " &8A listában csak azt látod, amihez van jogod."
   help:
@@ -786,7 +786,7 @@ upgrade:
   max: "%name% &7már a legmagasabb szinten van."
 
 mainmenu:
-  item: "&b[IceMine] &fFőmenü"
+  item: "&b&lIceMine &8• &fFőmenü"
   item-lore:
     - "&7Játékmódok, profil, toplisták, rangok."
   rank: "&7Rang: %rank%"
@@ -1130,8 +1130,8 @@ bedwars:
     self-other: "%victim% &7meghalt."
     final: " &b&lVÉGSŐ ÖLÉS!"
   end:
-    winner: "&b[IceMine] &6&lGYŐZTES: %team%"
-    draw: "&b[IceMine] &e&lDÖNTETLEN"
+    winner: "&b&lIceMine &8• &6&lGYŐZTES: %team%"
+    draw: "&b&lIceMine &8• &e&lDÖNTETLEN"
     rank: "  &e%place%. &f%player% &7- &a%kills% &7ölés, &b%finals% &7végső, &e%beds% &7ágy"
     win-title: "&6&lGYŐZELEM!"
     win-subtitle: "&7Szép volt, nyertetek!"
@@ -1157,7 +1157,7 @@ weblogin:
   success-old: "&aSikeres bejelentkezés, jó játékot!"
   success-offline: "&aSikeres bejelentkezés, jó játékot!"
   wrong: "Rossz jelszó. Azt a jelszót írd be, amivel a weboldalon (&b%url%&7) belépsz. Még &f%left% &7próbálkozásod van."
-  kick: "&b[IceMine]\n\n&cTúl sokszor írtad el a jelszót.\n&7Ha elfelejtetted, a weboldalon kérhetsz újat: &b%url%"
+  kick: "&b&lIceMine\n\n&cTúl sokszor írtad el a jelszót.\n&7Ha elfelejtetted, a weboldalon kérhetsz újat: &b%url%"
   no-account: "Ehhez a névhez még nincs fiók. Regisztrálj a weboldalon: &b%url%&7, ugyanezzel a névvel (&f%name%&7), aztán itt: &b/login <jelszó>"
   register: "Regisztrálni a weboldalon tudsz: &b%url%&7. Ugyanazt a nevet add meg, mint itt (&f%name%&7), aztán lépj be: &b/login <jelszó>"
   verify: "A weboldalas fiókod még nincs megerősítve. Nézd meg az e-mailjeidet, kattints a linkre, aztán próbáld újra."

@@ -13,9 +13,9 @@ import org.bukkit.entity.Player;
 public final class Messages {
 
     /** Ez a prefix kerül minden chat üzenet elé, ha a messages_hu.yml-ben nincs megadva más. */
-    public static final String DEFAULT_PREFIX = "&b[IceMine] &7";
+    public static final String DEFAULT_PREFIX = "&b&lIceMine &8• &7";
     /** A prefix felismerhető része: ha egy szöveg már tartalmazza, nem tesszük elé még egyszer. */
-    public static final String TAG = "[IceMine]";
+    public static final String TAG = "IceMine •";
 
     private final ConfigFiles files;
     private final Logger logger;
@@ -83,8 +83,27 @@ public final class Messages {
         if (colored.contains(from)) {
             return colored.replace(from, to);
         }
-        String fromTrim = from.trim();
-        return colored.contains(fromTrim) ? colored.replace(fromTrim, to.trim()) : colored;
+        String fromCore = core(from);
+        return colored.contains(fromCore) ? colored.replace(fromCore, core(to)) : colored;
+    }
+
+    /** A prefix lényege, a végén lévő színkódok és szóközök nélkül (pl. "§b§lIceMine §8•"). */
+    static String core(String prefix) {
+        String value = prefix;
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            String trimmed = value.stripTrailing();
+            if (!trimmed.equals(value)) {
+                value = trimmed;
+                changed = true;
+            }
+            if (value.length() >= 2 && value.charAt(value.length() - 2) == '§') {
+                value = value.substring(0, value.length() - 2);
+                changed = true;
+            }
+        }
+        return value;
     }
 
     public String prefixed(String key, String... pairs) {
@@ -92,7 +111,8 @@ public final class Messages {
     }
 
     public String prefixed(CommandSender sender, String key, String... pairs) {
-        return localize(sender, Text.color(prefix(sender) + Text.replace(raw(key), pairs)));
+        String text = Text.replace(raw(key), pairs);
+        return localize(sender, Text.color(hasTag(text) ? text : prefix(sender) + text));
     }
 
     /**

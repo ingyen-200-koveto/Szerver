@@ -184,7 +184,7 @@ public final class RejtettFejek implements Listener {
             }
             player.sendTitle(Text.color("&b&lMEGVAN MIND!"), Text.color("&7Mind a " + all + " ajándékot megtaláltad"), 5, 60, 15);
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1F, 1F);
-            String msg = Text.color("&b[IceMine] &f" + player.getName() + " &7megtalálta mind a " + all + " elrejtett ajándékot a lobbyban!");
+            String msg = Text.color("&b&lIceMine &8• &f" + player.getName() + " &7megtalálta mind a " + all + " elrejtett ajándékot a lobbyban!");
             for (Player other : Bukkit.getOnlinePlayers()) {
                 other.sendMessage(msg);
             }

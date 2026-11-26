@@ -9,7 +9,7 @@
 #   lp group default permission set icemine.command.top false     (a sima játékosok nem látják a /top-ot)
 #   lp group vip permission set icemine.command.napi true
 #
-# Akinek nincs joga, az ezt kapja: [IceMine] Ehhez nincs jogod!
+# Akinek nincs joga, az ezt kapja: IceMine • Ehhez nincs jogod!
 # A tiltott Bukkit/Paper parancsokat (/pl, /ver, /about...) a config.yml blocked-commands részében találod.
 # Módosítás után: /icem reload permissions
 
