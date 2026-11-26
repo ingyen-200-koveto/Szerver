@@ -5,7 +5,7 @@
 #
 # world: a lobby világ neve | color: a téma színe (red, light_blue, purple, lime, yellow, orange...)
 # title: a lebegő felirat (A-Z betűk) | title-split: ennyi betű lesz színes, a többi fehér (0 = mind)
-# theme: a lobby témája: arena (gladiátor aréna), fyland (felhők fölötti szigetek), combofly (End város ametiszt kristályokkal),
+# theme: a lobby témája: arena (gladiátor aréna), fyland (OneBlock: óriás blokkok felhőkön), combofly (End város ametiszt kristályokkal),
 #        gens (falu: házak, piac, tó), kingdoms (királyi vár udvara), duels (kolosszeum), snow (havas sziget)
 # play-command: ha meg van adva, a portál ezt a parancsot futtatja a játékos nevében (pl. Bedwars)
 # holograms: a "Játék" (play), az "Infó" és a toplisták (toplist: a config.yml toplista neve)

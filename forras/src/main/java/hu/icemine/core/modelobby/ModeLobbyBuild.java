@@ -99,6 +99,7 @@ public final class ModeLobbyBuild extends Build {
                 break;
             case SKYPVP:
                 clouds();
+                new OneblockGiants((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case COMBOFLY:
                 crystals();

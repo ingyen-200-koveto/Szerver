@@ -221,6 +221,9 @@ TNT, arany, ametiszt, óceán, hóvihar, redstone), láda, fenyő és érc; köz
 A ComboFly lobby (3.58.0-tól) egy End város: három purpur torony bíbor ablakokkal és end rodokkal, obszidián
 oszlopok (kettő vasrács ketreccel), kórusvirágok, ametiszt kristályok és lebegő end kő szigetek.
 
+A OneBlock lobby (3.59.0-tól) körül a OneBlock fázisok óriás blokkjai lebegnek felhőkön (fű, tölgyfa, kő ércekkel,
+hó, nether, óceán, End), a felirat fölött pedig "az egy blokk".
+
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
 - **Generátorok** (3.51.0): a Generátor boltban (`/gens generator` vagy a Gens menü) veszed, a szigeteden lerakod, és

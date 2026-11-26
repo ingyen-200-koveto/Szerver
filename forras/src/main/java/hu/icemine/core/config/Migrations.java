@@ -10,7 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public final class Migrations {
 
     /** Módlobbyk, amelyek új, részletes témát kaptak: {lobby, téma}. */
-    private static final String[][] NEW_LOBBIES = {{"kingdoms", "kingdoms"}, {"duels", "duels"}, {"bedwars", "bedwars"}, {"skywars", "snow"}, {"combofly", "combofly"}};
+    private static final String[][] NEW_LOBBIES = {{"kingdoms", "kingdoms"}, {"duels", "duels"}, {"bedwars", "bedwars"}, {"skywars", "snow"}, {"combofly", "combofly"}, {"fyland", "fyland"}};
 
 
     private Migrations() {
