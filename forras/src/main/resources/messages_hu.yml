@@ -715,7 +715,6 @@ icem:
   help:
     help: ["/icem help", "ez a lista"]
     stats: ["/icem stats [játékos]", "profil és statisztikák"]
-    kit: ["/icem kit [kit]", "kitek (ComboFly)"]
     arena: ["/icem arena", "aréna választó"]
     rank: ["/icem rank [játékos]", "rangok és amit adnak"]
     setspawn: ["/icem setspawn <mód> [aréna]", "játékmód spawn ide"]

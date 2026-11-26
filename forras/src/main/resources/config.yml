@@ -103,7 +103,7 @@ admin-log: true
 # A "bukkit:pl" és hasonló alakokat is tiltja. Ide azok a parancsok kerültek, amik pluginlistát vagy verziót árulnak el.
 blocked-commands: [pl, plugins, ver, version, about, icanhasbukkit, timings, spark, paper, purpur, bukkit, spigot, tps, mspt,
   lp, luckperms, lpb, perm, perms, permission, permissions, tab, btab, via, viaver, viaversion, vvbukkit, viabackwards, viarewind,
-  combofly, sw, skywars, bw, bedwars, arena, arenak, arenas, kapcsolat, kapcsolatok, contacts, discord, top, toplista, leaderboard, hub, l, napi, daily, penz, balance, bal, money, fizet, pay, utal, baltop, penztop, balancetop]
+  combofly, sw, skywars, bw, bedwars, arena, arenak, arenas, kapcsolat, kapcsolatok, contacts, discord, top, toplista, leaderboard, hub, l, napi, daily, penz, balance, bal, money, fizet, pay, utal, baltop, penztop, balancetop, kit, kits]
 
 # Az AuthMe és az EssentialsX üzeneteit is IceMine • előtaggal írja ki (magyarul).
 # Az IceMine egyszer kirakja a saját üzenetfájljait a pluginok mappájába (a régit .regi néven elmenti).

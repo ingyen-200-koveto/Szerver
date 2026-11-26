@@ -24,7 +24,7 @@ import org.bukkit.entity.Player;
 public final class IcemCommand implements CommandExecutor, TabCompleter {
 
     /** A súgóban ebben a sorrendben jelennek meg. */
-    static final List<String> SUBS = List.of("help", "stats", "kit", "arena", "rank", "setspawn", "reload", "update", "chatlog", "admin");
+    static final List<String> SUBS = List.of("help", "stats", "arena", "rank", "setspawn", "reload", "update", "chatlog", "admin");
     /** Régi formában (/icemine setlobby ...) is elfogadjuk az admin alparancsokat, hogy a megszokott parancsok működjenek. */
     static final List<String> LEGACY_ADMIN = List.of("setlobby", "setportal", "givecurrency", "takecurrency", "setcurrency", "parkour",
             "combofly", "mode", "maintenance", "hologram", "npc", "rebuild", "combattag", "info");
@@ -75,9 +75,6 @@ public final class IcemCommand implements CommandExecutor, TabCompleter {
                 return true;
             case "stats":
                 stats(sender, args);
-                return true;
-            case "kit":
-                kit(sender, args);
                 return true;
             case "arena":
                 arena(sender, args);

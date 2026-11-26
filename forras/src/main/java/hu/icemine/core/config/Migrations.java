@@ -671,6 +671,38 @@ public final class Migrations {
         notes.addAll(compassV2(files::get, files::save));
         notes.addAll(cosmeticsRemoved(files::get, files::save));
         notes.addAll(blockedV2(files::get, files::save));
+        YamlConfiguration hotbarLobby = files.get("lobby");
+        if (hotbarLobby != null && hotbarLobby.isConfigurationSection("hotbar.items.selector") && hotbarLobby.getInt("hotbar.items.selector.slot", 4) != 4) {
+            // az iránytű mindig középen van
+            boolean taken = false;
+            for (String key : hotbarLobby.getConfigurationSection("hotbar.items").getKeys(false)) {
+                if (!key.equals("selector") && hotbarLobby.getInt("hotbar.items." + key + ".slot", -1) == 4) {
+                    hotbarLobby.set("hotbar.items." + key + ".slot", hotbarLobby.getInt("hotbar.items.selector.slot"));
+                    taken = true;
+                }
+            }
+            hotbarLobby.set("hotbar.items.selector.slot", 4);
+            files.save("lobby");
+            notes.add("lobby.yml: a játékmód választó iránytű középre került" + (taken ? " (a helyén lévő tárgy a régi helyére)" : ""));
+        }
+        YamlConfiguration kitConfig = files.get("config");
+        if (kitConfig != null && !kitConfig.getBoolean("migrated.blocked-v3", false)) {
+            // a /kit kivéve: a ComboFlyban mindenkinek ugyanaz a kitje
+            List<String> list = new ArrayList<>(kitConfig.getStringList("blocked-commands"));
+            for (String name : List.of("kit", "kits")) {
+                if (!list.contains(name)) {
+                    list.add(name);
+                }
+            }
+            kitConfig.set("blocked-commands", list);
+            kitConfig.set("migrated.blocked-v3", true);
+            files.save("config");
+            YamlConfiguration kitTexts = files.get("messages_hu");
+            if (kitTexts != null && kitTexts.isSet("icem.help.kit")) {
+                kitTexts.set("icem.help.kit", null);
+                files.save("messages_hu");
+            }
+        }
         notes.addAll(dailyRemoved(files::get, files::save));
         notes.addAll(gensBoardV2(files::get, files::save));
         YamlConfiguration economyFile = files.get("economy");

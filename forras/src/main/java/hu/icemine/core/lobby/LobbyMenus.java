@@ -79,15 +79,6 @@ public final class LobbyMenus {
         Menu menu = new Menu("main", 4, title("main", "&8Főmenü"));
         menu.frame(Material.LIGHT_BLUE_STAINED_GLASS_PANE, null);
         menu.set(10, button(Material.COMPASS, "mainmenu.selector"), clicker -> selector(clicker));
-        menu.set(11, button(Material.CHEST, "mainmenu.kits"), clicker -> {
-            hu.icemine.core.kitpvp.PvpMode mode = core.pvpModeOf(clicker);
-            if (mode == null) {
-                clicker.closeInventory();
-                core.messages().send(clicker, "kit.only-pvp");
-                return;
-            }
-            mode.openKits(clicker);
-        });
         menu.set(12, button(Material.GOLDEN_SWORD, "mainmenu.duels"), clicker -> {
             if (core.duels() != null && clicker.getWorld().getName().equalsIgnoreCase("lobby_duels")) {
                 core.duels().menu().open(clicker);

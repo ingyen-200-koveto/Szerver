@@ -422,10 +422,10 @@ public final class ModeLobbies implements Listener {
         String name = info == null ? lobby.mode : info.name;
         inventory.setItem(0, Items.of(lobby.icon).name(core.messages().raw("modelobby.item.play").replace("%mode%", name))
                 .lore(core.messages().list("modelobby.item.play-lore")).hideAll().tag(ITEM + "play").build());
-        inventory.setItem(1, Items.of(Material.COMPASS).name(core.messages().raw("modelobby.item.selector"))
+        inventory.setItem(4, Items.of(Material.COMPASS).name(core.messages().raw("modelobby.item.selector"))
                 .lore(core.messages().list("modelobby.item.selector-lore")).hideAll().tag(ITEM + "selector").build());
         if ("skywars".equals(lobby.mode)) {
-            inventory.setItem(4, Items.of(Material.LIGHT_BLUE_STAINED_GLASS).name("&b&lKetrecek &7(jobb klikk)")
+            inventory.setItem(1, Items.of(Material.LIGHT_BLUE_STAINED_GLASS).name("&b&lKetrecek &7(jobb klikk)")
                     .lore(java.util.List.of("&7Válaszd ki, milyen ketrecben", "&7várj a meccs elején.")).hideAll().tag(ITEM + "cages").build());
         }
         inventory.setItem(8, Items.of(Material.RED_BED).name(core.messages().raw("modelobby.item.back"))
@@ -773,9 +773,18 @@ public final class ModeLobbies implements Listener {
         if (!isLobbyWorld(player.getWorld()) || builder(player)) {
             return;
         }
-        if (event.getClickedInventory() != null && event.getClickedInventory().equals(player.getInventory())) {
+        org.bukkit.event.inventory.InventoryType top = event.getView().getTopInventory().getType();
+        boolean ownInventory = top == org.bukkit.event.inventory.InventoryType.CRAFTING || top == org.bukkit.event.inventory.InventoryType.PLAYER;
+        if (ownInventory || event.getClickedInventory() != null && event.getClickedInventory().equals(player.getInventory())
+                || event.getClick() == org.bukkit.event.inventory.ClickType.NUMBER_KEY || event.getClick() == org.bukkit.event.inventory.ClickType.SWAP_OFFHAND
+                || isItem(event.getCurrentItem()) || isItem(event.getCursor())) {
             event.setCancelled(true);
-        } else if (isItem(event.getCurrentItem()) || isItem(event.getCursor())) {
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event) {
+        if (event.getWhoClicked() instanceof Player player && isLobbyWorld(player.getWorld()) && !builder(player)) {
             event.setCancelled(true);
         }
     }
