@@ -525,11 +525,40 @@ public final class GensMode implements ModeHandler, Listener {
 
     /** A következő megnyitható föld, vagy null, ha már mind megvan. */
     public GensData.Field nextField(GensData.Player data) {
-        return data.level >= fields.size() ? null : fields.get(Math.max(0, data.level));
+        int open = unlocked(data);
+        return open >= fields.size() ? null : fields.get(open);
     }
 
+    /** A megnyitott földek száma: a Gens szinttel nyílnak sorban (a régebben megvett földek megmaradnak). */
     public int unlocked(GensData.Player data) {
-        return Math.max(1, Math.min(data.level, fields.size()));
+        int byLevel = 0;
+        Player player = Bukkit.getPlayer(data.uuid);
+        int level = player == null ? 1 : extras.level(player);
+        for (GensData.Field field : fields) {
+            if (field.level <= level) {
+                byLevel = field.index + 1;
+            } else {
+                break;
+            }
+        }
+        return Math.max(1, Math.min(Math.max(data.level, byLevel), fields.size()));
+    }
+
+    /** Szintlépéskor: ha ezen a szinten nyílik föld, szólunk. */
+    void levelReached(Player player, int level) {
+        GensData.Player data = players.get(player.getUniqueId());
+        if (data == null) {
+            return;
+        }
+        for (GensData.Field field : fields) {
+            if (field.level == level && field.index > 0) {
+                core.messages().send(player, "gens.field.unlocked-level", "%field%", field.name, "%level%", String.valueOf(level),
+                        "%count%", String.valueOf(unlocked(data)), "%max%", String.valueOf(fields.size()));
+                player.playSound(player.getLocation(), "minecraft:ui.toast.challenge_complete", 0.7f, 1.3f);
+                progress(player, "unlock", 1);
+                updateStats(player, data);
+            }
+        }
     }
 
     /** Termelési szorzó: prestige × rebirth (ennyiszer több termény jár egy növényért). */
@@ -1073,6 +1102,7 @@ public final class GensMode implements ModeHandler, Listener {
 
     // ---- földek ----
 
+    /** A földek a Gens szinttel nyílnak: itt csak megmondjuk, melyik a következő és hányas szint kell hozzá. */
     public void unlockField(Player player) {
         GensData.Player data = players.get(player.getUniqueId());
         if (data == null) {
@@ -1083,42 +1113,16 @@ public final class GensMode implements ModeHandler, Listener {
             core.messages().send(player, "gens.field.max");
             return;
         }
-        if (!pay(player, next.price, "gens:field")) {
-            return;
-        }
-        data.level = next.index + 1;
-        data.dirty = true;
-        if (player.getWorld() == world && next.index < SharedFarm.CENTERS.length) {
-            int[] middle = SharedFarm.center(next.index);
-            player.spawnParticle(Particle.HAPPY_VILLAGER, HUB_X + middle[0] + 0.5, height + 1.5, HUB_Z + middle[1] + 0.5, 120, 8, 0.4, 8, 0);
-            player.playSound(player.getLocation(), "minecraft:ui.toast.challenge_complete", 0.7f, 1.3f);
-        }
-        if (player.getWorld() == world) {
-            spawnLabels(data);
-        }
-        updateStats(player, data);
-        save(data, false);
-        core.messages().send(player, "gens.field.unlocked", "%field%", next.name, "%count%", String.valueOf(unlocked(data)),
-                "%max%", String.valueOf(fields.size()), "%price%", core.economy().format(currency, next.price));
-        progress(player, "unlock", 1);
+        core.messages().send(player, "gens.field.need-level", "%field%", next.name, "%level%", String.valueOf(next.level),
+                "%now%", String.valueOf(extras.level(player)));
     }
 
-    /** Jobb klikk egy meg nem vett földre: ha ez a következő, kétszeri kattintásra megveszi. */
+    /** Jobb klikk egy még zárt földre: kiírja, hányas Gens szinttől nyílik. */
     private void buyByClick(Player player, GensData.Player data, int field) {
-        if (field != unlocked(data)) {
-            GensData.Field need = nextField(data);
-            warn(player, "gens.field.locked-later");
-            if (need != null) {
-                core.messages().send(player, "gens.field.need-previous", "%field%", need.name);
-            }
-            return;
-        }
-        GensData.Field next = fields.get(field);
-        if (!confirmed(player, "field" + field)) {
-            core.messages().send(player, "gens.field.buy-confirm", "%field%", next.name, "%price%", core.economy().format(currency, next.price));
-            return;
-        }
-        unlockField(player);
+        GensData.Field target = fields.get(field);
+        warn(player, "gens.field.locked-level");
+        core.messages().send(player, "gens.field.need-level", "%field%", target.name, "%level%", String.valueOf(target.level),
+                "%now%", String.valueOf(extras.level(player)));
     }
 
     private void spawnLabels(GensData.Player data) {
@@ -1168,7 +1172,7 @@ public final class GensMode implements ModeHandler, Listener {
             double lx = HUB_X + middle[0] + toward[0] * (SharedFarm.HALF + 1.5) + 0.5;
             double lz = HUB_Z + middle[1] + toward[1] * (SharedFarm.HALF + 1.5) + 0.5;
             List<String> lines = core.messages().list("gens.labels.shared", "%number%", String.valueOf(i + 1), "%field%", field.name,
-                    "%price%", core.economy().format(currency, field.price), "%value%", core.economy().format(currency, field.value));
+                    "%level%", String.valueOf(field.level), "%value%", core.economy().format(currency, field.value));
             shared.add(label(new Location(world, lx, height + 2.6, lz), String.join("\n", lines)));
         }
         shared.add(label(new Location(world, HUB_X + SharedFarm.SELL[0] + 0.5, height + 3.1, HUB_Z + SharedFarm.SELL[1] + 0.5),
@@ -1237,7 +1241,7 @@ public final class GensMode implements ModeHandler, Listener {
         }
         GensData.Player owner = self;
         if (spot.field() >= unlocked(self)) {
-            warn(player, spot.field() == unlocked(self) ? "gens.field.locked-buy" : "gens.field.locked-later");
+            warn(player, "gens.field.locked-level");
             return;
         }
         if (!isHoe(player.getInventory().getItemInMainHand())) {

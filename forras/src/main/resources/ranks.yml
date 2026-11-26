@@ -42,10 +42,10 @@ ranks:
     luckperms:
       weight: 1
       display: "Játékos"
-      prefix: "&7&lJÁTÉKOS &7"
+      prefix: "&7"
   bronz:
     group: bronz
-    name: "&6&lBRONZ"
+    name: "&#c97b3a⚒ &#c97b3a&lB&#d3894a&lR&#dc965a&lO&#e6a46a&lN&#f0b27a&lZ"
     icon: COPPER_INGOT
     coin-multiplier: 1.1
     kits: []
@@ -55,10 +55,10 @@ ranks:
     luckperms:
       weight: 10
       display: "Bronz"
-      prefix: "&6&lBRONZ &6"
+      prefix: "&#c97b3a⚒ &#c97b3a&lB&#d3894a&lR&#dc965a&lO&#e6a46a&lN&#f0b27a&lZ &#f0b27a"
   wizard:
     group: wizard
-    name: "&5&lWIZARD"
+    name: "&#8e44ff✧ &#8e44ff&lW&#9e4fff&lI&#af5aff&lZ&#bf65ff&lA&#d070ff&lR&#e07bff&lD"
     icon: AMETHYST_SHARD
     coin-multiplier: 1.25
     kits: []
@@ -71,11 +71,11 @@ ranks:
     luckperms:
       weight: 20
       display: "Wizard"
-      prefix: "&5&lWIZARD &d"
+      prefix: "&#8e44ff✧ &#8e44ff&lW&#9e4fff&lI&#af5aff&lZ&#bf65ff&lA&#d070ff&lR&#e07bff&lD &#e9b6ff"
       parent: bronz
   iceking:
     group: iceking
-    name: "&b&lICE&f&lKING"
+    name: "&#36c8ff❄ &#36c8ff&lI&#53d0ff&lC&#71d9ff&lE&#8ee2ff&lK&#abeaff&lI&#c9f2ff&lN&#e6fbff&lG"
     icon: PACKED_ICE
     coin-multiplier: 1.5
     kits: []
@@ -88,11 +88,11 @@ ranks:
     luckperms:
       weight: 30
       display: "IceKing"
-      prefix: "&b&lICE&f&lKING &b"
+      prefix: "&#36c8ff❄ &#36c8ff&lI&#53d0ff&lC&#71d9ff&lE&#8ee2ff&lK&#abeaff&lI&#c9f2ff&lN&#e6fbff&lG &#bdefff"
       parent: wizard
   yeti:
     group: yeti
-    name: "&f&lYETI"
+    name: "&#ffffff☃ &#ffffff&lY&#dff2ff&lE&#bfe5ff&lT&#9fd8ff&lI"
     icon: SNOW_BLOCK
     coin-multiplier: 2.0
     kits: []
@@ -103,11 +103,11 @@ ranks:
     luckperms:
       weight: 40
       display: "Yeti"
-      prefix: "&f&lYETI &f"
+      prefix: "&#ffffff☃ &#ffffff&lY&#dff2ff&lE&#bfe5ff&lT&#9fd8ff&lI &#ffffff"
       parent: iceking
   media:
     group: media
-    name: "&d&lMÉDIA"
+    name: "&#ff3e9a▶ &#ff3e9a&lM&#ff55a8&lÉ&#ff6cb5&lD&#ff83c2&lI&#ff9ad0&lA"
     icon: PINK_DYE
     coin-multiplier: 2.0
     kits: []
@@ -118,10 +118,10 @@ ranks:
     luckperms:
       weight: 100
       display: "Média"
-      prefix: "&d&lMÉDIA &d"
+      prefix: "&#ff3e9a▶ &#ff3e9a&lM&#ff55a8&lÉ&#ff6cb5&lD&#ff83c2&lI&#ff9ad0&lA &#ffc2e3"
   epitesz:
     group: epitesz
-    name: "&2&lÉPÍTÉSZ"
+    name: "&#3ddc84⚒ &#3ddc84&lÉ&#51e089&lP&#65e48d&lÍ&#7ae892&lT&#8eed97&lÉ&#a2f19b&lS&#b6f5a0&lZ"
     icon: BRICKS
     coin-multiplier: 2.0
     kits: []
@@ -131,11 +131,11 @@ ranks:
     luckperms:
       weight: 150
       display: "Építész"
-      prefix: "&2&lÉPÍTÉSZ &a"
+      prefix: "&#3ddc84⚒ &#3ddc84&lÉ&#51e089&lP&#65e48d&lÍ&#7ae892&lT&#8eed97&lÉ&#a2f19b&lS&#b6f5a0&lZ &#c8f7c5"
       permissions: [worldedit.*, essentials.gamemode, essentials.gamemode.creative, essentials.gamemode.survival, essentials.fly]
   jnmoderator:
     group: jnmoderator
-    name: "&b&lJN.MODERÁTOR"
+    name: "&#4fd1c5⚔ &#4fd1c5&lJ&#5fd7cc&lN&#6fddd3&l.&#80e4da&lM&#90eae1&lO&#a0f0e8&lD"
     icon: LIGHT_BLUE_DYE
     coin-multiplier: 2.0
     kits: []
@@ -145,11 +145,11 @@ ranks:
     luckperms:
       weight: 300
       display: "Jn.Moderátor"
-      prefix: "&b&lJN.MODERÁTOR &b"
+      prefix: "&#4fd1c5⚔ &#4fd1c5&lJ&#5fd7cc&lN&#6fddd3&l.&#80e4da&lM&#90eae1&lO&#a0f0e8&lD &#b9f3ee"
       permissions: [essentials.mute, essentials.kick, essentials.seen, essentials.whois]
   moderator:
     group: moderator
-    name: "&9&lMODERÁTOR"
+    name: "&#3a7bff⚔ &#3a7bff&lM&#649aff&lO&#8fb8ff&lD"
     icon: BLUE_DYE
     coin-multiplier: 2.0
     kits: []
@@ -159,12 +159,12 @@ ranks:
     luckperms:
       weight: 400
       display: "Moderátor"
-      prefix: "&9&lMODERÁTOR &9"
+      prefix: "&#3a7bff⚔ &#3a7bff&lM&#649aff&lO&#8fb8ff&lD &#bcd3ff"
       parent: jnmoderator
       permissions: [essentials.tempban, essentials.invsee, essentials.socialspy, essentials.tp]
   srmoderator:
     group: srmoderator
-    name: "&1&lSR.MODERÁTOR"
+    name: "&#2f4fff⚔ &#2f4fff&lS&#3e5bff&lR&#4d67ff&l.&#5c74ff&lM&#6b80ff&lO&#7a8cff&lD"
     icon: LAPIS_LAZULI
     coin-multiplier: 2.0
     kits: []
@@ -174,12 +174,12 @@ ranks:
     luckperms:
       weight: 500
       display: "Sr.Moderátor"
-      prefix: "&1&lSR.MODERÁTOR &9"
+      prefix: "&#2f4fff⚔ &#2f4fff&lS&#3e5bff&lR&#4d67ff&l.&#5c74ff&lM&#6b80ff&lO&#7a8cff&lD &#aab6ff"
       parent: moderator
       permissions: [essentials.ban, essentials.unban, essentials.vanish, essentials.tphere]
   admin:
     group: admin
-    name: "&c&lADMIN"
+    name: "&#ff4040✦ &#ff4040&lA&#ff564e&lD&#ff6d5d&lM&#ff846c&lI&#ff9a7a&lN"
     icon: REDSTONE
     coin-multiplier: 2.0
     kits: []
@@ -189,12 +189,12 @@ ranks:
     luckperms:
       weight: 600
       display: "Admin"
-      prefix: "&c&lADMIN &c"
+      prefix: "&#ff4040✦ &#ff4040&lA&#ff564e&lD&#ff6d5d&lM&#ff846c&lI&#ff9a7a&lN &#ffb3a3"
       parent: srmoderator
       permissions: [essentials.gamemode, essentials.gamemode.*, essentials.fly, essentials.heal, essentials.give, worldedit.*]
   sradmin:
     group: sradmin
-    name: "&4&lSR.ADMIN"
+    name: "&#c40000✦ &#c40000&lS&#cc0b0b&lR&#d51616&l.&#dd2121&lA&#e62c2c&lD&#ee3737&lM&#f74242&lI&#ff4d4d&lN"
     icon: REDSTONE_BLOCK
     coin-multiplier: 2.0
     kits: []
@@ -204,12 +204,12 @@ ranks:
     luckperms:
       weight: 700
       display: "Sr.Admin"
-      prefix: "&4&lSR.ADMIN &c"
+      prefix: "&#c40000✦ &#c40000&lS&#cc0b0b&lR&#d51616&l.&#dd2121&lA&#e62c2c&lD&#ee3737&lM&#f74242&lI&#ff4d4d&lN &#ff8a8a"
       parent: admin
       permissions: [essentials.*]
   fejleszto:
     group: fejleszto
-    name: "&e&lFEJLESZTŐ"
+    name: "&#ffcc00⚙ &#ffcc00&lF&#ffd115&lE&#ffd62a&lJ&#ffda3e&lL&#ffdf53&lE&#ffe468&lS&#ffe87c&lZ&#ffed91&lT&#fff2a6&lŐ"
     icon: COMMAND_BLOCK
     coin-multiplier: 2.0
     kits: []
@@ -219,12 +219,12 @@ ranks:
     luckperms:
       weight: 800
       display: "Fejlesztő"
-      prefix: "&e&lFEJLESZTŐ &e"
+      prefix: "&#ffcc00⚙ &#ffcc00&lF&#ffd115&lE&#ffd62a&lJ&#ffda3e&lL&#ffdf53&lE&#ffe468&lS&#ffe87c&lZ&#ffed91&lT&#fff2a6&lŐ &#fff2b3"
       parent: sradmin
       permissions: [icemine.admin.commands]
   manager:
     group: manager
-    name: "&3&lMANAGER"
+    name: "&#00b3b3★ &#00b3b3&lM&#12bebc&lA&#25cac4&lN&#38d5cc&lA&#4ae0d5&lG&#5cecde&lE&#6ff7e6&lR"
     icon: CYAN_DYE
     coin-multiplier: 2.0
     kits: []
@@ -234,12 +234,12 @@ ranks:
     luckperms:
       weight: 900
       display: "Manager"
-      prefix: "&3&lMANAGER &3"
+      prefix: "&#00b3b3★ &#00b3b3&lM&#12bebc&lA&#25cac4&lN&#38d5cc&lA&#4ae0d5&lG&#5cecde&lE&#6ff7e6&lR &#a8fff3"
       parent: fejleszto
       permissions: [luckperms.*]
   tulajdonos:
     group: tulajdonos
-    name: "&4&lTULAJDONOS"
+    name: "&#ff2d2d♛ &#ff2d2d&lT&#ff3c28&lU&#ff4a23&lL&#ff591e&lA&#ff6719&lJ&#ff7614&lD&#ff840f&lO&#ff930a&lN&#ffa105&lO&#ffb000&lS"
     icon: DRAGON_HEAD
     coin-multiplier: 2.0
     kits: []
@@ -249,6 +249,6 @@ ranks:
     luckperms:
       weight: 1000
       display: "Tulajdonos"
-      prefix: "&4&lTULAJDONOS &c"
+      prefix: "&#ff2d2d♛ &#ff2d2d&lT&#ff3c28&lU&#ff4a23&lL&#ff591e&lA&#ff6719&lJ&#ff7614&lD&#ff840f&lO&#ff930a&lN&#ffa105&lO&#ffb000&lS &#ffd27a"
       parent: manager
       permissions: ["*"]

@@ -100,6 +100,8 @@ az `essentials.<parancs>` joga.
 A rangokat az IceMine magától létrehozza a LuckPermsben az első indításkor (előtag, súly, név, szülő rang, jogok).
 Minden a `plugins/IceMine/ranks.yml`-ben van: mit kap a rang az IceMine-ban (pénz szorzó, jogok) és
 milyen a LuckPermsben (`luckperms` rész). Mindegyik rang megkapja a gyengébbek IceMine jutalmait is.
+3.65.0-tól a rangok előtagja ikon + színátmenetes név (pl. ⚙ FEJLESZTŐ, ♛ TULAJDONOS, ❄ ICEKING); a LuckPermsben is
+egyszer lecserélődnek (a kézzel beállított régi előtagok helyett). A chatben a név után `»` jön.
 
 | Rang | LuckPerms csoport | Súly | Szülő |
 |---|---|---|---|
@@ -200,9 +202,10 @@ Beállítás: `creative.yml` -> `worldedit`.
 ### Gens
 
 Gens Tycoon: a földek (3.60.0-tól) a Gens központjában vannak, egy közös farmon: 8 nagy föld (3.63.0-tól 23x23, összesen kb. 4200 növény) a tér körül,
-mindenki ott arat, de csak azokon a földeken, amelyeket már megvett. Földet jobb klikkel veszel (kétszer kattints
-rá), vagy a menüben. A növényeket a Gens kapával kell learatni (bal klikk), pár másodperc alatt visszanőnek.
-A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren lévő hordónál, a `/elad` paranccsal
+mindenki ott arat, de csak azokon a földeken, amelyeket már megvett. A növényeket a Gens kapával kell learatni (bal klikk), pár másodperc alatt visszanőnek.
+A földek (3.65.0-tól) a Gens szinttel nyílnak sorban: búza 1., sárgarépa 3., krumpli 6., cékla 10., dinnye 15., tök 22.,
+bogyó 30., netherbibircsók 40. szinten (gens.yml -> fields.<n>.level), venni már nem kell őket; aki már megvett
+földeket, azok megmaradnak. Admin: `/gens szint <játékos> <szint>`. A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren lévő hordónál, a `/elad` paranccsal
 vagy a menüben adod el. A saját szigeted (`/gens home`) a generátoroké; a régi földek helyén most fű van.
 A Gensbe belépve (3.64.0-tól) rögtön a Gens központba kerülsz: egy nagy farm város (piros pajták, domb bányával,
 tó stéggel, óriásfák, lebegő hamburgerek), a közepén a közös farm. A téren lévő portál a saját szigetedre visz.

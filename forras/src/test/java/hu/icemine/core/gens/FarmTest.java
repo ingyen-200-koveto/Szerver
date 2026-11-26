@@ -36,10 +36,10 @@ class FarmTest {
         assertEquals(FarmLayout.FIELDS, fields.size());
         assertEquals(Crop.WHEAT, fields.get(0).crop);
         assertEquals(Crop.NETHER_WART, fields.get(7).crop);
-        assertEquals(0, fields.get(0).price, "az első föld ingyen jár");
+        assertEquals(1, fields.get(0).level, "az első föld mindenkinek jár");
         for (int i = 1; i < fields.size(); i++) {
             assertEquals(i, fields.get(i).index);
-            assertTrue(fields.get(i).price > fields.get(i - 1).price, "minden föld drágább az előzőnél");
+            assertTrue(fields.get(i).level > fields.get(i - 1).level, "minden föld magasabb szinten nyílik");
             assertTrue(fields.get(i).value > fields.get(i - 1).value, "és többet is ér a termése");
         }
         Set<Crop> crops = new HashSet<>();

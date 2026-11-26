@@ -285,7 +285,7 @@ gens:
     - ""
     - " &b&lIceMine &8• &7Szia &f%player%&7, ez itt a közös farm!"
     - " &7Bal klikk a kapával a beérett növényre: &faratás&7. Pár mp múlva visszanő."
-    - " &7Új földet &fjobb klikkel &7veszel a földre kattintva, a termést a &fhordónál &7adod el (vagy &f/elad&7)."
+    - " &7Új földek a &fGens szinteddel &7nyílnak, a termést a &fhordónál &7adod el (vagy &f/elad&7)."
     - " &7A saját szigeted a generátoroké: &f/gens home&7. Kapa fejlesztés: &füllő &7vagy &f/gens kapa&7."
     - ""
   not-your-plot: "Ez nem a te szigeted."
@@ -331,10 +331,9 @@ gens:
   field:
     max: "&eMár minden földed nyitva van."
     unlocked: "&a&lÚJ FÖLD! &7Megnyitottad: &f%field% &8(%count%/%max%, -%price%&8)"
-    locked-buy: "&eEz a föld még nem a tiéd. &fJobb klikk &erá a megvételhez!"
-    locked-later: "&cEzt a földet még nem veheted meg."
-    need-previous: "Előbb ezt a földet vedd meg: &f%field%"
-    buy-confirm: "&e%field% &7föld ára: &f%price%&7. Kattints rá &fmég egyszer &7jobb klikkel a megvételhez!"
+    locked-level: "&cEz a föld még zárva van, magasabb Gens szint kell hozzá."
+    need-level: "A(z) &f%field% &7föld a(z) &a%level%. &7Gens szinten nyílik meg &8(most: %now%. szint)&7. Szintet aratással és eladással gyűjtesz."
+    unlocked-level: "&a&lÚJ FÖLD! &7A Gens szinted megnyitotta: &f%field% &8(%count%/%max%)"
   farm-moved: "&a&lÚJDONSÁG! &7A földek mostantól a &fGens központban &7vannak, közös farmon. A szigeteden a régi földek helyén most hely van a generátoroknak."
   labels:
     portal:
@@ -344,8 +343,7 @@ gens:
     shared:
       - "&e&l%number%. %field%"
       - "&7Egy termény: &f%value%"
-      - "&7Megvétel: &f%price%"
-      - "&a▶ Jobb klikk a földre"
+      - "&7Megnyílik: &a%level%. Gens szinten"
     next:
       - "&e&l%field%"
       - "&7Ár: &f%price%"
@@ -463,8 +461,7 @@ gens:
       next:
         - "&7Következő: &a%field%"
         - "&7Egy termény: &f%value% &8| &7visszanő: &f%regrow% mp"
-        - "&7Ár: &f%price%"
-        - "&b▶ Kattints a megnyitáshoz"
+        - "&7Megnyílik: &a%level%. Gens szinten &8(most: %now%.)"
       max: "&a✔ Minden föld nyitva van"
     sell:
       name: "&6&lMindent elad"
@@ -551,9 +548,9 @@ gens:
     crops:
       name: "&f&lFöldek és árak"
       open: "&a✔ &f%number%. %field% &8- &7%value%/db, %regrow% mp"
-      locked: "&8✖ %number%. %field% - %value%/db, ár: %price%"
+      locked: "&8✖ %number%. %field% - %value%/db, %level%. szinttől"
       hint:
-        - "&7A földeket sorban nyithatod meg."
+        - "&7A földek a Gens szinteddel nyílnak sorban."
         - "&7A kapával aratsz: bal klikk a beérett növényre."
   quests:
     title: "&8Napi küldetések"

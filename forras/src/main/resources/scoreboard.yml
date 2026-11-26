@@ -125,4 +125,4 @@ tablist:
 chat:
   enabled: true
   # %prefix% és %suffix% = LuckPerms előtag és utótag, %name% = játékosnév, %message% = üzenet
-  format: "%prefix%%name%&8: %chatcolor%%message%"
+  format: "%prefix%%name% &8» %chatcolor%%message%"

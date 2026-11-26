@@ -38,7 +38,7 @@ class LuckPermsSetupTest {
             }
         }
         assertTrue(lastCreate < firstSetup, "előbb minden csoport létrejön, utána jönnek a szülők");
-        assertTrue(commands.contains("lp group iceking meta setprefix 30 \"&b&lICE&f&lKING &b\""));
+        assertTrue(commands.stream().anyMatch(c -> c.startsWith("lp group iceking meta setprefix 30 \"&#36c8ff❄ ")));
         assertTrue(commands.contains("lp group fejleszto setdisplayname \"Fejlesztő\""));
         assertTrue(commands.contains("lp group yeti parent add iceking"));
         assertTrue(commands.contains("lp group tulajdonos permission set * true"));
@@ -48,7 +48,8 @@ class LuckPermsSetupTest {
 
     @Test
     void doneGroupsAreLeftAlone() {
-        List<String> commands = LuckPermsSetup.commands(shipped(), Set.of("bronz", "jatekos"));
+        List<String> commands = LuckPermsSetup.commands(shipped(), Set.of("bronz", "jatekos", LuckPermsSetup.prefixKey("bronz"),
+                LuckPermsSetup.prefixKey("jatekos")));
         for (String command : commands) {
             assertFalse(command.equals("lp creategroup bronz") || command.startsWith("lp group bronz "), command);
             assertFalse(command.startsWith("lp group jatekos "), command);
@@ -66,5 +67,13 @@ class LuckPermsSetupTest {
             previous = weight;
         }
         assertEquals(15, config.getConfigurationSection("ranks").getKeys(false).size());
+    }
+
+    @Test
+    void finishedGroupsGetTheNewPrefixOnce() {
+        List<String> commands = LuckPermsSetup.commands(shipped(), Set.of("bronz"));
+        assertTrue(commands.contains("lp group bronz meta clear prefix"));
+        assertTrue(commands.stream().anyMatch(c -> c.startsWith("lp group bronz meta setprefix 10 ")));
+        assertFalse(commands.contains("lp creategroup bronz"));
     }
 }

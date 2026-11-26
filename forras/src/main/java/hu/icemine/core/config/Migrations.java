@@ -9,6 +9,26 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public final class Migrations {
 
+    /** A régi rang nevek és előtagok: {rang, név, előtag}. */
+    private static final String[][] OLD_RANKS = {
+            {"default", "&7Játékos", "&7&lJÁTÉKOS &7"},
+            {"bronz", "&6&lBRONZ", "&6&lBRONZ &6"},
+            {"wizard", "&5&lWIZARD", "&5&lWIZARD &d"},
+            {"iceking", "&b&lICE&f&lKING", "&b&lICE&f&lKING &b"},
+            {"yeti", "&f&lYETI", "&f&lYETI &f"},
+            {"media", "&d&lMÉDIA", "&d&lMÉDIA &d"},
+            {"epitesz", "&2&lÉPÍTÉSZ", "&2&lÉPÍTÉSZ &a"},
+            {"jnmoderator", "&b&lJN.MODERÁTOR", "&b&lJN.MODERÁTOR &b"},
+            {"moderator", "&9&lMODERÁTOR", "&9&lMODERÁTOR &9"},
+            {"srmoderator", "&1&lSR.MODERÁTOR", "&1&lSR.MODERÁTOR &9"},
+            {"admin", "&c&lADMIN", "&c&lADMIN &c"},
+            {"sradmin", "&4&lSR.ADMIN", "&4&lSR.ADMIN &c"},
+            {"fejleszto", "&e&lFEJLESZTŐ", "&e&lFEJLESZTŐ &e"},
+            {"manager", "&3&lMANAGER", "&3&lMANAGER &3"},
+            {"tulajdonos", "&4&lTULAJDONOS", "&4&lTULAJDONOS &c"}
+    };
+
+
     /** Módlobbyk, amelyek új, részletes témát kaptak: {lobby, téma}. */
     private static final String[][] NEW_LOBBIES = {{"kingdoms", "kingdoms", "v2"}, {"duels", "duels", "v2"}, {"bedwars", "bedwars", "v2"},
             {"skywars", "snow", "v2"}, {"combofly", "combofly", "v2"}, {"fyland", "fyland", "v2"},
@@ -370,6 +390,40 @@ public final class Migrations {
             file.set("migrated.prefix-dot-v1", true);
             files.save(name);
         }
+        YamlConfiguration rankStyle = files.get("ranks");
+        if (rankStyle != null && rankStyle.getDefaults() != null && rankStyle.isConfigurationSection("ranks")
+                && !rankStyle.getBoolean("migrated.rank-style-v2", false)) {
+            // szebb rang nevek és előtagok (ikon + színátmenet); amit valaki átírt, ahhoz nem nyúlunk
+            for (String[] old : OLD_RANKS) {
+                String path = "ranks." + old[0];
+                if (!rankStyle.isConfigurationSection(path) || !rankStyle.getDefaults().isSet(path)) {
+                    continue;
+                }
+                if (old[1].equals(rankStyle.getString(path + ".name"))) {
+                    rankStyle.set(path + ".name", rankStyle.getDefaults().getString(path + ".name"));
+                }
+                if (old[2].equals(rankStyle.getString(path + ".luckperms.prefix"))) {
+                    rankStyle.set(path + ".luckperms.prefix", rankStyle.getDefaults().getString(path + ".luckperms.prefix"));
+                }
+            }
+            rankStyle.set("migrated.rank-style-v2", true);
+            files.save("ranks");
+            notes.add("ranks.yml: szebb rang nevek és előtagok (a LuckPermsben is frissülnek)");
+        }
+        YamlConfiguration fieldTexts = files.get("messages_hu");
+        if (fieldTexts != null && !fieldTexts.getBoolean("migrated.gens-field-level-v1", false)) {
+            // a földek a Gens szinttel nyílnak: az árakról szóló szövegek helyett a szintek
+            for (String path : new String[]{"gens.field.locked-buy", "gens.field.locked-later", "gens.field.need-previous", "gens.field.buy-confirm"}) {
+                fieldTexts.set(path, null);
+            }
+            for (String path : new String[]{"gens.field.locked-level", "gens.field.need-level", "gens.field.unlocked-level", "gens.labels.shared",
+                    "gens.menu.field.next", "gens.menu.crops.locked", "gens.menu.crops.hint", "gens.first-join"}) {
+                fieldTexts.set(path, null);
+                copyDefault(fieldTexts, path);
+            }
+            fieldTexts.set("migrated.gens-field-level-v1", true);
+            files.save("messages_hu");
+        }
         YamlConfiguration boards = files.get("scoreboard");
         if (boards != null && !boards.getBoolean("migrated.gens-title-v1", false)) {
             if (!boards.isSet("titles.gens")) {
@@ -383,6 +437,13 @@ public final class Migrations {
                 boards.set("boards.gens", lines);
             }
             boards.set("migrated.gens-title-v1", true);
+        }
+        if (boards != null && !boards.getBoolean("migrated.chat-arrow-v1", false)) {
+            if ("%prefix%%name%&8: %chatcolor%%message%".equals(boards.getString("chat.format"))) {
+                boards.set("chat.format", "%prefix%%name% &8» %chatcolor%%message%");
+            }
+            boards.set("migrated.chat-arrow-v1", true);
+            files.save("scoreboard");
             files.save("scoreboard");
         }
         YamlConfiguration logins = files.get("messages_hu");

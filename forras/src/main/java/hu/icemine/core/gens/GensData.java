@@ -24,6 +24,8 @@ public final class GensData {
         public final int regrow;
         public final long price;
         public final double multiplier;
+        /** Ettől a Gens szinttől nyílik meg a föld. */
+        public int level = 1;
 
         public Field(int index, String name, Crop crop, long value, int regrow, long price, double multiplier) {
             this.index = index;
@@ -56,6 +58,9 @@ public final class GensData {
     }
 
     /** A földek beolvasása a gens.yml-ből (fields.1, fields.2 ...), legfeljebb 8, sorrendben. */
+    /** Alap Gens szintek a földekhez, ha a gens.yml-ben nincs megadva (fields.<n>.level). */
+    public static final int[] DEFAULT_LEVELS = {1, 3, 6, 10, 15, 22, 30, 40};
+
     public static List<Field> loadFields(ConfigurationSection root, List<String> problems) {
         List<Field> result = new ArrayList<>();
         ConfigurationSection section = root == null ? null : root.getConfigurationSection("fields");
@@ -80,6 +85,7 @@ public final class GensData {
         for (Map.Entry<Integer, ConfigurationSection> entry : sorted.entrySet()) {
             ConfigurationSection field = entry.getValue();
             String where = "gens.yml -> fields." + entry.getKey();
+            int unlockLevel = result.isEmpty() ? 1 : Math.max(1, field.getInt("level", DEFAULT_LEVELS[Math.min(result.size(), DEFAULT_LEVELS.length - 1)]));
             Crop crop = Crop.of(field.getString("crop", ""));
             if (crop == null) {
                 problems.add(where + ".crop: ismeretlen növény (wheat, carrots, potatoes, beetroots, melon, pumpkin, sweet_berry_bush, nether_wart)");
@@ -90,6 +96,7 @@ public final class GensData {
                     Math.max(1, Math.min(3600, field.getInt("regrow", 5))),
                     result.isEmpty() ? 0 : Math.max(0, field.getLong("price", 0)),
                     Math.max(1.0, Math.min(64.0, field.getDouble("multiplier", 1.0)))));
+            result.get(result.size() - 1).level = unlockLevel;
         }
         if (result.isEmpty()) {
             result.add(new Field(0, "Búza", Crop.WHEAT, 2, 5, 0, 1.0));

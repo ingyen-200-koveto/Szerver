@@ -70,6 +70,22 @@ public final class LuckPermsSetup {
             }
         }
         create.addAll(setup);
+        for (String id : ranks.getKeys(false)) {
+            ConfigurationSection rank = ranks.getConfigurationSection(id);
+            ConfigurationSection lp = rank == null ? null : rank.getConfigurationSection("luckperms");
+            if (lp == null) {
+                continue;
+            }
+            String group = rank.getString("group", id).toLowerCase(Locale.ROOT).trim();
+            String prefix = lp.getString("prefix", "");
+            if (!group.matches("[a-z0-9_\\-]+") || !done.contains(group) || done.contains(prefixKey(group)) || prefix.isBlank()) {
+                continue;
+            }
+            // az új, szebb rang előtagok: a már kész csoportok is megkapják egyszer
+            String base = "lp group " + group + " ";
+            create.add(base + "meta clear prefix");
+            create.add(base + "meta setprefix " + Math.max(1, lp.getInt("weight", 0)) + " " + quote(prefix));
+        }
         for (String[] extra : EXTRA) {
             if (!done.contains(extraKey(extra)) && (done.contains(extra[0]) || create.contains("lp creategroup " + extra[0]))) {
                 create.add("lp group " + extra[0] + " permission set " + extra[1] + " true");
@@ -90,6 +106,13 @@ public final class LuckPermsSetup {
             {"srmoderator", "libertybans.*"},
             {"admin", "grim.*"},
     };
+
+    /** Ha a ranks.yml előtagjai újra megváltoznak, itt kell növelni, akkor a kész csoportok is újra megkapják. */
+    static final String PREFIX_VERSION = "2";
+
+    static String prefixKey(String group) {
+        return "prefix:" + PREFIX_VERSION + ":" + group;
+    }
 
     static String extraKey(String[] extra) {
         return "perm:" + extra[0] + ":" + extra[1];
@@ -150,6 +173,9 @@ public final class LuckPermsSetup {
             }
         }
         done.addAll(groups(config));
+        for (String group : groups(config)) {
+            done.add(prefixKey(group));
+        }
         for (String[] extra : EXTRA) {
             if (done.contains(extra[0])) {
                 done.add(extraKey(extra).toLowerCase(Locale.ROOT));

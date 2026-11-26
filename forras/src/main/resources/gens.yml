@@ -20,9 +20,9 @@ currency: gens
 daily:
   amount: 500
 
-# A földek, ebben a sorrendben lehet őket megnyitni (az első ingyen jár). Legfeljebb 8.
+# A földek, ebben a sorrendben nyílnak meg a Gens szinttel (az első mindenkinek jár). Legfeljebb 8.
 # crop: wheat, carrots, potatoes, beetroots, melon, pumpkin, sweet_berry_bush, nether_wart
-# value: ennyit ér egy termény | regrow: ennyi mp alatt nő vissza | price: ennyibe kerül megnyitni
+# value: ennyit ér egy termény | regrow: ennyi mp alatt nő vissza | level: ettől a Gens szinttől nyílik meg
 # multiplier: ennyi termény jár egy növényért (a tört rész eséllyel, pl. 1.5 = fele eséllyel 2)
 fields:
   1:
@@ -30,56 +30,56 @@ fields:
     crop: wheat
     value: 2
     regrow: 5
-    price: 0
+    level: 1
     multiplier: 1.0
   2:
     name: "Sárgarépa"
     crop: carrots
     value: 5
     regrow: 6
-    price: 2500
+    level: 3
     multiplier: 1.1
   3:
     name: "Krumpli"
     crop: potatoes
     value: 11
     regrow: 7
-    price: 15000
+    level: 6
     multiplier: 1.2
   4:
     name: "Cékla"
     crop: beetroots
     value: 25
     regrow: 8
-    price: 80000
+    level: 10
     multiplier: 1.35
   5:
     name: "Dinnye"
     crop: melon
     value: 55
     regrow: 10
-    price: 350000
+    level: 15
     multiplier: 1.5
   6:
     name: "Tök"
     crop: pumpkin
     value: 120
     regrow: 12
-    price: 1500000
+    level: 22
     multiplier: 1.7
   7:
     name: "Bogyó"
     crop: sweet_berry_bush
     value: 260
     regrow: 14
-    price: 6000000
+    level: 30
     multiplier: 1.9
   8:
     name: "Netherbibircsók"
     crop: nether_wart
     value: 600
     regrow: 16
-    price: 25000000
+    level: 40
     multiplier: 2.2
 
 # A Gens kapa fejlesztései (jobb klikk a kapával, az üllő a sziget közepén, vagy /gens kapa).

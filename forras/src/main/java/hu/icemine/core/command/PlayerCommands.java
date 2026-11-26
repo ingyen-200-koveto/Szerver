@@ -365,7 +365,7 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         mode.openKits(player);
     }
 
-    /** Admin: /gens give <játékos> <szint> [db] | booster <játékos> <money|elixir|gen> <szorzó> <perc> | slots <játékos> [db] | event <id|random>. */
+    /** Admin: /gens give <játékos> <szint> [db] | szint <játékos> <szint> | booster <játékos> <money|elixir|gen> <szorzó> <perc> | slots <játékos> [db] | event <id|random>. */
     private boolean gensAdmin(Player player, String[] args) {
         String sub = args[0].toLowerCase(Locale.ROOT);
         hu.icemine.core.gens.GensMode g = core.gens();
@@ -401,6 +401,16 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
                         ItemStack item = g.generators().slotItem(args.length > 2 ? Integer.parseInt(args[2]) : 1);
                         target.getInventory().addItem(item);
                         core.messages().sendTagged(player, "&aKész.");
+                    }
+                    return true;
+                }
+                case "szint", "setlevel" -> {
+                    Player target = args.length > 2 ? org.bukkit.Bukkit.getPlayerExact(args[1]) : null;
+                    if (target == null) {
+                        core.messages().sendTagged(player, "&cHasználat: /gens szint <játékos> <szint>");
+                    } else {
+                        g.extras().setLevel(target, Integer.parseInt(args[2]));
+                        core.messages().sendTagged(player, "&aKész: " + target.getName() + " Gens szintje " + g.extras().level(target) + ".");
                     }
                     return true;
                 }

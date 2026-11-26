@@ -171,6 +171,10 @@ public final class GensMenu {
         return item.build();
     }
 
+    private static Player player(GensData.Player data) {
+        return org.bukkit.Bukkit.getPlayer(data.uuid);
+    }
+
     /** A következő föld megnyitása (vagy hogy már mind megvan). */
     private ItemStack fieldItem(GensData.Player data) {
         GensData.Field next = gens.nextField(data);
@@ -182,7 +186,8 @@ public final class GensMenu {
             return Items.of(Material.HAY_BLOCK).name(core.messages().raw("gens.menu.field.name")).lore(lore).hideAll().build();
         }
         lore.addAll(core.messages().list("gens.menu.field.next", "%field%", next.name, "%value%", core.economy().format(currency, next.value),
-                "%regrow%", String.valueOf(next.regrow), "%price%", core.economy().format(currency, next.price)));
+                "%regrow%", String.valueOf(next.regrow), "%level%", String.valueOf(next.level),
+                "%now%", String.valueOf(gens.extras().level(player(data)))));
         return Items.of(Items.material(next.crop.drop, Material.WHEAT_SEEDS)).name(core.messages().raw("gens.menu.field.name")).lore(lore).hideAll().build();
     }
 
@@ -373,7 +378,7 @@ public final class GensMenu {
             String key = field.index < open ? "gens.menu.crops.open" : "gens.menu.crops.locked";
             lore.add(Text.replace(core.messages().raw(key), "%number%", String.valueOf(field.index + 1), "%field%", field.name,
                     "%value%", core.economy().format(gens.currency(), field.value), "%regrow%", String.valueOf(field.regrow),
-                    "%price%", core.economy().format(gens.currency(), field.price)));
+                    "%level%", String.valueOf(field.level)));
         }
         lore.add("");
         lore.addAll(core.messages().list("gens.menu.crops.hint"));

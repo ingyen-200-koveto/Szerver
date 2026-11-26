@@ -225,6 +225,21 @@ public final class GensExtras implements Listener {
         }
     }
 
+    /** Admin: a Gens szint beállítása (a köztes szintek jutalma nélkül, de a földek megnyílnak). */
+    public void setLevel(Player player, int level) {
+        hu.icemine.core.data.PlayerProfile profile = core.profiles().profile(player);
+        if (profile == null) {
+            return;
+        }
+        int target = Math.max(1, Math.min(levelMax, level));
+        int before = level(player);
+        profile.setStat("gens.szint", target);
+        profile.setStat("gens.szintxp", 0);
+        for (int l = before + 1; l <= target; l++) {
+            gens.levelReached(player, l);
+        }
+    }
+
     private void levelUp(Player player, int level) {
         String cur = gens.currency();
         long money = rewardMoney * level;
@@ -247,6 +262,7 @@ public final class GensExtras implements Listener {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 1.1F);
         core.messages().sendTagged(player, "&aElérted a(z) &f" + level + ". &aGens szintet! Jutalom: &e" + core.economy().format(cur, money)
                 + " &7+ " + formatElixir(elixir) + extra);
+        gens.levelReached(player, level);
     }
 
     // ---- boosterek ----
