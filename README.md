@@ -209,8 +209,10 @@ A Gensbe belépve a közös farmon kezdesz.
 A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban) (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
 A módlobbyk felirata magától feljebb kerül, ha belelógna egy épületbe.
 
-A Gens lobby (3.53.0-tól) egy kis falu: piros tetős házak boltíves ablakokkal egy terrakotta tér körül,
-piaci standok, veteményes, tó stéggel és nagy fák. Frissítéskor egyszer újraépül.
+A Gens lobby (3.62.0-tól) egy nagy farm város: középen a tér szökőkúttal és kőívekkel, körülötte piros pajták
+tört tetővel, búza- és répaföld madárijesztőkkel, traktor, szénás szekér, piaci stand, víztorony, romos kőoszlopok,
+a szélén terrakotta dombok lelógó levelű óriásfákkal, egy domb alatt bánya bejárat (tetején kis pajta), délnyugaton
+tó homokos parttal és stéggel, az égen lebegő hamburgerek és tüskés gömbök. Frissítéskor egyszer újraépül.
 
 A Kingdoms lobby (3.54.0-tól) egy királyi vár udvara: várfal hat toronnyal, kapuház, lakótorony a portál
 mögött, kovácsműhely, gyakorlótér, istálló, sátrak és kút, a falakon kívül erdő.

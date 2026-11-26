@@ -57,7 +57,7 @@ public final class ModeLobbyBuild extends Build {
         this.title = title == null ? "" : title;
         this.split = split;
         this.theme = Theme.of(theme);
-        this.radius = this.theme == Theme.GENS || this.theme == Theme.KINGDOMS || this.theme == Theme.DUELS || this.theme == Theme.COMBOFLY
+        this.radius = this.theme == Theme.GENS ? 54 : this.theme == Theme.KINGDOMS || this.theme == Theme.DUELS || this.theme == Theme.COMBOFLY
                 ? GENS_RADIUS : (this.theme == Theme.BEDWARS ? (int) BedwarsIslands.MAIN_R : RADIUS);
     }
 
@@ -107,7 +107,7 @@ public final class ModeLobbyBuild extends Build {
                 new ComboflyEnd((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case GENS:
-                new GensVillage((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
+                new GensFarmTown((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case KINGDOMS:
                 new KingdomsCastle((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
@@ -122,7 +122,9 @@ public final class ModeLobbyBuild extends Build {
                 trees();
                 new SkywarsIslands((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
         }
-        lanterns();
+        if (theme != Theme.GENS) {
+            lanterns();
+        }
         if (!title.isEmpty()) {
             int scale = title.length() <= 5 ? 2 : 1;
             int ty = scale == 2 ? 12 : 11;
@@ -191,8 +193,8 @@ public final class ModeLobbyBuild extends Build {
             case KITPVP:
                 return s > 0.62 ? "smooth_sandstone" : (n < 0.12 ? "red_sand" : (n < 0.2 ? "coarse_dirt" : "sand"));
             case GENS:
-                if (Math.abs(x) <= 23 && z >= -21 && z <= 21) {
-                    return s > 0.64 ? "packed_mud" : (n < 0.05 ? "mud_bricks" : "terracotta");
+                if (dist(x, z) <= GensFarmTown.PLAZA) {
+                    return GensFarmTown.plaza(x, z);
                 }
                 return n < 0.06 ? "moss_block" : "grass_block";
             case SKYPVP:

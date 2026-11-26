@@ -284,7 +284,7 @@ public final class ModeLobbies implements Listener {
         int z = entry.getInt("center.z", 0);
         core.getLogger().info("Építem a(z) " + entry.getName() + " lobbyt (" + world.getName() + ")...");
         Placer placer = new Placer(world, core.getLogger());
-        placer.clear(x - ModeLobbyBuild.CLEAR, y - 30, z - ModeLobbyBuild.CLEAR, x + ModeLobbyBuild.CLEAR, y + 30, z + ModeLobbyBuild.CLEAR);
+        placer.clear(x - ModeLobbyBuild.CLEAR, y - 30, z - ModeLobbyBuild.CLEAR, x + ModeLobbyBuild.CLEAR, y + 75, z + ModeLobbyBuild.CLEAR);
         ModeLobbyBuild build = new ModeLobbyBuild(placer, x, y, z, entry.getString("color", "light_blue"),
                 entry.getString("title", entry.getName().toUpperCase(Locale.ROOT)), entry.getInt("title-split", 0),
                 entry.getString("theme", entry.getName()));
