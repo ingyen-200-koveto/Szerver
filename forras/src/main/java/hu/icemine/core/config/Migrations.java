@@ -9,6 +9,30 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public final class Migrations {
 
+    /** A Gens nehezebb lett: {útvonal, régi alapérték, új}. */
+    private static final String[][] HARDER_GENS = {
+            {"level.xp-per-crop", "2", "1"},
+            {"level.base", "150", "350"},
+            {"level.growth", "1.17", "1.21"},
+            {"level.reward-money", "500", "250"},
+            {"level.reward-elixir", "200", "100"},
+            {"elixir.rate", "1.0", "0.4"},
+            {"hoe.enchants.boseg.price", "750", "2500"},
+            {"hoe.enchants.boseg.price-multiplier", "1.42", "1.5"},
+            {"hoe.enchants.kaszalas.price", "25000", "150000"},
+            {"hoe.enchants.aranykez.price", "1500", "5000"},
+            {"hoe.enchants.aranykez.price-multiplier", "1.45", "1.52"},
+            {"hoe.enchants.szerencse.price", "10000", "40000"},
+            {"hoe.enchants.szerencse.price-multiplier", "1.6", "1.7"},
+            {"prestige.price", "25000000", "100000000"},
+            {"autosell.price", "250000", "1000000"},
+            {"backpack.large-price", "150000", "500000"},
+            {"generators.slot-price", "250000", "750000"},
+            {"generators.upgrade-refund", "0.5", "0.3"},
+            {"events.interval-minutes", "45", "60"}
+    };
+
+
     /** A régi rang nevek és előtagok: {rang, név, előtag}. */
     private static final String[][] OLD_RANKS = {
             {"default", "&7Játékos", "&7&lJÁTÉKOS &7"},
@@ -437,6 +461,58 @@ public final class Migrations {
             }
             playerRank.set("migrated.player-rank-v1", true);
             files.save("ranks");
+        }
+        YamlConfiguration balance = files.get("gens");
+        if (balance != null && balance.getDefaults() != null && !balance.getBoolean("migrated.harder-v1", false)) {
+            // lassabb fejlődés: ami még a régi alapértéken állt, az az újat kapja (amit átírtál, ahhoz nem nyúlunk)
+            for (String[] change : HARDER_GENS) {
+                if (balance.isSet(change[0]) && Math.abs(balance.getDouble(change[0]) - Double.parseDouble(change[1])) < 1e-9) {
+                    balance.set(change[0], change[2].contains(".") ? Double.parseDouble(change[2]) : Long.parseLong(change[2]));
+                }
+            }
+            for (String id : new String[]{"tarolo", "sebesseg", "ertek"}) {
+                String path = "island-upgrades." + id + ".prices";
+                java.util.List<Long> old = balance.getLongList(path);
+                java.util.List<Long> shipped = balance.getDefaults().getLongList(path);
+                if (!old.isEmpty() && old.size() == shipped.size()) {
+                    boolean same = true;
+                    for (int i = 0; i < old.size(); i++) {
+                        same &= old.get(i) * 3 == shipped.get(i);
+                    }
+                    if (same) {
+                        balance.set(path, shipped);
+                    }
+                }
+            }
+            org.bukkit.configuration.ConfigurationSection tiers = balance.getConfigurationSection("generators.tiers");
+            if (tiers != null) {
+                for (String key : tiers.getKeys(false)) {
+                    String base = "generators.tiers." + key + ".";
+                    long shippedPrice = balance.getDefaults().getLong(base + "price", -1);
+                    if (shippedPrice > 0 && balance.getLong(base + "price") * 3 == shippedPrice) {
+                        balance.set(base + "price", shippedPrice);
+                    }
+                    if (balance.getInt(base + "seconds") == 5) {
+                        balance.set(base + "seconds", 8);
+                    }
+                }
+            }
+            int oldSpacing = balance.getInt("plot.spacing", 96);
+            if (oldSpacing < 1000) {
+                // a szigetek messze kerülnek egymástól; a régieket a gazdájuk következő belépésekor átköltöztetjük
+                balance.set("plot.old-spacing", oldSpacing);
+                balance.set("plot.spacing", 1000);
+            }
+            if (!balance.isSet("messages-moved")) {
+                YamlConfiguration movedTexts = files.get("messages_hu");
+                if (movedTexts != null && !movedTexts.isSet("gens.island-moved")) {
+                    copyDefault(movedTexts, "gens.island-moved");
+                    files.save("messages_hu");
+                }
+            }
+            balance.set("migrated.harder-v1", true);
+            files.save("gens");
+            notes.add("gens.yml: lassabb fejlődés (drágább generátorok, kapa és fejlesztések, több XP kell egy szinthez), a szigetek 1000 blokkra egymástól");
         }
         YamlConfiguration boards = files.get("scoreboard");
         if (boards != null && !boards.getBoolean("migrated.gens-title-v1", false)) {

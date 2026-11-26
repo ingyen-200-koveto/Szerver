@@ -9,8 +9,8 @@ time: 6000
 void-y: 60
 
 plot:
-  # A szigetek távolsága egymástól (blokk)
-  spacing: 96
+  # A szigetek távolsága egymástól (blokk). Ha átírod, a meglévő szigetek a gazdájuk következő belépésekor átköltöznek.
+  spacing: 1000
   # Ekkora területen lehet építeni a sziget közepétől (legalább 26, ekkora maga a farm)
   build-radius: 40
   height: 100
@@ -95,8 +95,8 @@ hoe:
       name: "&a&lBőség"
       icon: WHEAT
       max: 25
-      price: 750
-      price-multiplier: 1.42
+      price: 2500
+      price-multiplier: 1.5
       per-level: 10
       description:
         - "&7Szintenként +10% esély"
@@ -105,7 +105,7 @@ hoe:
       name: "&e&lKaszálás"
       icon: SHEARS
       max: 2
-      price: 25000
+      price: 150000
       price-multiplier: 10
       per-level: 1
       description:
@@ -115,8 +115,8 @@ hoe:
       name: "&6&lAranykéz"
       icon: GOLD_INGOT
       max: 20
-      price: 1500
-      price-multiplier: 1.45
+      price: 5000
+      price-multiplier: 1.52
       per-level: 5
       description:
         - "&7Szintenként +5% pénz"
@@ -125,8 +125,8 @@ hoe:
       name: "&d&lSzerencse"
       icon: RABBIT_FOOT
       max: 10
-      price: 10000
-      price-multiplier: 1.6
+      price: 40000
+      price-multiplier: 1.7
       per-level: 0.5
       description:
         - "&7Szintenként +0,5% esély, hogy aratáskor"
@@ -141,7 +141,7 @@ island-upgrades:
     icon: BONE_MEAL
     effect: capacity
     per-level: 10
-    prices: [5000, 20000, 75000, 250000, 800000]
+    prices: [15000, 60000, 225000, 750000, 2400000]
     description:
       - "&7+10% esély egy extra termésre"
       - "&7szintenként, a szigeted minden földjén."
@@ -150,7 +150,7 @@ island-upgrades:
     icon: CLOCK
     effect: speed
     per-level: 8
-    prices: [6000, 25000, 90000, 300000, 900000]
+    prices: [18000, 75000, 270000, 900000, 2700000]
     description:
       - "&7-8% visszanövési idő szintenként."
   ertek:
@@ -158,7 +158,7 @@ island-upgrades:
     icon: GOLD_NUGGET
     effect: value
     per-level: 6
-    prices: [5000, 20000, 75000, 250000, 750000]
+    prices: [15000, 60000, 225000, 750000, 2250000]
     description:
       - "&7+6% pénz minden eladásnál szintenként."
 
@@ -169,7 +169,7 @@ island-upgrades:
 prestige:
   max: 10
   required-level: 0
-  price: 25000000
+  price: 100000000
   price-multiplier: 1.4
   bonus: 15
 
@@ -185,7 +185,7 @@ rebirth:
 # Automatikus eladás: a learatott termést rögtön eladja (10 mp-enként jön meg a pénz).
 # Megvásárolható, vagy a rang adja (icemine.gens.autosell). rate: a teljes ár hányad része (1.0 = teljes ár).
 autosell:
-  price: 250000
+  price: 1000000
   rate: 1.0
 
 # Hátizsák (/gens backpack): ide megy a termés, ha tele a táskád, és a "Mindent elad" ezt is eladja.
@@ -193,22 +193,22 @@ autosell:
 backpack:
   size: 27
   large-size: 54
-  large-price: 150000
+  large-price: 500000
 
 # Elixír: aratáskor jár, a learatott termés értékének ennyi része. Ebből fejleszted a kapát (a kapa árai elixírben vannak).
 elixir:
-  rate: 1.0
+  rate: 0.4
 
 # Gens szint: aratásért (xp-per-crop × a föld sorszámával nő) és a generátor dropok eladásáért jár XP.
 # Egy szinthez base × growth^(szint-1) XP kell. Szintlépéskor reward-money × szint pénz és reward-elixir × szint elixír jár,
 # minden booster-every. szinten egy 2x booster (30 perc), minden slots-every. szinten egy +5 generátor férőhely.
 level:
-  xp-per-crop: 2
-  base: 150
-  growth: 1.17
+  xp-per-crop: 1
+  base: 350
+  growth: 1.21
   max: 100
-  reward-money: 500
-  reward-elixir: 200
+  reward-money: 250
+  reward-elixir: 100
   booster-every: 5
   slots-every: 10
 
@@ -225,27 +225,27 @@ generators:
   max-slots: 50
   capacity: 64
   capacity-per-tier: 32
-  slot-price: 250000
-  upgrade-refund: 0.5
+  slot-price: 750000
+  upgrade-refund: 0.3
   tiers:
-    1: {name: "Szén generátor", block: COAL_BLOCK, drop: COAL, drop-name: "Szén drop", value: 4, seconds: 5, price: 2000, level: 1}
-    2: {name: "Vas generátor", block: IRON_BLOCK, drop: IRON_INGOT, drop-name: "Vas drop", value: 10, seconds: 5, price: 15000, level: 3}
-    3: {name: "Arany generátor", block: GOLD_BLOCK, drop: GOLD_INGOT, drop-name: "Arany drop", value: 25, seconds: 5, price: 75000, level: 6}
-    4: {name: "Lazurit generátor", block: LAPIS_BLOCK, drop: LAPIS_LAZULI, drop-name: "Lazurit drop", value: 55, seconds: 5, price: 300000, level: 10}
-    5: {name: "Vöröskő generátor", block: REDSTONE_BLOCK, drop: REDSTONE, drop-name: "Vöröskő drop", value: 110, seconds: 5, price: 1200000, level: 14}
-    6: {name: "Mézblokk generátor", block: HONEYCOMB_BLOCK, drop: HONEYCOMB, drop-name: "Lép drop", value: 220, seconds: 5, price: 4000000, level: 18}
-    7: {name: "Tengeri lámpás generátor", block: SEA_LANTERN, drop: PRISMARINE_CRYSTALS, drop-name: "Prizmarin kristály drop", value: 450, seconds: 5, price: 12000000, level: 22}
-    8: {name: "Smaragd generátor", block: EMERALD_BLOCK, drop: EMERALD, drop-name: "Smaragd drop", value: 900, seconds: 5, price: 35000000, level: 27}
-    9: {name: "Gyémánt generátor", block: DIAMOND_BLOCK, drop: DIAMOND, drop-name: "Gyémánt drop", value: 1800, seconds: 5, price: 100000000, level: 32}
-    10: {name: "Ametiszt generátor", block: AMETHYST_BLOCK, drop: AMETHYST_SHARD, drop-name: "Ametiszt drop", value: 3600, seconds: 5, price: 300000000, level: 38}
-    11: {name: "Réz generátor", block: COPPER_BLOCK, drop: COPPER_INGOT, drop-name: "Rézrúd drop", value: 7000, seconds: 5, price: 800000000, level: 45}
-    12: {name: "Kvarc generátor", block: QUARTZ_BLOCK, drop: QUARTZ, drop-name: "Kvarc drop", value: 14000, seconds: 5, price: 2000000000, level: 52}
-    13: {name: "Netherit generátor", block: NETHERITE_BLOCK, drop: NETHERITE_SCRAP, drop-name: "Netherit drop", value: 28000, seconds: 5, price: 6000000000, level: 60}
+    1: {name: "Szén generátor", block: COAL_BLOCK, drop: COAL, drop-name: "Szén drop", value: 4, seconds: 8, price: 6000, level: 1}
+    2: {name: "Vas generátor", block: IRON_BLOCK, drop: IRON_INGOT, drop-name: "Vas drop", value: 10, seconds: 8, price: 45000, level: 3}
+    3: {name: "Arany generátor", block: GOLD_BLOCK, drop: GOLD_INGOT, drop-name: "Arany drop", value: 25, seconds: 8, price: 225000, level: 6}
+    4: {name: "Lazurit generátor", block: LAPIS_BLOCK, drop: LAPIS_LAZULI, drop-name: "Lazurit drop", value: 55, seconds: 8, price: 900000, level: 10}
+    5: {name: "Vöröskő generátor", block: REDSTONE_BLOCK, drop: REDSTONE, drop-name: "Vöröskő drop", value: 110, seconds: 8, price: 3600000, level: 14}
+    6: {name: "Mézblokk generátor", block: HONEYCOMB_BLOCK, drop: HONEYCOMB, drop-name: "Lép drop", value: 220, seconds: 8, price: 12000000, level: 18}
+    7: {name: "Tengeri lámpás generátor", block: SEA_LANTERN, drop: PRISMARINE_CRYSTALS, drop-name: "Prizmarin kristály drop", value: 450, seconds: 8, price: 36000000, level: 22}
+    8: {name: "Smaragd generátor", block: EMERALD_BLOCK, drop: EMERALD, drop-name: "Smaragd drop", value: 900, seconds: 8, price: 105000000, level: 27}
+    9: {name: "Gyémánt generátor", block: DIAMOND_BLOCK, drop: DIAMOND, drop-name: "Gyémánt drop", value: 1800, seconds: 8, price: 300000000, level: 32}
+    10: {name: "Ametiszt generátor", block: AMETHYST_BLOCK, drop: AMETHYST_SHARD, drop-name: "Ametiszt drop", value: 3600, seconds: 8, price: 900000000, level: 38}
+    11: {name: "Réz generátor", block: COPPER_BLOCK, drop: COPPER_INGOT, drop-name: "Rézrúd drop", value: 7000, seconds: 8, price: 2400000000, level: 45}
+    12: {name: "Kvarc generátor", block: QUARTZ_BLOCK, drop: QUARTZ, drop-name: "Kvarc drop", value: 14000, seconds: 8, price: 6000000000, level: 52}
+    13: {name: "Netherit generátor", block: NETHERITE_BLOCK, drop: NETHERITE_SCRAP, drop-name: "Netherit drop", value: 28000, seconds: 8, price: 18000000000, level: 60}
 
 # Eventek: interval-minutes percenként egy véletlen event (a Gens világban bossbar mutatja, mikor jön a következő).
 # type: gen-speed (gyorsabb generátor), gen-drop (több drop), elixir, money (eladás), xp. Admin: /gens event <id|random>
 events:
-  interval-minutes: 45
+  interval-minutes: 60
   list:
     dupla-drop: {name: "&b&l2x Generátor Drop event", type: gen-drop, multiplier: 2, minutes: 10}
     gyors-gen: {name: "&d&l150% Felgyorsult Generátor event", type: gen-speed, multiplier: 1.5, minutes: 10}

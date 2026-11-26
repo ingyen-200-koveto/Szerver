@@ -185,11 +185,11 @@ class FarmTest {
         assertEquals(HoeUpgrades.MATERIALS.length - 1, hoe.tier(maxed), "netherit kapa a végén");
         assertEquals(57, hoe.total(maxed), "a szintek a maximumnál megállnak");
         HoeUpgrades.Enchant boseg = hoe.get("boseg");
-        assertEquals(750, boseg.priceFor(0));
+        assertEquals(2500, boseg.priceFor(0));
         assertTrue(boseg.priceFor(1) > boseg.priceFor(0));
         assertEquals(-1, boseg.priceFor(boseg.max));
-        assertEquals(25_000, hoe.get("kaszalas").priceFor(0));
-        assertEquals(250_000, hoe.get("kaszalas").priceFor(1));
+        assertEquals(150_000, hoe.get("kaszalas").priceFor(0));
+        assertEquals(1_500_000, hoe.get("kaszalas").priceFor(1));
     }
 
     @Test

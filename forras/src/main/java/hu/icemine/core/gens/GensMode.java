@@ -136,7 +136,9 @@ public final class GensMode implements ModeHandler, Listener {
     private long labelCheck;
     private World world;
     private Location hub;
-    private int spacing = 96;
+    private int spacing = 1000;
+    /** A régi szigetek távolsága (ha a spacing megváltozott): ezekről költöztetjük át a szigeteket. */
+    private int oldSpacing = 96;
     private int buildRadius = 40;
     private int height = 100;
     private int nextPlot = 1;
@@ -237,7 +239,8 @@ public final class GensMode implements ModeHandler, Listener {
         world.setGameRuleValue("randomTickSpeed", "3");
         world.setStorm(false);
         world.setTime(values.integer("time", 6000, 0, 23999));
-        spacing = values.integer("plot.spacing", 96, 48, 512);
+        spacing = values.integer("plot.spacing", 1000, 48, 5000);
+        oldSpacing = values.integer("plot.old-spacing", 96, 48, 5000);
         buildRadius = Math.min(spacing / 2 - 4, values.integer("plot.build-radius", 40, GensBuild.PLOT_CLEAR, 250));
         height = values.integer("plot.height", 100, 0, 250);
         voidY = values.decimal("void-y", height - 40, -64, 320);
@@ -624,6 +627,86 @@ public final class GensMode implements ModeHandler, Listener {
 
     // ---- telkek ----
 
+    private boolean nearHub(int plot) {
+        int[] c = plotCenter(plot);
+        return Math.abs(c[0] - HUB_X) < GensBuild.HUB_CLEAR + spacing / 2 && Math.abs(c[1] - HUB_Z) < GensBuild.HUB_CLEAR + spacing / 2;
+    }
+
+    /**
+     * Ha a sziget még a régi távolságnál van (a spacing megváltozott), a teljes szigetet (blokkok, ládák tartalma,
+     * generátorok) átköltözteti az új helyére. Csak egyszer történik meg játékosonként.
+     */
+    private void relocate(Player player, GensData.Player data) {
+        PlayerProfile profile = core.profiles().profile(player);
+        if (profile == null || data.plot <= 0) {
+            return;
+        }
+        int was = number(profile.setting("gens.spacing", String.valueOf(oldSpacing)));
+        if (was <= 0 || was == spacing) {
+            if (was <= 0) {
+                profile.put("gens.spacing", String.valueOf(spacing));
+            }
+            return;
+        }
+        int[] cell = GenMath.spiral(data.plot);
+        int ox = cell[0] * was;
+        int oz = cell[1] * was;
+        int[] target = plotCenter(data.plot);
+        int r = Math.min(was / 2 - 4, buildRadius);
+        generators.save(player);
+        for (int dx = -r; dx <= r; dx++) {
+            for (int dz = -r; dz <= r; dz++) {
+                for (int y = height - 25; y <= height + 40; y++) {
+                    Block from = world.getBlockAt(ox + dx, y, oz + dz);
+                    if (from.getType().isAir()) {
+                        continue;
+                    }
+                    Block to = world.getBlockAt(target[0] + dx, y, target[1] + dz);
+                    to.setBlockData(from.getBlockData(), false);
+                    if (from.getState() instanceof org.bukkit.block.Container source && to.getState() instanceof org.bukkit.block.Container dest) {
+                        dest.getSnapshotInventory().setContents(source.getSnapshotInventory().getContents());
+                        dest.update(true, false);
+                        source.getSnapshotInventory().clear();
+                        source.update(true, false);
+                    }
+                }
+            }
+        }
+        for (int dx = -r; dx <= r; dx++) {
+            for (int dz = -r; dz <= r; dz++) {
+                for (int y = height - 25; y <= height + 40; y++) {
+                    Block from = world.getBlockAt(ox + dx, y, oz + dz);
+                    if (!from.getType().isAir()) {
+                        from.setType(Material.AIR, false);
+                    }
+                }
+            }
+        }
+        StringBuilder moved = new StringBuilder();
+        for (String part : profile.setting("gens.generators", "").split(";")) {
+            String[] p = part.split(",");
+            if (p.length < 4) {
+                continue;
+            }
+            try {
+                p[0] = String.valueOf(Integer.parseInt(p[0]) - ox + target[0]);
+                p[2] = String.valueOf(Integer.parseInt(p[2]) - oz + target[1]);
+            } catch (NumberFormatException exception) {
+                continue;
+            }
+            if (moved.length() > 0) {
+                moved.append(';');
+            }
+            moved.append(String.join(",", p));
+        }
+        profile.put("gens.generators", moved.toString());
+        generators.attach(player);
+        purgeRegrow(data.plot);
+        profile.put("gens.spacing", String.valueOf(spacing));
+        core.getLogger().info("Gens: " + player.getName() + " szigete átköltözött (" + ox + "," + oz + " -> " + target[0] + "," + target[1] + ").");
+        Bukkit.getScheduler().runTaskLater(core, () -> core.messages().send(player, "gens.island-moved"), 40L);
+    }
+
     public int[] plotCenter(int plot) {
         int[] cell = GenMath.spiral(plot);
         return new int[]{cell[0] * spacing, cell[1] * spacing};
@@ -719,10 +802,17 @@ public final class GensMode implements ModeHandler, Listener {
             return;
         }
         data.plot = nextPlot++;
+        while (nearHub(data.plot)) {
+            data.plot = nextPlot++;
+        }
         data.level = 1;
         data.dirty = true;
         buildFarm(data, GensBuild.PLOT_CLEAR);
         markFarm(player);
+        PlayerProfile fresh = core.profiles().profile(player);
+        if (fresh != null) {
+            fresh.put("gens.spacing", String.valueOf(spacing));
+        }
         save(data, true);
         org.bukkit.Bukkit.getScheduler().runTaskLater(core, () -> core.messages().sendList(player, "gens.first-join", "%player%", player.getName()), 5L);
         justCreated.add(player.getUniqueId());
@@ -756,7 +846,7 @@ public final class GensMode implements ModeHandler, Listener {
             purgeRegrow(data.plot);
             clearIslandFields(data);
             markFarm(player);
-            core.messages().send(player, "gens.farm-moved");
+            Bukkit.getScheduler().runTaskLater(core, () -> core.messages().send(player, "gens.farm-moved"), 40L);
             return false;
         }
         data.level = Math.max(1, Math.min(fields.size(), data.level));
@@ -881,6 +971,7 @@ public final class GensMode implements ModeHandler, Listener {
             return hub;
         }
         ensurePlot(player, data);
+        relocate(player, data);
         ensureFarm(player, data);
         refreshFields(data);
         return hub == null ? home(data) : hub;
@@ -901,6 +992,7 @@ public final class GensMode implements ModeHandler, Listener {
         if (data != null) {
             data.fresh = false;
             ensurePlot(player, data);
+            relocate(player, data);
             if (ensureFarm(player, data)) {
                 core.guard().allowNext(player);
                 player.teleport(home(data));
@@ -1938,6 +2030,7 @@ public final class GensMode implements ModeHandler, Listener {
             return;
         }
         ensurePlot(player, data);
+        relocate(player, data);
         ensureFarm(player, data);
         refreshFields(data);
         finishConversion(player, data);

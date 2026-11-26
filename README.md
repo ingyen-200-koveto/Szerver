@@ -207,7 +207,11 @@ A földek (3.65.0-tól) a Gens szinttel nyílnak sorban: búza 1., sárgarépa 3
 bogyó 30., netherbibircsók 40. szinten (gens.yml -> fields.<n>.level), venni már nem kell őket; aki már megvett
 földeket, azok megmaradnak. Admin (játékból vagy konzolból is): `/gens szint <játékos> <szint>`. A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren lévő hordónál, a `/elad` paranccsal
 vagy a menüben adod el. A saját szigeted (`/gens home`) a generátoroké; a régi földek helyén most fű van.
-A Gensbe belépve (3.64.0-tól) rögtön a Gens központba kerülsz: egy nagy farm város (piros pajták, domb bányával,
+3.66.0-tól lassabb a fejlődés: egy szinthez több XP kell (350 × 1,21^(szint-1), aratásonként 1 XP), kevesebb elixír jár
+(a termés értékének 40%-a), a generátorok háromszor drágábbak és 8 mp-enként termelnek, a kapa, a sziget fejlesztések,
+a prestige, az automatikus eladás és a nagy hátizsák is drágább. A saját szigetek 1000 blokkra vannak egymástól
+(gens.yml -> plot.spacing); a régi szigetek a gazdájuk következő belépésekor mindenestül (blokkok, ládák, generátorok)
+átköltöznek. A Gensbe belépve (3.64.0-tól) rögtön a Gens központba kerülsz: egy nagy farm város (piros pajták, domb bányával,
 tó stéggel, óriásfák, lebegő hamburgerek), a közepén a közös farm. A téren lévő portál a saját szigetedre visz.
 Külön Gens módlobby már nincs (modelobbies.yml -> lobbies.gens.enabled: false).
 

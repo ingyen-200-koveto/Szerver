@@ -334,6 +334,7 @@ gens:
     locked-level: "&cEz a föld még zárva van, magasabb Gens szint kell hozzá."
     need-level: "A(z) &f%field% &7föld a(z) &a%level%. &7Gens szinten nyílik meg &8(most: %now%. szint)&7. Szintet aratással és eladással gyűjtesz."
     unlocked-level: "&a&lÚJ FÖLD! &7A Gens szinted megnyitotta: &f%field% &8(%count%/%max%)"
+  island-moved: "&a&lÚJDONSÁG! &7A szigeted átköltözött egy új, távoli helyre, hogy mindenkinek legyen helye. Minden megmaradt rajta, a generátoraid is."
   farm-moved: "&a&lÚJDONSÁG! &7A földek mostantól a &fGens központban &7vannak, közös farmon. A szigeteden a régi földek helyén most hely van a generátoroknak."
   labels:
     portal:

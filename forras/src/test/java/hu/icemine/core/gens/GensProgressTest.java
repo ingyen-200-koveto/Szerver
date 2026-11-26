@@ -40,8 +40,8 @@ class GensProgressTest {
         GensProgress progress = shipped(new ArrayList<>());
         long first = progress.prestigeCost(0, 0);
         long second = progress.prestigeCost(1, 0);
-        assertEquals(25_000_000L, first);
-        assertEquals(35_000_000L, second);
+        assertEquals(100_000_000L, first);
+        assertEquals(140_000_000L, second);
         assertEquals(first * 2, progress.prestigeCost(0, 1), "rebirth után drágább a prestige");
         assertTrue(progress.rebirthCost(1) > progress.rebirthCost(0));
     }
