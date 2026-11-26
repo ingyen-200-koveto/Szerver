@@ -57,7 +57,7 @@ public final class ModeLobbyBuild extends Build {
         this.title = title == null ? "" : title;
         this.split = split;
         this.theme = Theme.of(theme);
-        this.radius = this.theme == Theme.GENS || this.theme == Theme.KINGDOMS ? GENS_RADIUS : RADIUS;
+        this.radius = this.theme == Theme.GENS || this.theme == Theme.KINGDOMS || this.theme == Theme.DUELS ? GENS_RADIUS : RADIUS;
     }
 
     private String outline() {
@@ -110,7 +110,7 @@ public final class ModeLobbyBuild extends Build {
                 new KingdomsCastle((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case DUELS:
-                hall();
+                new DuelsColosseum((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case BEDWARS:
                 camp();
@@ -162,7 +162,7 @@ public final class ModeLobbyBuild extends Build {
                 }
                 return s > 0.6 ? "coarse_dirt" : (n < 0.08 ? "moss_block" : "grass_block");
             case DUELS:
-                return n < 0.15 ? "cracked_polished_blackstone_bricks" : (s > 0.6 ? "blackstone" : "polished_blackstone_bricks");
+                return DuelsColosseum.ground(x, z);
             case BEDWARS:
                 return s > 0.64 ? "moss_block" : (n < 0.1 ? "coarse_dirt" : "grass_block");
             default:
@@ -195,7 +195,10 @@ public final class ModeLobbyBuild extends Build {
                 }
                 return n < 0.5 ? "end_stone" : (n < 0.8 ? "obsidian" : "crying_obsidian");
             case DUELS:
-                return n < 0.4 ? "blackstone" : (n < 0.7 ? "basalt[axis=y]" : (n < 0.8 ? "gilded_blackstone" : "deepslate"));
+                if (y > -3) {
+                    return n < 0.6 ? "sandstone" : "smooth_sandstone";
+                }
+                return n < 0.4 ? "terracotta" : (n < 0.7 ? "stone" : "orange_terracotta");
             default:
                 if (y > -3) {
                     return noise(x, z + y, 63) < 0.7 ? "snow_block" : "packed_ice";
@@ -264,8 +267,8 @@ public final class ModeLobbyBuild extends Build {
                 put(x, 2, z, Math.floorMod(x + z, 2) == 0 ? "stone_brick_wall" : (post ? "torch" : "air"));
                 break;
             case DUELS:
-                put(x, 1, z, "blackstone_wall");
-                put(x, 2, z, post ? "soul_lantern[hanging=false]" : "air");
+                put(x, 1, z, "sandstone_wall");
+                put(x, 2, z, post ? "lantern[hanging=false]" : "air");
                 break;
             case BEDWARS:
                 // a perem négy csapatszínben körbe
@@ -295,7 +298,7 @@ public final class ModeLobbyBuild extends Build {
             case KINGDOMS:
                 return new String[]{"stone_bricks", "cobblestone", "chiseled_stone_bricks"};
             case DUELS:
-                return new String[]{"polished_blackstone", "smooth_quartz", "chiseled_polished_blackstone"};
+                return new String[]{"cut_sandstone", "smooth_sandstone", "chiseled_sandstone"};
             case BEDWARS:
                 return new String[]{"oak_planks", "smooth_stone", c("terracotta")};
             default:
@@ -331,13 +334,13 @@ public final class ModeLobbyBuild extends Build {
                 }
                 String block;
                 if (d < 1.2) {
-                    block = theme == Theme.COMBOFLY ? "amethyst_block" : (theme == Theme.DUELS ? "gilded_blackstone" : "sea_lantern");
+                    block = theme == Theme.COMBOFLY ? "amethyst_block" : (theme == Theme.DUELS ? "gold_block" : "sea_lantern");
                 } else if (d < 2.4) {
                     block = theme == Theme.DUELS ? "red_concrete" : c("concrete");
                 } else if (d > 4.6) {
                     block = b[0];
                 } else if (theme == Theme.DUELS) {
-                    block = Math.floorMod(x + z, 2) == 0 ? "smooth_quartz" : "polished_blackstone";
+                    block = Math.floorMod(x + z, 2) == 0 ? "smooth_sandstone" : "cut_red_sandstone";
                 } else {
                     block = Math.floorMod(x + z, 2) == 0 ? b[1] : (theme == Theme.SNOW ? "calcite" : b[0]);
                 }
@@ -369,7 +372,7 @@ public final class ModeLobbyBuild extends Build {
             case KINGDOMS:
                 return new String[]{"stone_bricks", "chiseled_stone_bricks", "mossy_stone_bricks", "gold_block"};
             case DUELS:
-                return new String[]{"polished_blackstone_bricks", "gilded_blackstone", "chiseled_polished_blackstone", "soul_lantern[hanging=false]"};
+                return new String[]{"quartz_pillar[axis=y]", "gold_block", "cut_sandstone", "lantern[hanging=false]"};
             case BEDWARS:
                 return new String[]{"stripped_dark_oak_log[axis=y]", "red_wool", "spruce_planks", "glowstone"};
             default:
@@ -399,7 +402,7 @@ public final class ModeLobbyBuild extends Build {
             put(side * 4, 8, PORTAL_Z, theme == Theme.GENS ? "lantern[hanging=false]" : (theme == Theme.COMBOFLY ? "end_rod[facing=up]" : "lantern[hanging=false]"));
             put(side * 5, 1, PORTAL_Z + 1, theme == Theme.KITPVP ? "campfire[lit=true]" : "stone_brick_wall[up=true]");
             if (theme != Theme.KITPVP) {
-                put(side * 5, 2, PORTAL_Z + 1, theme == Theme.DUELS ? "soul_lantern[hanging=false]" : "lantern[hanging=false]");
+                put(side * 5, 2, PORTAL_Z + 1, theme == Theme.DUELS ? "lantern[hanging=false]" : "lantern[hanging=false]");
             }
             String banner = theme == Theme.DUELS ? (side < 0 ? "red" : "blue") : color;
             put(side * 4, 5, PORTAL_Z + 1, banner + "_wall_banner[facing=south]");
@@ -411,7 +414,7 @@ public final class ModeLobbyBuild extends Build {
     }
 
     private void pedestals() {
-        String top = theme == Theme.COMBOFLY ? "amethyst_block" : (theme == Theme.DUELS ? "chiseled_polished_blackstone" : "chiseled_stone_bricks");
+        String top = theme == Theme.COMBOFLY ? "amethyst_block" : (theme == Theme.DUELS ? "chiseled_sandstone" : "chiseled_stone_bricks");
         int[][] spots = {{6, SPAWN_Z - 3}, {-6, SPAWN_Z - 3}};
         for (int[] spot : spots) {
             put(spot[0], 1, spot[1], top);
@@ -426,7 +429,7 @@ public final class ModeLobbyBuild extends Build {
                 }
             }
             put(board[0], 1, board[1], top);
-            put(board[0], 2, board[1], theme == Theme.DUELS ? "polished_blackstone_slab[type=bottom]" : "stone_brick_slab[type=bottom]");
+            put(board[0], 2, board[1], theme == Theme.DUELS ? "smooth_sandstone_slab[type=bottom]" : "stone_brick_slab[type=bottom]");
         }
     }
 
@@ -1063,8 +1066,8 @@ public final class ModeLobbyBuild extends Build {
                 light = "lantern[hanging=false]";
                 break;
             case DUELS:
-                post = "polished_blackstone_wall";
-                light = "soul_lantern[hanging=false]";
+                post = "sandstone_wall";
+                light = "lantern[hanging=false]";
                 break;
             case SKYPVP:
                 post = "birch_fence";

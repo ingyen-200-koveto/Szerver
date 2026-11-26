@@ -209,6 +209,9 @@ piaci standok, veteményes, tó stéggel és nagy fák. Frissítéskor egyszer �
 A Kingdoms lobby (3.54.0-tól) egy királyi vár udvara: várfal hat toronnyal, kapuház, lakótorony a portál
 mögött, kovácsműhely, gyakorlótér, istálló, sátrak és kút, a falakon kívül erdő.
 
+A Duels lobby (3.55.0-tól) egy kolosszeum: homokos küzdőtér, piros-kék zászlós dobogófal tűztartókkal, körben
+lelátók, kívül háromszintes boltíves homlokzat zászlókkal, két kapu, ciprusok.
+
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
 - **Generátorok** (3.51.0): a Generátor boltban (`/gens generator` vagy a Gens menü) veszed, a szigeteden lerakod, és
