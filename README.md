@@ -199,7 +199,7 @@ Beállítás: `creative.yml` -> `worldedit`.
 
 ### Gens
 
-Gens Tycoon: a földek (3.60.0-tól) a Gens központjában vannak, egy közös farmon: 8 nagy föld (9x9) a tér körül,
+Gens Tycoon: a földek (3.60.0-tól) a Gens központjában vannak, egy közös farmon: 8 nagy föld (3.63.0-tól 23x23, összesen kb. 4200 növény) a tér körül,
 mindenki ott arat, de csak azokon a földeken, amelyeket már megvett. Földet jobb klikkel veszel (kétszer kattints
 rá), vagy a menüben. A növényeket a Gens kapával kell learatni (bal klikk), pár másodperc alatt visszanőnek.
 A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren lévő hordónál, a `/elad` paranccsal

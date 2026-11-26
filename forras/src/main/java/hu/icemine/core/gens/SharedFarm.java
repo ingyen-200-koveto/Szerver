@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A közös farm a Gens központjában: középen a tér (spawn, eladó hordó, kapa üllő), körülötte 8 nagy föld (9x9).
+ * A közös farm a Gens központjában: középen a tér (spawn, eladó hordó, kapa üllő), körülötte 8 nagy föld (23x23).
  * Mindenki itt arat, de csak azokon a földeken, amelyeket már megvett (jobb klikk a földre vagy a menü).
  * A koordináták a központ (0, 0) közepéhez képest, a talaj y = 0, a növények y = 1.
  */
 public final class SharedFarm {
 
-    public static final int HALF = 4;
-    static final int[][] CENTERS = {{0, -16}, {16, -16}, {16, 0}, {16, 16}, {0, 16}, {-16, 16}, {-16, 0}, {-16, -16}};
+    public static final int HALF = 11;
+    static final int[][] CENTERS = {{0, -28}, {28, -28}, {28, 0}, {28, 28}, {0, 28}, {-28, 28}, {-28, 0}, {-28, -28}};
     /** A földek és az utak négyzete a középtől. */
-    public static final int EXTENT = 22;
+    public static final int EXTENT = 41;
     public static final int[] SELL = {3, -3};
     public static final int[] HOE = {-3, -3};
 

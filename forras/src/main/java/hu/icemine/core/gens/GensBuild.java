@@ -5,7 +5,7 @@ import hu.icemine.core.build.Layout;
 
 public final class GensBuild extends Build {
 
-    public static final int HUB_CLEAR = 42;
+    public static final int HUB_CLEAR = 48;
     public static final int PLOT_CLEAR = 26;
     static final int HUB_RADIUS = 34;
     static final int PLOT_RADIUS = 22;
@@ -151,8 +151,30 @@ public final class GensBuild extends Build {
      * A központ: a közös farm. Középen a tér szélmalommal, eladó hordóval és kapa üllővel, körülötte a 8 nagy föld
      * (ezeket a FieldBuild rakja ki), köztük széles utak lámpákkal, a szélén standok és fenyők.
      */
+    /** A központ szigete: lekerekített négyzet, hogy a nagy földek elférjenek (a telkek 48 blokkon túl kezdődnek). */
+    private void squareIsland(double half, int depth, int seed) {
+        int max = (int) Math.ceil(half) + 2;
+        for (int dx = -max; dx <= max; dx++) {
+            for (int dz = -max; dz <= max; dz++) {
+                double p = 6;
+                double d = Math.pow(Math.pow(Math.abs(dx), p) + Math.pow(Math.abs(dz), p), 1 / p);
+                double edge = half + 1.0 * Math.sin(Math.atan2(dz, dx) * 7 + seed) + noise(dx, dz, seed + 1) * 0.8;
+                if (d > edge) {
+                    continue;
+                }
+                put(dx, 0, dz, noise(cx + dx, cz + dz, seed) < 0.1 ? "packed_ice" : "snow_block");
+                int deep = (int) ((1 - Math.pow(d / edge, 1.6)) * depth) + 1 + (int) (noise(cx + dx, cz + dz, seed + 2) * 3);
+                for (int l = 1; l <= deep; l++) {
+                    double m = noise(cx + dx, cz + dz * 3 + l, seed + 10 + l);
+                    String block = l == 1 ? "dirt" : (l <= 3 ? (m < 0.6 ? "dirt" : "stone") : (m < 0.4 ? "stone" : (m < 0.7 ? "packed_ice" : (m < 0.88 ? "andesite" : "blue_ice"))));
+                    put(dx, -l, dz, block);
+                }
+            }
+        }
+    }
+
     private void hub() {
-        island(HUB_RADIUS, 20, 300);
+        squareIsland(45, 22, 300);
         int e = SharedFarm.EXTENT;
         for (int dx = -e; dx <= e; dx++) {
             for (int dz = -e; dz <= e; dz++) {
@@ -163,11 +185,11 @@ public final class GensBuild extends Build {
                 if (SharedFarm.fieldAt(dx, dz) >= 0) {
                     continue;
                 }
-                boolean plaza = Math.abs(dx) <= 6 && Math.abs(dz) <= 6;
+                boolean plaza = Math.abs(dx) <= 8 && Math.abs(dz) <= 8;
                 String block;
                 if (plaza) {
                     double d = dist(dx, dz);
-                    boolean edge = Math.abs(dx) == 6 || Math.abs(dz) == 6;
+                    boolean edge = Math.abs(dx) == 8 || Math.abs(dz) == 8;
                     block = edge ? "prismarine_bricks" : (Math.abs(d - 4) < 0.55 ? "cyan_concrete" : (Math.floorMod(dx + dz, 2) == 0 ? "calcite" : "smooth_quartz"));
                 } else {
                     boolean border = SharedFarm.fieldAt(dx + 1, dz) >= 0 || SharedFarm.fieldAt(dx - 1, dz) >= 0
@@ -186,18 +208,20 @@ public final class GensBuild extends Build {
         put(SharedFarm.HOE[0], 1, SharedFarm.HOE[1], "anvil[facing=east]");
         for (int sx = -1; sx <= 1; sx += 2) {
             for (int sz = -1; sz <= 1; sz += 2) {
-                lamp(8 * sx, 8 * sz);
-                lamp(8 * sx, 22 * sz);
-                lamp(22 * sx, 8 * sz);
-                put(6 * sx, 1, 6 * sz, "prismarine_wall[up=true]");
-                put(6 * sx, 2, 6 * sz, "sea_lantern");
+                lamp(14 * sx, 14 * sz);
+                lamp(14 * sx, 28 * sz);
+                lamp(28 * sx, 14 * sz);
+                lamp(14 * sx, 40 * sz);
+                lamp(40 * sx, 14 * sz);
+                put(8 * sx, 1, 8 * sz, "prismarine_wall[up=true]");
+                put(8 * sx, 2, 8 * sz, "sea_lantern");
             }
         }
-        stall(-28, 0, "lime_wool", "white_wool");
-        stall(28, 0, "cyan_wool", "white_wool");
-        int[][] trees = {{0, -28}, {0, 28}, {-28, -14}, {28, -14}, {-28, 14}, {28, 14}};
+        stall(-11, 3, "lime_wool", "white_wool");
+        stall(11, 3, "cyan_wool", "white_wool");
+        int[][] trees = {{-43, -14}, {43, 14}, {14, -43}, {-14, 43}};
         for (int[] tree : trees) {
-            spruce(tree[0], tree[1], 7, 2.4);
+            spruce(tree[0], tree[1], 6, 1.8);
         }
         layout.point("spawn", 0.5, 1, 4.5, 180);
     }

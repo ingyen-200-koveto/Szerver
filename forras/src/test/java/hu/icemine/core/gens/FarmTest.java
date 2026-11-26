@@ -243,7 +243,7 @@ class FarmTest {
     void sharedFarmLayout() {
         for (int field = 0; field < 8; field++) {
             List<int[]> cells = SharedFarm.cells(field);
-            assertEquals(81, cells.size());
+            assertEquals((SharedFarm.HALF * 2 + 1) * (SharedFarm.HALF * 2 + 1), cells.size());
             for (int[] cell : cells) {
                 assertEquals(field, SharedFarm.fieldAt(cell[0], cell[1]));
                 assertTrue(Math.abs(cell[0]) <= SharedFarm.EXTENT && Math.abs(cell[1]) <= SharedFarm.EXTENT);
@@ -254,5 +254,6 @@ class FarmTest {
         assertEquals(-1, SharedFarm.fieldAt(SharedFarm.SELL[0], SharedFarm.SELL[1]));
         assertEquals(-1, SharedFarm.fieldAt(SharedFarm.HOE[0], SharedFarm.HOE[1]));
         assertEquals(-1, SharedFarm.fieldAt(0, 5), "a spawn a téren van, nem földön");
+        assertTrue(SharedFarm.EXTENT < 48, "a közös farm a központ telkén belül marad (a telkek 48-tól kezdődnek)");
     }
 }

@@ -83,7 +83,7 @@ public final class GensMode implements ModeHandler, Listener {
     /** A profilban ("gens.farm") jegyezzük, hogy a sziget már a földes változat. */
     static final String FARM_VERSION = "2";
     /** A központ (közös farm) változata a gens.yml-ben: ha régebbi, újraépül. */
-    static final int HUB_VERSION = 2;
+    static final int HUB_VERSION = 3;
     private static final String LABEL_TAG = "icemine_gens_label";
 
     /** Egy learatott növény, ami épp visszanő. */
