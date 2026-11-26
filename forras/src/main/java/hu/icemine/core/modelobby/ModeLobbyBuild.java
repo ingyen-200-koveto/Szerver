@@ -235,6 +235,9 @@ public final class ModeLobbyBuild extends Build {
                 if (d > e || d <= e - 1.2) {
                     continue;
                 }
+                if (theme == Theme.BEDWARS && BedwarsIslands.bridge(x, z)) {
+                    continue;
+                }
                 rimBlock(x, z);
                 for (int y = 3; y <= 6; y++) {
                     put(x, y, z, "barrier");
@@ -932,42 +935,18 @@ public final class ModeLobbyBuild extends Build {
 
     private void camp() {
         statues();
-        String[] colors = {"red", "blue", "lime", "yellow"};
-        int[][] pads = {{-17, -12}, {17, -12}, {-17, 10}, {17, 10}};
-        for (int i = 0; i < pads.length; i++) {
-            int x = pads[i][0];
-            int z = pads[i][1];
-            for (int dx = -2; dx <= 2; dx++) {
-                for (int dz = -3; dz <= 3; dz++) {
-                    boolean border = Math.abs(dx) == 2 || Math.abs(dz) == 3;
-                    put(x + dx, 0, z + dz, border ? "oak_planks" : colors[i] + "_wool");
-                }
-            }
-            put(x, 1, z, colors[i] + "_bed[part=foot,facing=north]");
-            put(x, 1, z - 1, colors[i] + "_bed[part=head,facing=north]");
-            for (int side = -1; side <= 1; side += 2) {
-                put(x + side * 2, 1, z - 3, "oak_log[axis=y]");
-                put(x + side * 2, 2, z - 3, "oak_fence");
-                put(x + side * 2, 3, z - 3, "lantern[hanging=false]");
-            }
-            // a "védelem" az ágy körül, ahogy a játékban szokás
-            int[][] ring = {{-1, 0}, {1, 0}, {-1, -1}, {1, -1}, {0, 1}, {0, -2}};
-            for (int[] r : ring) {
-                put(x + r[0], 1, z + r[1], colors[i] + "_wool");
-            }
-            put(x, 2, z, "end_stone");
-            put(x, 2, z - 1, "end_stone");
-        }
+        int[][] pads = {};
         int[][] gens = {{-9, -17, 0}, {9, -17, 1}};
         for (int[] g : gens) {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     boolean center = dx == 0 && dz == 0;
-                    put(g[0] + dx, 0, g[1] + dz, center ? (g[2] == 0 ? "iron_block" : "diamond_block") : (g[2] == 0 ? "gold_block" : "polished_andesite"));
+                    put(g[0] + dx, 0, g[1] + dz, center ? "emerald_block" : "polished_andesite");
                 }
             }
-            put(g[0], 1, g[1], g[2] == 0 ? "light_weighted_pressure_plate" : "heavy_weighted_pressure_plate");
+            put(g[0], 1, g[1], "heavy_weighted_pressure_plate");
         }
+        new BedwarsIslands((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
         int[][] trees = {{-19, 0}, {20, -2}, {-11, 19}, {12, 20}, {0, 23}, {-21, -5}};
         for (int[] t : trees) {
             if (dist(t[0], t[1]) > RADIUS - 4 || !free(t[0], t[1]) || nearAny(t[0], t[1], pads, 5, 6) || nearAny(t[0], t[1], STATUES, 4, 5)) {

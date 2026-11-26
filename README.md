@@ -212,6 +212,9 @@ mögött, kovácsműhely, gyakorlótér, istálló, sátrak és kút, a falakon 
 A Duels lobby (3.55.0-tól) egy kolosszeum: homokos küzdőtér, piros-kék zászlós dobogófal tűztartókkal, körben
 lelátók, kívül háromszintes boltíves homlokzat zászlókkal, két kapu, ciprusok.
 
+A BedWars lobby (3.56.0-tól) egy igazi BedWars pálya: középen a sziget a szobrokkal és smaragd generátorokkal,
+körülötte négy csapatsziget (színes ház, ágy védelemmel, vasgenerátor, bolt) és két gyémántsziget gyapjúhidakkal.
+
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
 - **Generátorok** (3.51.0): a Generátor boltban (`/gens generator` vagy a Gens menü) veszed, a szigeteden lerakod, és
