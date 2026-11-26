@@ -215,6 +215,9 @@ lelátók, kívül háromszintes boltíves homlokzat zászlókkal, két kapu, ci
 A BedWars lobby (3.56.0-tól) egy igazi BedWars pálya: középen a sziget a szobrokkal és smaragd generátorokkal,
 körülötte négy csapatsziget (színes ház, ágy védelemmel, vasgenerátor, bolt) és két gyémántsziget gyapjúhidakkal.
 
+A SkyWars lobby (3.57.0-tól) körül nyolc lebegő havas sziget, mindegyiken egy feloldható ketrec (jég, smaragd,
+TNT, arany, ametiszt, óceán, hóvihar, redstone), láda, fenyő és érc; köztük lebegő jégtüskék.
+
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
 - **Generátorok** (3.51.0): a Generátor boltban (`/gens generator` vagy a Gens menü) veszed, a szigeteden lerakod, és

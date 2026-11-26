@@ -117,6 +117,7 @@ public final class ModeLobbyBuild extends Build {
                 break;
             default:
                 trees();
+                new SkywarsIslands((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
         }
         lanterns();
         if (!title.isEmpty()) {
