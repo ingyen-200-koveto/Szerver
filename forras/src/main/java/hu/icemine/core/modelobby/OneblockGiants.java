@@ -20,8 +20,11 @@ final class OneblockGiants extends ThemeBase {
             int gy = 9 + (int) Math.round(Math.sin(i * 2.1) * 4);
             cloud(gx, gy - 5, gz, 6.5);
             giant(gx, gy, gz, 4, kinds[i]);
+            scene(kinds[i], gx, gy + 5, gz);
         }
         giant(0, 22, -20, 1, "grass");
+        starter(-17, 15);
+        lone(17, 15);
     }
 
     /** Óriás blokk: (2*h+1) élű kocka, a blokk "pixeleivel". */
@@ -106,6 +109,143 @@ final class OneblockGiants extends ThemeBase {
                     return "purpur_block";
                 }
                 return n < 0.7 ? "end_stone" : "end_stone_bricks";
+        }
+    }
+
+    /** A klasszikus kezdő sziget kicsiben: föld, fa, láda. */
+    private void starter(int x, int z) {
+        if (!free.test(x, z)) {
+            return;
+        }
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                if (Math.abs(dx) == 2 && Math.abs(dz) == 2) {
+                    continue;
+                }
+                for (int y = 1; y <= 3; y++) {
+                    put(x + dx, y, z + dz, y == 3 ? "grass_block" : "dirt");
+                }
+            }
+        }
+        for (int y = 4; y <= 7; y++) {
+            put(x - 1, y, z - 1, "oak_log[axis=y]");
+        }
+        blobLeaves(x - 1, 8, z - 1, 2.4, "oak_leaves[persistent=true]");
+        put(x + 1, 4, z + 1, "chest[facing=south]");
+        put(x + 1, 4, z - 1, "short_grass");
+    }
+
+    /** Az az egy blokk: egy fűblokk egy vékony bedrock oszlop tetején. */
+    private void lone(int x, int z) {
+        if (!free.test(x, z)) {
+            return;
+        }
+        for (int y = 1; y <= 4; y++) {
+            put(x, y, z, y == 4 ? "grass_block" : "bedrock");
+        }
+        put(x, 5, z, "short_grass");
+        put(x + 1, 1, z, "stone_brick_slab[type=bottom]");
+        put(x - 1, 1, z, "stone_brick_slab[type=bottom]");
+        put(x, 1, z + 1, "stone_brick_slab[type=bottom]");
+        put(x, 1, z - 1, "stone_brick_slab[type=bottom]");
+    }
+
+    /** Kis jelenet az óriás blokk tetején, ami a fázisra jellemző. */
+    private void scene(String kind, int x, int y, int z) {
+        switch (kind) {
+            case "grass":
+                for (int dy = 0; dy < 4; dy++) {
+                    put(x - 1, y + dy, z - 1, "oak_log[axis=y]");
+                }
+                blobLeaves(x - 1, y + 4, z - 1, 2.6, "oak_leaves[persistent=true]");
+                put(x + 2, y, z + 1, "poppy");
+                put(x + 1, y, z + 2, "dandelion");
+                put(x + 2, y, z - 2, "short_grass");
+                put(x - 2, y, z + 2, "cornflower");
+                break;
+            case "log":
+                put(x, y, z, "crafting_table");
+                put(x + 1, y, z, "chest[facing=south]");
+                put(x - 2, y, z + 1, "oak_log[axis=x]");
+                put(x - 1, y, z + 1, "oak_log[axis=x]");
+                put(x - 2, y + 1, z + 1, "oak_log[axis=x]");
+                put(x + 2, y, z - 2, "oak_sapling");
+                put(x - 2, y, z - 2, "birch_sapling");
+                put(x + 2, y, z + 2, "spruce_sapling");
+                break;
+            case "stone":
+                put(x, y, z, "furnace[facing=south,lit=true]");
+                put(x + 1, y, z, "blast_furnace[facing=south,lit=true]");
+                put(x - 2, y, z - 1, "iron_ore");
+                put(x - 2, y + 1, z - 1, "coal_ore");
+                put(x - 1, y, z - 2, "diamond_ore");
+                put(x + 2, y, z + 2, "pointed_dripstone[vertical_direction=up,thickness=tip]");
+                put(x - 2, y, z + 2, "lantern[hanging=false]");
+                break;
+            case "snow":
+                put(x, y, z, "snow_block");
+                put(x, y + 1, z, "snow_block");
+                put(x, y + 2, z, "carved_pumpkin[facing=south]");
+                for (int dx = -3; dx <= 3; dx++) {
+                    for (int dz = -3; dz <= 3; dz++) {
+                        if ((dx != 0 || dz != 0) && noise(x + dx, z + dz, 590) < 0.5) {
+                            put(x + dx, y, z + dz, "snow[layers=" + (1 + (int) (noise(x + dz, z + dx, 591) * 3)) + "]");
+                        }
+                    }
+                }
+                put(x + 2, y, z - 2, "spruce_sapling");
+                break;
+            case "nether":
+                for (int dx = -2; dx <= 1; dx++) {
+                    for (int dy = 0; dy <= 4; dy++) {
+                        boolean frame = dx == -2 || dx == 1 || dy == 0 || dy == 4;
+                        put(x + dx, y + dy, z, frame ? "obsidian" : "nether_portal[axis=x]");
+                    }
+                }
+                put(x + 2, y, z + 2, "fire");
+                put(x - 3, y, z + 2, "crimson_fungus");
+                put(x + 3, y, z - 2, "nether_wart[age=3]");
+                break;
+            case "ocean":
+                for (int dx = -3; dx <= 3; dx++) {
+                    for (int dz = -3; dz <= 3; dz++) {
+                        put(x + dx, y - 1, z + dz, Math.max(Math.abs(dx), Math.abs(dz)) == 3 ? "prismarine_bricks" : "water");
+                    }
+                }
+                put(x, y - 1, z, "sea_lantern");
+                put(x - 1, y - 1, z + 1, "sea_pickle[pickles=3,waterlogged=true]");
+                put(x + 1, y - 1, z - 1, "brain_coral[waterlogged=true]");
+                put(x + 2, y - 1, z + 1, "tube_coral[waterlogged=true]");
+                break;
+            default:
+                String[] facing = {"south", "west", "north", "east"};
+                for (int dx = -2; dx <= 2; dx++) {
+                    for (int dz = -2; dz <= 2; dz++) {
+                        boolean ring = Math.max(Math.abs(dx), Math.abs(dz)) == 2 && !(Math.abs(dx) == 2 && Math.abs(dz) == 2);
+                        boolean inner = Math.abs(dx) <= 1 && Math.abs(dz) <= 1;
+                        if (inner) {
+                            put(x + dx, y - 1, z + dz, "end_portal");
+                        } else if (ring) {
+                            String f = dz == -2 ? facing[0] : (dx == 2 ? facing[1] : (dz == 2 ? facing[2] : facing[3]));
+                            put(x + dx, y - 1, z + dz, "end_portal_frame[eye=true,facing=" + f + "]");
+                        }
+                    }
+                }
+                put(x + 3, y, z + 3, "end_rod[facing=up]");
+                put(x - 3, y, z - 3, "chorus_flower[age=5]");
+        }
+    }
+
+    private void blobLeaves(int bx, int by, int bz, double r, String leaves) {
+        int ri = (int) Math.ceil(r);
+        for (int dx = -ri; dx <= ri; dx++) {
+            for (int dy = -ri; dy <= ri; dy++) {
+                for (int dz = -ri; dz <= ri; dz++) {
+                    if (Math.sqrt(dx * dx + dy * dy * 1.5 + dz * dz) <= r) {
+                        put(bx + dx, by + dy, bz + dz, leaves);
+                    }
+                }
+            }
         }
     }
 

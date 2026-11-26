@@ -27,6 +27,124 @@ final class ComboflyEnd extends ThemeBase {
         for (int[] f : floating) {
             floating(f[0], -6 + (int) (noise(f[0], f[1], 571) * 10), f[1]);
         }
+        ship(0, 30, -52);
+        skyBridge(-34, -10, 0, -33, 25);
+        skyBridge(34, -10, 0, -33, 25);
+        gateway(-22, 20);
+        gateway(22, 20);
+        dragonHead(-14, 26);
+    }
+
+    // ---- End hajó a sziget fölött ----
+
+    private void ship(int sx, int sy, int sz) {
+        int length = 13;
+        for (int dx = -length; dx <= length; dx++) {
+            double t = Math.abs(dx) / (double) length;
+            int half = (int) Math.round(3.4 * Math.sqrt(1 - t * t));
+            int depth = (int) Math.round(3 * Math.sqrt(1 - t * t));
+            for (int dz = -half; dz <= half; dz++) {
+                for (int dy = -depth; dy <= 0; dy++) {
+                    boolean shell = Math.abs(dz) == half || dy == -depth;
+                    String block = dy == 0 ? (Math.abs(dz) == half ? "purpur_slab[type=bottom]" : "purpur_block")
+                            : (shell ? (dy == -depth ? "end_stone_bricks" : "purpur_block") : "air");
+                    put(sx + dx, sy + dy, sz + dz, block);
+                }
+            }
+            if (Math.abs(dx) <= length - 2 && half >= 2) {
+                put(sx + dx, sy - 1, sz - half, "magenta_stained_glass");
+                put(sx + dx, sy - 1, sz + half, "magenta_stained_glass");
+            }
+        }
+        for (int y = 1; y <= 12; y++) {
+            put(sx - 2, sy + y, sz, "purpur_pillar[axis=y]");
+        }
+        for (int dz = -4; dz <= 4; dz++) {
+            for (int y = 5; y <= 11; y++) {
+                if (Math.abs(dz) <= 4 - Math.abs(y - 8) / 2) {
+                    put(sx - 1, sy + y, sz + dz, y % 3 == 0 ? "magenta_wool" : "purple_wool");
+                }
+            }
+        }
+        for (int dz = -2; dz <= 2; dz++) {
+            for (int y = 1; y <= 4; y++) {
+                for (int dx = 6; dx <= 10; dx++) {
+                    boolean wall = dx == 6 || dx == 10 || Math.abs(dz) == 2;
+                    put(sx + dx, sy + y, sz + dz, wall ? (y == 2 && !(dx == 6 || dx == 10) ? "magenta_stained_glass" : "purpur_block") : "air");
+                }
+            }
+        }
+        for (int dx = 6; dx <= 10; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                put(sx + dx, sy + 5, sz + dz, "purpur_slab[type=bottom]");
+            }
+        }
+        put(sx + length + 1, sy, sz, "dragon_head[rotation=4]");
+        put(sx - length - 1, sy, sz, "end_rod[facing=west]");
+        put(sx + 3, sy + 1, sz, "end_rod[facing=up]");
+        put(sx - 6, sy + 1, sz, "end_rod[facing=up]");
+        put(sx + 8, sy + 1, sz, "brewing_stand");
+    }
+
+    /** Purpur híd két torony között, end rod korláttal. */
+    private void skyBridge(int x0, int z0, int x1, int z1, int y) {
+        int steps = (int) Math.ceil(dist(x1 - x0, z1 - z0));
+        for (int i = 0; i <= steps; i++) {
+            double t = i / (double) steps;
+            double fx = x0 + (x1 - x0) * t;
+            double fz = z0 + (z1 - z0) * t;
+            int sag = (int) Math.round(Math.sin(t * Math.PI) * -2);
+            for (int w = -1; w <= 1; w++) {
+                double nx = -(z1 - z0) / (double) steps;
+                double nz = (x1 - x0) / (double) steps;
+                int x = (int) Math.round(fx + nx * w);
+                int z = (int) Math.round(fz + nz * w);
+                put(x, y + sag, z, w == 0 ? "purpur_block" : "purpur_slab[type=top]");
+                if (w != 0 && i % 4 == 0) {
+                    put(x, y + sag + 1, z, "end_rod[facing=up]");
+                }
+            }
+        }
+    }
+
+    /** End kapu: bedrock keret, közepén a fénylő átjáró. */
+    private void gateway(int gx, int gz) {
+        if (!open(gx, gz)) {
+            return;
+        }
+        take(gx - 3, gz - 3, gx + 3, gz + 3);
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                put(gx + dx, 0, gz + dz, Math.max(Math.abs(dx), Math.abs(dz)) == 2 ? "end_stone_bricks" : "obsidian");
+            }
+        }
+        for (int y = 1; y <= 5; y++) {
+            boolean mid = y == 3;
+            put(gx, y, gz, mid ? "end_gateway" : "bedrock");
+            if (mid) {
+                put(gx + 1, y, gz, "bedrock");
+                put(gx - 1, y, gz, "bedrock");
+                put(gx, y, gz + 1, "bedrock");
+                put(gx, y, gz - 1, "bedrock");
+            }
+        }
+        put(gx, 6, gz, "end_rod[facing=up]");
+        for (int[] c : new int[][]{{-2, -2}, {2, -2}, {-2, 2}, {2, 2}}) {
+            put(gx + c[0], 1, gz + c[1], "purpur_pillar[axis=y]");
+            put(gx + c[0], 2, gz + c[1], "end_rod[facing=up]");
+        }
+    }
+
+    private void dragonHead(int x, int z) {
+        if (!open(x, z)) {
+            return;
+        }
+        take(x - 1, z - 1, x + 1, z + 1);
+        put(x, 1, z, "purpur_pillar[axis=y]");
+        put(x, 2, z, "purpur_pillar[axis=y]");
+        put(x, 3, z, "dragon_head[rotation=8]");
+        put(x + 1, 1, z, "purpur_stairs[facing=west,half=bottom]");
+        put(x - 1, 1, z, "purpur_stairs[facing=east,half=bottom]");
     }
 
     // ---- End város torony ----

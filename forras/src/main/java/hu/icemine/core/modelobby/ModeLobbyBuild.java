@@ -14,7 +14,7 @@ public final class ModeLobbyBuild extends Build {
     public static final int RADIUS = 26;
     /** A Gens lobby nagyobb, mert falu van rajta. */
     public static final int GENS_RADIUS = 44;
-    public static final int CLEAR = 52;
+    public static final int CLEAR = 64;
     static final int PORTAL_Z = -12;
     static final int SPAWN_Z = 12;
 
@@ -57,7 +57,8 @@ public final class ModeLobbyBuild extends Build {
         this.title = title == null ? "" : title;
         this.split = split;
         this.theme = Theme.of(theme);
-        this.radius = this.theme == Theme.GENS || this.theme == Theme.KINGDOMS || this.theme == Theme.DUELS || this.theme == Theme.COMBOFLY ? GENS_RADIUS : RADIUS;
+        this.radius = this.theme == Theme.GENS || this.theme == Theme.KINGDOMS || this.theme == Theme.DUELS || this.theme == Theme.COMBOFLY
+                ? GENS_RADIUS : (this.theme == Theme.BEDWARS ? (int) BedwarsIslands.MAIN_R : RADIUS);
     }
 
     private String outline() {
@@ -651,7 +652,7 @@ public final class ModeLobbyBuild extends Build {
     // ---- ComboFly: ametiszt kristályok ----
 
     private void crystals() {
-        int[][] spikes = {{-17, 10, 9}, {17, 12, 10}, {-19, -8, 12}, {19, -10, 11}, {-9, 19, 8}, {10, 20, 9}, {-21, -14, 10}, {21, -15, 9}, {0, 22, 7}};
+        int[][] spikes = {{-17, 10, 9}, {17, 12, 10}, {-36, 8, 12}, {36, 8, 11}, {-9, 19, 8}, {10, 20, 9}, {-24, 4, 10}, {24, 3, 9}, {0, 22, 7}};
         for (int[] s : spikes) {
             if (!free(s[0], s[1])) {
                 continue;

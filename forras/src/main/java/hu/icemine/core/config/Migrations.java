@@ -12,7 +12,8 @@ public final class Migrations {
     /** Módlobbyk, amelyek új, részletes témát kaptak: {lobby, téma}. */
     private static final String[][] NEW_LOBBIES = {{"kingdoms", "kingdoms", "v2"}, {"duels", "duels", "v2"}, {"bedwars", "bedwars", "v2"},
             {"skywars", "snow", "v2"}, {"combofly", "combofly", "v2"}, {"fyland", "fyland", "v2"},
-            {"gens", "gens", "v3"}, {"kingdoms", "kingdoms", "v3"}, {"duels", "duels", "v3"}, {"combofly", "combofly", "v3"}};
+            {"gens", "gens", "v3"}, {"kingdoms", "kingdoms", "v3"}, {"duels", "duels", "v3"}, {"combofly", "combofly", "v3"},
+            {"bedwars", "bedwars", "v4"}, {"combofly", "combofly", "v4"}, {"fyland", "fyland", "v4"}};
 
 
     private Migrations() {

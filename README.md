@@ -220,15 +220,20 @@ lelátók, kívül háromszintes boltíves homlokzat zászlókkal, két kapu, ci
 
 A BedWars lobby (3.56.0-tól) egy igazi BedWars pálya: középen a sziget a szobrokkal és smaragd generátorokkal,
 körülötte négy csapatsziget (színes ház, ágy védelemmel, vasgenerátor, bolt) és két gyémántsziget gyapjúhidakkal.
+3.61.0-tól: nagyobb csapatszigetek, ház kontyolt tetővel, félig felépített ágyvédelem (gyapjú, fa, end kő), kovácsműhely,
+ponyvás bolt csengővel, csapatzászló, gyémánt szentély, smaragd generátorok üvegbúrával és egy óriás ágy szobor.
 
 A SkyWars lobby (3.57.0-tól) körül nyolc lebegő havas sziget, mindegyiken egy feloldható ketrec (jég, smaragd,
 TNT, arany, ametiszt, óceán, hóvihar, redstone), láda, fenyő és érc; köztük lebegő jégtüskék.
 
 A ComboFly lobby (3.58.0-tól) egy End város: három purpur torony bíbor ablakokkal és end rodokkal, obszidián
 oszlopok (kettő vasrács ketreccel), kórusvirágok, ametiszt kristályok és lebegő end kő szigetek.
+3.61.0-tól: End hajó a sziget fölött, purpur hidak a tornyok között, két End kapu és sárkányfej.
 
 A OneBlock lobby (3.59.0-tól) körül a OneBlock fázisok óriás blokkjai lebegnek felhőkön (fű, tölgyfa, kő ércekkel,
 hó, nether, óceán, End), a felirat fölött pedig "az egy blokk".
+3.61.0-tól mindegyik óriás blokk tetején egy kis jelenet van (fa, munkapad, kemence, hóember, nether kapu, vízmedence,
+End portál), a szigeten pedig a klasszikus kezdő sziget és az egy blokk a bedrock oszlopon.
 
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
