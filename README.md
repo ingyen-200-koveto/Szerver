@@ -205,7 +205,7 @@ Gens Tycoon: a földek (3.60.0-tól) a Gens központjában vannak, egy közös f
 mindenki ott arat, de csak azokon a földeken, amelyeket már megvett. A növényeket a Gens kapával kell learatni (bal klikk), pár másodperc alatt visszanőnek.
 A földek (3.65.0-tól) a Gens szinttel nyílnak sorban: búza 1., sárgarépa 3., krumpli 6., cékla 10., dinnye 15., tök 22.,
 bogyó 30., netherbibircsók 40. szinten (gens.yml -> fields.<n>.level), venni már nem kell őket; aki már megvett
-földeket, azok megmaradnak. Admin: `/gens szint <játékos> <szint>`. A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren lévő hordónál, a `/elad` paranccsal
+földeket, azok megmaradnak. Admin (játékból vagy konzolból is): `/gens szint <játékos> <szint>`. A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren lévő hordónál, a `/elad` paranccsal
 vagy a menüben adod el. A saját szigeted (`/gens home`) a generátoroké; a régi földek helyén most fű van.
 A Gensbe belépve (3.64.0-tól) rögtön a Gens központba kerülsz: egy nagy farm város (piros pajták, domb bányával,
 tó stéggel, óriásfák, lebegő hamburgerek), a közepén a közös farm. A téren lévő portál a saját szigetedre visz.

@@ -43,6 +43,13 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
             balance(sender, args);
             return true;
         }
+        if (name.equals("gens") && !(sender instanceof Player) && args.length > 0 && core.gens() != null) {
+            // a Gens admin parancsok (szint, give, booster, slots, event) a konzolból is mennek
+            if (!gensAdmin(sender, args)) {
+                core.messages().send(sender, "general.only-players");
+            }
+            return true;
+        }
         if (!(sender instanceof Player)) {
             core.messages().send(sender, "general.only-players");
             return true;
@@ -366,7 +373,7 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
     }
 
     /** Admin: /gens give <játékos> <szint> [db] | szint <játékos> <szint> | booster <játékos> <money|elixir|gen> <szorzó> <perc> | slots <játékos> [db] | event <id|random>. */
-    private boolean gensAdmin(Player player, String[] args) {
+    private boolean gensAdmin(CommandSender player, String[] args) {
         String sub = args[0].toLowerCase(Locale.ROOT);
         hu.icemine.core.gens.GensMode g = core.gens();
         try {
