@@ -334,6 +334,14 @@ public final class Migrations {
             lobbies.set("migrated.skywars-lobby-v1", true);
             files.save("modelobbies");
         }
+        if (lobbies != null && lobbies.isSet("lobbies.gens") && !lobbies.getBoolean("migrated.gens-village-v1", false)) {
+            // a Gens lobby új, falusi változata: egyszer újraépül
+            if (lobbies.getString("lobbies.gens.theme", "gens").equalsIgnoreCase("gens")) {
+                lobbies.set("lobbies.gens.built", false);
+            }
+            lobbies.set("migrated.gens-village-v1", true);
+            files.save("modelobbies");
+        }
         if (modes.isSet("modes") && !modes.getBoolean("migrated.bedwars-v1", false)) {
             // a régi, külön pluginos Bedwars bejegyzései helyett az IceMine saját BedWars módja
             modes.set("modes.bedwars", null);

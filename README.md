@@ -203,6 +203,9 @@ Gens Tycoon: mindenkinek saját farm szigete van 8 földdel és generátorokkal.
 learatni (bal klikk a beérett növényre). Learatás után pár másodperc alatt visszanő. A termést a sziget
 közepén lévő hordónál (jobb klikk), a `/elad` paranccsal vagy a menüben adod el.
 
+A Gens lobby (3.53.0-tól) egy kis falu: piros tetős házak boltíves ablakokkal egy terrakotta tér körül,
+piaci standok, veteményes, tó stéggel és nagy fák. Frissítéskor egyszer újraépül.
+
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
 - **Generátorok** (3.51.0): a Generátor boltban (`/gens generator` vagy a Gens menü) veszed, a szigeteden lerakod, és

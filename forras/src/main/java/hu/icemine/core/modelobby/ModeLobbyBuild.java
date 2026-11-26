@@ -6,13 +6,15 @@ import java.util.Locale;
 
 /**
  * Egy játékmód saját lobbyja. Minden módnak saját témája van (Fyland: felhők fölötti szigetek,
- * ComboFly: ametiszt kristályok, Gens: farm és bánya, Kingdoms: vár udvar, Duels: párbaj csarnok), de a fontos pontok
+ * ComboFly: ametiszt kristályok, Gens: falu, Kingdoms: vár udvar, Duels: párbaj csarnok), de a fontos pontok
  * (spawn, portál, hologramok, toplisták) mindenhol ugyanott vannak, így a config és a hologramok témától függetlenek.
  */
 public final class ModeLobbyBuild extends Build {
 
     public static final int RADIUS = 26;
-    public static final int CLEAR = 46;
+    /** A Gens lobby nagyobb, mert falu van rajta. */
+    public static final int GENS_RADIUS = 44;
+    public static final int CLEAR = 52;
     static final int PORTAL_Z = -12;
     static final int SPAWN_Z = 12;
 
@@ -43,6 +45,7 @@ public final class ModeLobbyBuild extends Build {
     private final String title;
     private final int split;
     private final Theme theme;
+    private final int radius;
 
     public ModeLobbyBuild(Sink sink, int cx, int cy, int cz, String color, String title, int split) {
         this(sink, cx, cy, cz, color, title, split, "snow");
@@ -54,6 +57,7 @@ public final class ModeLobbyBuild extends Build {
         this.title = title == null ? "" : title;
         this.split = split;
         this.theme = Theme.of(theme);
+        this.radius = this.theme == Theme.GENS ? GENS_RADIUS : RADIUS;
     }
 
     private String outline() {
@@ -100,7 +104,7 @@ public final class ModeLobbyBuild extends Build {
                 crystals();
                 break;
             case GENS:
-                farm();
+                new GensVillage((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case KINGDOMS:
                 castle();
@@ -132,7 +136,7 @@ public final class ModeLobbyBuild extends Build {
 
     private double edge(int x, int z) {
         double angle = Math.atan2(z, x);
-        return RADIUS + 1.2 * Math.sin(angle * 4 + 0.5) + 0.7 * Math.sin(angle * 9 + 2);
+        return radius + 1.2 * Math.sin(angle * 4 + 0.5) + 0.7 * Math.sin(angle * 9 + 2);
     }
 
     // ---- a sziget anyaga témánként ----
@@ -143,8 +147,12 @@ public final class ModeLobbyBuild extends Build {
         switch (theme) {
             case KITPVP:
                 return s > 0.62 ? "smooth_sandstone" : (n < 0.12 ? "red_sand" : (n < 0.2 ? "coarse_dirt" : "sand"));
-            case SKYPVP:
             case GENS:
+                if (Math.abs(x) <= 23 && z >= -21 && z <= 21) {
+                    return s > 0.64 ? "packed_mud" : (n < 0.05 ? "mud_bricks" : "terracotta");
+                }
+                return n < 0.06 ? "moss_block" : "grass_block";
+            case SKYPVP:
                 return n < 0.06 ? "moss_block" : "grass_block";
             case COMBOFLY:
                 return s > 0.6 ? "purpur_block" : (n < 0.1 ? "end_stone" : "end_stone_bricks");
@@ -197,8 +205,8 @@ public final class ModeLobbyBuild extends Build {
     }
 
     private void island() {
-        for (int x = -RADIUS - 3; x <= RADIUS + 3; x++) {
-            for (int z = -RADIUS - 3; z <= RADIUS + 3; z++) {
+        for (int x = -radius - 3; x <= radius + 3; x++) {
+            for (int z = -radius - 3; z <= radius + 3; z++) {
                 double d = dist(x, z);
                 double e = edge(x, z);
                 if (d > e) {
@@ -214,8 +222,8 @@ public final class ModeLobbyBuild extends Build {
     }
 
     private void rim() {
-        for (int x = -RADIUS - 3; x <= RADIUS + 3; x++) {
-            for (int z = -RADIUS - 3; z <= RADIUS + 3; z++) {
+        for (int x = -radius - 3; x <= radius + 3; x++) {
+            for (int z = -radius - 3; z <= radius + 3; z++) {
                 double d = dist(x, z);
                 double e = edge(x, z);
                 if (d > e || d <= e - 1.2) {
@@ -280,7 +288,7 @@ public final class ModeLobbyBuild extends Build {
             case COMBOFLY:
                 return new String[]{"purpur_block", "end_stone_bricks", "amethyst_block"};
             case GENS:
-                return new String[]{"dirt_path", "gravel", "oak_planks"};
+                return new String[]{"mud_bricks", "packed_mud", "stripped_oak_wood"};
             case KINGDOMS:
                 return new String[]{"stone_bricks", "cobblestone", "chiseled_stone_bricks"};
             case DUELS:
@@ -421,7 +429,7 @@ public final class ModeLobbyBuild extends Build {
 
     /** Szabad hely-e dekorációnak (nem út, nem spawn, nem portál, nem toplista). */
     private boolean free(int x, int z) {
-        if (dist(x, z) > RADIUS - 3) {
+        if (dist(x, z) > radius - 3) {
             return false;
         }
         if (Math.abs(x) <= 3 && z >= PORTAL_Z - 4 && z <= SPAWN_Z + 7) {
