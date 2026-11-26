@@ -6,7 +6,7 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 13;
+    public static final int VERSION = 14;
     public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 136;
     public static final int CLEAR_NORTH = 100;
@@ -1336,44 +1336,145 @@ public final class LobbyBuild extends Build {
         put(x0 + 4, 1, z0 + 4, "spruce_planks");
     }
 
-    private void lookout() {
+    /** A régi (v13) kilátó blokkjai: ezeket bontja le a javítás, mielőtt az újat felépíti. */
+    public void lookoutPatch() {
         int x0 = TOWER_X - 2;
         int z0 = TOWER_Z - 2;
-        int height = 22;
-        use(x0 - 2, z0 - 2, x0 + 6, z0 + 6);
-        for (int x = x0; x <= x0 + 4; x++) {
-            for (int z = z0; z <= z0 + 4; z++) {
-                boolean wall = x == x0 || x == x0 + 4 || z == z0 || z == z0 + 4;
-                boolean corner = (x == x0 || x == x0 + 4) && (z == z0 || z == z0 + 4);
-                for (int y = -2; y <= height; y++) {
-                    if (wall) {
-                        boolean window = !corner && (x == x0 + 2 || z == z0 + 2) && y > 2 && y % 5 == 0;
-                        put(x, y, z, corner ? "polished_andesite" : (window ? "glass_pane" : (noise(x, y + z, 111) < 0.25 ? "mossy_stone_bricks" : "stone_bricks")));
-                    } else {
-                        put(x, y, z, y <= 0 ? "stone_bricks" : "air");
+        fill(x0, 1, z0, x0 + 4, 22, z0 + 4, "air");
+        fill(x0 - 2, 23, z0 - 2, x0 + 6, 25, z0 + 6, "air");
+        put(x0 + 2, 0, z0 - 1, "grass_block");
+        lookout();
+    }
+
+    static final double[] LOOKOUT_HOLO = {TOWER_X - 6.5, 3.8, TOWER_Z + 0.5};
+    /** A 8. rejtett ajándék helye: a kilátó tetején, a teraszon. */
+    static final int[] LOOKOUT_GIFT = {TOWER_X + 3, 32, TOWER_Z};
+
+    private void lookout() {
+        int tx = TOWER_X;
+        int tz = TOWER_Z;
+        int top = 31;
+        double radius = 3.6;
+        double deck = 5.3;
+        use(tx - 6, tz - 6, tx + 6, tz + 6);
+        for (int dx = -6; dx <= 6; dx++) {
+            for (int dz = -6; dz <= 6; dz++) {
+                double d = dist(dx, dz);
+                int x = tx + dx;
+                int z = tz + dz;
+                if (d <= 4.6) {
+                    for (int y = -4; y <= 0; y++) {
+                        put(x, y, z, noise(x, z + y * 7, 120) < 0.3 ? "andesite" : "cobblestone");
+                    }
+                }
+                if (d > radius + 0.4 && d <= 4.9) {
+                    put(x, 1, z, stairs("stone_brick", inward(dx, dz), false));
+                }
+                if (d <= radius + 0.4) {
+                    boolean shell = d > radius - 0.9;
+                    for (int y = 1; y < top; y++) {
+                        if (!shell) {
+                            boolean floor = (y == 8 || y == 16 || y == 24) && !(dx == 0 && dz == 2);
+                            put(x, y, z, floor ? "spruce_planks" : "air");
+                            continue;
+                        }
+                        double n = noise(x, y * 13 + z, 121);
+                        String block = y <= 2 ? (n < 0.35 ? "mossy_cobblestone" : "cobblestone")
+                                : (y % 8 == 1 && y > 2 ? "polished_andesite"
+                                : (n < 0.12 ? "mossy_stone_bricks" : (n < 0.22 ? "cracked_stone_bricks" : "stone_bricks")));
+                        put(x, y, z, block);
+                    }
+                }
+                if (Math.abs(dx) == 3 && Math.abs(dz) == 3) {
+                    for (int y = 2; y < top - 2; y++) {
+                        put(x, y, z, y % 8 == 1 ? "polished_andesite" : "stone_bricks");
+                    }
+                    put(x, 1, z, "stone_bricks");
+                }
+                boolean ledge = d > radius + 0.4 && d <= 4.5 && !(Math.abs(dx) == 3 && Math.abs(dz) == 3);
+                if (ledge) {
+                    put(x, 9, z, slab("stone_brick", true));
+                    put(x, 17, z, slab("stone_brick", true));
+                    put(x, 25, z, slab("stone_brick", true));
+                }
+                if (d > radius + 0.4 && d <= 4.5) {
+                    put(x, top - 2, z, stairs("stone_brick", outward(dx, dz), true));
+                }
+                if (d > radius + 0.4 && d <= 4.95) {
+                    put(x, top - 1, z, stairs("stone_brick", outward(dx, dz), true));
+                }
+                if (d <= deck) {
+                    boolean edge = dist(dx + 1, dz) > deck || dist(dx - 1, dz) > deck || dist(dx, dz + 1) > deck || dist(dx, dz - 1) > deck;
+                    boolean hole = dx == 0 && dz == 2;
+                    put(x, top, z, edge || d > radius + 0.4 ? "stone_bricks" : (hole ? "ladder[facing=north]" : "spruce_planks"));
+                    for (int y = top + 1; y <= top + 14; y++) {
+                        put(x, y, z, "air");
+                    }
+                    if (edge) {
+                        put(x, top + 1, z, "stone_bricks");
+                        int seg = (int) Math.floor((Math.atan2(dz, dx) + Math.PI) / (Math.PI / 10));
+                        if (seg % 2 == 0) {
+                            put(x, top + 2, z, "stone_bricks");
+                        } else {
+                            put(x, top + 2, z, slab("stone_brick", false));
+                        }
                     }
                 }
             }
         }
-        for (int y = 1; y <= height; y++) {
-            put(x0 + 2, y, z0 + 3, "ladder[facing=north]");
+        for (int y = 1; y < top; y++) {
+            put(tx, y, tz + 2, "ladder[facing=north]");
         }
-        put(x0 + 2, 1, z0, "air");
-        put(x0 + 2, 2, z0, "air");
-        put(x0 + 2, 0, z0 - 1, "stone_bricks");
-        for (int x = x0 - 2; x <= x0 + 6; x++) {
-            for (int z = z0 - 2; z <= z0 + 6; z++) {
-                boolean inside = x > x0 && x < x0 + 4 && z > z0 && z < z0 + 4;
-                put(x, height + 1, z, inside && x == x0 + 2 && z == z0 + 3 ? "ladder[facing=north]" : "spruce_planks");
-                boolean edge = x == x0 - 2 || x == x0 + 6 || z == z0 - 2 || z == z0 + 6;
-                put(x, height + 2, z, edge ? "spruce_fence" : "air");
+        for (int y = 1; y <= 2; y++) {
+            put(tx - 3, y, tz, "air");
+            put(tx - 4, y, tz, "air");
+        }
+        put(tx - 3, 1, tz, "spruce_door[facing=east,half=lower,hinge=left,open=false]");
+        put(tx - 3, 2, tz, "spruce_door[facing=east,half=upper,hinge=left,open=false]");
+        put(tx - 4, 3, tz, "polished_andesite");
+        put(tx - 5, 3, tz, stairs("stone_brick", "east", true));
+        put(tx - 4, 0, tz, "stone_bricks");
+        put(tx - 5, 0, tz, "stone_bricks");
+        put(tx - 5, 1, tz, "air");
+        for (int s = -1; s <= 1; s += 2) {
+            put(tx - 5, 1, tz + s * 2, "polished_andesite");
+            put(tx - 5, 2, tz + s * 2, "lantern[hanging=false]");
+        }
+        int[][] windows = {{0, 1, 4}, {-1, 0, 6}, {0, 1, 12}, {-1, 0, 13}, {1, 0, 12}, {0, -1, 19}, {0, 1, 20}, {-1, 0, 21}, {1, 0, 21}, {0, 1, 27}, {-1, 0, 27}, {1, 0, 27}};
+        for (int[] w : windows) {
+            int bx = w[0];
+            int bz = w[1];
+            for (int y = w[2]; y <= w[2] + 1; y++) {
+                put(tx + bx * 4, y, tz + bz * 4, "light_blue_stained_glass");
+                put(tx + bx * 3, y, tz + bz * 3, "air");
+            }
+            put(tx + bx * 4, w[2] + 2, tz + bz * 4, "polished_andesite");
+            put(tx + bx * 5, w[2] - 1, tz + bz * 5, slab("stone_brick", true));
+        }
+        put(tx + 2, 1, tz, "lantern[hanging=false]");
+        put(tx - 1, 9, tz - 1, "lantern[hanging=false]");
+        put(tx + 1, 17, tz - 1, "lantern[hanging=false]");
+        put(tx - 1, 25, tz + 1, "lantern[hanging=false]");
+        for (int[] c : new int[][]{{-2, -2}, {2, -2}, {-2, 2}, {2, 2}}) {
+            for (int y = top + 1; y <= top + 4; y++) {
+                put(tx + c[0], y, tz + c[1], "spruce_log");
             }
         }
-        for (int[] c : new int[][]{{x0 - 2, z0 - 2}, {x0 + 6, z0 - 2}, {x0 - 2, z0 + 6}, {x0 + 6, z0 + 6}}) {
-            put(c[0], height + 3, c[1], "lantern[hanging=false]");
+        cone(tx, top + 5, tz, 4.3, 8, "deepslate_tile", "deepslate_tiles", "spruce_fence");
+        put(tx, top + 4, tz, "lantern[hanging=true]");
+        int tip = top + 5 + 8 + 1;
+        put(tx, tip + 1, tz, "spruce_fence");
+        put(tx, tip + 2, tz, "spruce_fence");
+        for (int fx = 1; fx <= 3; fx++) {
+            put(tx + fx, tip + 2, tz, "light_blue_wool");
+            if (fx <= 2) {
+                put(tx + fx, tip + 1, tz, "white_wool");
+            }
         }
-        put(x0 + 2, height + 2, z0 + 2, "air");
-        layout.point("holo:lookout", TOWER_X + 0.5, 3.4, z0 - 1.5, 0);
+        for (int[] c : new int[][]{{-4, -3}, {4, -3}, {-4, 3}, {4, 3}}) {
+            put(tx + c[0], top + 3, tz + c[1], "lantern[hanging=false]");
+        }
+        layout.point("holo:lookout", LOOKOUT_HOLO[0], LOOKOUT_HOLO[1], LOOKOUT_HOLO[2], 0);
     }
 
     private void arena() {

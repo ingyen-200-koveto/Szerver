@@ -114,6 +114,8 @@ public final class LobbyModule implements ModeHandler {
         boolean keep = config.getBoolean("keep-build", false);
         if (!config.getBoolean("built", false) || (!keep && config.getInt("layout", 1) < LobbyBuild.VERSION)) {
             build(config);
+        } else if (keep && config.getInt("layout", 1) < 14 && !config.getBoolean("patches.lookout-v2", false)) {
+            patchLookout(config);
         } else if (keep && config.getInt("layout", 1) < LobbyBuild.VERSION) {
             core.getLogger().info("A lobbyt nem építem újra, mert módosítottad (lobby.yml -> keep-build: true). "
                     + "Ha mégis az új változat kell: /icemine rebuild lobby confirm (a módosításaid elvesznek).");
@@ -134,6 +136,29 @@ public final class LobbyModule implements ModeHandler {
         problems.addAll(values.problems());
     }
 
+    /** Ha a lobbyt kézzel módosították (keep-build), csak a kilátótornyot cseréli le az új változatra. */
+    private void patchLookout(YamlConfiguration config) {
+        int x = config.getInt("center.x", 0);
+        int y = config.getInt("center.y", 100);
+        int z = config.getInt("center.z", 0);
+        Placer placer = new Placer(world, core.getLogger());
+        new LobbyBuild(placer, x, y, z).lookoutPatch();
+        if (config.isConfigurationSection("holograms.lookout")) {
+            Locs.write(config, "holograms.lookout.location", x + LobbyBuild.LOOKOUT_HOLO[0], y + LobbyBuild.LOOKOUT_HOLO[1],
+                    z + LobbyBuild.LOOKOUT_HOLO[2], 0);
+        }
+        lookoutGift(config, x, y, z);
+        config.set("patches.lookout-v2", true);
+        core.configs().save("lobby");
+        core.getLogger().info("A lobby kilátótornyát lecseréltem az új változatra (" + placer.placed() + " blokk), a többi módosításod megmaradt.");
+    }
+
+    private static void lookoutGift(YamlConfiguration config, int x, int y, int z) {
+        config.set("secret-heads.places.8.x", x + LobbyBuild.LOOKOUT_GIFT[0]);
+        config.set("secret-heads.places.8.y", y + LobbyBuild.LOOKOUT_GIFT[1]);
+        config.set("secret-heads.places.8.z", z + LobbyBuild.LOOKOUT_GIFT[2]);
+    }
+
     private void build(YamlConfiguration config) {
         int x = config.getInt("center.x", 0);
         int y = config.getInt("center.y", 100);
@@ -145,6 +170,7 @@ public final class LobbyModule implements ModeHandler {
         LobbyBuild build = new LobbyBuild(placer, x, y, z);
         build.build();
         applyLayout(config, build.layout(), x, y, z);
+        lookoutGift(config, x, y, z);
         config.set("built", true);
         config.set("layout", LobbyBuild.VERSION);
         config.set("christmas-applied", false);

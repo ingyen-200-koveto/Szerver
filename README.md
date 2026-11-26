@@ -329,8 +329,8 @@ fájlba kell (`proxies.velocity.secret`). A GitHubon lévő `kezdo/config/paper-
   szélén, köztük virágágyások. A tér közepén hópehely minta van (a 12-es elrendezéstől nincs szökőkút), a spawn előtte. Két ugratópad a téren le a faluba, kettő a faluból
   fel a térre. Az új elrendezésnél a lobby egyszer újraépül (az NPC-k és hologramok a helyükre kerülnek).
 - **Nagyobb sziget** (lobby 9-es elrendezés): a sziget kb. másfélszer olyan széles, két új szárnnyal.
-  Nyugaton a **Jégtó** stéggel, horgászkunyhóval, náddal és tavirózsákkal. Keleten a **kilátó** (22 blokk magas,
-  létrával, fent korláttal) és a **PvP aréna**. A falu főutcájáról erdei ösvények vezetnek mindkét szárnyba.
+  Nyugaton a **Jégtó** stéggel, horgászkunyhóval, náddal és tavirózsákkal. Keleten a **kilátó** (3.52.0-tól kerek kőtorony
+  ablakokkal, lőréses terasszal, cserepes kúptetővel és zászlóval; belül létra és szintek) és a **PvP aréna**. A falu főutcájáról erdei ösvények vezetnek mindkét szárnyba.
 - **Kidolgozottabb vár** (lobby 11-es elrendezés): a falakon pillérek, lőrések, alul terméskő lábazat, fent
   párkány és lámpások. A kapun csúcsív, csapórács és kiemelt kaputorony címerrel, a hídon lámpák, az árokban
   tavirózsák. A tornyokon kőövek és kék-fehér zászlók, a lakótorony nyeregtetőt kapott kéménnyel, kék
