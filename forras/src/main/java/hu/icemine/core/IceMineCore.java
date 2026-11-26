@@ -206,7 +206,7 @@ public final class IceMineCore extends JavaPlugin {
                 id = lobbyOfMode.mode();
             }
             if (id == null || hu.icemine.core.mode.ModeService.LOBBY.equals(id)) {
-                return configs.get("messages_hu").getString("lobby-prefix", "&b[Lobby] &7");
+                return configs.get("messages_hu").getString("lobby-prefix", "&b&lLobby &8• &7");
             }
             hu.icemine.core.mode.ModeInfo info = modes.info(id);
             return info == null || info.name == null || info.name.isBlank() ? null : info.name + " &8• &7";

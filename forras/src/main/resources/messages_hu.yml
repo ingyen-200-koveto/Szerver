@@ -6,7 +6,7 @@
 
 prefix: "&b[IceMine] &7"
 # A főlobbyban ez a prefix kerül az üzenetek elé (a játékmódokban a mód neve)
-lobby-prefix: "&b[Lobby] &7"
+lobby-prefix: "&b&lLobby &8• &7"
 # Játékmódban a prefix a mód neve (pl. "BedWars • "), a főlobbyban a lobby-prefix. false = mindenhol IceMine.
 mode-prefix: true
 

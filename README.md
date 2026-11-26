@@ -206,7 +206,7 @@ A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren 
 vagy a menüben adod el. A saját szigeted (`/gens home`) a generátoroké; a régi földek helyén most fű van.
 A Gensbe belépve a közös farmon kezdesz.
 
-A főlobbyban az üzenetek előtagja `[Lobby]` (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
+A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban) (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
 A módlobbyk felirata magától feljebb kerül, ha belelógna egy épületbe.
 
 A Gens lobby (3.53.0-tól) egy kis falu: piros tetős házak boltíves ablakokkal egy terrakotta tér körül,

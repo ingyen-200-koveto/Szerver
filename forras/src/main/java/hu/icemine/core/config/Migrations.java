@@ -349,6 +349,11 @@ public final class Migrations {
             lobbies.set("migrated.gens-village-v1", true);
             files.save("modelobbies");
         }
+        YamlConfiguration lobbyTexts = files.get("messages_hu");
+        if (lobbyTexts != null && "&b[Lobby] &7".equals(lobbyTexts.getString("lobby-prefix"))) {
+            lobbyTexts.set("lobby-prefix", "&b&lLobby &8• &7");
+            files.save("messages_hu");
+        }
         if (lobbies != null && lobbies.isSet("lobbies")) {
             // a részletes, új témájú módlobbyk: mindegyik egyszer újraépül
             boolean changed = false;
