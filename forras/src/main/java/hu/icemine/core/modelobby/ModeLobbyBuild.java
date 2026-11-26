@@ -57,7 +57,7 @@ public final class ModeLobbyBuild extends Build {
         this.title = title == null ? "" : title;
         this.split = split;
         this.theme = Theme.of(theme);
-        this.radius = this.theme == Theme.GENS ? GENS_RADIUS : RADIUS;
+        this.radius = this.theme == Theme.GENS || this.theme == Theme.KINGDOMS ? GENS_RADIUS : RADIUS;
     }
 
     private String outline() {
@@ -107,7 +107,7 @@ public final class ModeLobbyBuild extends Build {
                 new GensVillage((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case KINGDOMS:
-                castle();
+                new KingdomsCastle((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case DUELS:
                 hall();
@@ -157,7 +157,10 @@ public final class ModeLobbyBuild extends Build {
             case COMBOFLY:
                 return s > 0.6 ? "purpur_block" : (n < 0.1 ? "end_stone" : "end_stone_bricks");
             case KINGDOMS:
-                return s > 0.58 ? "coarse_dirt" : (n < 0.1 ? "moss_block" : "grass_block");
+                if (KingdomsCastle.inside(x, z)) {
+                    return KingdomsCastle.ground(x, z);
+                }
+                return s > 0.6 ? "coarse_dirt" : (n < 0.08 ? "moss_block" : "grass_block");
             case DUELS:
                 return n < 0.15 ? "cracked_polished_blackstone_bricks" : (s > 0.6 ? "blackstone" : "polished_blackstone_bricks");
             case BEDWARS:

@@ -9,6 +9,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public final class Migrations {
 
+    /** Módlobbyk, amelyek új, részletes témát kaptak: {lobby, téma}. */
+    private static final String[][] NEW_LOBBIES = {{"kingdoms", "kingdoms"}};
+
+
     private Migrations() {
     }
 
@@ -341,6 +345,24 @@ public final class Migrations {
             }
             lobbies.set("migrated.gens-village-v1", true);
             files.save("modelobbies");
+        }
+        if (lobbies != null && lobbies.isSet("lobbies")) {
+            // a részletes, új témájú módlobbyk: mindegyik egyszer újraépül
+            boolean changed = false;
+            for (String[] pair : NEW_LOBBIES) {
+                String key = "migrated.lobby-v2-" + pair[0];
+                if (lobbies.getBoolean(key, false)) {
+                    continue;
+                }
+                if (lobbies.isSet("lobbies." + pair[0]) && lobbies.getString("lobbies." + pair[0] + ".theme", pair[1]).equalsIgnoreCase(pair[1])) {
+                    lobbies.set("lobbies." + pair[0] + ".built", false);
+                }
+                lobbies.set(key, true);
+                changed = true;
+            }
+            if (changed) {
+                files.save("modelobbies");
+            }
         }
         if (modes.isSet("modes") && !modes.getBoolean("migrated.bedwars-v1", false)) {
             // a régi, külön pluginos Bedwars bejegyzései helyett az IceMine saját BedWars módja

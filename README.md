@@ -206,6 +206,9 @@ közepén lévő hordónál (jobb klikk), a `/elad` paranccsal vagy a menüben a
 A Gens lobby (3.53.0-tól) egy kis falu: piros tetős házak boltíves ablakokkal egy terrakotta tér körül,
 piaci standok, veteményes, tó stéggel és nagy fák. Frissítéskor egyszer újraépül.
 
+A Kingdoms lobby (3.54.0-tól) egy királyi vár udvara: várfal hat toronnyal, kapuház, lakótorony a portál
+mögött, kovácsműhely, gyakorlótér, istálló, sátrak és kút, a falakon kívül erdő.
+
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
 - **Generátorok** (3.51.0): a Generátor boltban (`/gens generator` vagy a Gens menü) veszed, a szigeteden lerakod, és
