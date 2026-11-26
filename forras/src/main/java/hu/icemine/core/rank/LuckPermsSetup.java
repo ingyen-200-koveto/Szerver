@@ -108,7 +108,7 @@ public final class LuckPermsSetup {
     };
 
     /** Ha a ranks.yml előtagjai újra megváltoznak, itt kell növelni, akkor a kész csoportok is újra megkapják. */
-    static final String PREFIX_VERSION = "2";
+    static final String PREFIX_VERSION = "3";
 
     static String prefixKey(String group) {
         return "prefix:" + PREFIX_VERSION + ":" + group;

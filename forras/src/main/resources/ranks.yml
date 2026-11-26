@@ -33,7 +33,7 @@ store-url: "www.icemine.hu"
 ranks:
   default:
     group: jatekos
-    name: "&7Játékos"
+    name: "&#8a96a3☆ &#8a96a3&lJ&#94a0ac&lÁ&#9faab5&lT&#aab4be&lÉ&#b4bdc7&lK&#bec7d0&lO&#c9d1d9&lS"
     icon: GRAY_DYE
     coin-multiplier: 1.0
     kits: []
@@ -42,7 +42,7 @@ ranks:
     luckperms:
       weight: 1
       display: "Játékos"
-      prefix: "&7"
+      prefix: "&#8a96a3☆ &#8a96a3&lJ&#94a0ac&lÁ&#9faab5&lT&#aab4be&lÉ&#b4bdc7&lK&#bec7d0&lO&#c9d1d9&lS &#d6dde3"
   bronz:
     group: bronz
     name: "&#c97b3a⚒ &#c97b3a&lB&#d3894a&lR&#dc965a&lO&#e6a46a&lN&#f0b27a&lZ"

@@ -100,7 +100,7 @@ az `essentials.<parancs>` joga.
 A rangokat az IceMine magától létrehozza a LuckPermsben az első indításkor (előtag, súly, név, szülő rang, jogok).
 Minden a `plugins/IceMine/ranks.yml`-ben van: mit kap a rang az IceMine-ban (pénz szorzó, jogok) és
 milyen a LuckPermsben (`luckperms` rész). Mindegyik rang megkapja a gyengébbek IceMine jutalmait is.
-3.65.0-tól a rangok előtagja ikon + színátmenetes név (pl. ⚙ FEJLESZTŐ, ♛ TULAJDONOS, ❄ ICEKING); a LuckPermsben is
+3.65.0-tól a rangok előtagja ikon + színátmenetes név (pl. ☆ JÁTÉKOS, ⚙ FEJLESZTŐ, ♛ TULAJDONOS, ❄ ICEKING); a LuckPermsben is
 egyszer lecserélődnek (a kézzel beállított régi előtagok helyett). A chatben a név után `»` jön.
 
 | Rang | LuckPerms csoport | Súly | Szülő |

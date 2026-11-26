@@ -424,6 +424,20 @@ public final class Migrations {
             fieldTexts.set("migrated.gens-field-level-v1", true);
             files.save("messages_hu");
         }
+        YamlConfiguration playerRank = files.get("ranks");
+        if (playerRank != null && playerRank.getDefaults() != null && playerRank.isConfigurationSection("ranks.default")
+                && !playerRank.getBoolean("migrated.player-rank-v1", false)) {
+            // a Játékos rang is kap rendes előtagot (eddig csak szürke név volt)
+            String prefix = playerRank.getString("ranks.default.luckperms.prefix", "");
+            if (prefix.equals("&7") || prefix.equals("&7&lJÁTÉKOS &7")) {
+                playerRank.set("ranks.default.luckperms.prefix", playerRank.getDefaults().getString("ranks.default.luckperms.prefix"));
+            }
+            if ("&7Játékos".equals(playerRank.getString("ranks.default.name"))) {
+                playerRank.set("ranks.default.name", playerRank.getDefaults().getString("ranks.default.name"));
+            }
+            playerRank.set("migrated.player-rank-v1", true);
+            files.save("ranks");
+        }
         YamlConfiguration boards = files.get("scoreboard");
         if (boards != null && !boards.getBoolean("migrated.gens-title-v1", false)) {
             if (!boards.isSet("titles.gens")) {
