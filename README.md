@@ -204,9 +204,12 @@ mindenki ott arat, de csak azokon a földeken, amelyeket már megvett. Földet j
 rá), vagy a menüben. A növényeket a Gens kapával kell learatni (bal klikk), pár másodperc alatt visszanőnek.
 A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren lévő hordónál, a `/elad` paranccsal
 vagy a menüben adod el. A saját szigeted (`/gens home`) a generátoroké; a régi földek helyén most fű van.
-A Gensbe belépve a közös farmon kezdesz.
+A Gensbe belépve (3.64.0-tól) rögtön a Gens központba kerülsz: egy nagy farm város (piros pajták, domb bányával,
+tó stéggel, óriásfák, lebegő hamburgerek), a közepén a közös farm. A téren lévő portál a saját szigetedre visz.
+Külön Gens módlobby már nincs (modelobbies.yml -> lobbies.gens.enabled: false).
 
-A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban) (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
+A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban), az AuthMe üzenetei is ezzel jönnek, belépéskor
+csak annyi jelenik meg, hogy "Sikeres bejelentkezés, jó játékot!" (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
 A módlobbyk felirata magától feljebb kerül, ha belelógna egy épületbe.
 
 A Gens lobby (3.62.0-tól) egy nagy farm város: középen a tér szökőkúttal és kőívekkel, körülötte piros pajták

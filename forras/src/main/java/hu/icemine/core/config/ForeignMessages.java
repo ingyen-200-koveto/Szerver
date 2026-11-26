@@ -25,11 +25,12 @@ public final class ForeignMessages {
 
     /** Ha egy kulso fájl tartalma változik, itt kell növelni a számát, akkor újra kikerül. */
     static final String[][] FILES = {
-            {"AuthMe/messages/messages_hu.yml", "2"},
+            {"AuthMe/messages/messages_hu.yml", "3"},
             {"Essentials/messages/messages_hu.properties", "1"},
     };
     static final String ESSENTIALS_CONFIG = "essentials-config:1";
     static final String AUTHME_WELCOME = "authme-welcome:1";
+    static final String ESSENTIALS_MAIL = "essentials-mail:1";
     private static final String DONE_FILE = ".kulso-uzenetek";
 
     private ForeignMessages() {
@@ -88,6 +89,23 @@ public final class ForeignMessages {
                         notes.add("Essentials/config.yml (magyar nyelv, IceMine színek)");
                     }
                     done.add(ESSENTIALS_CONFIG);
+                    changed = true;
+                } catch (IOException exception) {
+                    logger.warning("Nem sikerült átírni: plugins/Essentials/config.yml (" + exception.getMessage() + ")");
+                }
+            }
+        }
+        if (!done.contains(ESSENTIALS_MAIL)) {
+            Path config = plugins.resolve("Essentials").resolve("config.yml");
+            if (Files.isRegularFile(config)) {
+                try {
+                    String text = Files.readString(config, StandardCharsets.UTF_8);
+                    String patched = text.replaceAll("(?m)^(\\s*notify-no-new-mail:\\s*)true\\s*$", "$1false");
+                    if (!patched.equals(text)) {
+                        Files.writeString(config, patched, StandardCharsets.UTF_8);
+                        notes.add("Essentials/config.yml (belépéskor nem írja ki, hogy nincs új leveled)");
+                    }
+                    done.add(ESSENTIALS_MAIL);
                     changed = true;
                 } catch (IOException exception) {
                     logger.warning("Nem sikerült átírni: plugins/Essentials/config.yml (" + exception.getMessage() + ")");

@@ -12,6 +12,8 @@ abstract class ThemeBase extends Build {
     }
 
     protected final Free free;
+    /** A növényzet szórásának fél mérete (a középponttól ennyi blokkig). */
+    protected int span = 46;
     private final Set<Long> taken = new HashSet<>();
 
     ThemeBase(Sink sink, int cx, int cy, int cz, Free free) {
@@ -37,8 +39,8 @@ abstract class ThemeBase extends Build {
 
     /** Fű, virágok, bokrok a szabad füves helyeken; inside: ide nem tesz semmit. */
     protected void scatter(Free inside, String[] flowers, double grass) {
-        for (int x = -46; x <= 46; x++) {
-            for (int z = -46; z <= 46; z++) {
+        for (int x = -span; x <= span; x++) {
+            for (int z = -span; z <= span; z++) {
                 if (inside.test(x, z) || !open(x, z)) {
                     continue;
                 }

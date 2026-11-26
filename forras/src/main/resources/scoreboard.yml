@@ -15,6 +15,7 @@ update-ticks: 20
 # Táblánként külön cím (ha nincs megadva, a fenti title-t használja)
 titles:
   combofly: "&bIce&fMine &f| 2.0"
+  gens: "&a&lGENS TYCOON"
 # Ezeken a táblákon látszanak a jobb oldali piros számok
 show-numbers: [combofly]
 discord: "discord.gg/icemine"
@@ -85,8 +86,6 @@ boards:
     - "&7&m                         "
   gens:
     - "&8&m                    "
-    - "&a&lGENS TYCOON"
-    - ""
     - "&7Egyenleg: %gens_money%"
     - "&7Elixír: &d%gens_elixir% ⚗"
     - "&7Generátorok: &f%gens_gens%&7/&f%gens_gens_max%"

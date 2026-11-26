@@ -55,6 +55,8 @@ lobbies:
         toplist: combo
         lines: []
   gens:
+    # 3.64.0-tól a Gens a saját központjában kezd (város + közös farm), külön módlobby nem kell
+    enabled: false
     world: lobby_gens
     theme: gens
     built: false

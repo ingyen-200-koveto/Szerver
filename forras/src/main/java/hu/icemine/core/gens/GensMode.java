@@ -83,7 +83,10 @@ public final class GensMode implements ModeHandler, Listener {
     /** A profilban ("gens.farm") jegyezzük, hogy a sziget már a földes változat. */
     static final String FARM_VERSION = "2";
     /** A központ (közös farm) változata a gens.yml-ben: ha régebbi, újraépül. */
-    static final int HUB_VERSION = 3;
+    static final int HUB_VERSION = 5;
+    /** A központ (közös farm + város) helye: messze a telkektől, hogy elférjen. */
+    public static final int HUB_X = 0;
+    public static final int HUB_Z = -12000;
     private static final String LABEL_TAG = "icemine_gens_label";
 
     /** Egy learatott növény, ami épp visszanő. */
@@ -271,7 +274,7 @@ public final class GensMode implements ModeHandler, Listener {
         }
         hub = Locs.read(config.getConfigurationSection("hub"), world);
         if (hub == null) {
-            hub = new Location(world, 0.5, height + 1, 0.5);
+            hub = new Location(world, HUB_X + 0.5, height + 1, HUB_Z + 4.5);
         }
         world.setSpawnLocation(hub.getBlockX(), hub.getBlockY(), hub.getBlockZ());
         refreshShared();
@@ -328,16 +331,21 @@ public final class GensMode implements ModeHandler, Listener {
     private void buildHub(YamlConfiguration config) {
         core.getLogger().info("Építem a Gens központi szigetét...");
         Placer placer = new Placer(world, core.getLogger());
-        placer.clear(-GensBuild.HUB_CLEAR, height - 30, -GensBuild.HUB_CLEAR, GensBuild.HUB_CLEAR, height + 40, GensBuild.HUB_CLEAR);
-        GensBuild build = new GensBuild(placer, 0, height, 0, true, 0);
+        if (config.getInt("hub-version", 1) < 4) {
+            // a régi központ a (0, 0)-nál volt: eltakarítjuk
+            placer.clear(-48, height - 30, -48, 48, height + 40, 48);
+        }
+        placer.clear(HUB_X - GensBuild.HUB_CLEAR, height - 32, HUB_Z - GensBuild.HUB_CLEAR, HUB_X + GensBuild.HUB_CLEAR, height + 70,
+                HUB_Z + GensBuild.HUB_CLEAR);
+        GensBuild build = new GensBuild(placer, HUB_X, height, HUB_Z, true, 0);
         build.build();
         for (int i = 0; i < Math.min(SharedFarm.CENTERS.length, fields.size()); i++) {
-            new FieldBuild(placer, 0, height, 0, i, fields.get(i).crop, true, true).build();
+            new FieldBuild(placer, HUB_X, height, HUB_Z, i, fields.get(i).crop, true, true).build();
         }
-        regrowing.values().removeIf(r -> Math.abs(r.x) <= SharedFarm.EXTENT && Math.abs(r.z) <= SharedFarm.EXTENT);
+        regrowing.values().removeIf(r -> Math.abs(r.x - HUB_X) <= SharedFarm.EXTENT && Math.abs(r.z - HUB_Z) <= SharedFarm.EXTENT);
         Layout.Point spawn = build.layout().points.get("spawn");
         if (spawn != null) {
-            Locs.write(config, "hub", spawn.x, height + spawn.y, spawn.z, spawn.yaw);
+            Locs.write(config, "hub", HUB_X + spawn.x, height + spawn.y, HUB_Z + spawn.z, spawn.yaw);
         }
         config.set("hub-built", true);
         config.set("hub-version", HUB_VERSION);
@@ -592,11 +600,19 @@ public final class GensMode implements ModeHandler, Listener {
         return new int[]{cell[0] * spacing, cell[1] * spacing};
     }
 
+    /** A központban van-e (a közös farm és a város): itt senki sem építhet. */
+    public boolean inHub(Location location) {
+        return Math.abs(location.getBlockX() - HUB_X) <= GensBuild.HUB_CLEAR && Math.abs(location.getBlockZ() - HUB_Z) <= GensBuild.HUB_CLEAR;
+    }
+
     public int plotAt(Location location) {
+        if (inHub(location)) {
+            return 0;
+        }
         int gx = Math.round((float) location.getBlockX() / spacing);
         int gz = Math.round((float) location.getBlockZ() / spacing);
         if (gx == 0 && gz == 0) {
-            return 0;
+            return -1;
         }
         int dx = location.getBlockX() - gx * spacing;
         int dz = location.getBlockZ() - gz * spacing;
@@ -640,10 +656,10 @@ public final class GensMode implements ModeHandler, Listener {
         if (plot != 0) {
             return null;
         }
-        int dx = block.getX();
-        int dz = block.getZ();
+        int dx = block.getX() - HUB_X;
+        int dz = block.getZ() - HUB_Z;
         int field = SharedFarm.fieldAt(dx, dz);
-        return field < 0 || field >= fields.size() ? null : new Spot(0, field, dx, dz, dy, 0, 0);
+        return field < 0 || field >= fields.size() ? null : new Spot(0, field, dx, dz, dy, HUB_X, HUB_Z);
     }
 
     /** A tér egyik különleges blokkja (eladó hordó, kapa üllő)? */
@@ -654,7 +670,7 @@ public final class GensMode implements ModeHandler, Listener {
         int plot = plotAt(block.getLocation());
         if (plot == 0) {
             int[] shared = where == FarmLayout.SELL ? SharedFarm.SELL : SharedFarm.HOE;
-            return block.getX() == shared[0] && block.getZ() == shared[1];
+            return block.getX() - HUB_X == shared[0] && block.getZ() - HUB_Z == shared[1];
         }
         if (plot < 0) {
             return false;
@@ -773,7 +789,7 @@ public final class GensMode implements ModeHandler, Listener {
 
     /** A közös farm minden földjén beérett növény legyen (kivéve ami épp visszanő). */
     private void refreshShared() {
-        if (world == null || !world.isChunkLoaded(0, 0)) {
+        if (world == null || !world.isChunkLoaded(HUB_X >> 4, HUB_Z >> 4)) {
             return;
         }
         for (int i = 0; i < Math.min(SharedFarm.CENTERS.length, fields.size()); i++) {
@@ -781,8 +797,8 @@ public final class GensMode implements ModeHandler, Listener {
             BlockData soil = block(crop.soil);
             BlockData ripe = block(crop.mature());
             for (int[] cell : SharedFarm.cells(i)) {
-                int x = cell[0];
-                int z = cell[1];
+                int x = HUB_X + cell[0];
+                int z = HUB_Z + cell[1];
                 Block ground = world.getBlockAt(x, height, z);
                 if (ground.getType() != cropSoils.get(crop)) {
                     ground.setBlockData(soil, false);
@@ -1074,7 +1090,7 @@ public final class GensMode implements ModeHandler, Listener {
         data.dirty = true;
         if (player.getWorld() == world && next.index < SharedFarm.CENTERS.length) {
             int[] middle = SharedFarm.center(next.index);
-            player.spawnParticle(Particle.HAPPY_VILLAGER, middle[0] + 0.5, height + 1.5, middle[1] + 0.5, 80, 4, 0.4, 4, 0);
+            player.spawnParticle(Particle.HAPPY_VILLAGER, HUB_X + middle[0] + 0.5, height + 1.5, HUB_Z + middle[1] + 0.5, 120, 8, 0.4, 8, 0);
             player.playSound(player.getLocation(), "minecraft:ui.toast.challenge_complete", 0.7f, 1.3f);
         }
         if (player.getWorld() == world) {
@@ -1126,7 +1142,7 @@ public final class GensMode implements ModeHandler, Listener {
 
     /** A közös farm feliratai (melyik föld, mi terem rajta, mennyi az ára); a központ betöltött chunkjain. */
     private void sharedLabels() {
-        if (world == null || !world.isChunkLoaded(0, 0)) {
+        if (world == null || !world.isChunkLoaded(HUB_X >> 4, HUB_Z >> 4)) {
             return;
         }
         boolean broken = shared.isEmpty();
@@ -1149,16 +1165,18 @@ public final class GensMode implements ModeHandler, Listener {
             GensData.Field field = fields.get(i);
             int[] middle = SharedFarm.center(i);
             int[] toward = {Integer.signum(-middle[0]), Integer.signum(-middle[1])};
-            double lx = middle[0] + toward[0] * (SharedFarm.HALF + 1.5) + 0.5;
-            double lz = middle[1] + toward[1] * (SharedFarm.HALF + 1.5) + 0.5;
+            double lx = HUB_X + middle[0] + toward[0] * (SharedFarm.HALF + 1.5) + 0.5;
+            double lz = HUB_Z + middle[1] + toward[1] * (SharedFarm.HALF + 1.5) + 0.5;
             List<String> lines = core.messages().list("gens.labels.shared", "%number%", String.valueOf(i + 1), "%field%", field.name,
                     "%price%", core.economy().format(currency, field.price), "%value%", core.economy().format(currency, field.value));
             shared.add(label(new Location(world, lx, height + 2.6, lz), String.join("\n", lines)));
         }
-        shared.add(label(new Location(world, SharedFarm.SELL[0] + 0.5, height + 3.1, SharedFarm.SELL[1] + 0.5),
+        shared.add(label(new Location(world, HUB_X + SharedFarm.SELL[0] + 0.5, height + 3.1, HUB_Z + SharedFarm.SELL[1] + 0.5),
                 String.join("\n", core.messages().list("gens.labels.sell"))));
-        shared.add(label(new Location(world, SharedFarm.HOE[0] + 0.5, height + 2.2, SharedFarm.HOE[1] + 0.5),
+        shared.add(label(new Location(world, HUB_X + SharedFarm.HOE[0] + 0.5, height + 2.2, HUB_Z + SharedFarm.HOE[1] + 0.5),
                 String.join("\n", core.messages().list("gens.labels.hoe"))));
+        shared.add(label(new Location(world, HUB_X + GensBuild.PORTAL[0] + 0.5, height + 9.2, HUB_Z + GensBuild.PORTAL[1] + 0.5),
+                String.join("\n", core.messages().list("gens.labels.portal"))));
     }
 
     private TextDisplay label(Location location, String text) {
@@ -1616,6 +1634,30 @@ public final class GensMode implements ModeHandler, Listener {
         if (!canDo(player, block.getLocation(), flag)) {
             event.setCancelled(true);
             deny(player);
+        }
+    }
+
+    private final Map<UUID, Long> portalUse = new HashMap<>();
+
+    /** A központ portálja a saját szigetre visz (a nether helyett). */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPortalEnter(org.bukkit.event.entity.EntityPortalEnterEvent event) {
+        if (!(event.getEntity() instanceof Player player) || player.getWorld() != world || !inHub(event.getLocation())) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Long last = portalUse.get(player.getUniqueId());
+        if (last != null && now - last < 3000) {
+            return;
+        }
+        portalUse.put(player.getUniqueId(), now);
+        Bukkit.getScheduler().runTask(core, () -> goHome(player));
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPortal(org.bukkit.event.player.PlayerPortalEvent event) {
+        if (event.getFrom().getWorld() == world) {
+            event.setCancelled(true);
         }
     }
 

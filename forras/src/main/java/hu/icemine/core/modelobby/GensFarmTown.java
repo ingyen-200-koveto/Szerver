@@ -1,19 +1,41 @@
 package hu.icemine.core.modelobby;
 
+import hu.icemine.core.build.Build;
+
 /**
  * A Gens lobby: nagy farm város. Középen a tér szökőkúttal és kőívekkel, körülötte piros pajták,
  * búza- és répaföld, traktor, szénás szekér, piaci stand, víztorony, a szélén terrakotta dombok
  * lelógó levelű óriásfákkal, egy domb alatt bánya bejárat, délnyugaton tó homokos parttal és stéggel,
  * az égen lebegő hamburgerek és tüskés gömbök.
  */
-final class GensFarmTown extends ThemeBase {
+public final class GensFarmTown extends ThemeBase {
 
     static final double PLAZA = 22;
     static final int[] LAKE = {-26, 27};
     static final int[] HILL = {33, 29};
 
+    private int[] lakeAt = LAKE;
+    private int[] hillAt = HILL;
+    private final boolean hub;
+
     GensFarmTown(Sink sink, int cx, int cy, int cz, Free free) {
+        this(sink, cx, cy, cz, free, false);
+    }
+
+    private GensFarmTown(Sink sink, int cx, int cy, int cz, Free free, boolean hub) {
         super(sink, cx, cy, cz, free);
+        this.hub = hub;
+    }
+
+    /**
+     * A Gens központ városa a nagy közös farm körül (a farm négyzete |x|, |z| <= farm, ide nem épít semmit).
+     * free: szabad-e a hely (a szigeten belül van-e).
+     */
+    public static Build hubTown(Sink sink, int x, int y, int z, java.util.function.BiPredicate<Integer, Integer> free, int farm) {
+        GensFarmTown town = new GensFarmTown(sink, x, y, z, (fx, fz) -> free.test(fx, fz), true);
+        town.take(-farm, -farm, farm, farm);
+        town.span = 92;
+        return town;
     }
 
     /** A tér talaja: barna, sáros minta deszka körökkel és sugarakkal. */
@@ -37,6 +59,10 @@ final class GensFarmTown extends ThemeBase {
 
     @Override
     public void build() {
+        if (hub) {
+            buildHub();
+            return;
+        }
         take(-6, -6, 6, 6);
         fountain();
         barn(-31, -12, 1, 6, 8, "deepslate_tile", "deepslate_tiles");
@@ -51,10 +77,10 @@ final class GensFarmTown extends ThemeBase {
         tractor(-10, 33);
         wagon(-34, -26);
         waterTower(42, -28);
-        ruins();
+        ruins(new int[][]{{-24, 14}, {-28, 4}, {-17, 25}, {26, 20}, {24, -26}, {-26, -24}});
         lamps();
         props();
-        ridges();
+        ridges(40, 56);
         int[][] trees = {{-46, -14}, {46, -14}, {-44, 12}, {-8, -48}, {8, -47}, {-2, 46}, {16, 46}, {-38, -34}, {38, -36}, {46, 8}, {-48, 0}};
         for (int i = 0; i < trees.length; i++) {
             bigTree(trees[i][0], trees[i][1], 11 + (int) (noise(i, 1, 602) * 5), i);
@@ -68,6 +94,45 @@ final class GensFarmTown extends ThemeBase {
             spiky(b[0], b[1], b[2]);
         }
         scatter((x, z) -> dist(x, z) <= PLAZA + 0.5, new String[]{"poppy", "dandelion", "cornflower", "oxeye_daisy"}, 0.35);
+    }
+
+    /** A központ városa: a farm körüli gyűrűben pajták, domb bányával, tó, mező, kellékek, fák, dombok, lebegő burgerek. */
+    private void buildHub() {
+        barn(-62, -12, 1, 6, 8, "deepslate_tile", "deepslate_tiles");
+        barn(62, 12, 3, 6, 8, "smooth_sandstone", "yellow_terracotta");
+        barn(-22, -64, 0, 5, 6, "deepslate_tile", "deepslate_tiles");
+        barn(22, -64, 0, 5, 6, "dark_oak", "dark_oak_planks");
+        barn(16, 64, 2, 6, 7, "deepslate_tile", "deepslate_tiles");
+        hillAt = new int[]{60, -58};
+        hill();
+        lakeAt = new int[]{-58, 58};
+        lake();
+        wheat(-60, -56, 9, 7);
+        rows(60, 58);
+        market(-14, 56);
+        tractor(-28, 60);
+        wagon(36, -52);
+        waterTower(68, 34);
+        ruins(new int[][]{{-50, 22}, {-52, -30}, {50, -26}, {48, 26}, {26, -50}, {-30, 50}, {0, -52}, {0, 52}});
+        props(new int[][]{{-48, 8}, {48, -8}, {8, 48}, {-8, -48}, {-48, -48}, {48, 48}});
+        ridges(70, 92);
+        for (int i = 0; i < 18; i++) {
+            double a = Math.PI * 2 * i / 18 + 0.17;
+            int x = (int) Math.round(Math.cos(a) * (64 + noise(i, 9, 640) * 12));
+            int z = (int) Math.round(Math.sin(a) * (64 + noise(i, 9, 640) * 12));
+            bigTree(x, z, 11 + (int) (noise(i, 1, 602) * 5), i);
+        }
+        for (int i = 0; i < 9; i++) {
+            double a = Math.PI * 2 * i / 9 + 0.4;
+            int r = 62 + (int) (noise(i, 4, 641) * 22);
+            burger((int) Math.round(Math.cos(a) * r), 34 + (int) (noise(i, 5, 642) * 18), (int) Math.round(Math.sin(a) * r));
+        }
+        for (int i = 0; i < 10; i++) {
+            double a = Math.PI * 2 * i / 10 + 0.05;
+            int r = 60 + (int) (noise(i, 6, 643) * 24);
+            spiky((int) Math.round(Math.cos(a) * r), 38 + (int) (noise(i, 7, 644) * 20), (int) Math.round(Math.sin(a) * r));
+        }
+        scatter((x, z) -> Math.abs(x) <= 44 && Math.abs(z) <= 44, new String[]{"poppy", "dandelion", "cornflower", "oxeye_daisy"}, 0.35);
     }
 
     // ---- elforgatható helyi koordináták (0 = dél felé néz, 1 = kelet, 2 = észak, 3 = nyugat) ----
@@ -253,8 +318,8 @@ final class GensFarmTown extends ThemeBase {
     // ---- domb bánya bejárattal, rajta egy kis pajta ----
 
     private void hill() {
-        int hx = HILL[0];
-        int hz = HILL[1];
+        int hx = hillAt[0];
+        int hz = hillAt[1];
         take(hx - 13, hz - 13, hx + 13, hz + 13);
         for (int dx = -13; dx <= 13; dx++) {
             for (int dz = -13; dz <= 13; dz++) {
@@ -333,15 +398,15 @@ final class GensFarmTown extends ThemeBase {
     // ---- tó homokos parttal és stéggel ----
 
     private void lake() {
-        int lx = LAKE[0];
-        int lz = LAKE[1];
+        int lx = lakeAt[0];
+        int lz = lakeAt[1];
         take(lx - 13, lz - 13, lx + 13, lz + 13);
         for (int dx = -13; dx <= 13; dx++) {
             for (int dz = -13; dz <= 13; dz++) {
                 double d = dist(dx * 0.9, dz);
                 int x = lx + dx;
                 int z = lz + dz;
-                if (d > 12.5 || dist(x, z) > 50) {
+                if (d > 12.5 || !free.test(x, z) || hub && Math.abs(x) <= 44 && Math.abs(z) <= 44) {
                     continue;
                 }
                 if (d <= 9) {
@@ -569,8 +634,7 @@ final class GensFarmTown extends ThemeBase {
 
     // ---- romos kőoszlopok, lámpák, apró díszek ----
 
-    private void ruins() {
-        int[][] pillars = {{-24, 14}, {-28, 4}, {-17, 25}, {26, 20}, {24, -26}, {-26, -24}};
+    private void ruins(int[][] pillars) {
         for (int i = 0; i < pillars.length; i++) {
             int x = pillars[i][0];
             int z = pillars[i][1];
@@ -614,7 +678,10 @@ final class GensFarmTown extends ThemeBase {
     }
 
     private void props() {
-        int[][] crates = {{-12, 17}, {12, 17}, {-17, -10}, {17, -10}, {-8, -19}, {8, -19}};
+        props(new int[][]{{-12, 17}, {12, 17}, {-17, -10}, {17, -10}, {-8, -19}, {8, -19}});
+    }
+
+    private void props(int[][] crates) {
         for (int i = 0; i < crates.length; i++) {
             int x = crates[i][0];
             int z = crates[i][1];
@@ -630,18 +697,18 @@ final class GensFarmTown extends ThemeBase {
 
     // ---- terrakotta dombok a szélén ----
 
-    private void ridges() {
-        for (int x = -56; x <= 56; x++) {
-            for (int z = -56; z <= 56; z++) {
+    private void ridges(int inner, int outer) {
+        for (int x = -outer; x <= outer; x++) {
+            for (int z = -outer; z <= outer; z++) {
                 double d = dist(x, z);
-                if (d < 40 || !open(x, z) || !free.test(x, z)) {
+                if (d < inner || !open(x, z) || !free.test(x, z)) {
                     continue;
                 }
                 double s = smooth(x, z, 9.0, 619);
                 if (s < 0.38) {
                     continue;
                 }
-                double rise = Math.min(1, (d - 40) / 4.0);
+                double rise = Math.min(1, (d - inner) / 4.0);
                 int h = (int) Math.round(rise * (2 + (s - 0.38) * 14));
                 if (h <= 0) {
                     continue;

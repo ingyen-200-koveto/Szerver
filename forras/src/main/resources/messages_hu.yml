@@ -337,6 +337,10 @@ gens:
     buy-confirm: "&e%field% &7föld ára: &f%price%&7. Kattints rá &fmég egyszer &7jobb klikkel a megvételhez!"
   farm-moved: "&a&lÚJDONSÁG! &7A földek mostantól a &fGens központban &7vannak, közös farmon. A szigeteden a régi földek helyén most hely van a generátoroknak."
   labels:
+    portal:
+      - "&a&lSZIGETED"
+      - "&7Lépj be a portálba:"
+      - "&7itt vannak a generátoraid"
     shared:
       - "&e&l%number%. %field%"
       - "&7Egy termény: &f%value%"
@@ -1148,10 +1152,10 @@ icecoin:
 weblogin:
   usage: "Így kell: &b/login <jelszó> &7(ugyanaz a jelszó, mint a weboldalon)"
   busy: "Pillanat, még ellenőrzöm a jelszavad..."
-  success: "&aSikeres bejelentkezés a weboldalas fiókoddal, jó játékot!"
-  success-local: "&aSikeres bejelentkezés. &7Regisztrálj a weboldalon is (&b%url%&7) ugyanezzel a névvel, és onnantól azzal a jelszóval lépsz be."
-  success-old: "&aSikeres bejelentkezés a régi szerveres jelszavaddal."
-  success-offline: "&aSikeres bejelentkezés. &7(A weboldal most nem elérhető, ezért a szerveren tárolt jelszóval léptél be.)"
+  success: "&aSikeres bejelentkezés, jó játékot!"
+  success-local: "&aSikeres bejelentkezés, jó játékot!"
+  success-old: "&aSikeres bejelentkezés, jó játékot!"
+  success-offline: "&aSikeres bejelentkezés, jó játékot!"
   wrong: "Rossz jelszó. Azt a jelszót írd be, amivel a weboldalon (&b%url%&7) belépsz. Még &f%left% &7próbálkozásod van."
   kick: "&b[IceMine]\n\n&cTúl sokszor írtad el a jelszót.\n&7Ha elfelejtetted, a weboldalon kérhetsz újat: &b%url%"
   no-account: "Ehhez a névhez még nincs fiók. Regisztrálj a weboldalon: &b%url%&7, ugyanezzel a névvel (&f%name%&7), aztán itt: &b/login <jelszó>"

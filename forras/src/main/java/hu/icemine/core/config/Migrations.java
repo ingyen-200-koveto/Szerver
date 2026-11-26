@@ -350,6 +350,34 @@ public final class Migrations {
             lobbies.set("migrated.gens-village-v1", true);
             files.save("modelobbies");
         }
+        YamlConfiguration boards = files.get("scoreboard");
+        if (boards != null && !boards.getBoolean("migrated.gens-title-v1", false)) {
+            if (!boards.isSet("titles.gens")) {
+                boards.set("titles.gens", "&a&lGENS TYCOON");
+            }
+            java.util.List<String> lines = new java.util.ArrayList<>(boards.getStringList("boards.gens"));
+            if (lines.remove("&a&lGENS TYCOON")) {
+                if (lines.size() > 1 && lines.get(1).isEmpty()) {
+                    lines.remove(1);
+                }
+                boards.set("boards.gens", lines);
+            }
+            boards.set("migrated.gens-title-v1", true);
+            files.save("scoreboard");
+        }
+        YamlConfiguration logins = files.get("messages_hu");
+        if (logins != null && !logins.getBoolean("migrated.login-text-v1", false)) {
+            for (String key : new String[]{"success", "success-local", "success-old", "success-offline"}) {
+                logins.set("weblogin." + key, "&aSikeres bejelentkezés, jó játékot!");
+            }
+            logins.set("migrated.login-text-v1", true);
+            files.save("messages_hu");
+        }
+        if (lobbies != null && lobbies.isSet("lobbies.gens") && !lobbies.getBoolean("migrated.gens-hub-v1", false)) {
+            lobbies.set("lobbies.gens.enabled", false);
+            lobbies.set("migrated.gens-hub-v1", true);
+            files.save("modelobbies");
+        }
         YamlConfiguration lobbyTexts = files.get("messages_hu");
         if (lobbyTexts != null && "&b[Lobby] &7".equals(lobbyTexts.getString("lobby-prefix"))) {
             lobbyTexts.set("lobby-prefix", "&b&lLobby &8• &7");

@@ -5,7 +5,7 @@ import hu.icemine.core.build.Layout;
 
 public final class GensBuild extends Build {
 
-    public static final int HUB_CLEAR = 48;
+    public static final int HUB_CLEAR = 96;
     public static final int PLOT_CLEAR = 26;
     static final int HUB_RADIUS = 34;
     static final int PLOT_RADIUS = 22;
@@ -173,8 +173,45 @@ public final class GensBuild extends Build {
         }
     }
 
+    /** A központ nagy szigete (a farm és körülötte a város), füves tetővel. */
+    static final double TOWN = 86;
+
+    static boolean onIsland(int dx, int dz) {
+        double p = 3;
+        double d = Math.pow(Math.pow(Math.abs(dx), p) + Math.pow(Math.abs(dz), p), 1 / p);
+        return d <= TOWN - 3;
+    }
+
+    private void bigIsland(double half, int depth, int seed) {
+        int max = (int) Math.ceil(half) + 3;
+        for (int dx = -max; dx <= max; dx++) {
+            for (int dz = -max; dz <= max; dz++) {
+                double p = 3;
+                double d = Math.pow(Math.pow(Math.abs(dx), p) + Math.pow(Math.abs(dz), p), 1 / p);
+                double edge = half + 1.4 * Math.sin(Math.atan2(dz, dx) * 9 + seed) + noise(dx, dz, seed + 1) * 0.8;
+                if (d > edge) {
+                    continue;
+                }
+                put(dx, 0, dz, noise(dx, dz, seed) < 0.06 ? "moss_block" : "grass_block");
+                double t = 1 - Math.pow(d / edge, 1.6);
+                int deep = (int) (t * depth) + 1 + (int) (noise(dx, dz, seed + 2) * 3);
+                for (int l = 1; l <= deep; l++) {
+                    double m = noise(dx, dz * 3 + l, seed + 10 + l);
+                    String block = l <= 2 ? "dirt" : (m < 0.45 ? "stone" : (m < 0.7 ? "terracotta" : (m < 0.88 ? "andesite" : "packed_mud")));
+                    put(dx, -l, dz, block);
+                }
+                if (d > edge - 1.2) {
+                    put(dx, 1, dz, "oak_fence");
+                    for (int y = 2; y <= 5; y++) {
+                        put(dx, y, dz, "barrier");
+                    }
+                }
+            }
+        }
+    }
+
     private void hub() {
-        squareIsland(45, 22, 300);
+        bigIsland(TOWN, 26, 300);
         int e = SharedFarm.EXTENT;
         for (int dx = -e; dx <= e; dx++) {
             for (int dz = -e; dz <= e; dz++) {
@@ -223,7 +260,28 @@ public final class GensBuild extends Build {
         for (int[] tree : trees) {
             spruce(tree[0], tree[1], 6, 1.8);
         }
+        portal(0, 12);
+        hu.icemine.core.modelobby.GensFarmTown.hubTown((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, GensBuild::onIsland, 44).build();
+        new hu.icemine.core.build.Title((x, y, z, data) -> put(x, y, z, data), 0, 22, -50, 2, "south", "GENS", "lime_concrete", "white_concrete",
+                4, "green_terracotta", "green_terracotta").build();
         layout.point("spawn", 0.5, 1, 4.5, 180);
+    }
+
+    /** Portál a téren: aki belelép, a saját szigetére kerül. */
+    static final int[] PORTAL = {0, 12};
+
+    private void portal(int px, int pz) {
+        for (int dx = -3; dx <= 3; dx++) {
+            for (int y = 0; y <= 6; y++) {
+                boolean outer = Math.abs(dx) == 3 || y == 6;
+                boolean frame = Math.abs(dx) == 2 || y == 0 || y == 5;
+                String block = outer ? (noise(px + dx, y, 650) < 0.4 ? "mossy_stone_bricks" : "stone_bricks")
+                        : (frame ? "obsidian" : "nether_portal[axis=x]");
+                put(px + dx, y, pz, block);
+            }
+        }
+        put(px - 3, 7, pz, "lantern[hanging=false]");
+        put(px + 3, 7, pz, "lantern[hanging=false]");
     }
 
     /** A központ közepén egy szélmalom, a vitorlák a spawn felé (délre) néznek. */
