@@ -25,6 +25,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public final class PlayerCommands implements CommandExecutor, TabCompleter {
 
@@ -364,7 +365,65 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         mode.openKits(player);
     }
 
+    /** Admin: /gens give <játékos> <szint> [db] | booster <játékos> <money|elixir|gen> <szorzó> <perc> | slots <játékos> [db] | event <id|random>. */
+    private boolean gensAdmin(Player player, String[] args) {
+        String sub = args[0].toLowerCase(Locale.ROOT);
+        hu.icemine.core.gens.GensMode g = core.gens();
+        try {
+            switch (sub) {
+                case "give" -> {
+                    Player target = args.length > 2 ? org.bukkit.Bukkit.getPlayerExact(args[1]) : null;
+                    if (target == null || !g.generators().give(target, Integer.parseInt(args[2]), args.length > 3 ? Integer.parseInt(args[3]) : 1)) {
+                        core.messages().sendTagged(player, "&cHasználat: /gens give <játékos> <szint 1-" + g.generators().tiers().size() + "> [db]");
+                    } else {
+                        core.messages().sendTagged(player, "&aKész.");
+                    }
+                    return true;
+                }
+                case "booster" -> {
+                    Player target = args.length > 4 ? org.bukkit.Bukkit.getPlayerExact(args[1]) : null;
+                    if (target == null) {
+                        core.messages().sendTagged(player, "&cHasználat: /gens booster <játékos> <money|elixir|gen> <szorzó> <perc>");
+                    } else {
+                        for (ItemStack left : target.getInventory().addItem(g.extras().booster(args[2].toLowerCase(Locale.ROOT),
+                                Double.parseDouble(args[3]), Integer.parseInt(args[4]))).values()) {
+                            target.getWorld().dropItemNaturally(target.getLocation(), left);
+                        }
+                        core.messages().sendTagged(player, "&aKész.");
+                    }
+                    return true;
+                }
+                case "slots" -> {
+                    Player target = args.length > 1 ? org.bukkit.Bukkit.getPlayerExact(args[1]) : null;
+                    if (target == null) {
+                        core.messages().sendTagged(player, "&cHasználat: /gens slots <játékos> [db]");
+                    } else {
+                        ItemStack item = g.generators().slotItem(args.length > 2 ? Integer.parseInt(args[2]) : 1);
+                        target.getInventory().addItem(item);
+                        core.messages().sendTagged(player, "&aKész.");
+                    }
+                    return true;
+                }
+                case "event" -> {
+                    if (args.length < 2 || !g.extras().startEvent(args[1])) {
+                        core.messages().sendTagged(player, "&cHasználat: /gens event <" + String.join("|", g.extras().eventIds()) + "|random>");
+                    }
+                    return true;
+                }
+                default -> {
+                    return false;
+                }
+            }
+        } catch (NumberFormatException exception) {
+            core.messages().sendTagged(player, "&cHibás szám.");
+            return true;
+        }
+    }
+
     private void gens(Player player, String[] args) {
+        if (args.length > 0 && player.hasPermission("icemine.admin.gens") && gensAdmin(player, args)) {
+            return;
+        }
         if (!core.gens().inWorld(player)) {
             if (args.length == 0 || args[0].equalsIgnoreCase("home")) {
                 core.modes().sendAndReport(player, "gens");
@@ -375,6 +434,12 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         }
         String action = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "";
         switch (action) {
+            case "generator":
+            case "generatorok":
+            case "generatorbolt":
+            case "gen":
+                core.gens().generators().shop(player);
+                break;
             case "home":
             case "haza":
                 core.gens().goHome(player);
@@ -465,7 +530,7 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
                 case "parkour":
                     return AdminCommand.filter(Arrays.asList("start", "leave"), args[0]);
                 case "gens":
-                    return AdminCommand.filter(Arrays.asList("home", "kapa", "fold", "visit", "trust", "untrust", "sell", "daily", "quests", "shop", "backpack",
+                    return AdminCommand.filter(Arrays.asList("home", "generator", "kapa", "fold", "visit", "trust", "untrust", "sell", "daily", "quests", "shop", "backpack",
                             "autosell", "prestige", "rebirth", "members", "upgrades", "lock"), args[0]);
                 case "fizet":
                 case "profil":

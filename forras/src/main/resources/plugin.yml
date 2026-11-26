@@ -251,6 +251,9 @@ permissions:
     default: op
   icemine.admin.arena:
     default: op
+  icemine.admin.gens:
+    description: Gens admin (/gens give, booster, slots, event)
+    default: op
   icemine.admin.build:
     description: Kreatív módban építhet a védett területeken
     default: op

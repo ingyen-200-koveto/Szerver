@@ -123,6 +123,16 @@ public final class GensMenu {
             gens.goHome(clicker);
         });
         menu.set(34, Items.of(Material.BOOK).name(core.messages().raw("gens.menu.crops.name")).lore(cropLore(data)).build());
+        GensExtras extras = gens.extras();
+        menu.set(21, Items.of(Material.LODESTONE).name("&e&lGenerátor bolt")
+                .lore("&7Generátorok: &f" + gens.generators().placed(player.getUniqueId()) + "&7/&f" + gens.generators().slots(player),
+                        "", "&7Vegyél generátort, tedd le a szigeteden,", "&7és magától termel neked.", "", "&e» Kattints").glow().build(),
+                p -> gens.generators().shop(p));
+        menu.set(29, Items.of(Material.EXPERIENCE_BOTTLE).name("&a&lGens szint: &f" + extras.level(player))
+                .lore("&7Haladás: &f" + String.format(Locale.ROOT, "%.1f", extras.levelPercent(player)) + "%",
+                        "&7Elixír: " + extras.formatElixir(extras.elixir(player)), "",
+                        "&7XP-t aratásért és dropok eladásáért kapsz.", "&7Szintlépéskor pénz, elixír, minden 5. szinten",
+                        "&7booster, minden 10.-en generátor férőhely jár.", "&7A jobb generátorokhoz magasabb szint kell.").build());
         menu.open(player);
     }
 
@@ -187,6 +197,8 @@ public final class GensMenu {
         Menu menu = new Menu("gens-hoe", 4, core.messages().raw("gens.hoe.title"));
         menu.frame(Material.LIME_STAINED_GLASS_PANE, null);
         menu.set(4, gens.hoeItem(data));
+        menu.set(27, Items.of(Material.DRAGON_BREATH).name("&d&lElixíred: " + gens.extras().formatElixir(gens.extras().elixir(player)))
+                .lore("&7Elixírt aratáskor kapsz (a termés értékének", "&7egy részét). Ebből fejleszted a kapát.").build());
         int[] slots = {10, 12, 14, 16};
         int index = 0;
         for (HoeUpgrades.Enchant enchant : upgrades.enchants().values()) {
@@ -203,7 +215,7 @@ public final class GensMenu {
             if (price < 0) {
                 lore.add(core.messages().raw("upgrade.lore-max"));
             } else {
-                lore.add(core.messages().raw("upgrade.price").replace("%price%", core.economy().format(gens.currency(), price)));
+                lore.add(core.messages().raw("upgrade.price").replace("%price%", gens.extras().formatElixir(price)));
                 lore.add(core.messages().raw("upgrade.click"));
             }
             Items item = Items.of(Items.material(enchant.icon, Material.ENCHANTED_BOOK)).name(enchant.name).lore(lore).hideAll();

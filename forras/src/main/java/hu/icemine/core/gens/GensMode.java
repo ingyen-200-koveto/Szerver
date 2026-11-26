@@ -139,8 +139,33 @@ public final class GensMode implements ModeHandler, Listener {
     private long dailyAmount = 500;
     private double voidY = 40;
 
+    private final GensGenerators generators;
+    private final GensExtras extras;
+
     public GensMode(IceMineCore core) {
         this.core = core;
+        this.generators = new GensGenerators(core, this);
+        this.extras = new GensExtras(core, this);
+    }
+
+    public GensGenerators generators() {
+        return generators;
+    }
+
+    public GensExtras extras() {
+        return extras;
+    }
+
+    /** Generátor eladásból vagy más forrásból jövő automatikus eladás pénze (10 mp-enként jön meg). */
+    void addAutosell(UUID uuid, long money) {
+        if (money > 0) {
+            autosold.merge(uuid, Math.round(money * progress.autosellRate()), Long::sum);
+        }
+    }
+
+    /** Tag is begyűjthet (pl. generátorból), ha megvan rá a joga. */
+    boolean canCollect(Player player, Location location) {
+        return canDo(player, location, GensData.COLLECT);
     }
 
     @Override
@@ -258,7 +283,15 @@ public final class GensMode implements ModeHandler, Listener {
             problems.add("Gens: nem sikerült kiolvasni a következő telek számát, 1-ről indulok (" + exception.getMessage() + ")");
         }
         nextPlot = Math.max(1, nextPlot);
+        generators.load(config, problems);
+        extras.load(config, problems);
+        if (!generatorsCleaned) {
+            generatorsCleaned = true;
+            generators.cleanLabels(world);
+        }
     }
+
+    private boolean generatorsCleaned;
 
     private void loadMaterials(List<String> problems) {
         cropBlocks.clear();
@@ -361,6 +394,7 @@ public final class GensMode implements ModeHandler, Listener {
         }
         players.put(player.getUniqueId(), data);
         readProfile(player, data);
+        generators.attach(player);
         backpacks.put(player.getUniqueId(), core.inventories().loadItems("gens_backpack", player.getUniqueId(), progress.backpackMax()));
     }
 
@@ -416,6 +450,11 @@ public final class GensMode implements ModeHandler, Listener {
     }
 
     public void detach(UUID uuid) {
+        Player online = Bukkit.getPlayer(uuid);
+        if (online != null) {
+            generators.detach(online);
+        }
+        extras.quit(uuid);
         GensData.Player data = players.remove(uuid);
         warned.remove(uuid);
         confirm.remove(uuid);
@@ -490,6 +529,7 @@ public final class GensMode implements ModeHandler, Listener {
     /** Eladási szorzó: a sziget "érték" fejlesztése, a rang pénz szorzója erre jön rá. */
     public long sellBoost(Player player, GensData.Player data, long amount) {
         double value = data == null ? 1.0 : progress.valueMultiplier(data.upgrades);
+        value *= extras.boost(player, GensExtras.BOOST_MONEY) * extras.eventMultiplier(GensExtras.EVENT_MONEY);
         return core.ranks().boost(player, Math.round(amount * value));
     }
 
@@ -887,6 +927,7 @@ public final class GensMode implements ModeHandler, Listener {
         values.put("%plot%", "#" + data.plot);
         values.put("%earned%", Text.number(profile == null ? 0 : profile.stat("gens.earned")));
         values.put("%harvested%", Text.number(profile == null ? 0 : profile.stat("gens.harvested")));
+        extras.placeholders(player, values);
     }
 
     // ---- kapa ----
@@ -954,7 +995,8 @@ public final class GensMode implements ModeHandler, Listener {
             return;
         }
         int tierBefore = hoe.tier(data.hoe);
-        if (!pay(player, price, "gens:hoe:" + id)) {
+        if (!extras.takeElixir(player, price)) {
+            core.messages().sendTagged(player, "&cNincs elég elixíred. Kell: " + extras.formatElixir(price) + " &c(van: " + extras.formatElixir(extras.elixir(player)) + "&c)");
             return;
         }
         data.hoe.put(id, level + 1);
@@ -1153,6 +1195,7 @@ public final class GensMode implements ModeHandler, Listener {
         if (profile != null) {
             profile.addStat("gens.harvested", crops);
         }
+        extras.harvested(player, GenMath.sellValue(items, unit), crops, spot.field());
         world.spawnParticle(Particle.HAPPY_VILLAGER, block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5, Math.min(12, 2 + crops / 4),
                 0.3 + Math.min(3, radius), 0.2, 0.3 + Math.min(3, radius), 0);
         player.playSound(block.getLocation(), crop.wholeBlock() ? "minecraft:block.wood.break" : "minecraft:block.crop.break", 0.6f,
@@ -1229,6 +1272,8 @@ public final class GensMode implements ModeHandler, Listener {
         if (world == null) {
             return;
         }
+        generators.tick();
+        extras.tick();
         long now = System.currentTimeMillis();
         if (now >= autosellFlush) {
             autosellFlush = now + 10_000L;
@@ -1617,6 +1662,8 @@ public final class GensMode implements ModeHandler, Listener {
 
     @Override
     public void shutdown() {
+        generators.shutdown();
+        extras.shutdown();
         for (UUID uuid : new ArrayList<>(players.keySet())) {
             detach(uuid);
         }
@@ -1646,9 +1693,18 @@ public final class GensMode implements ModeHandler, Listener {
         GensData.Player data = players.get(player.getUniqueId());
         long total = 0;
         long count = 0;
+        long genDrops = 0;
         ItemStack[] contents = player.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {
             ItemStack item = contents[i];
+            long genValue = item == null ? -1 : generators.dropValue(item);
+            if (genValue > 0) {
+                total += GenMath.sellValue(item.getAmount(), genValue);
+                count += item.getAmount();
+                genDrops += item.getAmount();
+                player.getInventory().setItem(i, null);
+                continue;
+            }
             if (item == null || item.hasItemMeta() && Items.tagOf(item) != null) {
                 continue;
             }
@@ -1664,6 +1720,14 @@ public final class GensMode implements ModeHandler, Listener {
         if (pack != null && !(player.getOpenInventory().getTopInventory().getHolder() instanceof GensBackpack)) {
             for (int i = 0; i < pack.length; i++) {
                 ItemStack item = pack[i];
+                long genValue = item == null ? -1 : generators.dropValue(item);
+                if (genValue > 0) {
+                    total += GenMath.sellValue(item.getAmount(), genValue);
+                    count += item.getAmount();
+                    genDrops += item.getAmount();
+                    pack[i] = null;
+                    continue;
+                }
                 if (item == null || item.hasItemMeta() && Items.tagOf(item) != null) {
                     continue;
                 }
@@ -1692,6 +1756,9 @@ public final class GensMode implements ModeHandler, Listener {
             profile.addStat("gens.sold", count);
         }
         core.messages().send(player, "gens.sold", "%amount%", Text.number(count), "%money%", core.economy().format(currency, total));
+        if (genDrops > 0) {
+            extras.addXp(player, Math.max(1, genDrops / 4));
+        }
         player.playSound(player.getLocation(), "minecraft:entity.villager.yes", 0.6f, 1.1f);
         progress(player, "sell_items", count);
         progress(player, "earn", total);

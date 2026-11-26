@@ -199,13 +199,26 @@ Beállítás: `creative.yml` -> `worldedit`.
 
 ### Gens
 
-Nincsenek generátorok: mindenkinek saját farm szigete van 8 földdel, és a növényeket a Gens kapával kell
+Gens Tycoon: mindenkinek saját farm szigete van 8 földdel és generátorokkal. A növényeket a Gens kapával kell
 learatni (bal klikk a beérett növényre). Learatás után pár másodperc alatt visszanő. A termést a sziget
 közepén lévő hordónál (jobb klikk), a `/elad` paranccsal vagy a menüben adod el.
 
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
-- **Kapa fejlesztések** (jobb klikk a kapával, az üllő a tér közepén, vagy `/gens kapa`): Bőség (extra termés),
+- **Generátorok** (3.51.0): a Generátor boltban (`/gens generator` vagy a Gens menü) veszed, a szigeteden lerakod, és
+  magától termel (13 szint: szén, vas, arany, lazurit, vöröskő, méz, tengeri lámpás, smaragd, gyémánt, ametiszt, réz,
+  kvarc, netherit). A dropot eltárolja: jobb klikk rá menü (begyűjtés, eladás, fejlesztés, felvétel), guggolva jobb klikk
+  begyűjtés. Automatikus eladásnál a drop rögtön pénz. Egy szigeten 5 generátor lehet, a +5 férőhely jeggyel (bolt,
+  minden 10. szint) 50-ig bővíthető. Csak akkor termelnek, ha a gazdájuk fent van. A jobb generátorokhoz Gens szint kell.
+- **Elixír**: aratáskor jár (a termés értékével egyenlő), ebből fejleszted a kapát.
+- **Gens szint**: XP aratásért és a dropok eladásáért. Szintlépéskor pénz és elixír, minden 5. szinten 2x booster,
+  minden 10.-en generátor férőhely jár.
+- **Boosterek**: pénz, elixír, generátor gyorsaság, időre, jobb klikkel aktiválható. Bossbar mutatja, meddig tart.
+- **Eventek**: 45 percenként egy 10 perces event (2x generátor drop, 150% gyorsabb generátor, 2x elixír, +50% eladás,
+  2x XP). Bossbar mutatja, mikor jön a következő. Admin: `/gens event <id|random>`.
+- **Admin**: `/gens give <játékos> <szint> [db]`, `/gens booster <játékos> <money|elixir|gen> <szorzó> <perc>`,
+  `/gens slots <játékos> [db]` (jog: `icemine.admin.gens`).
+- **Kapa fejlesztések** (elixírért; jobb klikk a kapával, az üllő a tér közepén, vagy `/gens kapa`): Bőség (extra termés),
   Kaszálás (3x3, 5x5, végül az egész föld egyszerre), Aranykéz (jobb ár), Szerencse (pénzt találsz a földben).
   Ahogy fejleszted, a kapa is jobb lesz: fa, kő, vas, arany, gyémánt, végül netherit.
 - **Sziget fejlesztések:** termékenyebb föld, gyorsabb növekedés, jobb ár. A tagjaidnak is jár, amikor nálad aratnak.

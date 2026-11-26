@@ -494,6 +494,7 @@ public final class Migrations {
         notes.addAll(cosmeticsRemoved(files::get, files::save));
         notes.addAll(blockedV2(files::get, files::save));
         notes.addAll(dailyRemoved(files::get, files::save));
+        notes.addAll(gensBoardV2(files::get, files::save));
         YamlConfiguration economyFile = files.get("economy");
         if (economyFile != null && economyFile.isSet("currencies") && !economyFile.isSet("currencies.dollar")) {
             copyDefault(economyFile, "currencies.dollar");
@@ -750,6 +751,26 @@ public final class Migrations {
         }
         ranks.set("migrated.ranks-v2", true);
         return true;
+    }
+
+    /** 3.51: a Gens scoreboard (generátorok, elixír, szint), ha a régi alapértelmezett volt. */
+    static List<String> gensBoardV2(java.util.function.Function<String, YamlConfiguration> get, java.util.function.Consumer<String> save) {
+        List<String> notes = new ArrayList<>();
+        YamlConfiguration board = get.apply("scoreboard");
+        if (board == null || board.getBoolean("migrated.gens-v2", false)) {
+            return notes;
+        }
+        List<String> lines = board.getStringList("boards.gens");
+        if (lines.contains("&7Földek: &f%fields%&7/&f%max_fields%") && lines.contains("&7Learatva: &f%harvested%")) {
+            org.bukkit.configuration.Configuration defaults = board.getDefaults();
+            if (defaults != null && !defaults.getStringList("boards.gens").isEmpty()) {
+                board.set("boards.gens", defaults.getStringList("boards.gens"));
+                notes.add("scoreboard.yml: új Gens scoreboard (generátorok, elixír, szint)");
+            }
+        }
+        board.set("migrated.gens-v2", true);
+        save.accept("scoreboard");
+        return notes;
     }
 
     /** 3.50: a napi jutalom és a Hasznos parancsok (hologram, NPC, info gomb, szöveg) kikerült. */
