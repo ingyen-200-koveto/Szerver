@@ -57,7 +57,7 @@ public final class ModeLobbyBuild extends Build {
         this.title = title == null ? "" : title;
         this.split = split;
         this.theme = Theme.of(theme);
-        this.radius = this.theme == Theme.GENS || this.theme == Theme.KINGDOMS || this.theme == Theme.DUELS ? GENS_RADIUS : RADIUS;
+        this.radius = this.theme == Theme.GENS || this.theme == Theme.KINGDOMS || this.theme == Theme.DUELS || this.theme == Theme.COMBOFLY ? GENS_RADIUS : RADIUS;
     }
 
     private String outline() {
@@ -102,6 +102,7 @@ public final class ModeLobbyBuild extends Build {
                 break;
             case COMBOFLY:
                 crystals();
+                new ComboflyEnd((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();
                 break;
             case GENS:
                 new GensVillage((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, this::free).build();

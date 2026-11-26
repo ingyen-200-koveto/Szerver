@@ -218,6 +218,9 @@ körülötte négy csapatsziget (színes ház, ágy védelemmel, vasgenerátor, 
 A SkyWars lobby (3.57.0-tól) körül nyolc lebegő havas sziget, mindegyiken egy feloldható ketrec (jég, smaragd,
 TNT, arany, ametiszt, óceán, hóvihar, redstone), láda, fenyő és érc; köztük lebegő jégtüskék.
 
+A ComboFly lobby (3.58.0-tól) egy End város: három purpur torony bíbor ablakokkal és end rodokkal, obszidián
+oszlopok (kettő vasrács ketreccel), kórusvirágok, ametiszt kristályok és lebegő end kő szigetek.
+
 - **Földek:** búza (ingyen), sárgarépa, krumpli, cékla, dinnye, tök, bogyó, netherbibircsók. Sorban nyithatók
   meg, mindegyik drágább, és többet ér a termése.
 - **Generátorok** (3.51.0): a Generátor boltban (`/gens generator` vagy a Gens menü) veszed, a szigeteden lerakod, és
