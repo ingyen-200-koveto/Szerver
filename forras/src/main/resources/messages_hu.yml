@@ -128,8 +128,8 @@ selector:
       - "&7és a többi elérhetőség."
 
 settings:
-  on: "&a● Bekapcsolva"
-  off: "&c● Kikapcsolva"
+  "on": "&a● Bekapcsolva"
+  "off": "&c● Kikapcsolva"
   locked: "&8● Rang szükséges hozzá"
   no-permission: "Ehhez a beállításhoz magasabb rang kell."
   visibility:
@@ -383,12 +383,12 @@ gens:
     tier-next: "&7Következő: &f%hoe% &8(még %need% szint)"
     tier-max: "&a✔ Ennél jobb kapa nincs"
   lock:
-    on: "Bezártad a szigeted: csak a tagjaid látogathatnak meg."
-    off: "Kinyitottad a szigeted: bárki meglátogathat."
+    "on": "Bezártad a szigeted: csak a tagjaid látogathatnak meg."
+    "off": "Kinyitottad a szigeted: bárki meglátogathat."
   autosell:
     bought: "Megvetted az automatikus eladást!"
-    on: "Automatikus eladás &abekapcsolva&7. A learatott termés rögtön pénzzé válik."
-    off: "Automatikus eladás &ckikapcsolva&7."
+    "on": "Automatikus eladás &abekapcsolva&7. A learatott termés rögtön pénzzé válik."
+    "off": "Automatikus eladás &ckikapcsolva&7."
   backpack:
     title: "&8Hátizsák (%size%)"
     already: "Már a nagy hátizsákod van."
