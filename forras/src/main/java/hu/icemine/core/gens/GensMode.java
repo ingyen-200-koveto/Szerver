@@ -81,7 +81,9 @@ public final class GensMode implements ModeHandler, Listener {
     public static final String ID = "gens";
     public static final String HOE_TAG = "gens:hoe";
     /** A profilban ("gens.farm") jegyezzük, hogy a sziget már a földes változat. */
-    static final String FARM_VERSION = "1";
+    static final String FARM_VERSION = "2";
+    /** A központ (közös farm) változata a gens.yml-ben: ha régebbi, újraépül. */
+    static final int HUB_VERSION = 2;
     private static final String LABEL_TAG = "icemine_gens_label";
 
     /** Egy learatott növény, ami épp visszanő. */
@@ -264,7 +266,7 @@ public final class GensMode implements ModeHandler, Listener {
         for (GensData.Field field : fields) {
             prices.merge(cropDrops.get(field.crop), field.value, Math::max);
         }
-        if (!config.getBoolean("hub-built", false)) {
+        if (!config.getBoolean("hub-built", false) || config.getInt("hub-version", 1) < HUB_VERSION) {
             buildHub(config);
         }
         hub = Locs.read(config.getConfigurationSection("hub"), world);
@@ -272,6 +274,7 @@ public final class GensMode implements ModeHandler, Listener {
             hub = new Location(world, 0.5, height + 1, 0.5);
         }
         world.setSpawnLocation(hub.getBlockX(), hub.getBlockY(), hub.getBlockZ());
+        refreshShared();
         try {
             nextPlot = core.database().query(connection -> {
                 try (PreparedStatement statement = connection.prepareStatement("SELECT MAX(plot) FROM im_gens_plots");
@@ -328,11 +331,16 @@ public final class GensMode implements ModeHandler, Listener {
         placer.clear(-GensBuild.HUB_CLEAR, height - 30, -GensBuild.HUB_CLEAR, GensBuild.HUB_CLEAR, height + 40, GensBuild.HUB_CLEAR);
         GensBuild build = new GensBuild(placer, 0, height, 0, true, 0);
         build.build();
+        for (int i = 0; i < Math.min(SharedFarm.CENTERS.length, fields.size()); i++) {
+            new FieldBuild(placer, 0, height, 0, i, fields.get(i).crop, true, true).build();
+        }
+        regrowing.values().removeIf(r -> Math.abs(r.x) <= SharedFarm.EXTENT && Math.abs(r.z) <= SharedFarm.EXTENT);
         Layout.Point spawn = build.layout().points.get("spawn");
         if (spawn != null) {
             Locs.write(config, "hub", spawn.x, height + spawn.y, spawn.z, spawn.yaw);
         }
         config.set("hub-built", true);
+        config.set("hub-version", HUB_VERSION);
         core.configs().save("gens");
     }
 
@@ -629,14 +637,13 @@ public final class GensMode implements ModeHandler, Listener {
             return null;
         }
         int plot = plotAt(block.getLocation());
-        if (plot <= 0) {
+        if (plot != 0) {
             return null;
         }
-        int[] center = plotCenter(plot);
-        int dx = block.getX() - center[0];
-        int dz = block.getZ() - center[1];
-        int field = FarmLayout.fieldAt(dx, dz);
-        return field < 0 ? null : new Spot(plot, field, dx, dz, dy, center[0], center[1]);
+        int dx = block.getX();
+        int dz = block.getZ();
+        int field = SharedFarm.fieldAt(dx, dz);
+        return field < 0 || field >= fields.size() ? null : new Spot(0, field, dx, dz, dy, 0, 0);
     }
 
     /** A tér egyik különleges blokkja (eladó hordó, kapa üllő)? */
@@ -645,7 +652,11 @@ public final class GensMode implements ModeHandler, Listener {
             return false;
         }
         int plot = plotAt(block.getLocation());
-        if (plot <= 0) {
+        if (plot == 0) {
+            int[] shared = where == FarmLayout.SELL ? SharedFarm.SELL : SharedFarm.HOE;
+            return block.getX() == shared[0] && block.getZ() == shared[1];
+        }
+        if (plot < 0) {
             return false;
         }
         int[] center = plotCenter(plot);
@@ -695,6 +706,14 @@ public final class GensMode implements ModeHandler, Listener {
         if (data.plot <= 0 || farmReady(player)) {
             return false;
         }
+        PlayerProfile current = core.profiles().profile(player);
+        if (current != null && "1".equals(current.setting("gens.farm", "0"))) {
+            purgeRegrow(data.plot);
+            clearIslandFields(data);
+            markFarm(player);
+            core.messages().send(player, "gens.farm-moved");
+            return false;
+        }
         data.level = Math.max(1, Math.min(fields.size(), data.level));
         data.dirty = true;
         data.legacyPending = true;
@@ -718,8 +737,27 @@ public final class GensMode implements ModeHandler, Listener {
         Placer placer = new Placer(world, core.getLogger());
         placer.clear(center[0] - clearRadius, height - 25, center[1] - clearRadius, center[0] + clearRadius, height + 40, center[1] + clearRadius);
         new GensBuild(placer, center[0], height, center[1], false, data.plot).build();
+    }
+
+    /** A régi szigetes földek helyére fű kerül (a földek most a központi közös farmon vannak); a generátorok maradnak. */
+    private void clearIslandFields(GensData.Player data) {
+        int[] center = plotCenter(data.plot);
         for (int i = 0; i < FarmLayout.FIELDS; i++) {
-            buildField(placer, center, i, i < unlocked(data));
+            for (int[] cell : FarmLayout.cells(i)) {
+                int x = center[0] + cell[0];
+                int z = center[1] + cell[1];
+                Block plant = world.getBlockAt(x, height + 1, z);
+                Material type = plant.getType();
+                boolean crop = cropBlocks.containsValue(type) || type == Material.SPRUCE_FENCE || type == Material.SWEET_BERRY_BUSH;
+                if (!crop && !type.isAir()) {
+                    continue;
+                }
+                if (crop) {
+                    plant.setType(Material.AIR, false);
+                }
+                world.getBlockAt(x, height, z).setBlockData(block(GensBuild.islandGround(x, z)), false);
+                world.getBlockAt(x, height - 1, z).setType(Material.DIRT, false);
+            }
         }
     }
 
@@ -730,17 +768,21 @@ public final class GensMode implements ModeHandler, Listener {
 
     /** Minden megnyitott földön beérett növény legyen (újraindítás vagy egy átírt gens.yml után), kivéve ami épp visszanő. */
     private void refreshFields(GensData.Player data) {
-        if (data.plot <= 0 || world == null) {
+        refreshShared();
+    }
+
+    /** A közös farm minden földjén beérett növény legyen (kivéve ami épp visszanő). */
+    private void refreshShared() {
+        if (world == null || !world.isChunkLoaded(0, 0)) {
             return;
         }
-        int[] center = plotCenter(data.plot);
-        for (int i = 0; i < unlocked(data); i++) {
+        for (int i = 0; i < Math.min(SharedFarm.CENTERS.length, fields.size()); i++) {
             Crop crop = fields.get(i).crop;
             BlockData soil = block(crop.soil);
             BlockData ripe = block(crop.mature());
-            for (int[] cell : FarmLayout.cells(i)) {
-                int x = center[0] + cell[0];
-                int z = center[1] + cell[1];
+            for (int[] cell : SharedFarm.cells(i)) {
+                int x = cell[0];
+                int z = cell[1];
                 Block ground = world.getBlockAt(x, height, z);
                 if (ground.getType() != cropSoils.get(crop)) {
                     ground.setBlockData(soil, false);
@@ -796,7 +838,7 @@ public final class GensMode implements ModeHandler, Listener {
         ensurePlot(player, data);
         ensureFarm(player, data);
         refreshFields(data);
-        return home(data);
+        return hub == null ? home(data) : hub;
     }
 
     @Override
@@ -1030,11 +1072,9 @@ public final class GensMode implements ModeHandler, Listener {
         }
         data.level = next.index + 1;
         data.dirty = true;
-        int[] center = plotCenter(data.plot);
-        buildField(new Placer(world, core.getLogger()), center, next.index, true);
-        int[] middle = FarmLayout.center(next.index);
-        if (player.getWorld() == world) {
-            world.spawnParticle(Particle.HAPPY_VILLAGER, center[0] + middle[0] + 0.5, height + 1.5, center[1] + middle[1] + 0.5, 60, 3, 0.4, 3, 0);
+        if (player.getWorld() == world && next.index < SharedFarm.CENTERS.length) {
+            int[] middle = SharedFarm.center(next.index);
+            player.spawnParticle(Particle.HAPPY_VILLAGER, middle[0] + 0.5, height + 1.5, middle[1] + 0.5, 80, 4, 0.4, 4, 0);
             player.playSound(player.getLocation(), "minecraft:ui.toast.challenge_complete", 0.7f, 1.3f);
         }
         if (player.getWorld() == world) {
@@ -1047,6 +1087,24 @@ public final class GensMode implements ModeHandler, Listener {
         progress(player, "unlock", 1);
     }
 
+    /** Jobb klikk egy meg nem vett földre: ha ez a következő, kétszeri kattintásra megveszi. */
+    private void buyByClick(Player player, GensData.Player data, int field) {
+        if (field != unlocked(data)) {
+            GensData.Field need = nextField(data);
+            warn(player, "gens.field.locked-later");
+            if (need != null) {
+                core.messages().send(player, "gens.field.need-previous", "%field%", need.name);
+            }
+            return;
+        }
+        GensData.Field next = fields.get(field);
+        if (!confirmed(player, "field" + field)) {
+            core.messages().send(player, "gens.field.buy-confirm", "%field%", next.name, "%price%", core.economy().format(currency, next.price));
+            return;
+        }
+        unlockField(player);
+    }
+
     private void spawnLabels(GensData.Player data) {
         removeLabels(data.uuid);
         if (data.plot <= 0 || world == null) {
@@ -1057,18 +1115,50 @@ public final class GensMode implements ModeHandler, Listener {
             return;
         }
         List<TextDisplay> list = new ArrayList<>();
-        for (int i = unlocked(data); i < fields.size(); i++) {
-            GensData.Field field = fields.get(i);
-            int[] middle = FarmLayout.center(i);
-            List<String> lines = core.messages().list(i == data.level ? "gens.labels.next" : "gens.labels.locked",
-                    "%field%", field.name, "%price%", core.economy().format(currency, field.price), "%value%", core.economy().format(currency, field.value));
-            list.add(label(new Location(world, center[0] + middle[0] + 0.5, height + 1.4, center[1] + middle[1] + 0.5), String.join("\n", lines)));
-        }
         list.add(label(new Location(world, center[0] + FarmLayout.SELL[0] + 0.5, height + 3.1, center[1] + FarmLayout.SELL[1] + 0.5),
                 String.join("\n", core.messages().list("gens.labels.sell"))));
         list.add(label(new Location(world, center[0] + FarmLayout.HOE[0] + 0.5, height + 2.2, center[1] + FarmLayout.HOE[1] + 0.5),
                 String.join("\n", core.messages().list("gens.labels.hoe"))));
         labels.put(data.uuid, list);
+    }
+
+    private final List<TextDisplay> shared = new ArrayList<>();
+
+    /** A közös farm feliratai (melyik föld, mi terem rajta, mennyi az ára); a központ betöltött chunkjain. */
+    private void sharedLabels() {
+        if (world == null || !world.isChunkLoaded(0, 0)) {
+            return;
+        }
+        boolean broken = shared.isEmpty();
+        for (TextDisplay display : shared) {
+            if (!display.isValid()) {
+                broken = true;
+                break;
+            }
+        }
+        if (!broken) {
+            return;
+        }
+        for (TextDisplay display : shared) {
+            if (display.isValid()) {
+                display.remove();
+            }
+        }
+        shared.clear();
+        for (int i = 0; i < Math.min(SharedFarm.CENTERS.length, fields.size()); i++) {
+            GensData.Field field = fields.get(i);
+            int[] middle = SharedFarm.center(i);
+            int[] toward = {Integer.signum(-middle[0]), Integer.signum(-middle[1])};
+            double lx = middle[0] + toward[0] * (SharedFarm.HALF + 1.5) + 0.5;
+            double lz = middle[1] + toward[1] * (SharedFarm.HALF + 1.5) + 0.5;
+            List<String> lines = core.messages().list("gens.labels.shared", "%number%", String.valueOf(i + 1), "%field%", field.name,
+                    "%price%", core.economy().format(currency, field.price), "%value%", core.economy().format(currency, field.value));
+            shared.add(label(new Location(world, lx, height + 2.6, lz), String.join("\n", lines)));
+        }
+        shared.add(label(new Location(world, SharedFarm.SELL[0] + 0.5, height + 3.1, SharedFarm.SELL[1] + 0.5),
+                String.join("\n", core.messages().list("gens.labels.sell"))));
+        shared.add(label(new Location(world, SharedFarm.HOE[0] + 0.5, height + 2.2, SharedFarm.HOE[1] + 0.5),
+                String.join("\n", core.messages().list("gens.labels.hoe"))));
     }
 
     private TextDisplay label(Location location, String text) {
@@ -1098,6 +1188,7 @@ public final class GensMode implements ModeHandler, Listener {
 
     /** A feliratok nem mentődnek (chunk kirakáskor eltűnnek), ezért ha a gazda a szigetén van, pár másodpercenként pótoljuk. */
     private void checkLabels() {
+        sharedLabels();
         for (Player player : world.getPlayers()) {
             GensData.Player data = players.get(player.getUniqueId());
             if (data == null || data.plot <= 0 || plotAt(player.getLocation()) != data.plot) {
@@ -1122,18 +1213,13 @@ public final class GensMode implements ModeHandler, Listener {
     // ---- aratás ----
 
     private void harvest(Player player, Block block, Spot spot) {
-        GensData.Player owner = ownerOf(spot.plot());
-        if (owner == null) {
-            warn(player, "gens.owner-offline");
-            return;
-        }
-        boolean own = owner.uuid.equals(player.getUniqueId());
-        if (!own && !owner.can(player.getUniqueId(), GensData.COLLECT) && !admin(player)) {
-            deny(player);
-            return;
-        }
         GensData.Player self = players.get(player.getUniqueId());
-        if (self == null || spot.field() >= unlocked(owner)) {
+        if (self == null) {
+            return;
+        }
+        GensData.Player owner = self;
+        if (spot.field() >= unlocked(self)) {
+            warn(player, spot.field() == unlocked(self) ? "gens.field.locked-buy" : "gens.field.locked-later");
             return;
         }
         if (!isHoe(player.getInventory().getItemInMainHand())) {
@@ -1151,8 +1237,8 @@ public final class GensMode implements ModeHandler, Listener {
             warn(player, "gens.full");
             return;
         }
-        int radius = hoe.radius(self.hoe);
-        List<int[]> cells = radius >= 3 ? FarmLayout.cells(spot.field()) : FarmLayout.around(spot.field(), spot.dx(), spot.dz(), radius);
+        int radius = Math.min(2, hoe.radius(self.hoe));
+        List<int[]> cells = SharedFarm.around(spot.field(), spot.dx(), spot.dz(), radius);
         double extra = extraPercent(self, owner) + rankBonus(player);
         double multiplier = field.multiplier * multiplier(self);
         double luck = hoe.luckPercent(self.hoe);
@@ -1507,9 +1593,15 @@ public final class GensMode implements ModeHandler, Listener {
             core.gensMenu().hoe(player);
             return;
         }
-        if (spot(block) != null) {
-            // bogyó szedés, csontliszt, kapálás: a földeken semmi ilyet nem lehet
+        Spot clicked = spot(block);
+        if (clicked != null) {
+            // bogyó szedés, csontliszt, kapálás: a földeken semmi ilyet nem lehet; jobb klikk egy még meg nem vett földre: megvétel
             event.setCancelled(true);
+            GensData.Player data = players.get(player.getUniqueId());
+            if (data != null && clicked.field() >= unlocked(data)) {
+                buyByClick(player, data, clicked.field());
+                return;
+            }
             if (hoeInHand) {
                 core.gensMenu().hoe(player);
             }

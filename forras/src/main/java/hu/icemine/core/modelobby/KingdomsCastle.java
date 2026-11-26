@@ -165,7 +165,7 @@ final class KingdomsCastle extends ThemeBase {
         int x0 = -12;
         int x1 = 12;
         int z0 = N + 2;
-        int z1 = -22;
+        int z1 = -25;
         int h = 15;
         for (int x = x0; x <= x1; x++) {
             for (int z = z0; z <= z1; z++) {
@@ -220,9 +220,9 @@ final class KingdomsCastle extends ThemeBase {
             put(side * 3, 2, z1 + 1, "stone_brick_wall[up=true]");
             put(side * 3, 1, z1 + 1, "stone_bricks");
         }
-        roundTower(0, z0 + 3, 4.2, 26, 9, "deepslate_tile", "deepslate_tiles", "yellow_wool");
-        roundTower(x0, z1, 2.6, 20, 6, "deepslate_tile", "deepslate_tiles", "yellow_wool");
-        roundTower(x1, z1, 2.6, 20, 6, "deepslate_tile", "deepslate_tiles", "yellow_wool");
+        roundTower(0, z0, 4.2, 26, 9, "deepslate_tile", "deepslate_tiles", "yellow_wool");
+        roundTower(x0, z0, 2.6, 20, 6, "deepslate_tile", "deepslate_tiles", "yellow_wool");
+        roundTower(x1, z0, 2.6, 20, 6, "deepslate_tile", "deepslate_tiles", "yellow_wool");
     }
 
     // ---- kovácsműhely ----

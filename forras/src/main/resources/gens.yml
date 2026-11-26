@@ -84,7 +84,7 @@ fields:
 
 # A Gens kapa fejlesztései (jobb klikk a kapával, az üllő a sziget közepén, vagy /gens kapa).
 # price: az első szint ára | price-multiplier: minden szint ennyiszer drágább | per-level: ennyit ad szintenként
-# boseg: +% esély egy extra termésre | kaszalas: 1 = 3x3, 2 = 5x5, 3 = az egész föld egyszerre (max 3)
+# boseg: +% esély egy extra termésre | kaszalas: 1 = 3x3, 2 = 5x5 (max 2, nagyobb területet egyszerre nem lehet)
 # aranykez: +% eladási ár | szerencse: +% esély, hogy aratáskor pénzt találsz (a termény ára × luck-multiplier)
 # tiers: ennyi összes fejlesztési szinttől lesz a kapa fa, kő, vas, arany, gyémánt, netherit
 hoe:
@@ -104,13 +104,13 @@ hoe:
     kaszalas:
       name: "&e&lKaszálás"
       icon: SHEARS
-      max: 3
+      max: 2
       price: 25000
       price-multiplier: 10
       per-level: 1
       description:
         - "&7Egyszerre több növényt aratsz:"
-        - "&73x3, utána 5x5, végül az egész földet."
+        - "&73x3, utána 5x5."
     aranykez:
       name: "&6&lAranykéz"
       icon: GOLD_INGOT

@@ -124,8 +124,17 @@ public final class ModeLobbyBuild extends Build {
         lanterns();
         if (!title.isEmpty()) {
             int scale = title.length() <= 5 ? 2 : 1;
-            new Title((x, y, z, data) -> put(x, y, z, data), 0, scale == 2 ? 12 : 11, PORTAL_Z - 8, scale, "south", title, c("concrete"), "white_concrete",
-                    split <= 0 ? title.length() : split, outline(), outline()).build();
+            int ty = scale == 2 ? 12 : 11;
+            Title sign = null;
+            // a felirat addig megy feljebb, amíg nem lóg bele semmilyen épületbe
+            for (int lift = 0; lift <= 40; lift++) {
+                sign = new Title((x, y, z, data) -> put(x, y, z, data), 0, ty + lift, PORTAL_Z - 8, scale, "south", title, c("concrete"),
+                        "white_concrete", split <= 0 ? title.length() : split, outline(), outline());
+                if (clear(sign.box())) {
+                    break;
+                }
+            }
+            sign.build();
         }
         layout.point("spawn", 0.5, 1, SPAWN_Z + 0.5, 180);
         layout.areas.put("portal", new hu.icemine.core.build.Layout.Area(-2, 1, PORTAL_Z - 1, 2, 5, PORTAL_Z + 1));
@@ -135,6 +144,36 @@ public final class ModeLobbyBuild extends Build {
         layout.point("holo:top2", 13.5, 3.3, 0.5, 0);
         layout.point("holo:top3", -9.5, 3.3, -6.5, 0);
         layout.point("holo:top4", 10.5, 3.3, -6.5, 0);
+    }
+
+    private final java.util.Set<Long> solid = new java.util.HashSet<>();
+
+    @Override
+    protected void put(int dx, int dy, int dz, String data) {
+        if (dy > 0) {
+            long key = ((long) dx & 0x3ffffL) << 40 | ((long) dy & 0xfffL) << 20 | ((long) dz & 0xfffffL);
+            if (data.equals("air")) {
+                solid.remove(key);
+            } else if (!data.equals("barrier")) {
+                solid.add(key);
+            }
+        }
+        super.put(dx, dy, dz, data);
+    }
+
+    /** Üres-e a doboz (és egy blokk körülötte): ide kerülhet a felirat. */
+    private boolean clear(int[] box) {
+        for (int x = box[0] - 1; x <= box[3] + 1; x++) {
+            for (int y = box[1] - 1; y <= box[4] + 1; y++) {
+                for (int z = box[2] - 1; z <= box[5] + 1; z++) {
+                    long key = ((long) x & 0x3ffffL) << 40 | ((long) y & 0xfffL) << 20 | ((long) z & 0xfffffL);
+                    if (solid.contains(key)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     private double edge(int x, int z) {
@@ -612,7 +651,7 @@ public final class ModeLobbyBuild extends Build {
     // ---- ComboFly: ametiszt kristályok ----
 
     private void crystals() {
-        int[][] spikes = {{-17, 10, 9}, {17, 12, 10}, {-19, -8, 12}, {19, -10, 11}, {-9, 19, 8}, {10, 20, 9}, {-13, -17, 10}, {14, -18, 9}, {0, 22, 7}};
+        int[][] spikes = {{-17, 10, 9}, {17, 12, 10}, {-19, -8, 12}, {19, -10, 11}, {-9, 19, 8}, {10, 20, 9}, {-21, -14, 10}, {21, -15, 9}, {0, 22, 7}};
         for (int[] s : spikes) {
             if (!free(s[0], s[1])) {
                 continue;
@@ -633,7 +672,7 @@ public final class ModeLobbyBuild extends Build {
             }
         }
         // lebegő kristályszilánkok
-        int[][] shards = {{-8, 14, 4}, {9, 15, 3}, {-15, 12, -14}, {15, 13, -13}, {0, 17, 20}};
+        int[][] shards = {{-8, 14, 4}, {9, 15, 3}, {-22, 13, -6}, {22, 14, -5}, {0, 17, 20}};
         for (int[] s : shards) {
             for (int y = -1; y <= 1; y++) {
                 put(s[0], s[1] + y, s[2], y == 0 ? "amethyst_block" : "purple_stained_glass");

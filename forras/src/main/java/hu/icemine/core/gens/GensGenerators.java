@@ -357,7 +357,7 @@ public final class GensGenerators implements Listener {
             long autoMoney = 0;
             for (Gen gen : entry.getValue()) {
                 Tier t = tiers.get(gen.tier);
-                if (t == null || !world.isChunkLoaded(gen.x >> 4, gen.z >> 4)) {
+                if (t == null) {
                     continue;
                 }
                 gen.progress += elapsed * speed / t.seconds();
@@ -371,7 +371,7 @@ public final class GensGenerators implements Listener {
                         gen.stored = Math.min(capacity(gen.tier), gen.stored + amount);
                     }
                 }
-                if (labels) {
+                if (labels && world.isChunkLoaded(gen.x >> 4, gen.z >> 4)) {
                     label(world, gen, t, data != null && data.autosell);
                 }
             }

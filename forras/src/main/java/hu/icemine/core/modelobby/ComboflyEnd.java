@@ -12,10 +12,10 @@ final class ComboflyEnd extends ThemeBase {
 
     @Override
     public void build() {
-        tower(-27, -18, 3);
-        tower(27, -18, 3);
+        tower(-34, -10, 3);
+        tower(34, -10, 3);
         tower(0, -33, 4);
-        int[][] pillars = {{-38, -6, 18}, {38, -6, 22}, {-14, -38, 26}, {14, -38, 24}, {-32, 24, 14}, {32, 24, 16}};
+        int[][] pillars = {{-28, -28, 18}, {28, -28, 22}, {-14, -38, 26}, {14, -38, 24}, {-32, 24, 14}, {32, 24, 16}};
         for (int i = 0; i < pillars.length; i++) {
             pillar(pillars[i][0], pillars[i][1], pillars[i][2], i % 3 == 0);
         }

@@ -128,9 +128,9 @@ public final class HoeUpgrades {
         return Math.min(level(levels, "boseg"), enchants.get("boseg").max) * enchants.get("boseg").perLevel;
     }
 
-    /** A kaszálás sugara: 0 = egy növény, 1 = 3x3, 2 = 5x5, 3 = az egész föld. */
+    /** A kaszálás sugara: 0 = egy növény, 1 = 3x3, 2 = 5x5 (ennél több nincs). */
     public int radius(Map<String, Integer> levels) {
-        return Math.min(3, Math.min(level(levels, "kaszalas"), enchants.get("kaszalas").max));
+        return Math.min(2, Math.min(level(levels, "kaszalas"), enchants.get("kaszalas").max));
     }
 
     public double valuePercent(Map<String, Integer> levels) {

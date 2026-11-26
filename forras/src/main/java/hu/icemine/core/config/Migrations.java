@@ -10,7 +10,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public final class Migrations {
 
     /** Módlobbyk, amelyek új, részletes témát kaptak: {lobby, téma}. */
-    private static final String[][] NEW_LOBBIES = {{"kingdoms", "kingdoms"}, {"duels", "duels"}, {"bedwars", "bedwars"}, {"skywars", "snow"}, {"combofly", "combofly"}, {"fyland", "fyland"}};
+    private static final String[][] NEW_LOBBIES = {{"kingdoms", "kingdoms", "v2"}, {"duels", "duels", "v2"}, {"bedwars", "bedwars", "v2"},
+            {"skywars", "snow", "v2"}, {"combofly", "combofly", "v2"}, {"fyland", "fyland", "v2"},
+            {"gens", "gens", "v3"}, {"kingdoms", "kingdoms", "v3"}, {"duels", "duels", "v3"}, {"combofly", "combofly", "v3"}};
 
 
     private Migrations() {
@@ -350,7 +352,7 @@ public final class Migrations {
             // a részletes, új témájú módlobbyk: mindegyik egyszer újraépül
             boolean changed = false;
             for (String[] pair : NEW_LOBBIES) {
-                String key = "migrated.lobby-v2-" + pair[0];
+                String key = "migrated.lobby-" + pair[2] + "-" + pair[0];
                 if (lobbies.getBoolean(key, false)) {
                     continue;
                 }
@@ -433,6 +435,22 @@ public final class Migrations {
             gensFile.set("migrated.farm-v1", true);
             files.save("gens");
             notes.add("gens.yml: generátorok helyett farm (8 föld, fejleszthető kapa), a központi sziget újraépül");
+        }
+        if (gensFile != null && gensFile.isSet("hoe.enchants.kaszalas") && !gensFile.getBoolean("migrated.shared-farm-v1", false)) {
+            // a földek a központi közös farmra kerültek, a kapa legfeljebb 5x5-öt arat
+            if (gensFile.getInt("hoe.enchants.kaszalas.max", 2) > 2) {
+                gensFile.set("hoe.enchants.kaszalas.max", 2);
+            }
+            gensFile.set("hoe.enchants.kaszalas.description", java.util.List.of("&7Egyszerre több növényt aratsz:", "&73x3, utána 5x5."));
+            YamlConfiguration texts = files.get("messages_hu");
+            if (texts != null && texts.getStringList("gens.first-join").toString().contains("ez itt a te farmod")) {
+                texts.set("gens.first-join", null);
+                copyDefault(texts, "gens.first-join");
+                files.save("messages_hu");
+            }
+            gensFile.set("migrated.shared-farm-v1", true);
+            files.save("gens");
+            notes.add("gens.yml: a földek a központi közös farmon vannak, a kaszálás legfeljebb 5x5");
         }
         if (main.isSet("leaderboards.boards") && !main.isSet("leaderboards.boards.gensprestige")) {
             copyDefault(main, "leaderboards.boards.gensprestige");

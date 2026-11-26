@@ -5,7 +5,9 @@
 # Ha átírsz valamit: /icem reload messages_hu
 
 prefix: "&b[IceMine] &7"
-# Játékmódban a prefix a mód neve (pl. "BedWars • "), a lobbyban marad az IceMine. false = mindenhol IceMine.
+# A főlobbyban ez a prefix kerül az üzenetek elé (a játékmódokban a mód neve)
+lobby-prefix: "&b[Lobby] &7"
+# Játékmódban a prefix a mód neve (pl. "BedWars • "), a főlobbyban a lobby-prefix. false = mindenhol IceMine.
 mode-prefix: true
 
 general:
@@ -281,10 +283,10 @@ gens:
   welcome: "Üdv a Gensben! Arass a kapáddal, a menüt a &f/gens &7paranccsal nyitod meg."
   first-join:
     - ""
-    - " &b[IceMine] &7Szia &f%player%&7, ez itt a te farmod!"
+    - " &b[IceMine] &7Szia &f%player%&7, ez itt a közös farm!"
     - " &7Bal klikk a kapával a beérett növényre: &faratás&7. Pár mp múlva visszanő."
-    - " &7A termést a középső &fhordónál &7adhatod el (vagy &f/elad&7)."
-    - " &7A pénzből új földeket nyitsz és fejleszted a kapát (&füllő &7vagy &f/gens kapa&7)."
+    - " &7Új földet &fjobb klikkel &7veszel a földre kattintva, a termést a &fhordónál &7adod el (vagy &f/elad&7)."
+    - " &7A saját szigeted a generátoroké: &f/gens home&7. Kapa fejlesztés: &füllő &7vagy &f/gens kapa&7."
     - ""
   not-your-plot: "Ez nem a te szigeted."
   only-in-gens: "Ezt csak a Gensben tudod használni."
@@ -329,7 +331,17 @@ gens:
   field:
     max: "&eMár minden földed nyitva van."
     unlocked: "&a&lÚJ FÖLD! &7Megnyitottad: &f%field% &8(%count%/%max%, -%price%&8)"
+    locked-buy: "&eEz a föld még nem a tiéd. &fJobb klikk &erá a megvételhez!"
+    locked-later: "&cEzt a földet még nem veheted meg."
+    need-previous: "Előbb ezt a földet vedd meg: &f%field%"
+    buy-confirm: "&e%field% &7föld ára: &f%price%&7. Kattints rá &fmég egyszer &7jobb klikkel a megvételhez!"
+  farm-moved: "&a&lÚJDONSÁG! &7A földek mostantól a &fGens központban &7vannak, közös farmon. A szigeteden a régi földek helyén most hely van a generátoroknak."
   labels:
+    shared:
+      - "&e&l%number%. %field%"
+      - "&7Egy termény: &f%value%"
+      - "&7Megvétel: &f%price%"
+      - "&a▶ Jobb klikk a földre"
     next:
       - "&e&l%field%"
       - "&7Ár: &f%price%"
@@ -370,7 +382,7 @@ gens:
       "0": "egy növény"
       "1": "3x3"
       "2": "5x5"
-      "3": "az egész föld"
+      "3": "5x5"
     now: "&7Most: &f%value%"
     max: "%name% &7már a legmagasabb szinten van."
     bought: "Kapa fejlesztve: %name% &8(%level%/%max%)"

@@ -5,9 +5,9 @@ import hu.icemine.core.build.Layout;
 
 public final class GensBuild extends Build {
 
-    public static final int HUB_CLEAR = 30;
+    public static final int HUB_CLEAR = 42;
     public static final int PLOT_CLEAR = 26;
-    static final int HUB_RADIUS = 20;
+    static final int HUB_RADIUS = 34;
     static final int PLOT_RADIUS = 22;
     /** A földek és az utak négyzete a sziget közepétől (a 8 föld 12-ig tart, körülötte 2 széles út). */
     static final int FARM = 14;
@@ -74,6 +74,7 @@ public final class GensBuild extends Build {
                 put(dx, 2, dz, "air");
                 if (FarmLayout.fieldAt(dx, dz) >= 0) {
                     put(dx, -1, dz, "dirt");
+                    put(dx, 0, dz, islandGround(cx + dx, cz + dz));
                     continue;
                 }
                 put(dx, -1, dz, "dirt");
@@ -140,60 +141,65 @@ public final class GensBuild extends Build {
         put(x, 4, z, "lantern[hanging=false]");
     }
 
+    /** A sziget régi földjeinek helye: itt most fű van, ide lehet generátort rakni. */
+    static String islandGround(int x, int z) {
+        double n = noise(x, z, 720);
+        return n < 0.08 ? "moss_block" : (n < 0.14 ? "coarse_dirt" : "grass_block");
+    }
+
+    /**
+     * A központ: a közös farm. Középen a tér szélmalommal, eladó hordóval és kapa üllővel, körülötte a 8 nagy föld
+     * (ezeket a FieldBuild rakja ki), köztük széles utak lámpákkal, a szélén standok és fenyők.
+     */
     private void hub() {
-        island(HUB_RADIUS, 18, 300);
-        for (int dx = -HUB_RADIUS; dx <= HUB_RADIUS; dx++) {
-            for (int dz = -HUB_RADIUS; dz <= HUB_RADIUS; dz++) {
-                double d = dist(dx, dz);
-                if (d > 13.5) {
+        island(HUB_RADIUS, 20, 300);
+        int e = SharedFarm.EXTENT;
+        for (int dx = -e; dx <= e; dx++) {
+            for (int dz = -e; dz <= e; dz++) {
+                for (int y = 1; y <= 12; y++) {
+                    put(dx, y, dz, "air");
+                }
+                put(dx, -1, dz, "dirt");
+                if (SharedFarm.fieldAt(dx, dz) >= 0) {
                     continue;
                 }
-                double angle = Math.toDegrees(Math.atan2(dz, dx));
-                double star = Math.abs(((angle % 45) + 45) % 45 - 22.5) / 22.5;
+                boolean plaza = Math.abs(dx) <= 6 && Math.abs(dz) <= 6;
                 String block;
-                if (d > 12.8) {
-                    block = "emerald_block";
-                } else if (Math.abs(d - 7) < 0.55) {
-                    block = "prismarine_bricks";
-                } else if (d < 7 && d > 2.5 && star > 0.75) {
-                    block = "cyan_concrete";
+                if (plaza) {
+                    double d = dist(dx, dz);
+                    boolean edge = Math.abs(dx) == 6 || Math.abs(dz) == 6;
+                    block = edge ? "prismarine_bricks" : (Math.abs(d - 4) < 0.55 ? "cyan_concrete" : (Math.floorMod(dx + dz, 2) == 0 ? "calcite" : "smooth_quartz"));
                 } else {
-                    block = Math.floorMod(dx + dz, 2) == 0 ? "calcite" : "smooth_quartz";
+                    boolean border = SharedFarm.fieldAt(dx + 1, dz) >= 0 || SharedFarm.fieldAt(dx - 1, dz) >= 0
+                            || SharedFarm.fieldAt(dx, dz + 1) >= 0 || SharedFarm.fieldAt(dx, dz - 1) >= 0
+                            || SharedFarm.fieldAt(dx + 1, dz + 1) >= 0 || SharedFarm.fieldAt(dx - 1, dz - 1) >= 0
+                            || SharedFarm.fieldAt(dx + 1, dz - 1) >= 0 || SharedFarm.fieldAt(dx - 1, dz + 1) >= 0;
+                    double n = noise(dx, dz, 721);
+                    block = border ? "stripped_spruce_wood[axis=y]" : (n < 0.1 ? "coarse_dirt" : (n < 0.18 ? "gravel" : "dirt_path"));
                 }
                 put(dx, 0, dz, block);
             }
         }
         windmill();
-        String[][] patches = {{"wheat[age=7]", "farmland[moisture=7]"}, {"carrots[age=7]", "farmland[moisture=7]"},
-                {"beetroots[age=3]", "farmland[moisture=7]"}, {"sweet_berry_bush[age=3]", "grass_block"}};
-        int[][] spots = {{-4, -4}, {4, -4}, {-4, 4}, {4, 4}};
-        for (int i = 0; i < spots.length; i++) {
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dz = -1; dz <= 1; dz++) {
-                    if (dist(spots[i][0] + dx, spots[i][1] + dz) > 6.4) {
-                        continue;
-                    }
-                    put(spots[i][0] + dx, 0, spots[i][1] + dz, patches[i][1]);
-                    put(spots[i][0] + dx, 1, spots[i][1] + dz, patches[i][0]);
-                }
+        put(SharedFarm.SELL[0], 1, SharedFarm.SELL[1], "barrel[facing=up]");
+        put(SharedFarm.SELL[0], 2, SharedFarm.SELL[1], "lantern[hanging=false]");
+        put(SharedFarm.HOE[0], 1, SharedFarm.HOE[1], "anvil[facing=east]");
+        for (int sx = -1; sx <= 1; sx += 2) {
+            for (int sz = -1; sz <= 1; sz += 2) {
+                lamp(8 * sx, 8 * sz);
+                lamp(8 * sx, 22 * sz);
+                lamp(22 * sx, 8 * sz);
+                put(6 * sx, 1, 6 * sz, "prismarine_wall[up=true]");
+                put(6 * sx, 2, 6 * sz, "sea_lantern");
             }
         }
-        for (int i = 0; i < 8; i++) {
-            double angle = Math.toRadians(22.5 + 45 * i);
-            int x = (int) Math.round(Math.cos(angle) * 11);
-            int z = (int) Math.round(Math.sin(angle) * 11);
-            put(x, 1, z, "dark_prismarine");
-            put(x, 2, z, "prismarine_wall[up=true]");
-            put(x, 3, z, "prismarine_wall[up=true]");
-            put(x, 4, z, "sea_lantern");
-        }
-        stall(-15, 0, "lime_wool", "white_wool");
-        stall(15, 0, "cyan_wool", "white_wool");
-        int[][] trees = {{-8, -15}, {8, -15}, {-14, 10}, {14, 10}};
+        stall(-28, 0, "lime_wool", "white_wool");
+        stall(28, 0, "cyan_wool", "white_wool");
+        int[][] trees = {{0, -28}, {0, 28}, {-28, -14}, {28, -14}, {-28, 14}, {28, 14}};
         for (int[] tree : trees) {
             spruce(tree[0], tree[1], 7, 2.4);
         }
-        layout.point("spawn", 0.5, 1, 9.5, 180);
+        layout.point("spawn", 0.5, 1, 4.5, 180);
     }
 
     /** A központ közepén egy szélmalom, a vitorlák a spawn felé (délre) néznek. */

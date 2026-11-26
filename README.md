@@ -199,9 +199,15 @@ Beállítás: `creative.yml` -> `worldedit`.
 
 ### Gens
 
-Gens Tycoon: mindenkinek saját farm szigete van 8 földdel és generátorokkal. A növényeket a Gens kapával kell
-learatni (bal klikk a beérett növényre). Learatás után pár másodperc alatt visszanő. A termést a sziget
-közepén lévő hordónál (jobb klikk), a `/elad` paranccsal vagy a menüben adod el.
+Gens Tycoon: a földek (3.60.0-tól) a Gens központjában vannak, egy közös farmon: 8 nagy föld (9x9) a tér körül,
+mindenki ott arat, de csak azokon a földeken, amelyeket már megvett. Földet jobb klikkel veszel (kétszer kattints
+rá), vagy a menüben. A növényeket a Gens kapával kell learatni (bal klikk), pár másodperc alatt visszanőnek.
+A legjobb kapa is legfeljebb 5x5 területet arat egyszerre. A termést a téren lévő hordónál, a `/elad` paranccsal
+vagy a menüben adod el. A saját szigeted (`/gens home`) a generátoroké; a régi földek helyén most fű van.
+A Gensbe belépve a közös farmon kezdesz.
+
+A főlobbyban az üzenetek előtagja `[Lobby]` (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
+A módlobbyk felirata magától feljebb kerül, ha belelógna egy épületbe.
 
 A Gens lobby (3.53.0-tól) egy kis falu: piros tetős házak boltíves ablakokkal egy terrakotta tér körül,
 piaci standok, veteményes, tó stéggel és nagy fák. Frissítéskor egyszer újraépül.

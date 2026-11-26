@@ -180,10 +180,10 @@ class FarmTest {
         assertEquals(20, hoe.valuePercent(some), 1e-9);
         assertEquals(1, hoe.luckPercent(some), 1e-9);
         Map<String, Integer> maxed = Map.of("boseg", 99, "kaszalas", 99, "aranykez", 99, "szerencse", 99);
-        assertEquals(3, hoe.radius(maxed), "a kaszálás legfeljebb az egész föld");
+        assertEquals(2, hoe.radius(maxed), "a kaszálás legfeljebb 5x5");
         assertEquals(250, hoe.extraPercent(maxed), 1e-9, "a szint nem lehet több a maximumnál");
         assertEquals(HoeUpgrades.MATERIALS.length - 1, hoe.tier(maxed), "netherit kapa a végén");
-        assertEquals(58, hoe.total(maxed), "a szintek a maximumnál megállnak");
+        assertEquals(57, hoe.total(maxed), "a szintek a maximumnál megállnak");
         HoeUpgrades.Enchant boseg = hoe.get("boseg");
         assertEquals(750, boseg.priceFor(0));
         assertTrue(boseg.priceFor(1) > boseg.priceFor(0));
@@ -237,5 +237,22 @@ class FarmTest {
         for (String id : config.getConfigurationSection("quests.pool").getKeys(false)) {
             assertNotNull(QuestBook.type(config.getString("quests.pool." + id + ".type")), id);
         }
+    }
+
+    @Test
+    void sharedFarmLayout() {
+        for (int field = 0; field < 8; field++) {
+            List<int[]> cells = SharedFarm.cells(field);
+            assertEquals(81, cells.size());
+            for (int[] cell : cells) {
+                assertEquals(field, SharedFarm.fieldAt(cell[0], cell[1]));
+                assertTrue(Math.abs(cell[0]) <= SharedFarm.EXTENT && Math.abs(cell[1]) <= SharedFarm.EXTENT);
+            }
+            assertTrue(SharedFarm.around(field, SharedFarm.center(field)[0], SharedFarm.center(field)[1], 2).size() == 25, "5x5 a föld közepén");
+        }
+        assertEquals(-1, SharedFarm.fieldAt(0, 0));
+        assertEquals(-1, SharedFarm.fieldAt(SharedFarm.SELL[0], SharedFarm.SELL[1]));
+        assertEquals(-1, SharedFarm.fieldAt(SharedFarm.HOE[0], SharedFarm.HOE[1]));
+        assertEquals(-1, SharedFarm.fieldAt(0, 5), "a spawn a téren van, nem földön");
     }
 }
