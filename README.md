@@ -218,7 +218,7 @@ Külön Gens módlobby már nincs (modelobbies.yml -> lobbies.gens.enabled: fals
 
 Changelog (3.70.0-tól): a nagyobb frissítések (x.y.0) újdonságai a szerver első indulásakor a Discord hírek
 csatornájába kerülnek (vagy ahová a botnál beállítod: `/beallitas frissitesek`). A szövegek a forras/src/main/resources/
-changelog.yml-ben vannak; kikapcsolás: config.yml -> changelog.discord: false.
+changelog.yml-ben vannak; 3.70.1-től egyelőre ki van kapcsolva (config.yml -> changelog.discord: true kapcsolja vissza).
 
 Látótáv (3.67.0-tól): nincs lezárva, mindenki annyit lát, amennyit a saját Videóbeállításaiban kér (max 32 chunk,
 config.yml -> view). A távoli chunkok csak látszanak, nem futnak bennük mobok és redstone.

@@ -761,6 +761,13 @@ public final class Migrations {
             files.save("lobby");
             notes.add("lobby.yml: a játékmód választó iránytű középre került" + (taken ? " (a helyén lévő tárgy a régi helyére)" : ""));
         }
+        YamlConfiguration logConfig = files.get("config");
+        if (logConfig != null && !logConfig.getBoolean("migrated.changelog-off-v1", false)) {
+            // a changelog egyelőre ki van kapcsolva
+            logConfig.set("changelog.discord", false);
+            logConfig.set("migrated.changelog-off-v1", true);
+            files.save("config");
+        }
         YamlConfiguration kitConfig = files.get("config");
         if (kitConfig != null && !kitConfig.getBoolean("migrated.blocked-v3", false)) {
             // a /kit kivéve: a ComboFlyban mindenkinek ugyanaz a kitje

@@ -204,7 +204,7 @@ hiba-figyelo:
 # Changelog: a nagyobb frissítések (x.y.0) újdonságai a Discord hírek csatornájába kerülnek (vagy ahová a botnál
 # beállítod: /beallitas frissitesek), amikor a szerver először fut az új verzióval. A szövegek a pluginban vannak.
 changelog:
-  discord: true
+  discord: false
 
 # Napi mentés: a világok és a pluginok adatai (jarok nélkül) egy zip fájlba: plugins/IceMine/mentesek
 # és feltöltés a weboldal szerverére (VPS: /var/lib/icemine/mentesek). Azonnal: /mentes most
