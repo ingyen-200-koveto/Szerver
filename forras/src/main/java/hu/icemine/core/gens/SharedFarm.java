@@ -13,11 +13,11 @@ public final class SharedFarm {
 
     public static final int FIELDS = 8;
     /** A földek ilyen távol vannak a tér közepétől. */
-    static final double RING = 88;
+    static final double RING = 104;
     /** Ekkora négyzetben van minden, ami a farmhoz tartozik (földek, utak). */
-    public static final int EXTENT = 124;
-    public static final int[] SELL = {4, -4};
-    public static final int[] HOE = {-4, -4};
+    public static final int EXTENT = 146;
+    public static final int[] SELL = {6, 11};
+    public static final int[] HOE = {-6, 11};
 
     private static final double[][] SHAPE = new double[FIELDS][];
     private static final byte[] MAP = new byte[(EXTENT * 2 + 1) * (EXTENT * 2 + 1)];
@@ -28,7 +28,7 @@ public final class SharedFarm {
             // az első föld (búza) a spawn előtt, északon van, a többi körben, kicsit elcsúsztatva
             double angle = -Math.PI / 2 + Math.PI / FIELDS + i * Math.PI * 2 / FIELDS + Math.sin(i * 2.3) * 0.04;
             double dist = RING + Math.sin(i * 1.7 + 0.5) * 7;
-            double radius = 22 + Math.sin(i * 2.9 + 1.1) * 2.5;
+            double radius = 27 + Math.sin(i * 2.9 + 1.1) * 2.5;
             SHAPE[i] = new double[]{Math.cos(angle) * dist, Math.sin(angle) * dist, radius,
                     i * 1.37 + 0.4, i * 2.11 + 1.3, i * 0.73 + 2.2, angle};
         }

@@ -5,7 +5,7 @@ import hu.icemine.core.build.Layout;
 
 public final class GensBuild extends Build {
 
-    public static final int HUB_CLEAR = 214;
+    public static final int HUB_CLEAR = 238;
     public static final int PLOT_CLEAR = 26;
     static final int HUB_RADIUS = 34;
     static final int PLOT_RADIUS = 22;
@@ -174,7 +174,7 @@ public final class GensBuild extends Build {
     }
 
     /** A központ nagy szigete (a farm és körülötte a város), füves tetővel. */
-    static final double TOWN = 200;
+    static final double TOWN = 224;
 
     static boolean onIsland(int dx, int dz) {
         double p = 3;
@@ -211,7 +211,7 @@ public final class GensBuild extends Build {
     }
 
     /** A tér sugara a központ közepén. */
-    static final int PLAZA = 13;
+    static final int PLAZA = 18;
 
     private void hub() {
         bigIsland(TOWN, 20, 300);
@@ -233,7 +233,7 @@ public final class GensBuild extends Build {
         for (int dx = -e; dx <= e; dx++) {
             for (int dz = -e; dz <= e; dz++) {
                 double d = dist(dx, dz);
-                if (Math.abs(d - 50) < 1.6 && SharedFarm.fieldAt(dx, dz) < 0) {
+                if (Math.abs(d - 56) < 1.6 && SharedFarm.fieldAt(dx, dz) < 0) {
                     road[dx + e][dz + e] = true;
                 }
             }
@@ -261,12 +261,7 @@ public final class GensBuild extends Build {
                     double n = noise(dx, dz, 721);
                     put(dx, 0, dz, n < 0.12 ? "coarse_dirt" : (n < 0.2 ? "gravel" : "dirt_path"));
                 } else if (rim >= 0) {
-                    double[] gate = SharedFarm.gate(rim, 0.5);
-                    boolean opening = dist(dx - gate[0], dz - gate[1]) < 2.6;
-                    put(dx, 0, dz, "coarse_dirt");
-                    if (!opening) {
-                        put(dx, 1, dz, "oak_fence");
-                    }
+                    put(dx, 0, dz, noise(dx, dz, 725) < 0.5 ? "coarse_dirt" : "rooted_dirt");
                 } else {
                     double n = noise(dx, dz, 722);
                     double patch = smooth(dx, dz, 6.0, 723);
@@ -290,8 +285,8 @@ public final class GensBuild extends Build {
                 lamp(x, z);
             }
             double between = Math.atan2(SharedFarm.center(i)[1], SharedFarm.center(i)[0]) + Math.PI / SharedFarm.FIELDS;
-            int mx = (int) Math.round(Math.cos(between) * 92);
-            int mz = (int) Math.round(Math.sin(between) * 92);
+            int mx = (int) Math.round(Math.cos(between) * 104);
+            int mz = (int) Math.round(Math.sin(between) * 104);
             switch (i % 4) {
                 case 0 -> grove(mx, mz);
                 case 1 -> hayYard(mx, mz);
@@ -303,24 +298,21 @@ public final class GensBuild extends Build {
         put(SharedFarm.SELL[0], 1, SharedFarm.SELL[1], "barrel[facing=up]");
         put(SharedFarm.SELL[0], 2, SharedFarm.SELL[1], "lantern[hanging=false]");
         put(SharedFarm.HOE[0], 1, SharedFarm.HOE[1], "anvil[facing=east]");
-        for (int k = 0; k < 8; k++) {
-            double a = Math.PI * 2 * k / 8;
+        for (int k = 0; k < 12; k++) {
+            double a = Math.PI * 2 * k / 12 + Math.PI / 12;
             int x = (int) Math.round(Math.cos(a) * (PLAZA - 1));
             int z = (int) Math.round(Math.sin(a) * (PLAZA - 1));
-            if (Math.abs(z) <= 1 && x < 0) {
-                continue;
-            }
             put(x, 1, z, "prismarine_wall[up=true]");
             put(x, 2, z, "sea_lantern");
         }
-        stall(7, 7, "lime_wool", "white_wool");
-        stall(7, -8, "cyan_wool", "white_wool");
+        stall(12, 2, "lime_wool", "white_wool");
+        stall(-12, 2, "cyan_wool", "white_wool");
         portal(PORTAL[0], PORTAL[1]);
         hu.icemine.core.modelobby.GensFarmTown.hubTown((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, GensBuild::onIsland,
                 SharedFarm.EXTENT + 4).build();
-        new hu.icemine.core.build.Title((x, y, z, data) -> put(x, y, z, data), 0, 30, -48, 2, "south", "GENS", "lime_concrete", "white_concrete",
+        new hu.icemine.core.build.Title((x, y, z, data) -> put(x, y, z, data), 0, 36, -56, 2, "south", "GENS", "lime_concrete", "white_concrete",
                 4, "green_terracotta", "green_terracotta").build();
-        layout.point("spawn", 0.5, 1, 4.5, 180);
+        layout.point("spawn", 0.5, 1, 14.5, 180);
     }
 
     /** Melyik föld mellett van közvetlenül (a föld szegélye, ide kerül a kerítés), vagy -1. */
@@ -410,51 +402,96 @@ public final class GensBuild extends Build {
     }
 
     /** Portál a téren: aki belelép, a saját szigetére kerül. */
-    static final int[] PORTAL = {-PLAZA + 1, 0};
+    static final int[] PORTAL = {0, 0};
 
     private void portal(int px, int pz) {
-        for (int dz = -3; dz <= 3; dz++) {
-            for (int y = 0; y <= 6; y++) {
-                boolean outer = Math.abs(dz) == 3 || y == 6;
-                boolean frame = Math.abs(dz) == 2 || y == 0 || y == 5;
-                String block = outer ? (noise(px, y + dz, 650) < 0.4 ? "mossy_stone_bricks" : "stone_bricks")
-                        : (frame ? "obsidian" : "nether_portal[axis=z]");
-                put(px, y, pz + dz, block);
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int y = 0; y <= 5; y++) {
+                boolean frame = Math.abs(dx) == 2 || y == 0 || y == 5;
+                put(px + dx, y, pz, frame ? "crying_obsidian" : "nether_portal[axis=x]");
             }
         }
-        put(px, 7, pz - 3, "lantern[hanging=false]");
-        put(px, 7, pz + 3, "lantern[hanging=false]");
     }
 
-    /** A központ közepén egy szélmalom, a vitorlák a spawn felé (délre) néznek. */
+    /** A központ közepén egy nagy szélmalom: belül üres, a közepén a portál, négy oldalán kapu, a vitorlák délre néznek. */
     private void windmill() {
-        for (int y = 1; y <= 9; y++) {
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dz = -1; dz <= 1; dz++) {
-                    boolean corner = Math.abs(dx) == 1 && Math.abs(dz) == 1;
-                    boolean inside = dx == 0 && dz == 0;
-                    String block = inside ? "hay_block[axis=y]" : (corner ? "stripped_spruce_log[axis=y]" : (y <= 2 ? "cobblestone" : "spruce_planks"));
-                    if (!inside && !corner && y == 6) {
-                        block = "light_blue_stained_glass";
+        double r = 7.4;
+        int wall = 21;
+        for (int dx = -9; dx <= 9; dx++) {
+            for (int dz = -9; dz <= 9; dz++) {
+                double d = dist(dx, dz);
+                if (d > r + 0.5) {
+                    continue;
+                }
+                put(dx, 0, dz, d > r - 0.6 ? "stone_bricks" : (Math.floorMod(dx + dz, 2) == 0 ? "spruce_planks" : "stripped_spruce_wood[axis=y]"));
+                boolean shell = d > r - 1.0;
+                for (int y = 1; y <= wall; y++) {
+                    double taper = r - y * 0.12;
+                    boolean in = d <= taper + 0.5;
+                    if (!in) {
+                        continue;
                     }
-                    put(dx, y, dz, block);
+                    if (!(d > taper - 0.9)) {
+                        put(dx, y, dz, y == wall ? "spruce_planks" : "air");
+                        continue;
+                    }
+                    String block;
+                    if (y <= 4) {
+                        block = noise(dx, y + dz, 760) < 0.3 ? "mossy_cobblestone" : "cobblestone";
+                    } else if (y % 6 == 5) {
+                        block = "stripped_spruce_log[axis=y]";
+                    } else {
+                        block = noise(dx, y * 3 + dz, 761) < 0.12 ? "calcite" : "smooth_quartz";
+                    }
+                    boolean window = y % 6 == 2 && y > 6 && (Math.abs(dx) <= 1 || Math.abs(dz) <= 1);
+                    put(dx, y, dz, window ? "light_blue_stained_glass" : block);
                 }
             }
         }
-        put(0, 1, 1, "spruce_door[facing=south,half=lower,hinge=left]");
-        put(0, 2, 1, "spruce_door[facing=south,half=upper,hinge=left]");
-        cone(0, 10, 0, 2.3, 4, "dark_oak", "dark_oak_planks", "lightning_rod[facing=up]");
-        put(0, 8, 2, "stripped_spruce_log[axis=z]");
-        put(0, 8, 3, "stripped_spruce_log[axis=z]");
-        for (int i = 1; i <= 4; i++) {
-            put(0, 8 + i, 3, "stripped_spruce_log[axis=y]");
-            put(1, 8 + i, 3, "white_wool");
-            put(i, 8, 3, "stripped_spruce_log[axis=x]");
-            put(i, 7, 3, "white_wool");
-            put(0, 8 - i, 3, "stripped_spruce_log[axis=y]");
-            put(-1, 8 - i, 3, "white_wool");
-            put(-i, 8, 3, "stripped_spruce_log[axis=x]");
-            put(-i, 9, 3, "white_wool");
+        // kapuk a négy oldalon
+        for (int[] door : new int[][]{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}) {
+            for (int s2 = -1; s2 <= 1; s2++) {
+                for (int y = 1; y <= 4; y++) {
+                    for (int k = 5; k <= 8; k++) {
+                        int x = door[0] * k + door[1] * s2;
+                        int z = door[1] * k + door[0] * s2;
+                        put(x, y, z, "air");
+                    }
+                }
+                int x = door[0] * 7 + door[1] * s2;
+                int z = door[1] * 7 + door[0] * s2;
+                put(x, 5, z, "stripped_spruce_log[axis=y]");
+            }
+        }
+        for (int[] c : new int[][]{{2, 3}, {-2, 3}, {3, -2}, {-3, -2}}) {
+            put(c[0], 3, c[1], "lantern[hanging=false]");
+            put(c[0], 1, c[1], "hay_block[axis=y]");
+            put(c[0], 2, c[1], "hay_block[axis=y]");
+        }
+        cone(0, wall + 1, 0, r - wall * 0.12 + 1.5, 7, "dark_oak", "dark_oak_planks", "lightning_rod[facing=up]");
+        // vitorlák délre, a tengely a torony oldalán
+        int hubY = wall - 2;
+        int hubZ = (int) Math.ceil(r - hubY * 0.12) + 1;
+        put(0, hubY, hubZ - 1, "stripped_spruce_log[axis=z]");
+        put(0, hubY, hubZ, "stripped_spruce_log[axis=z]");
+        put(0, hubY, hubZ + 1, "spruce_planks");
+        for (int i = 1; i <= 11; i++) {
+            put(0, hubY + i, hubZ + 1, "stripped_spruce_log[axis=y]");
+            put(i, hubY, hubZ + 1, "stripped_spruce_log[axis=x]");
+            if (hubY - i >= 2) {
+                put(0, hubY - i, hubZ + 1, "stripped_spruce_log[axis=y]");
+            }
+            put(-i, hubY, hubZ + 1, "stripped_spruce_log[axis=x]");
+            if (i >= 3) {
+                for (int w = 1; w <= 2; w++) {
+                    put(w, hubY + i, hubZ + 1, "white_wool");
+                    put(i, hubY - w, hubZ + 1, "white_wool");
+                    if (hubY - i >= 2) {
+                        put(-w, hubY - i, hubZ + 1, "white_wool");
+                    }
+                    put(-i, hubY + w, hubZ + 1, "white_wool");
+                }
+            }
         }
     }
 

@@ -42,7 +42,7 @@ public final class GensFarmTown extends ThemeBase {
             }
         }
         town.farm = farm;
-        town.span = 205;
+        town.span = 230;
         return town;
     }
 
@@ -107,13 +107,14 @@ public final class GensFarmTown extends ThemeBase {
     /** A központ városa: a farm körüli gyűrűben pajták, domb bányával, tó, mező, kellékek, fák, dombok, lebegő burgerek. */
     private void buildHub() {
         // a régi, kisebb város elrendezése, felnagyítva és kétszer körbe forgatva, hogy az egész nagy farmot körbeérje
-        double scale = 2.3;
-        for (int turn = 0; turn < 2; turn++) {
-            double a = turn * Math.PI / 4;
+        double scale = 2.65;
+        for (int turn = 0; turn < 3; turn++) {
+            double a = turn * Math.PI / 4 - (turn == 2 ? Math.PI / 8 * 5 : 0);
             java.util.function.IntBinaryOperator rx = (x, z) -> (int) Math.round((x * Math.cos(a) - z * Math.sin(a)) * scale);
             java.util.function.IntBinaryOperator rz = (x, z) -> (int) Math.round((x * Math.sin(a) + z * Math.cos(a)) * scale);
             int[][] barns = turn == 0 ? new int[][]{{-62, -12, 1}, {62, 12, 3}, {-22, -64, 0}, {22, -64, 0}, {16, 64, 2}}
-                    : new int[][]{{-62, 10, 1}, {62, -10, 3}, {-18, 64, 2}};
+                    : turn == 1 ? new int[][]{{-62, 10, 1}, {62, -10, 3}, {-18, 64, 2}}
+                    : new int[][]{{-64, 0, 1}, {64, 0, 3}, {0, -64, 0}, {0, 64, 2}};
             String[][] roofs = {{"deepslate_tile", "deepslate_tiles"}, {"smooth_sandstone", "yellow_terracotta"}, {"dark_oak", "dark_oak_planks"}};
             for (int i = 0; i < barns.length; i++) {
                 int[] b = barns[i];
@@ -134,35 +135,36 @@ public final class GensFarmTown extends ThemeBase {
             }
             props(propsWorld);
         }
-        hillAt = new int[]{140, -134};
+        hillAt = new int[]{161, -154};
         hill();
-        hillAt = new int[]{-150, -120};
+        hillAt = new int[]{-172, -138};
         hill();
-        lakeAt = new int[]{-134, 134};
+        lakeAt = new int[]{-154, 154};
         lake();
-        lakeAt = new int[]{150, 112};
+        lakeAt = new int[]{172, 129};
         lake();
-        wheat(-140, -128 + 40, 9, 7);
-        rows(138, 134 - 40);
-        market(-32, 140);
-        tractor(-60, 144);
-        wagon(84, -128);
-        waterTower(156, 60);
-        waterTower(-60, -150);
-        ridges(156, 205);
+        wheat(-166, -100, 9, 7);
+        rows(160, 104);
+        market(-36, 166);
+        tractor(-70, 166);
+        wagon(96, -150);
+        waterTower(180, 64);
+        waterTower(-70, -172);
+        waterTower(70, 172);
+        ridges(188, 230);
         for (int i = 0; i < 36; i++) {
             double a = Math.PI * 2 * i / 36 + 0.17;
-            int r = 140 + (int) (noise(i, 9, 640) * 30);
+            int r = 162 + (int) (noise(i, 9, 640) * 34);
             bigTree((int) Math.round(Math.cos(a) * r), (int) Math.round(Math.sin(a) * r), 11 + (int) (noise(i, 1, 602) * 5), i);
         }
         for (int i = 0; i < 18; i++) {
             double a = Math.PI * 2 * i / 18 + 0.4;
-            int r = 70 + (int) (noise(i, 4, 641) * 110);
+            int r = 70 + (int) (noise(i, 4, 641) * 130);
             burger((int) Math.round(Math.cos(a) * r), 42 + (int) (noise(i, 5, 642) * 24), (int) Math.round(Math.sin(a) * r));
         }
         for (int i = 0; i < 18; i++) {
             double a = Math.PI * 2 * i / 18 + 0.05;
-            int r = 60 + (int) (noise(i, 6, 643) * 120);
+            int r = 60 + (int) (noise(i, 6, 643) * 140);
             spiky((int) Math.round(Math.cos(a) * r), 46 + (int) (noise(i, 7, 644) * 26), (int) Math.round(Math.sin(a) * r));
         }
         scatter((x, z) -> dist(x, z) <= farm, new String[]{"poppy", "dandelion", "cornflower", "oxeye_daisy"}, 0.35);
@@ -263,6 +265,11 @@ public final class GensFarmTown extends ThemeBase {
 
     private void barn(int bx, int bz, int rot, int w, int d, String roofMat, String roofFull) {
         int reach = Math.max(w, d) + 3;
+        for (int[] probe : new int[][]{{0, 0}, {reach, 0}, {-reach, 0}, {0, reach}, {0, -reach}}) {
+            if (!open(bx + probe[0], bz + probe[1]) || !free.test(bx + probe[0], bz + probe[1])) {
+                return;
+            }
+        }
         take(bx - reach, bz - reach, bx + reach, bz + reach);
         Rot r = new Rot(bx, bz, rot);
         for (int x = -w - 1; x <= w + 1; x++) {
