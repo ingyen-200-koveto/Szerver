@@ -334,10 +334,20 @@ gens:
     locked-level: "&cEz a föld még zárva van, magasabb Gens szint kell hozzá."
     need-level: "A(z) &f%field% &7föld a(z) &a%level%. &7Gens szinten nyílik meg &8(most: %now%. szint)&7. Szintet aratással és eladással gyűjtesz."
     unlocked-level: "&a&lÚJ FÖLD! &7A Gens szinted megnyitotta: &f%field% &8(%count%/%max%)"
+  island-new: "A szigeted új kinézetet kapott: pálmafa, szikla és automata farm a generátoroknak."
+  island-new-gens: "A szigeted új kinézetet kapott: pálmafa, szikla és automata farm. A generátoraidat (&f%count% db&7) visszakaptad a dropjaikkal együtt, rakd le őket a farmon."
+  farm-protected: "&cAz automata farmon csak a mintás kőre rakhatsz generátort."
   to-hub: "Visszajöttél a &fközös farmra&7."
   island-moved: "&a&lÚJDONSÁG! &7A szigeted átköltözött egy új, távoli helyre, hogy mindenkinek legyen helye. Minden megmaradt rajta, a generátoraid is."
   farm-moved: "&a&lÚJDONSÁG! &7A földek mostantól a &fGens központban &7vannak, közös farmon. A szigeteden a régi földek helyén most hely van a generátoroknak."
   labels:
+    farm-chest:
+      - "&b&lGYŰJTŐLÁDA"
+      - "&7Jobb klikk: begyűjtés, eladás"
+    farm:
+      - "&b&lAUTOMATA FARM"
+      - "&7Rakd a generátort a mintás kőre,"
+      - "&7a víz a gyűjtőládába viszi a dropot"
     island-portal:
       - "&a&lKÖZÖS FARM"
       - "&7Lépj be a portálba: vissza a földekhez"

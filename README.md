@@ -231,6 +231,13 @@ Gens eligazodás (3.70.5-től): a központban tábla mondja meg, mi hol van, az 
 visz és hányas szinttől. Minden szigeten van portál vissza a közös farmra (a régi szigetekre is kerül, ha szabad a hely),
 és ugyanezt tudja a `/gens farm` és a `/spawn` is.
 
+Gens sziget (3.71.0-tól): trópusi sziget homokos parttal, nagy pálmafával és sziklával. Keleten az automata farm: a
+csatornák melletti mintás kőre rakott generátorok dropja a vízbe esik és a gyűjtőládához úszik (ez csak látvány, a dropot
+a láda adja: jobb klikk -> mind begyűjtése / eladása), és kétszer annyit tárolnak. A régi szigetek a gazdájuk következő
+belépésekor újraépülnek; a generátorok tárgyként visszajárnak a dropjaikkal, a szigetre épített saját blokkok elvesznek.
+Javítva: egy régi frissítés üres generátor listát hagyott a gens.yml-ben (generators.tiers: {}), emiatt nem működtek a
+generátorok; és több generátor mentésnél összefolyt (újraindítás után csak az első maradt meg), a régi mentéseket helyrehozza.
+
 A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban), máshol `IceMine •` (a régi `[IceMine]` helyett), az AuthMe üzenetei is ezzel jönnek, belépéskor
 csak annyi jelenik meg, hogy "Sikeres bejelentkezés, jó játékot!" (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
 A módlobbyk felirata magától feljebb kerül, ha belelógna egy épületbe. Minden lobbyban középen (5. hely) van az

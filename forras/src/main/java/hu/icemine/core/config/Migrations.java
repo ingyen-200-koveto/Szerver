@@ -484,7 +484,7 @@ public final class Migrations {
                     }
                 }
             }
-            org.bukkit.configuration.ConfigurationSection tiers = balance.getConfigurationSection("generators.tiers");
+            org.bukkit.configuration.ConfigurationSection tiers = balance.getDefaults().getConfigurationSection("generators.tiers");
             if (tiers != null) {
                 for (String key : tiers.getKeys(false)) {
                     String base = "generators.tiers." + key + ".";
@@ -513,6 +513,16 @@ public final class Migrations {
             balance.set("migrated.harder-v1", true);
             files.save("gens");
             notes.add("gens.yml: lassabb fejlődés (drágább generátorok, kapa és fejlesztések, több XP kell egy szinthez), a szigetek 1000 blokkra egymástól");
+        }
+        if (balance != null && balance.get("generators.tiers", null) instanceof org.bukkit.configuration.ConfigurationSection own
+                && own.getKeys(false).isEmpty()) {
+            // egy régi frissítés üres generátor listát hagyott a gens.yml-ben, emiatt egy generátor sem működött
+            balance.set("generators.tiers", null);
+            if (balance.get("generators", null) instanceof org.bukkit.configuration.ConfigurationSection gens && gens.getKeys(false).isEmpty()) {
+                balance.set("generators", null);
+            }
+            files.save("gens");
+            notes.add("gens.yml: a generátorok listája üres volt, visszaállt az alapra");
         }
         YamlConfiguration boards = files.get("scoreboard");
         if (boards != null && !boards.getBoolean("migrated.gens-title-v1", false)) {

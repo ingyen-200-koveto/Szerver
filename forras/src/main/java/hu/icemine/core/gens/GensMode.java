@@ -683,7 +683,7 @@ public final class GensMode implements ModeHandler, Listener {
             }
         }
         StringBuilder moved = new StringBuilder();
-        for (String part : profile.setting("gens.generators", "").split(";")) {
+        for (String part : GensGenerators.parts(profile.setting("gens.generators", ""), data)) {
             String[] p = part.split(",");
             if (p.length < 4) {
                 continue;
@@ -695,7 +695,7 @@ public final class GensMode implements ModeHandler, Listener {
                 continue;
             }
             if (moved.length() > 0) {
-                moved.append(';');
+                moved.append('|');
             }
             moved.append(String.join(",", p));
         }
@@ -809,6 +809,7 @@ public final class GensMode implements ModeHandler, Listener {
         data.dirty = true;
         buildFarm(data, GensBuild.PLOT_CLEAR);
         markFarm(player);
+        markIsland(player);
         PlayerProfile fresh = core.profiles().profile(player);
         if (fresh != null) {
             fresh.put("gens.spacing", String.valueOf(spacing));
@@ -855,6 +856,7 @@ public final class GensMode implements ModeHandler, Listener {
         purgeRegrow(data.plot);
         buildFarm(data, buildRadius);
         markFarm(player);
+        markIsland(player);
         String uuid = data.uuid.toString();
         core.database().execute(connection -> {
             try (PreparedStatement statement = connection.prepareStatement("DELETE FROM im_gens_generators WHERE uuid = ?")) {
@@ -973,6 +975,7 @@ public final class GensMode implements ModeHandler, Listener {
         ensurePlot(player, data);
         relocate(player, data);
         ensureFarm(player, data);
+        ensureIslandLook(player, data);
         ensureIslandPortal(player, data);
         refreshFields(data);
         return hub == null ? home(data) : hub;
@@ -1234,6 +1237,12 @@ public final class GensMode implements ModeHandler, Listener {
                 String.join("\n", core.messages().list("gens.labels.hoe"))));
         list.add(label(new Location(world, center[0] + 0.5, height + 7.0, center[1] + GensBuild.ISLAND_PORTAL_Z + 0.5),
                 String.join("\n", core.messages().list("gens.labels.island-portal"))));
+        for (int c : GensBuild.CHANNELS) {
+            list.add(label(new Location(world, center[0] + GensBuild.CHEST_X + 0.5, height + 1.6, center[1] + c + 0.5),
+                    String.join("\n", core.messages().list("gens.labels.farm-chest"))));
+        }
+        list.add(label(new Location(world, center[0] + GensBuild.FARM_X0 + 0.5, height + 3.6, center[1] + 0.5),
+                String.join("\n", core.messages().list("gens.labels.farm"))));
         labels.put(data.uuid, list);
     }
 
@@ -1629,6 +1638,12 @@ public final class GensMode implements ModeHandler, Listener {
             warn(player, "gens.field-protected");
             return;
         }
+        int[] farm = farmSpot(block);
+        if (farm != null && !admin(player) && !(farm[1] == 1 && GensBuild.farmPad(farm[0], farm[2]) && generators.isGeneratorItem(event.getItemInHand()))) {
+            event.setCancelled(true);
+            warn(player, "gens.farm-protected");
+            return;
+        }
         if (!canBuild(player, block.getLocation())) {
             event.setCancelled(true);
             deny(player);
@@ -1661,6 +1676,11 @@ public final class GensMode implements ModeHandler, Listener {
                 event.setCancelled(true);
                 return;
             }
+        }
+        if (farmSpot(block) != null && !admin(player) && !generators.isGenerator(block)) {
+            event.setCancelled(true);
+            warn(player, "gens.farm-protected");
+            return;
         }
         if (!canBuild(player, block.getLocation())) {
             event.setCancelled(true);
@@ -1714,6 +1734,17 @@ public final class GensMode implements ModeHandler, Listener {
         if (plazaBlock(block, FarmLayout.SELL, Material.BARREL)) {
             event.setCancelled(true);
             sellAll(player);
+            return;
+        }
+        int[] farm = block.getType() == Material.CHEST ? farmSpot(block) : null;
+        if (farm != null && farm[1] == 0 && GensBuild.farmChest(farm[0], farm[2])) {
+            event.setCancelled(true);
+            GensData.Player owner = ownerOf(farm[3]);
+            if (owner != null && (owner.uuid.equals(player.getUniqueId()) || canCollect(player, block.getLocation()))) {
+                generators.farmMenu(player, owner.uuid);
+            } else {
+                deny(player);
+            }
             return;
         }
         if (plazaBlock(block, FarmLayout.HOE, Material.ANVIL)) {
@@ -1834,9 +1865,17 @@ public final class GensMode implements ModeHandler, Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBucket(PlayerBucketEmptyEvent event) {
         Block target = event.getBlockClicked().getRelative(event.getBlockFace());
-        if (event.getPlayer().getWorld() == world && (spot(target) != null || !canBuild(event.getPlayer(), target.getLocation()))) {
+        if (event.getPlayer().getWorld() == world && (spot(target) != null || farmSpot(target) != null && !admin(event.getPlayer()) || !canBuild(event.getPlayer(), target.getLocation()))) {
             event.setCancelled(true);
             deny(event.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBucketFill(org.bukkit.event.player.PlayerBucketFillEvent event) {
+        if (event.getPlayer().getWorld() == world && farmSpot(event.getBlockClicked()) != null && !admin(event.getPlayer())) {
+            event.setCancelled(true);
+            warn(event.getPlayer(), "gens.farm-protected");
         }
     }
 
@@ -2076,6 +2115,56 @@ public final class GensMode implements ModeHandler, Listener {
                     block(b[3] == 1 ? "crying_obsidian" : "nether_portal[axis=x]"), false);
         }
         profile.put("gens.islandportal", "1");
+    }
+
+    /** A sziget kinézete (3: trópusi sziget pálmával, sziklával és automata farmmal). */
+    static final String ISLAND_VERSION = "3";
+
+    private void markIsland(Player player) {
+        PlayerProfile profile = core.profiles().profile(player);
+        if (profile != null) {
+            profile.put("gens.island", ISLAND_VERSION);
+            profile.put("gens.islandportal", "1");
+        }
+    }
+
+    /** A régi szigetek egyszer újraépülnek az új kinézettel; a generátorokat tárgyként visszakapja a dropokkal együtt. */
+    private void ensureIslandLook(Player player, GensData.Player data) {
+        PlayerProfile profile = core.profiles().profile(player);
+        if (profile == null || data.plot <= 0 || ISLAND_VERSION.equals(profile.setting("gens.island", "0"))) {
+            return;
+        }
+        int returned = generators.returnAll(player);
+        buildFarm(data, buildRadius);
+        markIsland(player);
+        core.getLogger().info("Gens: " + player.getName() + " szigete új kinézetet kapott (" + returned + " generátor vissza).");
+        Bukkit.getScheduler().runTaskLater(core, () -> core.messages().send(player, returned > 0 ? "gens.island-new-gens" : "gens.island-new", "%count%", String.valueOf(returned)), 40L);
+    }
+
+    /** A farm párnáján álló generátor dropja merre folyik (-1 / +1), 0 ha nem a farmon áll. */
+    int farmFlow(java.util.UUID owner, int x, int y, int z) {
+        GensData.Player data = players.get(owner);
+        if (data == null || data.plot <= 0 || y != height + 1) {
+            return 0;
+        }
+        int[] center = plotCenter(data.plot);
+        return GensBuild.padFlow(x - center[0], z - center[1]);
+    }
+
+    /** A sziget automata farmjának területén van-e (a sziget közepéhez képest). */
+    private int[] farmSpot(Block block) {
+        int plot = plotAt(block.getLocation());
+        if (plot <= 0) {
+            return null;
+        }
+        int[] center = plotCenter(plot);
+        int dx = block.getX() - center[0];
+        int dz = block.getZ() - center[1];
+        int dy = block.getY() - height;
+        if (!GensBuild.inFarm(dx, dz) || dy < -2 || dy > 6) {
+            return null;
+        }
+        return new int[]{dx, dy, dz, plot};
     }
 
     public void goHome(Player player) {
@@ -2456,10 +2545,6 @@ public final class GensMode implements ModeHandler, Listener {
         data.dirty = true;
         purgeRegrow(data.plot);
         int[] center = plotCenter(data.plot);
-        Placer placer = new Placer(world, core.getLogger());
-        for (int i = 0; i < FarmLayout.FIELDS; i++) {
-            buildField(placer, center, i, i < unlocked(data));
-        }
         spawnLabels(data);
         updateStats(player, data);
         save(data, true);

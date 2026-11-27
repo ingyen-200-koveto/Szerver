@@ -145,12 +145,18 @@ class FarmTest {
         for (int dx = -GensBuild.FARM; dx <= GensBuild.FARM; dx++) {
             for (int dz = -GensBuild.FARM; dz <= GensBuild.FARM; dz++) {
                 String ground = blocks.get(key(dx, 0, dz));
-                if (FarmLayout.fieldAt(dx, dz) >= 0) {
-                    assertEquals("dirt", blocks.get(key(dx, -1, dz)), "a földek alatt föld van, a talajt a FieldBuild rakja");
-                } else {
-                    assertNotNull(ground, "nincs lyuk a farmon: " + dx + "," + dz);
-                    assertFalse(ground.equals("air"));
-                }
+                assertNotNull(ground, "nincs lyuk a szigeten: " + dx + "," + dz);
+                assertFalse(ground.equals("air"));
+            }
+        }
+        for (int c : GensBuild.CHANNELS) {
+            assertTrue(blocks.get(key(GensBuild.CHEST_X, 0, c)).startsWith("chest"), "gyűjtőláda a csatorna végén");
+            assertTrue(blocks.get(key(GensBuild.CHANNEL_X0, -1, c)).startsWith("hopper"), "tölcsér a csatorna végén");
+            assertEquals("water", blocks.get(key(GensBuild.CHANNEL_X1, 0, c)), "forrás a csatorna elején");
+            for (int dx = GensBuild.CHANNEL_X0; dx <= GensBuild.CHANNEL_X1; dx++) {
+                assertTrue(GensBuild.farmPad(dx, c - 1) && GensBuild.farmPad(dx, c + 1) && !GensBuild.farmPad(dx, c));
+                assertEquals("chiseled_stone_bricks", blocks.get(key(dx, 0, c - 1)));
+                assertEquals("air", blocks.get(key(dx, 1, c + 1)), "a párna fölött szabad a hely a generátornak");
             }
         }
         for (String position : blocks.keySet()) {

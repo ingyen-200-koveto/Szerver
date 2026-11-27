@@ -64,6 +64,8 @@ public final class GensGenerators implements Listener {
         int stored;
         double progress;
         TextDisplay label;
+        /** Az automata farm párnáján áll-e: a drop a csatorna felé (-1 / +1), 0 ha nem; null, ha még nem néztük meg. */
+        Integer flow;
 
         Gen(UUID owner, int x, int y, int z, int tier, int stored) {
             this.owner = owner;
@@ -111,7 +113,11 @@ public final class GensGenerators implements Listener {
         slotPrice = Math.max(0, section.getLong("slot-price", 250000));
         upgradeRefund = Math.max(0, Math.min(1, section.getDouble("upgrade-refund", 0.5)));
         ConfigurationSection list = section.getConfigurationSection("tiers");
-        if (list == null) {
+        if (list == null || list.getKeys(false).isEmpty()) {
+            ConfigurationSection shipped = GensExtras.section(core, new YamlConfiguration(), "generators");
+            list = shipped == null ? null : shipped.getConfigurationSection("tiers");
+        }
+        if (list == null || list.getKeys(false).isEmpty()) {
             problems.add("gens.yml -> generators.tiers: nincs egy generátor sem");
             return;
         }
@@ -145,6 +151,26 @@ public final class GensGenerators implements Listener {
 
     public Tier tier(int tier) {
         return tiers.get(tier);
+    }
+
+    /** A farm párnáján álló generátor kétszer annyit tárol. */
+    int capacity(Gen gen) {
+        return capacity(gen.tier) * (flow(gen) != 0 ? 2 : 1);
+    }
+
+    int flow(Gen gen) {
+        if (gen.flow == null) {
+            gen.flow = gens.farmFlow(gen.owner, gen.x, gen.y, gen.z);
+        }
+        return gen.flow;
+    }
+
+    public boolean isGenerator(Block block) {
+        return byBlock.containsKey(GensData.key(block.getX(), block.getY(), block.getZ()));
+    }
+
+    public boolean isGeneratorItem(ItemStack item) {
+        return tierOf(item, ITEM) >= 0;
     }
 
     public int capacity(int tier) {
@@ -254,7 +280,7 @@ public final class GensGenerators implements Listener {
         detachQuiet(player.getUniqueId());
         List<Gen> list = new ArrayList<>();
         String text = profile.setting(SETTING, "");
-        for (String part : text.split(";")) {
+        for (String part : parts(text, gens.data(player))) {
             String[] p = part.split(",");
             if (p.length < 4) {
                 continue;
@@ -274,6 +300,82 @@ public final class GensGenerators implements Listener {
         byOwner.put(player.getUniqueId(), list);
     }
 
+    /**
+     * A mentett generátorok listája. Régen ';' választotta el őket, de a profil a ';'-t kiveszi mentéskor, így a
+     * bejegyzések összefolytak ("x,y,z,szint,tároltx,y,z,..."). Ezeket a sziget közepe alapján szedjük szét.
+     */
+    static List<String> parts(String text, GensData.Player data) {
+        List<String> out = new ArrayList<>();
+        if (text == null || text.isEmpty()) {
+            return out;
+        }
+        if (text.contains("|") || text.contains(";")) {
+            for (String part : text.split("[|;]")) {
+                out.add(part);
+            }
+            return out;
+        }
+        String[] t = text.split(",");
+        if (t.length <= 5 || (t.length - 1) % 4 != 0 || data == null || data.plot <= 0) {
+            out.add(text);
+            return out;
+        }
+        int[] cell = GenMath.spiral(data.plot);
+        int count = (t.length - 1) / 4;
+        String x = t[0];
+        for (int i = 0; i < count; i++) {
+            String y = t[4 * i + 1];
+            String z = t[4 * i + 2];
+            String tier = t[4 * i + 3];
+            String merged = t[4 * i + 4];
+            if (i == count - 1) {
+                out.add(String.join(",", x, y, z, tier, merged));
+                break;
+            }
+            String nextX = null;
+            String stored = null;
+            int minus = merged.indexOf('-');
+            if (minus > 0) {
+                stored = merged.substring(0, minus);
+                nextX = merged.substring(minus);
+            } else {
+                for (int cut = 1; cut < merged.length(); cut++) {
+                    String candidate = merged.substring(cut);
+                    if (candidate.length() > 1 && candidate.startsWith("0")) {
+                        continue;
+                    }
+                    try {
+                        int value = Integer.parseInt(candidate);
+                        int zValue = Integer.parseInt(t[4 * i + 6]);
+                        if (nearSameCell(value, zValue, cell)) {
+                            stored = merged.substring(0, cut);
+                            nextX = candidate;
+                            break;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        // tovább
+                    }
+                }
+            }
+            if (nextX == null) {
+                out.add(String.join(",", x, y, z, tier, "0"));
+                break;
+            }
+            out.add(String.join(",", x, y, z, tier, stored));
+            x = nextX;
+        }
+        return out;
+    }
+
+    private static boolean nearSameCell(int x, int z, int[] cell) {
+        for (int spacing : new int[]{1000, 96, 500, 300, 200, 128, 100}) {
+            if (Math.abs(x - cell[0] * spacing) <= spacing / 2 && Math.abs(z - cell[1] * spacing) <= spacing / 2) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void save(Player player) {
         PlayerProfile profile = core.profiles().profile(player);
         List<Gen> list = byOwner.get(player.getUniqueId());
@@ -283,7 +385,7 @@ public final class GensGenerators implements Listener {
         StringBuilder out = new StringBuilder();
         for (Gen gen : list) {
             if (out.length() > 0) {
-                out.append(';');
+                out.append('|');
             }
             out.append(gen.x).append(',').append(gen.y).append(',').append(gen.z).append(',').append(gen.tier).append(',').append(gen.stored);
         }
@@ -368,8 +470,12 @@ public final class GensGenerators implements Listener {
                     if (data != null && data.autosell) {
                         autoMoney += amount * t.value();
                     } else {
-                        gen.stored = Math.min(capacity(gen.tier), gen.stored + amount);
+                        gen.stored = Math.min(capacity(gen), gen.stored + amount);
                     }
+                }
+                if (made > 0 && flow(gen) != 0 && owner.getWorld() == world && world.isChunkLoaded(gen.x >> 4, gen.z >> 4)
+                        && owner.getLocation().distanceSquared(new Location(world, gen.x, gen.y, gen.z)) < 48 * 48) {
+                    flowItem(world, gen, t);
                 }
                 if (labels && world.isChunkLoaded(gen.x >> 4, gen.z >> 4)) {
                     label(world, gen, t, data != null && data.autosell);
@@ -381,9 +487,114 @@ public final class GensGenerators implements Listener {
         }
     }
 
+    static final String FLOW_TAG = "im_gens_flow";
+
+    /** Látványelem: a drop leesik a csatornába, és a víz a gyűjtőládához viszi. Felvenni nem lehet, a tölcsér eltünteti. */
+    private void flowItem(World world, Gen gen, Tier t) {
+        ItemStack look = Items.of(t.drop(), 1).tag("gens-flow").build();
+        org.bukkit.entity.Item item = world.dropItem(new Location(world, gen.x + 0.5, gen.y + 0.45, gen.z + 0.5 + 0.8 * flow(gen)), look);
+        item.addScoreboardTag(FLOW_TAG);
+        item.setCanPlayerPickup(false);
+        item.setCanMobPickup(false);
+        item.setPersistent(false);
+        item.setVelocity(new org.bukkit.util.Vector(0, 0.04, 0.05 * flow(gen)));
+        Bukkit.getScheduler().runTaskLater(core, () -> {
+            if (item.isValid()) {
+                item.remove();
+            }
+        }, 300L);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHopper(org.bukkit.event.inventory.InventoryPickupItemEvent event) {
+        if (event.getItem().getScoreboardTags().contains(FLOW_TAG)) {
+            event.setCancelled(true);
+            event.getItem().remove();
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onMerge(org.bukkit.event.entity.ItemMergeEvent event) {
+        if (event.getEntity().getScoreboardTags().contains(FLOW_TAG) != event.getTarget().getScoreboardTags().contains(FLOW_TAG)) {
+            event.setCancelled(true);
+        }
+    }
+
+    /** Az automata farm gyűjtőládája: a farmon álló összes generátor egyszerre. */
+    public void farmMenu(Player player, UUID owner) {
+        List<Gen> list = new ArrayList<>();
+        for (Gen gen : byOwner.getOrDefault(owner, List.of())) {
+            if (flow(gen) != 0) {
+                list.add(gen);
+            }
+        }
+        int stored = 0;
+        long value = 0;
+        for (Gen gen : list) {
+            Tier t = tiers.get(gen.tier);
+            stored += gen.stored;
+            value += t == null ? 0 : gen.stored * t.value();
+        }
+        String cur = gens.currency();
+        Menu menu = new Menu("gens-farm", 3, Text.color("&8Gyűjtőláda"));
+        menu.frame(Material.CYAN_STAINED_GLASS_PANE, null);
+        menu.set(11, Items.of(Material.HOPPER).name("&a&lMind begyűjtése")
+                .lore("&7Generátorok a farmon: &f" + list.size(), "&7Tárolt dropok: &f" + stored, "", "&7Mindet a táskádba teszi.", "", "&e» Kattints").build(), p -> {
+            for (Gen gen : list) {
+                collect(p, gen, false);
+            }
+            p.playSound(p.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.7F, 1.2F);
+            farmMenu(p, owner);
+        });
+        menu.set(13, Items.of(Material.WATER_BUCKET).name("&b&lAutomata farm")
+                .lore("&7A csatornák mellé (a mintás kőre) rakott", "&7generátorok ide gyűjtenek, és kétszer", "&7annyit tárolnak, mint máshol.", "",
+                        "&7Férőhely a farmon: &f" + (GensBuild.CHANNELS.length * 2 * (GensBuild.CHANNEL_X1 - GensBuild.CHANNEL_X0 + 1)) + " generátor").build());
+        menu.set(15, Items.of(Material.GOLD_INGOT).name("&e&lMind eladása")
+                .lore("&7Tárolt dropok: &f" + stored, "&7Érték: &e" + core.economy().format(cur, value), "", "&e» Kattints").build(), p -> {
+            long total = 0;
+            for (Gen gen : list) {
+                long got = sellStored(p, gen, false);
+                if (got < 0) {
+                    break;
+                }
+                total += got;
+            }
+            if (total <= 0) {
+                core.messages().sendTagged(p, "&7Nincs mit eladni.");
+            } else {
+                p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 0.6F, 1.1F);
+                core.messages().sendTagged(p, "&aEladtad a farm dropjait ennyiért: &e" + core.economy().format(cur, total));
+            }
+            farmMenu(p, owner);
+        });
+        menu.open(player);
+    }
+
+    /** Minden generátor vissza tárgyként a tárolt dropokkal (a sziget átépítése előtt). */
+    public int returnAll(Player player) {
+        List<Gen> list = byOwner.get(player.getUniqueId());
+        if (list == null || list.isEmpty()) {
+            return 0;
+        }
+        int count = 0;
+        for (Gen gen : new ArrayList<>(list)) {
+            collect(player, gen, false);
+            byBlock.remove(gen.key());
+            if (gen.label != null) {
+                gen.label.remove();
+                gen.label = null;
+            }
+            give(player, item(gen.tier));
+            count++;
+        }
+        list.clear();
+        save(player);
+        return count;
+    }
+
     private void label(World world, Gen gen, Tier t, boolean auto) {
         String text = Text.color("&e&l" + t.name().toUpperCase(java.util.Locale.ROOT) + " &f" + gen.tier + ". szint\n"
-                + (auto ? "&aAutomatikus eladás" : "&7Tárolt: " + (gen.stored >= capacity(gen.tier) ? "&c" : "&a") + gen.stored + "&7/&f" + capacity(gen.tier)));
+                + (auto ? "&aAutomatikus eladás" : "&7Tárolt: " + (gen.stored >= capacity(gen) ? "&c" : "&a") + gen.stored + "&7/&f" + capacity(gen)));
         if (gen.label == null || !gen.label.isValid()) {
             Location at = new Location(world, gen.x + 0.5, gen.y + 1.35, gen.z + 0.5);
             gen.label = world.spawn(at, TextDisplay.class, d -> {
@@ -514,7 +725,7 @@ public final class GensGenerators implements Listener {
         menu.frame(Material.YELLOW_STAINED_GLASS_PANE, null);
         String cur = gens.currency();
         menu.set(10, Items.of(Material.HOPPER).name("&a&lBegyűjtés")
-                .lore("&7Tárolt: &f" + gen.stored + "&7/&f" + capacity(gen.tier), "", "&7A dropokat a táskádba teszi.",
+                .lore("&7Tárolt: &f" + gen.stored + "&7/&f" + capacity(gen), "", "&7A dropokat a táskádba teszi.",
                         "&8(Guggolva jobb klikk a generátorra: ugyanez)", "", "&e» Kattints").build(), p -> {
             collect(p, gen, true);
             menu(p, gen);
@@ -610,15 +821,21 @@ public final class GensGenerators implements Listener {
     }
 
     private void sellStored(Player player, Gen gen) {
+        sellStored(player, gen, true);
+    }
+
+    private long sellStored(Player player, Gen gen, boolean tell) {
         Tier t = tiers.get(gen.tier);
         if (t == null || gen.stored <= 0) {
-            core.messages().sendTagged(player, "&7Nincs mit eladni.");
-            return;
+            if (tell) {
+                core.messages().sendTagged(player, "&7Nincs mit eladni.");
+            }
+            return 0;
         }
         long money = gens.sellBoost(player, gens.data(player), gen.stored * t.value());
         if (core.economy().deposit(player, gens.currency(), money, "gens:generator-sell") != Ledger.Result.OK) {
             core.messages().send(player, "gens.sell-limit");
-            return;
+            return -1;
         }
         int sold = gen.stored;
         gen.stored = 0;
@@ -627,9 +844,12 @@ public final class GensGenerators implements Listener {
             profile.addStat("gens.earned", money);
         }
         gens.extras().addXp(player, Math.max(1, sold / 4));
-        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_YES, 0.6F, 1.1F);
-        core.messages().sendTagged(player, "&aEladtál &f" + sold + " &adropot ennyiért: &e" + core.economy().format(gens.currency(), money));
+        if (tell) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_YES, 0.6F, 1.1F);
+            core.messages().sendTagged(player, "&aEladtál &f" + sold + " &adropot ennyiért: &e" + core.economy().format(gens.currency(), money));
+        }
         gens.progress(player, "earn", money);
+        return money;
     }
 
     private void give(Player player, ItemStack item) {

@@ -9,9 +9,9 @@ import hu.icemine.core.build.Layout;
 public final class GensBuild extends Build {
 
     public static final int HUB_CLEAR = 238;
-    public static final int PLOT_CLEAR = 26;
+    public static final int PLOT_CLEAR = 30;
     static final int HUB_RADIUS = 34;
-    static final int PLOT_RADIUS = 22;
+    static final int PLOT_RADIUS = 25;
     /** A földek és az utak négyzete a sziget közepétől (a 8 föld 12-ig tart, körülötte 2 széles út). */
     static final int FARM = 14;
 
@@ -80,31 +80,29 @@ public final class GensBuild extends Build {
     }
 
     /**
-     * A farm sziget alapja: utak, a középső tér az eladó hordóval és a kapa üllővel, díszek a szélén.
-     * A 8 földet a FieldBuild rakja ki (a megnyitottakat beültetve, a többit lezárva).
+     * A játékos szigete: trópusi sziget homokos parttal. Középen a tér (eladó hordó, kapa üllő, portál a farmra),
+     * keletre az automata generátor farm vízcsatornákkal és gyűjtőládákkal, délnyugatra egy nagy pálmafa,
+     * északnyugatra egy nagy szikla. A többi füves rész szabad, oda is lehet generátort rakni.
      */
     private void plot() {
-        island(PLOT_RADIUS, 12, 200 + Math.floorMod(salt, 50));
-        for (int dx = -FARM; dx <= FARM; dx++) {
-            for (int dz = -FARM; dz <= FARM; dz++) {
-                put(dx, 1, dz, "air");
-                put(dx, 2, dz, "air");
-                if (FarmLayout.fieldAt(dx, dz) >= 0) {
-                    put(dx, -1, dz, "dirt");
-                    put(dx, 0, dz, islandGround(cx + dx, cz + dz));
-                    continue;
-                }
-                put(dx, -1, dz, "dirt");
-                boolean plaza = Math.abs(dx) <= 3 && Math.abs(dz) <= 3;
-                if (plaza) {
-                    boolean edge = Math.abs(dx) == 3 || Math.abs(dz) == 3;
+        tropicIsland(PLOT_RADIUS, 13, 200 + Math.floorMod(salt, 50));
+        for (int dx = -4; dx <= 4; dx++) {
+            for (int dz = -4; dz <= 4; dz++) {
+                boolean edge = Math.abs(dx) == 3 || Math.abs(dz) == 3;
+                if (Math.abs(dx) <= 3 && Math.abs(dz) <= 3) {
                     put(dx, 0, dz, edge ? "stripped_spruce_wood[axis=y]" : (Math.floorMod(dx + dz, 2) == 0 ? "spruce_planks" : "birch_planks"));
-                } else {
-                    double n = noise(cx + dx, cz + dz, 410 + salt);
-                    put(dx, 0, dz, n < 0.12 ? "coarse_dirt" : (n < 0.18 ? "gravel" : "dirt_path"));
+                    put(dx, -1, dz, "dirt");
                 }
             }
         }
+        for (int dx = 4; dx < FARM_X0; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                double n = noise(cx + dx, cz + dz, 410 + salt);
+                put(dx, 0, dz, n < 0.15 ? "coarse_dirt" : "dirt_path");
+            }
+        }
+        path(-9, -4, -1, 1);
+        path(-1, 1, 4, 11);
         put(FarmLayout.SELL[0], 1, FarmLayout.SELL[1], "barrel[facing=up]");
         put(FarmLayout.SELL[0], 2, FarmLayout.SELL[1], "lantern[hanging=false]");
         put(FarmLayout.HOE[0], 1, FarmLayout.HOE[1], "anvil[facing=east]");
@@ -114,23 +112,264 @@ public final class GensBuild extends Build {
             put(b[0], b[1], b[2], b[3] == 1 ? "crying_obsidian" : "nether_portal[axis=x]");
         }
         for (int sx = -1; sx <= 1; sx += 2) {
-            for (int sz = -1; sz <= 1; sz += 2) {
-                put(3 * sx, 1, 3 * sz, "spruce_fence");
-                put(3 * sx, 2, 3 * sz, "lantern[hanging=false]");
-                lamp(FARM * sx, FARM * sz);
+            put(3 * sx, 1, 3, "spruce_fence");
+            put(3 * sx, 2, 3, "lantern[hanging=false]");
+        }
+        genFarm();
+        palm(-11, 10, 18, 0.9, Math.PI);
+        palm(-2, 17, 9, 0.7, Math.PI / 2);
+        palm(16, 14, 9, 0.7, 0);
+        palm(15, -15, 8, 0.6, -Math.PI / 2);
+        rock(-11, -11, 7.6, 15);
+        rock(-17, -3, 2.8, 4);
+        rock(-4, -16, 2.2, 3);
+        decorate();
+    }
+
+    /** Az automata farm: {x0, x1} a csatornák hossza, a sorok z-je. A generátorok a csatornák két oldalán, a párnákon állnak. */
+    public static final int FARM_X0 = 10;
+    public static final int FARM_X1 = 21;
+    public static final int CHANNEL_X0 = 12;
+    public static final int CHANNEL_X1 = 19;
+    public static final int[] CHANNELS = {-3, 3};
+    public static final int CHEST_X = 11;
+
+    /** Generátor párna-e (a sziget közepéhez képest): ide rakott generátor az automata farmhoz tartozik. */
+    public static boolean farmPad(int dx, int dz) {
+        if (dx < CHANNEL_X0 || dx > CHANNEL_X1) {
+            return false;
+        }
+        for (int c : CHANNELS) {
+            if (Math.abs(dz - c) == 1) {
+                return true;
             }
         }
-        well(0, 18);
-        spruce(17, -7, 7, 2.4);
-        spruce(-17, 7, 6, 2.1);
-        spruce(-8, -17, 6, 2.2);
-        spruce(9, 17, 7, 2.3);
-        put(-17, 1, -4, "hay_block[axis=y]");
-        put(-17, 1, -3, "hay_block[axis=y]");
-        put(-17, 2, -4, "hay_block[axis=y]");
-        put(17, 1, 4, "pumpkin");
-        put(17, 1, 5, "melon");
-        put(16, 1, 5, "barrel[facing=up]");
+        return false;
+    }
+
+    /** Melyik csatorna felé esik a párna dropja (z irány: -1 / +1), 0 ha nem párna. */
+    public static int padFlow(int dx, int dz) {
+        if (!farmPad(dx, dz)) {
+            return 0;
+        }
+        for (int c : CHANNELS) {
+            if (Math.abs(dz - c) == 1) {
+                return c > dz ? 1 : -1;
+            }
+        }
+        return 0;
+    }
+
+    /** Az automata farm területe (itt csak generátort lehet lerakni, a párnákra). */
+    public static boolean inFarm(int dx, int dz) {
+        return dx >= FARM_X0 && dx <= FARM_X1 && Math.abs(dz) <= 6;
+    }
+
+    public static boolean farmChest(int dx, int dz) {
+        if (dx != CHEST_X) {
+            return false;
+        }
+        for (int c : CHANNELS) {
+            if (dz == c) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void genFarm() {
+        for (int dx = FARM_X0; dx <= FARM_X1; dx++) {
+            for (int dz = -6; dz <= 6; dz++) {
+                for (int y = 1; y <= 6; y++) {
+                    put(dx, y, dz, "air");
+                }
+                boolean border = dx == FARM_X0 || dx == FARM_X1 || Math.abs(dz) == 6;
+                put(dx, -1, dz, "stone_bricks");
+                put(dx, -2, dz, "stone");
+                double n = noise(cx + dx, cz + dz, 77);
+                String floor = border ? "polished_andesite" : (n < 0.12 ? "mossy_stone_bricks" : (n < 0.2 ? "cracked_stone_bricks" : "stone_bricks"));
+                if (farmPad(dx, dz)) {
+                    floor = "chiseled_stone_bricks";
+                }
+                put(dx, 0, dz, floor);
+            }
+        }
+        for (int c : CHANNELS) {
+            for (int dx = CHANNEL_X0; dx <= CHANNEL_X1; dx++) {
+                int level = CHANNEL_X1 - dx;
+                put(dx, 0, c, level == 0 ? "water" : "water[level=" + level + "]");
+                put(dx, -1, c, dx == CHANNEL_X0 ? "hopper[facing=down]" : "smooth_stone");
+            }
+            put(CHEST_X, 0, c, "chest[facing=west]");
+            put(CHANNEL_X1 + 1, 0, c, "stone_bricks");
+            put(CHANNEL_X1 + 1, 1, c, "stone_brick_stairs[facing=east,half=bottom]");
+            put(CHANNEL_X1 + 2, 1, c, "stone_bricks");
+            put(CHANNEL_X1 + 2, 2, c, "stone_brick_slab[type=bottom]");
+            put(CHANNEL_X1 + 1, 2, c, "lantern[hanging=false]");
+        }
+        for (int sx : new int[]{FARM_X0, FARM_X1}) {
+            for (int sz : new int[]{-6, 6}) {
+                put(sx, 1, sz, "stone_brick_wall[up=true]");
+                put(sx, 2, sz, "stone_brick_wall[up=true]");
+                put(sx, 3, sz, "lantern[hanging=false]");
+            }
+        }
+        put(FARM_X0, 1, -1, "stone_brick_wall[up=true]");
+        put(FARM_X0, 2, -1, "lantern[hanging=false]");
+        put(FARM_X0, 1, 1, "stone_brick_wall[up=true]");
+        put(FARM_X0, 2, 1, "lantern[hanging=false]");
+    }
+
+    private void path(int x0, int x1, int z0, int z1) {
+        for (int x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) {
+            for (int z = Math.min(z0, z1); z <= Math.max(z0, z1); z++) {
+                if (Math.abs(x) <= 3 && Math.abs(z) <= 3) {
+                    continue;
+                }
+                double n = noise(cx + x, cz + z, 420 + salt);
+                put(x, 0, z, n < 0.18 ? "coarse_dirt" : "dirt_path");
+            }
+        }
+    }
+
+    /** Pálmafa: enyhén íves törzs, a tetején lehajló levelek és kakaó. */
+    private void palm(int px, int pz, int height, double lean, double angle) {
+        int seed = (int) Math.round(angle * 10);
+        double ax = Math.cos(angle) * lean;
+        double az = Math.sin(angle) * lean;
+        int tx = px;
+        int tz = pz;
+        for (int y = 1; y <= height; y++) {
+            double t = (double) y / height;
+            int nx = px + (int) Math.round(ax * t * t * 5);
+            int nz = pz + (int) Math.round(az * t * t * 5);
+            if (nx != tx || nz != tz) {
+                put(nx, y - 1, nz, "jungle_log[axis=y]");
+            }
+            tx = nx;
+            tz = nz;
+            put(tx, y, tz, y % 3 == 0 ? "jungle_wood[axis=y]" : "jungle_log[axis=y]");
+        }
+        put(px + 1, 1, pz, "jungle_wood[axis=y]");
+        put(px, 1, pz + 1, "jungle_wood[axis=y]");
+        int top = height + 1;
+        put(tx, top, tz, "jungle_leaves[persistent=true]");
+        put(tx, top + 1, tz, "jungle_leaves[persistent=true]");
+        int len = height >= 15 ? 9 : (height >= 12 ? 7 : 5);
+        for (int f = 0; f < 8; f++) {
+            double a = f * Math.PI / 4 + seed * 0.4;
+            double ux = Math.cos(a);
+            double uz = Math.sin(a);
+            for (int i = 1; i <= len; i++) {
+                int x = tx + (int) Math.round(ux * i);
+                int z = tz + (int) Math.round(uz * i);
+                int y = top + (i <= 2 ? 1 : 0) - Math.max(0, i - (len - 2));
+                put(x, y, z, "jungle_leaves[persistent=true]");
+                if (i >= 2 && i <= len - 2) {
+                    put(x + (int) Math.round(-uz), y, z + (int) Math.round(ux), "jungle_leaves[persistent=true]");
+                }
+                if (i == len) {
+                    put(x, y - 1, z, "jungle_leaves[persistent=true]");
+                }
+            }
+        }
+        if (height >= 15) {
+            put(tx, height + 3, tz, "jungle_leaves[persistent=true]");
+            put(tx + 1, top + 1, tz, "jungle_leaves[persistent=true]");
+            put(tx - 1, top + 1, tz, "jungle_leaves[persistent=true]");
+            put(tx, top + 1, tz + 1, "jungle_leaves[persistent=true]");
+            put(tx, top + 1, tz - 1, "jungle_leaves[persistent=true]");
+        }
+        if (height >= 10) {
+            put(tx + 1, height - 1, tz, "cocoa[age=2,facing=west]");
+            put(tx - 1, height - 1, tz, "cocoa[age=2,facing=east]");
+            put(tx, height - 2, tz + 1, "cocoa[age=2,facing=north]");
+        }
+    }
+
+    /** Nagy szikla: kő, andezit, tufa, a tetején moha. */
+    private void rock(int rx, int rz, double radius, int maxHeight) {
+        int r = (int) Math.ceil(radius) + 2;
+        for (int dx = -r; dx <= r; dx++) {
+            for (int dz = -r; dz <= r; dz++) {
+                double a = Math.atan2(dz, dx);
+                double edge = radius * (1 + 0.18 * Math.sin(a * 3 + rx) + 0.1 * Math.sin(a * 7 + rz));
+                double d = dist(dx, dz);
+                if (d > edge) {
+                    continue;
+                }
+                double t = 1 - d / edge;
+                int h = (int) Math.round(maxHeight * Math.pow(t, 0.75) + noise(cx + rx + dx, cz + rz + dz, 91) * 2.2 - 0.4);
+                h = Math.max(1, h);
+                for (int y = -1; y <= h; y++) {
+                    double m = noise(cx + rx + dx * 2 + y, cz + rz + dz + y * 3, 93);
+                    String block = m < 0.42 ? "stone" : (m < 0.62 ? "andesite" : (m < 0.78 ? "tuff" : (m < 0.9 ? "cobblestone" : "gravel")));
+                    if (y == h) {
+                        double top = noise(cx + rx + dx, cz + rz + dz, 95);
+                        block = top < 0.45 ? "moss_block" : (top < 0.65 ? "mossy_cobblestone" : block);
+                    }
+                    put(rx + dx, y, rz + dz, block);
+                }
+                if (h >= 3 && noise(cx + rx + dx, cz + rz + dz, 97) < 0.25 && d > edge - 1.3) {
+                    put(rx + dx, h + 1, rz + dz, "moss_carpet");
+                }
+            }
+        }
+    }
+
+    /** Trópusi sziget: fű, a szélén homok, alatta föld és kő. */
+    private void tropicIsland(double radius, int depth, int seed) {
+        int max = (int) Math.ceil(radius) + 3;
+        for (int dx = -max; dx <= max; dx++) {
+            for (int dz = -max; dz <= max; dz++) {
+                double angle = Math.atan2(dz, dx);
+                double edge = radius + 1.2 * Math.sin(angle * 5 + seed) + 0.7 * Math.sin(angle * 11 + 1.3 + seed);
+                double d = dist(dx, dz);
+                if (d > edge) {
+                    continue;
+                }
+                boolean beach = d > edge - 2.6 - noise(cx + dx, cz + dz, seed + 5) * 1.2;
+                double g = noise(cx + dx, cz + dz, seed);
+                put(dx, 0, dz, beach ? "sand" : (g < 0.06 ? "moss_block" : "grass_block"));
+                for (int y = 1; y <= 2; y++) {
+                    put(dx, y, dz, "air");
+                }
+                int deep = (int) ((1 - Math.pow(d / edge, 1.6)) * depth) + 1 + (int) (noise(cx + dx, cz + dz, seed + 2) * 3);
+                for (int l = 1; l <= deep; l++) {
+                    double m = noise(cx + dx, cz + dz * 3 + l, seed + 10 + l);
+                    String block = beach && l <= 2 ? "sandstone" : (l <= 2 ? "dirt" : (m < 0.5 ? "stone" : (m < 0.72 ? "dirt" : (m < 0.88 ? "andesite" : "granite"))));
+                    put(dx, -l, dz, block);
+                }
+                if (noise(cx + dx, cz + dz, seed + 3) < 0.05 && deep > 3) {
+                    int length = 2 + (int) (noise(cx + dx, cz + dz, seed + 4) * 4);
+                    for (int l = 1; l <= length; l++) {
+                        put(dx, -deep - l, dz, l == length ? "hanging_roots" : "rooted_dirt");
+                    }
+                }
+            }
+        }
+    }
+
+    /** Fű és virágok a szabad füves részeken (a tértől, a farmtól, a fáktól és a sziklától távol). */
+    private void decorate() {
+        int r = PLOT_RADIUS - 1;
+        for (int dx = -r; dx <= r; dx++) {
+            for (int dz = -r; dz <= r; dz++) {
+                if (Math.abs(dx) <= 4 && Math.abs(dz) <= 6 || dx >= 3 && dx <= FARM_X1 + 1 && Math.abs(dz) <= 7
+                        || dist(dx + 11, dz + 11) < 9.5 || dist(dx + 17, dz + 3) < 4.5 || dist(dx + 4, dz + 16) < 3.5 || dx >= -9 && dx <= -4 && Math.abs(dz) <= 1 || Math.abs(dx) <= 1 && dz >= 4 && dz <= 11) {
+                    continue;
+                }
+                double n = noise(cx + dx, cz + dz, 830 + salt);
+                double edge = PLOT_RADIUS - 3 + 1.2 * Math.sin(Math.atan2(dz, dx) * 5 + 200 + Math.floorMod(salt, 50));
+                if (dist(dx, dz) > edge - 2) {
+                    continue;
+                }
+                String plant = n < 0.07 ? "short_grass" : (n < 0.085 ? "poppy" : (n < 0.1 ? "dandelion" : (n < 0.11 ? "azure_bluet" : null)));
+                if (plant != null) {
+                    put(dx, 1, dz, plant);
+                }
+            }
+        }
     }
 
     private void well(int wx, int wz) {
