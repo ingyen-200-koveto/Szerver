@@ -269,7 +269,7 @@ public final class GensBuild extends Build {
                     if (n < 0.02 + 0.05 * patch) {
                         String[] flowers = {"poppy", "dandelion", "cornflower", "oxeye_daisy", "azure_bluet"};
                         put(dx, 1, dz, flowers[(int) (noise(dx, dz, 724) * flowers.length)]);
-                    } else if (n < 0.22 + 0.2 * patch) {
+                    } else if (n < 0.06 + 0.08 * patch) {
                         put(dx, 1, dz, "short_grass");
                     }
                 }

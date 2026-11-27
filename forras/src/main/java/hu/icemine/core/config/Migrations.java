@@ -761,6 +761,14 @@ public final class Migrations {
             files.save("lobby");
             notes.add("lobby.yml: a játékmód választó iránytű középre került" + (taken ? " (a helyén lévő tárgy a régi helyére)" : ""));
         }
+        YamlConfiguration viewConfig = files.get("config");
+        if (viewConfig != null && !viewConfig.getBoolean("migrated.view-gens-v1", false)) {
+            if (!viewConfig.isSet("view.worlds.ice_gens")) {
+                viewConfig.set("view.worlds.ice_gens", 12);
+            }
+            viewConfig.set("migrated.view-gens-v1", true);
+            files.save("config");
+        }
         YamlConfiguration logConfig = files.get("config");
         if (logConfig != null && !logConfig.getBoolean("migrated.changelog-off-v1", false)) {
             // a changelog egyelőre ki van kapcsolva

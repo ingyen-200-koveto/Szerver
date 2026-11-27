@@ -14,6 +14,8 @@ abstract class ThemeBase extends Build {
     protected final Free free;
     /** A növényzet szórásának fél mérete (a középponttól ennyi blokkig). */
     protected int span = 46;
+    /** A foltos fű sűrűsége (0 = egyenletesen ritka). */
+    protected double patchGrass = 0.2;
     private final Set<Long> taken = new HashSet<>();
 
     ThemeBase(Sink sink, int cx, int cy, int cz, Free free) {
@@ -50,7 +52,7 @@ abstract class ThemeBase extends Build {
                     put(x, 1, z, "oak_leaves[persistent=true]");
                 } else if (flowers.length > 0 && n < 0.02 + 0.07 * patch) {
                     put(x, 1, z, flowers[(int) (noise(x, z, 413) * flowers.length)]);
-                } else if (n < grass + 0.2 * patch) {
+                } else if (n < grass + patchGrass * patch) {
                     put(x, 1, z, noise(x, z, 414) < 0.85 ? "short_grass" : "fern");
                 }
             }

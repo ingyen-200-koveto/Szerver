@@ -20,6 +20,7 @@ public final class ViewDistance implements Listener {
     private final int send;
     private final int view;
     private final int simulation;
+    private final java.util.Map<String, Integer> perWorld = new java.util.HashMap<>();
 
     public ViewDistance(FileConfiguration config, Logger logger) {
         this.logger = logger;
@@ -27,6 +28,12 @@ public final class ViewDistance implements Listener {
         this.send = clamp(config.getInt("view.send-distance", 32));
         this.view = config.getInt("view.view-distance", 0);
         this.simulation = config.getInt("view.simulation-distance", 0);
+        org.bukkit.configuration.ConfigurationSection worlds = config.getConfigurationSection("view.worlds");
+        if (worlds != null) {
+            for (String name : worlds.getKeys(false)) {
+                perWorld.put(name.toLowerCase(java.util.Locale.ROOT), clamp(worlds.getInt(name)));
+            }
+        }
     }
 
     static int clamp(int value) {
@@ -58,7 +65,8 @@ public final class ViewDistance implements Listener {
             if (simulation > 0) {
                 world.setSimulationDistance(clamp(simulation));
             }
-            world.setSendViewDistance(Math.max(send, world.getViewDistance()));
+            int limit = perWorld.getOrDefault(world.getName().toLowerCase(java.util.Locale.ROOT), send);
+            world.setSendViewDistance(Math.max(limit, world.getViewDistance()));
         } catch (RuntimeException | NoSuchMethodError exception) {
             logger.warning("Látótáv beállítása nem sikerült (" + world.getName() + "): " + exception.getMessage());
         }

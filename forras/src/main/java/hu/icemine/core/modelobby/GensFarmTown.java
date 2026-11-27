@@ -43,6 +43,7 @@ public final class GensFarmTown extends ThemeBase {
         }
         town.farm = farm;
         town.span = 230;
+        town.patchGrass = 0.06;
         return town;
     }
 
@@ -167,7 +168,7 @@ public final class GensFarmTown extends ThemeBase {
             int r = 60 + (int) (noise(i, 6, 643) * 140);
             spiky((int) Math.round(Math.cos(a) * r), 46 + (int) (noise(i, 7, 644) * 26), (int) Math.round(Math.sin(a) * r));
         }
-        scatter((x, z) -> dist(x, z) <= farm, new String[]{"poppy", "dandelion", "cornflower", "oxeye_daisy"}, 0.35);
+        scatter((x, z) -> dist(x, z) <= farm, new String[]{"poppy", "dandelion", "cornflower", "oxeye_daisy"}, 0.04);
     }
 
     // ---- elforgatható helyi koordináták (0 = dél felé néz, 1 = kelet, 2 = észak, 3 = nyugat) ----

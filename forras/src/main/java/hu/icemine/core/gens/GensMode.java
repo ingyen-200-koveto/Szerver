@@ -83,7 +83,7 @@ public final class GensMode implements ModeHandler, Listener {
     /** A profilban ("gens.farm") jegyezzük, hogy a sziget már a földes változat. */
     static final String FARM_VERSION = "2";
     /** A központ (közös farm) változata a gens.yml-ben: ha régebbi, újraépül. */
-    static final int HUB_VERSION = 9;
+    static final int HUB_VERSION = 10;
     /** A központ (közös farm + város) helye: messze a telkektől, hogy elférjen. */
     public static final int HUB_X = 0;
     public static final int HUB_Z = -12000;
