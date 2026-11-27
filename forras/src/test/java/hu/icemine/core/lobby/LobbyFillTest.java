@@ -19,7 +19,6 @@ class LobbyFillTest {
         long rink = blocks.values().stream().filter(v -> v.equals("ice")).count();
         long spires = blocks.values().stream().filter(v -> v.equals("blue_ice")).count();
         System.out.println("rink=" + rink + " blueice=" + spires);
-        assertTrue(rink > 100, "korcsolyapálya");
         long beehive = blocks.values().stream().filter(v -> v.startsWith("beehive")).count();
         System.out.println("wool=" + wool + " crops=" + crops + " stalls=" + stalls + " forge=" + anvils + " beehive=" + beehive);
         assertTrue(wool > 0, "szélmalom");

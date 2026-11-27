@@ -231,6 +231,10 @@ Gens eligazodás (3.70.5-től): a központban tábla mondja meg, mi hol van, az 
 visz és hányas szinttől. Minden szigeten van portál vissza a közös farmra (a régi szigetekre is kerül, ha szabad a hely),
 és ugyanezt tudja a `/gens farm` és a `/spawn` is.
 
+Spawn (3.74.0-tól, layout 17): cseresznyevirágos márványkert: kvarc és márvány padló, cseresznyefa utak a szobrokhoz,
+szökőkút középen, cseresznyefák az ágyásokban és a terasz két oldalán, szirmok a kövön. A jégkapu, a jégszobrok és a
+jégfalu kikerült (a helyén házak vannak).
+
 Főlobby (3.73.0-tól, layout 16): a sziget 240 helyett 350 blokk széles és hátrafelé is hosszabb. Nyugaton jégfalu
 (korcsolyapálya, 4 iglu, feldíszített fenyő), keleten kristálykert jégtornyokkal, a maradék sík részeken házak kerttel.
 A házakon zsalugáterek, virágok, lámpa az ajtónál, bent bútorok (ágy, asztal, könyvespolc). Az égen 8 csillag és 10 hópehely

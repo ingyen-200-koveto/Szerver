@@ -35,7 +35,6 @@ class KaracsonyTest {
         assertTrue(housesTouched > 100, "a fények a gerendákon vannak: " + housesTouched);
         String trunk = "0;" + (100 + LobbyBuild.PLATFORM + 1) + ";" + LobbyBuild.FOUNTAIN_Z;
         assertEquals("spruce_log", overlay.get(trunk));
-        assertEquals("air", lobby.get(trunk));
-        assertEquals("sea_lantern", lobby.get("0;" + (100 + LobbyBuild.PLATFORM) + ";" + LobbyBuild.FOUNTAIN_Z));
+        assertEquals("quartz_pillar[axis=y]", lobby.get(trunk), "a fa a szökőkút oszlopának helyén áll, utána az oszlop visszajön");
     }
 }

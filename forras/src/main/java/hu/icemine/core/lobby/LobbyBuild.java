@@ -6,7 +6,7 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 16;
+    public static final int VERSION = 17;
     public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 192;
     public static final int CLEAR_NORTH = 132;
@@ -78,7 +78,6 @@ public final class LobbyBuild extends Build {
         launchPads();
         wings();
         districts();
-        iceVillage(-132, -14);
         crystalGarden(134, -16);
         hamlets();
         spawnDecor();
@@ -263,51 +262,47 @@ public final class LobbyBuild extends Build {
         return false;
     }
 
+    /** A tér padlója (v17, cseresznyevirágos márványkert): fehér márvány, arany és rózsaszín minta. */
     static String plazaFloor(int x, int z) {
         double d = dist(x, z);
         double f = dist(x, z - FOUNTAIN_Z);
         if (dist(x, z - 3) <= 1.2) {
-            return "sea_lantern";
+            return "gold_block";
         }
         if (dist(x, z - 3) <= 2.2) {
-            return "light_blue_concrete";
+            return "chiseled_quartz_block";
         }
         if (f <= 6.4) {
-            int zz = z - FOUNTAIN_Z;
-            if (f <= 1.0) {
-                return "sea_lantern";
-            }
-            boolean ray = x == 0 || zz == 0 || Math.abs(x) == Math.abs(zz);
-            if (ray && f <= 5.2) {
-                return f > 3.9 && f <= 4.6 ? "blue_ice" : "light_blue_concrete";
-            }
-            return f > 5.6 ? "polished_diorite" : "smooth_quartz";
+            return f > 5.5 ? "polished_diorite" : "smooth_quartz";
         }
-        if (f > 6.4 && f <= 8.0) {
-            return Math.floorMod((int) Math.round(Math.toDegrees(Math.atan2(x, z - FOUNTAIN_Z)) / 15), 2) == 0 ? "polished_diorite" : "smooth_quartz";
+        if (f <= 8.0) {
+            return Math.floorMod((int) Math.round(Math.toDegrees(Math.atan2(x, z - FOUNTAIN_Z)) / 15), 2) == 0 ? "pink_terracotta" : "smooth_quartz";
         }
         if (Math.abs(d - STATUE_R) <= 0.8 && z <= 2) {
-            return "smooth_stone";
+            return "quartz_bricks";
         }
-        if (spoke(x, z) && f > 6.4) {
-            return Math.floorMod(x + z, 4) == 0 ? "chiseled_stone_bricks" : "stone_bricks";
+        if (spoke(x, z)) {
+            return Math.floorMod(x + z, 5) == 0 ? "stripped_cherry_wood[axis=y]" : "cherry_planks";
         }
         if (Math.abs(x) <= 1 && z > 3) {
-            return Math.floorMod(z, 3) == 0 ? "chiseled_stone_bricks" : "stone_bricks";
+            return Math.floorMod(z, 3) == 0 ? "stripped_cherry_wood[axis=y]" : "cherry_planks";
         }
         if (Math.abs(x) <= 2 && z < -(int) ARC + 4) {
-            return Math.floorMod(z, 3) == 0 ? "chiseled_stone_bricks" : "stone_bricks";
+            return Math.floorMod(z, 3) == 0 ? "stripped_cherry_wood[axis=y]" : "cherry_planks";
         }
-        return noise(x, z, 23) < 0.15 ? "andesite" : "polished_andesite";
+        double n = noise(x, z, 23);
+        return n < 0.12 ? "white_terracotta" : (n < 0.3 ? "calcite" : (Math.floorMod(x + z, 2) == 0 ? "smooth_quartz" : "polished_diorite"));
     }
 
     /** Négy lámpa a tér közepén lévő minta sarkainál. */
     private void plazaLamps() {
         int fz = FOUNTAIN_Z;
         for (int[] c : new int[][]{{-8, -8}, {8, -8}, {-8, 7}, {8, 7}}) {
-            put(c[0], PLATFORM + 1, fz + c[1], "chiseled_stone_bricks");
-            put(c[0], PLATFORM + 2, fz + c[1], "spruce_fence");
-            put(c[0], PLATFORM + 3, fz + c[1], "lantern[hanging=false]");
+            put(c[0], PLATFORM + 1, fz + c[1], "chiseled_quartz_block");
+            put(c[0], PLATFORM + 2, fz + c[1], "quartz_pillar[axis=y]");
+            put(c[0], PLATFORM + 3, fz + c[1], "quartz_pillar[axis=y]");
+            put(c[0], PLATFORM + 4, fz + c[1], "gold_block");
+            put(c[0], PLATFORM + 5, fz + c[1], "lantern[hanging=false]");
         }
     }
 
@@ -322,19 +317,23 @@ public final class LobbyBuild extends Build {
                 int base = Math.max(-2, h(x, z));
                 for (int y = base; y < PLATFORM; y++) {
                     double n = noise(x, z + y, 20);
-                    put(x, y, z, y >= PLATFORM - 1 ? "stone_bricks" : (n < 0.2 ? "mossy_stone_bricks" : (n < 0.35 ? "cracked_stone_bricks" : "stone_bricks")));
+                    put(x, y, z, y >= PLATFORM - 1 ? "quartz_bricks" : (n < 0.25 ? "polished_diorite" : (n < 0.35 ? "calcite" : "quartz_bricks")));
                 }
                 String floor = plazaFloor(x, z);
                 if (bed(x, z)) {
                     boolean edge = !bed(x + 1, z) || !bed(x - 1, z) || !bed(x, z + 1) || !bed(x, z - 1);
-                    floor = edge ? "polished_andesite" : "grass_block";
+                    floor = edge ? "quartz_bricks" : (noise(x, z, 24) < 0.2 ? "moss_block" : "grass_block");
                     if (!edge) {
                         double n = noise(x, z, 21);
-                        if (n < 0.18) {
-                            put(x, PLATFORM + 1, z, "short_grass");
-                        } else if (n < 0.3) {
-                            String[] flowers = {"cornflower", "azure_bluet", "oxeye_daisy", "allium", "lily_of_the_valley"};
-                            put(x, PLATFORM + 1, z, flowers[(int) (noise(x, z, 22) * flowers.length)]);
+                        if (n < 0.3) {
+                            put(x, PLATFORM + 1, z, "pink_petals[facing=north,flower_amount=" + (1 + (int) (n * 13) % 4) + "]");
+                        } else if (n < 0.5) {
+                            String[] flowers = {"pink_tulip", "white_tulip", "allium", "peony[half=lower]", "lily_of_the_valley"};
+                            String flower = flowers[(int) (noise(x, z, 22) * flowers.length)];
+                            put(x, PLATFORM + 1, z, flower);
+                            if (flower.startsWith("peony")) {
+                                put(x, PLATFORM + 2, z, "peony[half=upper]");
+                            }
                         }
                     }
                 }
@@ -350,8 +349,7 @@ public final class LobbyBuild extends Build {
         for (double a : BED_ANGLES) {
             int bx = (int) Math.round(Math.sin(Math.toRadians(a)) * STATUE_R);
             int bz = (int) Math.round(-Math.cos(Math.toRadians(a)) * STATUE_R);
-            put(bx, PLATFORM + 1, bz, "flowering_azalea_leaves[persistent=true]");
-            put(bx, PLATFORM + 2, bz, "azalea_leaves[persistent=true]");
+            cherry(bx, PLATFORM + 1, bz, 4, 2.2);
         }
         for (int x = -r; x <= r; x++) {
             for (int z = -(int) ARC - 2; z <= BACK + 1; z++) {
@@ -364,10 +362,10 @@ public final class LobbyBuild extends Build {
                 }
                 boolean post = Math.floorMod(x * 7 + z * 3, 6) == 0;
                 if (post) {
-                    put(x, PLATFORM + 1, z, "chiseled_sandstone");
+                    put(x, PLATFORM + 1, z, "chiseled_quartz_block");
                     put(x, PLATFORM + 2, z, "lantern[hanging=false]");
                 } else {
-                    put(x, PLATFORM + 1, z, "smooth_sandstone");
+                    put(x, PLATFORM + 1, z, Math.floorMod(x + z, 3) == 0 ? "cherry_leaves[persistent=true]" : "quartz_slab[type=bottom]");
                 }
             }
         }
@@ -388,20 +386,20 @@ public final class LobbyBuild extends Build {
         int[] spots = {7, 12, 17, 22};
         for (int side = -1; side <= 1; side += 2) {
             for (int s : spots) {
-                put(side * s, PLATFORM + 1, BACK - 2, "chiseled_stone_bricks");
-                put(side * s, PLATFORM + 2, BACK - 2, s <= 12 ? "stone_brick_slab[type=bottom]" : "stone_brick_wall[up=true]");
+                put(side * s, PLATFORM + 1, BACK - 2, "chiseled_quartz_block");
+                put(side * s, PLATFORM + 2, BACK - 2, s <= 12 ? "quartz_slab[type=bottom]" : "quartz_pillar[axis=y]");
                 if (s > 12) {
                     put(side * s, PLATFORM + 3, BACK - 2, "lantern[hanging=false]");
                 }
             }
             for (int y = PLATFORM + 1; y <= PLATFORM + 5; y++) {
-                put(side * 2, y, BACK, y == PLATFORM + 5 ? "chiseled_stone_bricks" : "stone_bricks");
+                put(side * 2, y, BACK, y == PLATFORM + 5 ? "gold_block" : "quartz_pillar[axis=y]");
             }
             put(side * 2, PLATFORM + 6, BACK, "lantern[hanging=false]");
         }
         for (int x = -1; x <= 1; x++) {
-            put(x, PLATFORM + 5, BACK, "stone_brick_slab[type=top]");
-            put(x, PLATFORM + 6, BACK, "stone_brick_slab[type=bottom]");
+            put(x, PLATFORM + 5, BACK, "smooth_quartz_slab[type=top]");
+            put(x, PLATFORM + 6, BACK, "cherry_leaves[persistent=true]");
         }
         put(0, PLATFORM + 4, BACK, "lantern[hanging=true]");
         put(0, PLATFORM + 1, BACK - 2, "light_weighted_pressure_plate");
@@ -428,13 +426,13 @@ public final class LobbyBuild extends Build {
                     put(x, fill, z, "stone_bricks");
                 }
                 if (Math.abs(x) == 3) {
-                    put(x, y, z, "stone_bricks");
-                    put(x, y + 1, z, lamp ? "stone_bricks" : "stone_brick_wall[up=true]");
+                    put(x, y, z, "quartz_bricks");
+                    put(x, y + 1, z, lamp ? "chiseled_quartz_block" : "quartz_slab[type=bottom]");
                     if (lamp) {
                         put(x, y + 2, z, "lantern[hanging=false]");
                     }
                 } else {
-                    put(x, y, z, stairs("stone_brick", "south", false));
+                    put(x, y, z, stairs("quartz", "south", false));
                     for (int up = 1; up <= 4; up++) {
                         put(x, y + up, z, "air");
                     }
@@ -1680,7 +1678,7 @@ public final class LobbyBuild extends Build {
                     continue;
                 }
                 use(tx - 1, tz - 1, tx + 1, tz + 1);
-                oak(tx, top + 1, tz, 3 + (int) (noise(tx, tz, 172) * 2), noise(tx, tz, 173) < 0.3);
+                cherry(tx, top + 1, tz, 3 + (int) (noise(tx, tz, 172) * 2), 2.2);
             }
         }
     }
@@ -1822,98 +1820,6 @@ public final class LobbyBuild extends Build {
     }
 
     // ---- v16: nagyobb sziget, jégfalu, kristálykert, faluszélek, csillagok és hópelyhek az égen ----
-
-    /** Jégfalu: korcsolyapálya, igluk, feldíszített fenyő. */
-    private void iceVillage(int vx, int vz) {
-        int rx = 13;
-        int rz = 8;
-        if (!flatArea(vx - rx - 2, vz - rz - 2, vx + rx + 2, vz + rz + 2)) {
-            return;
-        }
-        use(vx - rx - 2, vz - rz - 2, vx + rx + 2, vz + rz + 2);
-        for (int dx = -rx - 2; dx <= rx + 2; dx++) {
-            for (int dz = -rz - 2; dz <= rz + 2; dz++) {
-                double e = Math.pow(dx / (double) rx, 2) + Math.pow(dz / (double) rz, 2);
-                double rim = Math.pow(dx / (rx + 1.6), 2) + Math.pow(dz / (rz + 1.6), 2);
-                if (e <= 1) {
-                    put(vx + dx, 0, vz + dz, noise(vx + dx, vz + dz, 300) < 0.15 ? "packed_ice" : "ice");
-                    put(vx + dx, -1, vz + dz, "packed_ice");
-                    put(vx + dx, 1, vz + dz, "air");
-                } else if (rim <= 1) {
-                    put(vx + dx, 0, vz + dz, "snow_block");
-                    boolean post = Math.floorMod(dx * 3 + dz * 5, 7) == 0;
-                    put(vx + dx, 1, vz + dz, post ? "spruce_fence" : "snow[layers=2]");
-                    if (post) {
-                        put(vx + dx, 2, vz + dz, "lantern[hanging=false]");
-                    }
-                } else {
-                    put(vx + dx, 0, vz + dz, "snow_block");
-                    put(vx + dx, 1, vz + dz, noise(vx + dx, vz + dz, 301) < 0.4 ? "snow[layers=1]" : "air");
-                }
-            }
-        }
-        for (int i = 0; i < 4; i++) {
-            double a = i * Math.PI / 2 + 0.4;
-            int ix = vx + (int) Math.round(Math.cos(a) * (rx + 9));
-            int iz = vz + (int) Math.round(Math.sin(a) * (rz + 8));
-            igloo(ix, iz, i);
-        }
-        int tx = vx;
-        int tz = vz - rz - 6;
-        if (flatArea(tx - 3, tz - 3, tx + 3, tz + 3)) {
-            use(tx - 3, tz - 3, tx + 3, tz + 3);
-            spruce(tx, 0, tz, 14, 3.6, true);
-            String[] balls = {"red_concrete", "gold_block", "light_blue_concrete", "red_concrete"};
-            for (int k = 0; k < 14; k++) {
-                double a = k * 2.4;
-                int y = 3 + k * 10 / 14;
-                double rr = 3.4 - y * 0.25;
-                put(tx + (int) Math.round(Math.cos(a) * rr), y, tz + (int) Math.round(Math.sin(a) * rr), balls[k % balls.length]);
-            }
-            put(tx, 15, tz, "gold_block");
-            put(tx, 16, tz, "glowstone");
-        }
-        for (int[] b : new int[][]{{-rx - 3, 0}, {rx + 3, 0}}) {
-            put(vx + b[0], 1, vz + b[1] - 1, stairs("spruce", b[0] < 0 ? "east" : "west", false));
-            put(vx + b[0], 1, vz + b[1], stairs("spruce", b[0] < 0 ? "east" : "west", false));
-            put(vx + b[0], 1, vz + b[1] + 1, stairs("spruce", b[0] < 0 ? "east" : "west", false));
-        }
-    }
-
-    private void igloo(int ix, int iz, int seed) {
-        if (!flatArea(ix - 4, iz - 4, ix + 4, iz + 4)) {
-            return;
-        }
-        use(ix - 4, iz - 4, ix + 4, iz + 4);
-        double r = 3.6;
-        for (int dx = -4; dx <= 4; dx++) {
-            for (int dz = -4; dz <= 4; dz++) {
-                put(ix + dx, 0, iz + dz, "snow_block");
-                for (int y = 1; y <= 4; y++) {
-                    double d = Math.sqrt(dx * dx + dz * dz + (y - 0.5) * (y - 0.5) * 1.3);
-                    if (d <= r && d > r - 1.1) {
-                        put(ix + dx, y, iz + dz, noise(ix + dx, iz + dz + y, 310) < 0.2 ? "packed_ice" : "snow_block");
-                    } else if (d <= r - 1.1) {
-                        put(ix + dx, y, iz + dz, "air");
-                    }
-                }
-            }
-        }
-        int[][] dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-        int[] d = dirs[seed % 4];
-        for (int k = 3; k <= 4; k++) {
-            put(ix + d[0] * k, 1, iz + d[1] * k, "air");
-            put(ix + d[0] * k, 2, iz + d[1] * k, "air");
-            put(ix + d[0] * k + d[1], 1, iz + d[1] * k + d[0], "snow_block");
-            put(ix + d[0] * k - d[1], 1, iz + d[1] * k - d[0], "snow_block");
-            put(ix + d[0] * k + d[1], 2, iz + d[1] * k + d[0], "snow_block");
-            put(ix + d[0] * k - d[1], 2, iz + d[1] * k - d[0], "snow_block");
-            put(ix + d[0] * k, 3, iz + d[1] * k, "snow_block");
-        }
-        put(ix, 1, iz, "campfire[lit=true,signal_fire=false,facing=north]");
-        put(ix - d[1] * 2, 1, iz - d[0] * 2, "white_carpet");
-        put(ix + d[1] * 2, 1, iz + d[0] * 2, "light_blue_carpet");
-    }
 
     /** Kristálykert: jég és kékjég tornyok, köztük kis tó, éjjel világító tengeri lámpásokkal. */
     private void crystalGarden(int gx, int gz) {
@@ -2114,36 +2020,73 @@ public final class LobbyBuild extends Build {
         }
     }
 
-    /** A spawn felújítása: jégkapu a lépcső tetején, jégszobrok a terasz sarkain, padok, zászlók. */
+    /** Cseresznyefa: görbe törzs, széles rózsaszín korona, alatta szirmok. */
+    private void cherry(int x, int y, int z, int height, double radius) {
+        for (int i = 0; i < height; i++) {
+            put(x + (i >= height - 1 ? 1 : 0), y + i, z, "cherry_log[axis=y]");
+        }
+        int top = y + height;
+        int tx = x + 1;
+        int ri = (int) Math.ceil(radius) + 1;
+        for (int dy = -1; dy <= 1; dy++) {
+            double r = dy == -1 ? radius : (dy == 0 ? radius + 0.4 : radius - 0.8);
+            for (int dx = -ri; dx <= ri; dx++) {
+                for (int dz = -ri; dz <= ri; dz++) {
+                    double d = Math.sqrt(dx * dx + dz * dz) + noise(tx + dx, z + dz + dy, 400) * 0.8;
+                    if (d <= r) {
+                        put(tx + dx, top + dy, z + dz, "cherry_leaves[persistent=true]");
+                    } else if (dy == -1 && d <= r + 0.8 && noise(tx + dx, z + dz, 401) < 0.35) {
+                        put(tx + dx, top - 2, z + dz, "cherry_leaves[persistent=true]");
+                    }
+                }
+            }
+        }
+        put(tx, top, z, "cherry_log[axis=y]");
+    }
+
+    /** A spawn (v17, cseresznyevirágos márványkert): szökőkút középen, nagy cseresznyefák, padok, szirmok a kövön. */
     private void spawnDecor() {
-        int z = -(int) ARC - 1;
-        for (int side = -1; side <= 1; side += 2) {
-            int x = side * 5;
-            for (int y = PLATFORM - 1; y <= PLATFORM + 7; y++) {
-                put(x, y, z, y >= PLATFORM + 6 ? "sea_lantern" : (y % 2 == 0 ? "packed_ice" : "blue_ice"));
-                put(x, y, z + 1, y % 3 == 0 ? "light_blue_stained_glass" : "packed_ice");
-            }
-            put(x, PLATFORM + 8, z, "end_rod[facing=up]");
-            put(x, PLATFORM + 8, z + 1, "end_rod[facing=up]");
-        }
-        for (int x = -4; x <= 4; x++) {
-            int lift = 9 - (int) Math.round(Math.sqrt(16 - x * x) * 0.6);
-            put(x, PLATFORM + lift, z, "blue_ice");
-            put(x, PLATFORM + lift, z + 1, "blue_ice");
-            put(x, PLATFORM + lift + 1, z, Math.abs(x) <= 1 ? "sea_lantern" : "packed_ice");
-            if (Math.abs(x) % 2 == 0 && Math.abs(x) < 4) {
-                put(x, PLATFORM + lift - 1, z + 1, "chain[axis=y]");
-                put(x, PLATFORM + lift - 2, z + 1, "soul_lantern[hanging=true]");
+        int fz = FOUNTAIN_Z;
+        for (int x = -5; x <= 5; x++) {
+            for (int z = -5; z <= 5; z++) {
+                double d = dist(x, z);
+                if (d > 4.6 || d < 1.5) {
+                    continue;
+                }
+                put(x, PLATFORM, fz + z, d > 3.7 ? "quartz_bricks" : "water");
+                put(x, PLATFORM - 1, fz + z, "quartz_bricks");
+                put(x, PLATFORM + 1, fz + z, d > 3.7 ? "smooth_quartz_slab[type=bottom]" : "air");
             }
         }
+        for (int y = PLATFORM; y <= PLATFORM + 3; y++) {
+            put(0, y, fz, y == PLATFORM + 3 ? "gold_block" : "quartz_pillar[axis=y]");
+        }
+        for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            put(d[0], PLATFORM, fz + d[1], "water");
+            put(d[0], PLATFORM + 1, fz + d[1], "air");
+            put(d[0], PLATFORM + 3, fz + d[1], "quartz_stairs[facing=" + (d[0] > 0 ? "west" : d[0] < 0 ? "east" : d[1] > 0 ? "north" : "south") + ",half=top]");
+        }
+        put(0, PLATFORM + 4, fz, "water");
         for (int side = -1; side <= 1; side += 2) {
-            spire(side * 21, PLATFORM, -14, 9, 1.9);
-            spire(side * 23, PLATFORM, -9, 6, 1.4);
+            cherry(side * 29, Math.max(1, h(side * 29, 3) + 1), 3, 7, 4.2);
+            cherry(side * 23, PLATFORM + 1, -15, 5, 2.8);
             for (int k = -1; k <= 1; k++) {
-                put(side * 11, PLATFORM + 1, FOUNTAIN_Z + 9 + k, stairs("spruce", side < 0 ? "east" : "west", false));
+                put(side * 11, PLATFORM + 1, FOUNTAIN_Z + 9 + k, stairs("cherry", side < 0 ? "east" : "west", false));
             }
-            put(side * 11, PLATFORM + 1, FOUNTAIN_Z + 7, "potted_blue_orchid");
-            put(side * 11, PLATFORM + 1, FOUNTAIN_Z + 11, "potted_azure_bluet");
+            put(side * 11, PLATFORM + 1, FOUNTAIN_Z + 7, "potted_cherry_sapling");
+            put(side * 11, PLATFORM + 1, FOUNTAIN_Z + 11, "potted_pink_tulip");
+        }
+        for (int x = -TERRACE; x <= TERRACE; x++) {
+            for (int z = -(int) ARC; z <= BACK; z++) {
+                if (!onPlatform(x, z) || bed(x, z) || spoke(x, z) || dist(x, z - FOUNTAIN_Z) <= 8.5 || dist(x, z - 3) <= 2.5
+                        || Math.abs(x) <= 2 || dist(x, z) > ARC - 1.5 && z <= 0) {
+                    continue;
+                }
+                double n = noise(x, z, 410);
+                if (n < 0.07) {
+                    put(x, PLATFORM + 1, z, "pink_petals[facing=" + (n < 0.035 ? "east" : "south") + ",flower_amount=" + (1 + (int) (n * 57) % 4) + "]");
+                }
+            }
         }
     }
 
