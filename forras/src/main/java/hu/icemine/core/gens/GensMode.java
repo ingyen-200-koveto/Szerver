@@ -973,6 +973,7 @@ public final class GensMode implements ModeHandler, Listener {
         ensurePlot(player, data);
         relocate(player, data);
         ensureFarm(player, data);
+        ensureIslandPortal(player, data);
         refreshFields(data);
         return hub == null ? home(data) : hub;
     }
@@ -1231,6 +1232,8 @@ public final class GensMode implements ModeHandler, Listener {
                 String.join("\n", core.messages().list("gens.labels.sell"))));
         list.add(label(new Location(world, center[0] + FarmLayout.HOE[0] + 0.5, height + 2.2, center[1] + FarmLayout.HOE[1] + 0.5),
                 String.join("\n", core.messages().list("gens.labels.hoe"))));
+        list.add(label(new Location(world, center[0] + 0.5, height + 7.0, center[1] + GensBuild.ISLAND_PORTAL_Z + 0.5),
+                String.join("\n", core.messages().list("gens.labels.island-portal"))));
         labels.put(data.uuid, list);
     }
 
@@ -1271,8 +1274,19 @@ public final class GensMode implements ModeHandler, Listener {
                 String.join("\n", core.messages().list("gens.labels.sell"))));
         shared.add(label(new Location(world, HUB_X + SharedFarm.HOE[0] + 0.5, height + 2.2, HUB_Z + SharedFarm.HOE[1] + 0.5),
                 String.join("\n", core.messages().list("gens.labels.hoe"))));
-        shared.add(label(new Location(world, HUB_X + GensBuild.PORTAL[0] + 0.5, height + 9.2, HUB_Z + GensBuild.PORTAL[1] + 0.5),
+        shared.add(label(new Location(world, HUB_X + GensBuild.PORTAL[0] + 0.5, height + 6.8, HUB_Z + GensBuild.PORTAL[1] + 0.5),
                 String.join("\n", core.messages().list("gens.labels.portal"))));
+        shared.add(label(new Location(world, HUB_X + 0.5, height + 6.2, HUB_Z + 9.0),
+                String.join("\n", core.messages().list("gens.labels.board"))));
+        for (int i = 0; i < Math.min(SharedFarm.FIELDS, fields.size()); i++) {
+            GensData.Field field = fields.get(i);
+            double[] gate = SharedFarm.gate(i, 0);
+            double len = Math.hypot(gate[0], gate[1]);
+            double r = GensBuild.PLAZA + 2.5;
+            shared.add(label(new Location(world, HUB_X + gate[0] / len * r + 0.5, height + 2.3, HUB_Z + gate[1] / len * r + 0.5),
+                    String.join("\n", core.messages().list("gens.labels.road", "%number%", String.valueOf(i + 1), "%field%", field.name,
+                            "%level%", String.valueOf(field.level)))));
+        }
     }
 
     private TextDisplay label(Location location, String text) {
@@ -1738,7 +1752,11 @@ public final class GensMode implements ModeHandler, Listener {
     /** A központ portálja a saját szigetre visz (a nether helyett). */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPortalEnter(org.bukkit.event.entity.EntityPortalEnterEvent event) {
-        if (!(event.getEntity() instanceof Player player) || player.getWorld() != world || !inHub(event.getLocation())) {
+        if (!(event.getEntity() instanceof Player player) || player.getWorld() != world) {
+            return;
+        }
+        boolean fromHub = inHub(event.getLocation());
+        if (!fromHub && plotAt(event.getLocation()) <= 0) {
             return;
         }
         long now = System.currentTimeMillis();
@@ -1747,7 +1765,11 @@ public final class GensMode implements ModeHandler, Listener {
             return;
         }
         portalUse.put(player.getUniqueId(), now);
-        Bukkit.getScheduler().runTask(core, () -> goHome(player));
+        if (fromHub) {
+            Bukkit.getScheduler().runTask(core, () -> goHome(player));
+        } else {
+            Bukkit.getScheduler().runTask(core, () -> goHub(player));
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -2019,6 +2041,42 @@ public final class GensMode implements ModeHandler, Listener {
     }
 
     // ---- haza, látogatás, tagok ----
+
+    /** Vissza a közös farmra (a központba). */
+    public void goHub(Player player) {
+        if (player.getWorld() != world) {
+            core.modes().sendAndReport(player, ID);
+            return;
+        }
+        if (hub != null) {
+            player.teleport(hub);
+            core.messages().send(player, "gens.to-hub");
+        }
+    }
+
+    /** A régi szigetekre is kerül portál vissza a farmra, ha a helye szabad (generátort nem bántunk). */
+    private void ensureIslandPortal(Player player, GensData.Player data) {
+        PlayerProfile profile = core.profiles().profile(player);
+        if (profile == null || data.plot <= 0 || "1".equals(profile.setting("gens.islandportal", "0"))) {
+            return;
+        }
+        int[] center = plotCenter(data.plot);
+        List<int[]> blocks = GensBuild.islandPortal();
+        for (int[] b : blocks) {
+            Block at = world.getBlockAt(center[0] + b[0], height + b[1], center[1] + b[2]);
+            boolean floor = b[1] == 0;
+            if (floor ? at.getType() != Material.DIRT_PATH && at.getType() != Material.COARSE_DIRT && at.getType() != Material.GRAVEL
+                    && at.getType() != Material.GRASS_BLOCK : !at.getType().isAir()) {
+                profile.put("gens.islandportal", "1");
+                return;
+            }
+        }
+        for (int[] b : blocks) {
+            world.getBlockAt(center[0] + b[0], height + b[1], center[1] + b[2]).setBlockData(
+                    block(b[3] == 1 ? "crying_obsidian" : "nether_portal[axis=x]"), false);
+        }
+        profile.put("gens.islandportal", "1");
+    }
 
     public void goHome(Player player) {
         GensData.Player data = players.get(player.getUniqueId());

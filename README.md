@@ -224,7 +224,12 @@ changelog.yml-ben vannak; 3.70.1-től egyelőre ki van kapcsolva (config.yml -> 
 
 Látótáv (3.67.0-tól): nincs lezárva, mindenki annyit lát, amennyit a saját Videóbeállításaiban kér (max 32 chunk,
 config.yml -> view). A távoli chunkok csak látszanak, nem futnak bennük mobok és redstone. A Gensben (ice_gens) 3.70.2-ben
-12 chunk volt a határ, 3.70.4-től ott is 32 (view.worlds: világonként külön határ adható).
+12 chunk volt a határ, 3.70.4-től ott is 32 (view.worlds: világonként külön határ adható; 3.70.5-től játékosonként
+állítja be a szerver, mert a világszintű beállítás nem jutott el a klienshez.)
+
+Gens eligazodás (3.70.5-től): a központban tábla mondja meg, mi hol van, az utak elején hologram jelzi, melyik földhöz
+visz és hányas szinttől. Minden szigeten van portál vissza a közös farmra (a régi szigetekre is kerül, ha szabad a hely),
+és ugyanezt tudja a `/gens farm` és a `/spawn` is.
 
 A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban), máshol `IceMine •` (a régi `[IceMine]` helyett), az AuthMe üzenetei is ezzel jönnek, belépéskor
 csak annyi jelenik meg, hogy "Sikeres bejelentkezés, jó játékot!" (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.

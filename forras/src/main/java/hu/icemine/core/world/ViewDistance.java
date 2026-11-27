@@ -51,6 +51,51 @@ public final class ViewDistance implements Listener {
     }
 
     @EventHandler
+    public void onJoin(org.bukkit.event.player.PlayerJoinEvent event) {
+        later(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onWorld(org.bukkit.event.player.PlayerChangedWorldEvent event) {
+        later(event.getPlayer());
+    }
+
+    private void later(org.bukkit.entity.Player player) {
+        if (!enabled) {
+            return;
+        }
+        Bukkit.getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugin("IceMine"), () -> {
+            if (!player.isOnline()) {
+                return;
+            }
+            apply(player);
+        }, 5L);
+    }
+
+    /** A játékos annyit kap, amennyit a kliense kér, legfeljebb a határig (a szerver nem tölt be fölöslegesen többet). */
+    private void apply(org.bukkit.entity.Player player) {
+        int limit = perWorld.getOrDefault(player.getWorld().getName().toLowerCase(java.util.Locale.ROOT), send);
+        int wanted = clamp(Math.min(limit, Math.max(2, player.getClientViewDistance())));
+        try {
+            if (player.getViewDistance() != wanted) {
+                player.setViewDistance(wanted);
+            }
+            if (player.getSendViewDistance() != wanted) {
+                player.setSendViewDistance(wanted);
+            }
+        } catch (RuntimeException | NoSuchMethodError ignored) {
+            // régebbi Paper: marad a világ beállítása
+        }
+    }
+
+    @EventHandler
+    public void onOptions(com.destroystokyo.paper.event.player.PlayerClientOptionsChangeEvent event) {
+        if (enabled && event.hasViewDistanceChanged()) {
+            later(event.getPlayer());
+        }
+    }
+
+    @EventHandler
     public void onLoad(WorldLoadEvent event) {
         if (enabled) {
             apply(event.getWorld());

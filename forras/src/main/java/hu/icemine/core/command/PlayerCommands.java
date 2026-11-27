@@ -461,6 +461,11 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
             case "haza":
                 core.gens().goHome(player);
                 break;
+            case "farm":
+            case "kozpont":
+            case "hub":
+                core.gens().goHub(player);
+                break;
             case "visit":
             case "latogat":
                 if (args.length < 2) {

@@ -1,5 +1,8 @@
 package hu.icemine.core.gens;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hu.icemine.core.build.Build;
 import hu.icemine.core.build.Layout;
 
@@ -22,6 +25,20 @@ public final class GensBuild extends Build {
     }
 
     /** A sziget közepén, a téren; északra (az első föld felé) néz. */
+    /** A sziget portálja vissza a közös farmra: {dx, y, dz, 1 = keret / 0 = portál}, a tér északi szélén. */
+    public static final int ISLAND_PORTAL_Z = -5;
+
+    public static List<int[]> islandPortal() {
+        List<int[]> blocks = new ArrayList<>();
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int y = 0; y <= 5; y++) {
+                boolean frame = Math.abs(dx) == 2 || y == 0 || y == 5;
+                blocks.add(new int[]{dx, y, ISLAND_PORTAL_Z, frame ? 1 : 0});
+            }
+        }
+        return blocks;
+    }
+
     public static Layout.Point plotSpawn() {
         return new Layout.Point(0.5, 1, 0.5, 180);
     }
@@ -93,6 +110,9 @@ public final class GensBuild extends Build {
         put(FarmLayout.HOE[0], 1, FarmLayout.HOE[1], "anvil[facing=east]");
         put(2, 1, 2, "hay_block[axis=y]");
         put(-2, 1, 2, "composter[level=8]");
+        for (int[] b : islandPortal()) {
+            put(b[0], b[1], b[2], b[3] == 1 ? "crying_obsidian" : "nether_portal[axis=x]");
+        }
         for (int sx = -1; sx <= 1; sx += 2) {
             for (int sz = -1; sz <= 1; sz += 2) {
                 put(3 * sx, 1, 3 * sz, "spruce_fence");
