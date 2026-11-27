@@ -6,7 +6,7 @@ import java.util.List;
 
 public final class LobbyBuild extends Build {
 
-    public static final int VERSION = 14;
+    public static final int VERSION = 15;
     public static final int COURSE_LENGTH = 56;
     public static final int CLEAR = 136;
     public static final int CLEAR_NORTH = 100;
@@ -77,7 +77,9 @@ public final class LobbyBuild extends Build {
         letters();
         launchPads();
         wings();
+        districts();
         trees();
+        meadow();
         barrier();
         parkour();
         anchors();
@@ -633,7 +635,8 @@ public final class LobbyBuild extends Build {
         for (int step = 1; step <= 6; step++) {
             int px = doorX + dx * step;
             int pz = doorZ + dz * step;
-            if ((Math.abs(px) <= 3 && pz >= -51 && pz <= -28) || (pz >= -40 && pz <= -36)) {
+            if ((Math.abs(px) <= 3 && pz >= -51 && pz <= -28) || (pz >= -40 && pz <= -36)
+                    || (step >= 2 && px >= MIN_X && px <= MAX_X && pz >= MIN_Z && pz <= MAX_Z && used[px - MIN_X][pz - MIN_Z])) {
                 break;
             }
             path(px, pz);
@@ -1162,16 +1165,16 @@ public final class LobbyBuild extends Build {
     }
 
     private void trees() {
-        for (int gx = MIN_X; gx <= MAX_X; gx += 5) {
-            for (int gz = MIN_Z; gz <= MAX_Z; gz += 5) {
-                int x = gx + (int) (noise(gx, gz, 80) * 4);
-                int z = gz + (int) (noise(gx, gz, 81) * 4);
+        for (int gx = MIN_X; gx <= MAX_X; gx += 4) {
+            for (int gz = MIN_Z; gz <= MAX_Z; gz += 4) {
+                int x = gx + (int) (noise(gx, gz, 80) * 3);
+                int z = gz + (int) (noise(gx, gz, 81) * 3);
                 int top = h(x, z);
                 if (top < 2 || top > 24 || (z > -24 && Math.abs(x) < 32) || !free(x, z, 2)) {
                     continue;
                 }
                 int steep = Math.max(Math.abs(h(x + 1, z) - top), Math.abs(h(x, z + 1) - top));
-                if (steep > 2 || noise(x, z, 82) > 0.62) {
+                if (steep > 2 || noise(x, z, 82) > 0.8) {
                     continue;
                 }
                 use(x - 1, z - 1, x + 1, z + 1);
@@ -1219,6 +1222,499 @@ public final class LobbyBuild extends Build {
                 int from = onPlatform(x, z) ? PLATFORM + 1 : Math.max(top, 0) + 1;
                 for (int y = from; y <= BARRIER_TOP; y++) {
                     put(x, y, z, "barrier");
+                }
+            }
+        }
+    }
+
+    // ---- kitöltés: tanyák nyugaton, piac keleten, lebegő szigetek körben (v15) ----
+
+    /** Csak a sík, még szabad mezőre építünk (a hegyekre, utakra, házakra nem). */
+    private boolean flat(int x, int z) {
+        return h(x, z) == 0 && x >= MIN_X && x <= MAX_X && z >= MIN_Z && z <= MAX_Z && !used[x - MIN_X][z - MIN_Z];
+    }
+
+    static boolean DEBUG;
+
+    /**
+     * A terület beépíthető-e: a szigeten van, senki nem foglalta, és legfeljebb 3 blokkal magasabb a mezőnél.
+     * Ha igen, el is egyengeti (y = 0 lesz a talaj), hogy a házak ne lógjanak a levegőben vagy a dombba.
+     */
+    private boolean flatArea(int x0, int z0, int x1, int z1) {
+        for (int x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) {
+            for (int z = Math.min(z0, z1); z <= Math.max(z0, z1); z++) {
+                int top = h(x, z);
+                if (top < 0 || top > 3 || used[x - MIN_X][z - MIN_Z]) {
+                    if (DEBUG) {
+                        System.out.println("DBG area " + x0 + "," + z0 + " fail at " + x + "," + z + " h=" + top);
+                    }
+                    return false;
+                }
+            }
+        }
+        for (int x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) {
+            for (int z = Math.min(z0, z1); z <= Math.max(z0, z1); z++) {
+                int top = h(x, z);
+                for (int y = 1; y <= top + 2; y++) {
+                    put(x, y, z, "air");
+                }
+                put(x, 0, z, "grass_block");
+                height[x - MIN_X][z - MIN_Z] = 0;
+            }
+        }
+        return true;
+    }
+
+    /** Földút két pont között (előbb x, aztán z irányban), csak sík mezőn. */
+    private void lane(int x0, int z0, int x1, int z1, int half) {
+        for (int x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) {
+            for (int w = -half; w <= half; w++) {
+                lanePath(x, z0 + w);
+            }
+        }
+        for (int z = Math.min(z0, z1); z <= Math.max(z0, z1); z++) {
+            for (int w = -half; w <= half; w++) {
+                lanePath(x1 + w, z);
+            }
+        }
+    }
+
+    private void lanePath(int x, int z) {
+        int top = h(x, z);
+        if (top < 0 || top > 3 || used[x - MIN_X][z - MIN_Z]) {
+            return;
+        }
+        for (int y = 1; y <= top + 2; y++) {
+            put(x, y, z, "air");
+        }
+        height[x - MIN_X][z - MIN_Z] = 0;
+        path(x, z);
+    }
+
+    private void lampPost(int x, int z) {
+        if (h(x, z) != 0) {
+            return;
+        }
+        put(x, 1, z, "cobblestone_wall[up=true]");
+        put(x, 2, z, "spruce_fence");
+        put(x, 3, z, "spruce_fence");
+        put(x, 4, z, "lantern[hanging=false]");
+        use(x, z, x, z);
+    }
+
+    static final House[] FARM_HOUSES = {
+            new House(-62, -26, 9, 7, 2, "south", "spruce", "white_terracotta"),
+            new House(-74, -25, 7, 7, 1, "south", "acacia", "smooth_sandstone"),
+            new House(-46, -24, 7, 9, 1, "west", "dark_oak", "white_terracotta"),
+            new House(-64, 1, 9, 7, 1, "north", "acacia", "smooth_sandstone"),
+            new House(-77, 0, 7, 7, 1, "north", "spruce", "white_terracotta"),
+            new House(44, -15, 7, 9, 1, "west", "spruce", "smooth_sandstone"),
+            new House(45, 1, 9, 7, 2, "north", "acacia", "white_terracotta"),
+            new House(60, 0, 7, 7, 1, "north", "dark_oak", "smooth_sandstone"),
+            new House(73, 0, 9, 7, 1, "north", "spruce", "white_terracotta")
+    };
+
+    private void districts() {
+        lane(-52, -35, -52, -6, 1);
+        lane(-90, -6, -52, -6, 1);
+        lane(52, -35, 52, -6, 1);
+        lane(52, -6, 82, -6, 1);
+        for (House house : FARM_HOUSES) {
+            int x0 = house.x - house.sx / 2 - 1;
+            int z0 = house.z - house.sz / 2 - 1;
+            if (flatArea(x0, z0, x0 + house.sx + 1, z0 + house.sz + 1)) {
+                house(house);
+            }
+        }
+        for (int[] lamp : new int[][]{{-50, -30}, {-50, -18}, {-50, -10}, {-60, -4}, {-72, -4}, {-84, -4},
+                {50, -24}, {50, -16}, {50, -10}, {62, -4}, {74, -4}}) {
+            lampPost(lamp[0], lamp[1]);
+        }
+        fields(-90, -15, -56, -9);
+        windmill(-40, -13);
+        farmyard(-101, -13);
+        market(66, -21);
+        forge(43, -32);
+        orchard(30, -6, 40, 6);
+        orchard(-40, -2, -30, 6);
+        int[][] islands = {{-106, 8, 28, 8}, {108, 14, 30, 7}, {-72, -12, 54, 9}, {84, 24, 64, 9}, {-58, 26, 90, 6}, {0, -22, 102, 6},
+                {118, -8, -70, 7}, {-120, 20, -72, 7}};
+        for (int i = 0; i < islands.length; i++) {
+            floating(islands[i][0], islands[i][1], islands[i][2], islands[i][3], i);
+        }
+    }
+
+    /** Termőföldek: búza, répa, krumpli, cékla sorokban, közöttük öntözőcsatorna, a végükön madárijesztő. */
+    private void fields(int x0, int z0, int x1, int z1) {
+        String[] crops = {"wheat[age=7]", "carrots[age=7]", "potatoes[age=7]", "beetroots[age=3]", "wheat[age=6]"};
+        int plot = 0;
+        for (int px = x0; px + 6 <= x1; px += 8) {
+            if (!flatArea(px, z0, px + 6, z1)) {
+                plot++;
+                continue;
+            }
+            use(px - 1, z0 - 1, px + 7, z1 + 1);
+            String crop = crops[plot % crops.length];
+            for (int x = px; x <= px + 6; x++) {
+                for (int z = z0; z <= z1; z++) {
+                    boolean water = x == px + 3;
+                    boolean rim = z == z0 || z == z1;
+                    if (water && !rim) {
+                        put(x, 0, z, "water");
+                        put(x, -1, z, "clay");
+                        put(x, 1, z, "air");
+                    } else if (rim) {
+                        put(x, 0, z, "coarse_dirt");
+                        put(x, 1, z, water ? "oak_slab[type=bottom]" : "air");
+                    } else {
+                        put(x, 0, z, "farmland[moisture=7]");
+                        put(x, 1, z, crop);
+                    }
+                }
+            }
+            put(px - 1, 0, z0 - 1, "oak_log[axis=y]");
+            put(px + 7, 0, z1 + 1, "oak_log[axis=y]");
+            if (plot % 2 == 0) {
+                int sx = px + 1;
+                int sz = (z0 + z1) / 2;
+                put(sx, 1, sz, "spruce_fence");
+                put(sx, 2, sz, "hay_block[axis=y]");
+                put(sx, 3, sz, "carved_pumpkin[facing=south]");
+                put(sx - 1, 2, sz, "spruce_fence[east=true]");
+                put(sx + 1, 2, sz, "spruce_fence[west=true]");
+            }
+            plot++;
+        }
+    }
+
+    /** Nagy szélmalom kőalappal, fa felsővel és négy vitorlával. */
+    private void windmill(int mx, int mz) {
+        if (!flatArea(mx - 5, mz - 5, mx + 5, mz + 5)) {
+            return;
+        }
+        use(mx - 5, mz - 5, mx + 5, mz + 5);
+        int height = 14;
+        for (int y = 0; y <= height; y++) {
+            double r = 4.3 - y * 0.12;
+            for (int dx = -5; dx <= 5; dx++) {
+                for (int dz = -5; dz <= 5; dz++) {
+                    double d = dist(dx, dz);
+                    if (d > r) {
+                        continue;
+                    }
+                    boolean wall = d > r - 1.1;
+                    String block;
+                    if (y == 0) {
+                        block = wall ? "stone_bricks" : "spruce_planks";
+                    } else if (!wall) {
+                        block = y % 5 == 0 ? "spruce_planks" : "air";
+                    } else if (y <= 5) {
+                        double n = noise(mx + dx, mz + dz + y, 140);
+                        block = n < 0.6 ? "cobblestone" : (n < 0.85 ? "stone_bricks" : "mossy_cobblestone");
+                    } else {
+                        boolean window = (y == 8 || y == 9 || y == 12) && (dx == 0 || dz == 0);
+                        block = window ? "glass_pane" : (Math.floorMod(dx + dz, 4) == 0 ? "stripped_spruce_log[axis=y]" : "white_terracotta");
+                    }
+                    put(mx + dx, y, mz + dz, block);
+                }
+            }
+        }
+        cone(mx, height + 1, mz, 3.6, 5, "spruce", "spruce_planks", "spruce_fence");
+        put(mx, 1, mz + 4, "spruce_door[facing=south,half=lower,hinge=left,open=false]");
+        put(mx, 2, mz + 4, "spruce_door[facing=south,half=upper,hinge=left,open=false]");
+        for (int z = mz + 5; z <= mz + 7; z++) {
+            if (h(mx, z) == 0) {
+                path(mx, z);
+            }
+        }
+        int hubY = height - 2;
+        int hubZ = mz + 4;
+        put(mx, hubY, hubZ, "spruce_log[axis=z]");
+        put(mx, hubY, hubZ + 1, "spruce_log[axis=z]");
+        int[][] arms = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] arm : arms) {
+            for (int i = 1; i <= 8; i++) {
+                int ax = mx + arm[0] * i;
+                int ay = hubY + arm[1] * i;
+                put(ax, ay, hubZ + 1, "stripped_spruce_log[axis=" + (arm[0] != 0 ? "x" : "y") + "]");
+                if (i >= 2) {
+                    for (int w = 1; w <= 2; w++) {
+                        put(ax - arm[1] * w, ay + arm[0] * w, hubZ + 1, i == 8 ? "stripped_spruce_log[axis=y]" : "white_wool");
+                    }
+                }
+            }
+        }
+        for (int[] p : new int[][]{{-6, 2}, {-6, 3}, {5, -5}, {6, -4}}) {
+            if (flat(mx + p[0], mz + p[1])) {
+                put(mx + p[0], 1, mz + p[1], "hay_block[axis=y]");
+                use(mx + p[0], mz + p[1], mx + p[0], mz + p[1]);
+            }
+        }
+    }
+
+    /** Tanya udvar: pajta, szénabálák, méhkaptárak, szekér. */
+    private void farmyard(int bx, int bz) {
+        if (!flatArea(bx - 1, bz - 1, bx + 9, bz + 7)) {
+            return;
+        }
+        use(bx - 1, bz - 1, bx + 9, bz + 7);
+        for (int x = bx; x <= bx + 8; x++) {
+            for (int z = bz; z <= bz + 6; z++) {
+                boolean wall = x == bx || x == bx + 8 || z == bz || z == bz + 6;
+                boolean corner = (x == bx || x == bx + 8) && (z == bz || z == bz + 6);
+                put(x, 0, z, "spruce_planks");
+                for (int y = 1; y <= 4; y++) {
+                    String block = !wall ? "air" : (corner ? "stripped_dark_oak_log[axis=y]" : (y == 4 ? "stripped_dark_oak_log[axis=" + (z == bz || z == bz + 6 ? "x" : "z") + "]" : "red_terracotta"));
+                    put(x, y, z, block);
+                }
+            }
+        }
+        for (int i = 0; i <= 4; i++) {
+            for (int x = bx - 1; x <= bx + 9; x++) {
+                put(x, 5 + i, bz - 1 + i, stairs("dark_oak", "south", false));
+                put(x, 5 + i, bz + 7 - i, stairs("dark_oak", "north", false));
+            }
+            for (int z = bz + i; z <= bz + 6 - i; z++) {
+                put(bx, 5 + i, z, "red_terracotta");
+                put(bx + 8, 5 + i, z, "red_terracotta");
+            }
+        }
+        for (int x = bx + 3; x <= bx + 5; x++) {
+            for (int y = 1; y <= 3; y++) {
+                put(x, y, bz + 6, "air");
+            }
+        }
+        put(bx + 4, 4, bz + 6, "white_terracotta");
+        put(bx + 1, 1, bz + 1, "hay_block[axis=x]");
+        put(bx + 2, 1, bz + 1, "hay_block[axis=x]");
+        put(bx + 1, 2, bz + 1, "hay_block[axis=x]");
+        put(bx + 7, 1, bz + 1, "barrel[facing=up]");
+        put(bx + 7, 1, bz + 2, "composter[level=6]");
+        for (int i = 0; i < 3; i++) {
+            put(bx + 10, 1, bz + 1 + i * 2, "beehive[facing=east,honey_level=5]");
+        }
+        put(bx + 4, 1, bz + 8, "hay_block[axis=z]");
+        put(bx + 2, 1, bz + 8, "oak_trapdoor[facing=north,half=bottom,open=true]");
+        put(bx + 6, 1, bz + 8, "oak_trapdoor[facing=north,half=bottom,open=true]");
+    }
+
+    /** Piactér: kör alakú kövezett tér, középen kút, körben színes sátras standok, padok. */
+    private void market(int mx, int mz) {
+        int r = 9;
+        if (!flatArea(mx - r, mz - r, mx + r, mz + r)) {
+            return;
+        }
+        use(mx - r - 1, mz - r - 1, mx + r + 1, mz + r + 1);
+        for (int dx = -r; dx <= r; dx++) {
+            for (int dz = -r; dz <= r; dz++) {
+                double d = dist(dx, dz);
+                if (d > r + 0.4) {
+                    continue;
+                }
+                double n = noise(mx + dx, mz + dz, 150);
+                String block = d > r - 0.8 ? "polished_andesite" : (n < 0.45 ? "stone_bricks" : (n < 0.7 ? "andesite" : (n < 0.88 ? "cobblestone" : "mossy_stone_bricks")));
+                put(mx + dx, 0, mz + dz, block);
+                put(mx + dx, 1, mz + dz, "air");
+            }
+        }
+        well(mx, mz);
+        String[][] colors = {{"red_wool", "white_wool"}, {"yellow_wool", "orange_wool"}, {"lime_wool", "green_wool"},
+                {"light_blue_wool", "blue_wool"}, {"magenta_wool", "purple_wool"}, {"orange_wool", "white_wool"}};
+        for (int i = 0; i < 6; i++) {
+            double a = i * Math.PI / 3 + 0.5;
+            int sx = mx + (int) Math.round(Math.cos(a) * 6) - 1;
+            int sz = mz + (int) Math.round(Math.sin(a) * 6) + 1;
+            stall(sx, sz, colors[i][0], colors[i][1]);
+        }
+        for (int[] p : new int[][]{{-r, 0}, {r, 0}, {0, -r}, {0, r}}) {
+            put(mx + p[0], 1, mz + p[1], "cobblestone_wall[up=true]");
+            put(mx + p[0], 2, mz + p[1], "spruce_fence");
+            put(mx + p[0], 3, mz + p[1], "lantern[hanging=false]");
+        }
+        for (int[] p : new int[][]{{-6, -6}, {6, 6}, {6, -6}, {-6, 6}}) {
+            put(mx + p[0], 1, mz + p[1], stairs("spruce", p[0] < 0 ? "east" : "west", false));
+            put(mx + p[0] + (p[0] < 0 ? 0 : 0), 1, mz + p[1] + (p[1] < 0 ? 1 : -1), stairs("spruce", p[0] < 0 ? "east" : "west", false));
+            put(mx + p[0] + (p[0] < 0 ? -1 : 1), 1, mz + p[1], "potted_red_tulip");
+        }
+    }
+
+    /** Kovácsműhely: nyitott tető, kohó lávával, üllő, köszörű. */
+    private void forge(int fx, int fz) {
+        if (!flatArea(fx - 1, fz - 1, fx + 7, fz + 6)) {
+            return;
+        }
+        use(fx - 1, fz - 1, fx + 7, fz + 6);
+        for (int x = fx; x <= fx + 6; x++) {
+            for (int z = fz; z <= fz + 5; z++) {
+                put(x, 0, z, noise(x, z, 160) < 0.5 ? "stone_bricks" : "cobblestone");
+                for (int y = 1; y <= 4; y++) {
+                    boolean post = (x == fx || x == fx + 6) && (z == fz || z == fz + 5);
+                    boolean back = z == fz;
+                    put(x, y, z, post ? "stripped_spruce_log[axis=y]" : (back ? (y <= 2 ? "stone_bricks" : "spruce_planks") : "air"));
+                }
+                put(x, 5, z, z == fz || z == fz + 5 ? stairs("deepslate_tile", z == fz ? "south" : "north", false) : "deepslate_tiles");
+            }
+        }
+        for (int y = 1; y <= 8; y++) {
+            put(fx + 1, y, fz, y <= 2 ? "lava_cauldron" : "bricks");
+        }
+        put(fx + 1, 1, fz + 1, "blast_furnace[facing=south,lit=true]");
+        put(fx + 3, 1, fz + 2, "anvil[facing=east]");
+        put(fx + 4, 1, fz + 3, "grindstone[face=floor,facing=north]");
+        put(fx + 5, 1, fz + 1, "smithing_table");
+        put(fx + 5, 2, fz + 1, "chain[axis=y]");
+        put(fx + 2, 4, fz + 3, "lantern[hanging=true]");
+        put(fx + 6, 1, fz + 3, "barrel[facing=up]");
+        put(fx + 5, 1, fz + 4, "water_cauldron[level=3]");
+    }
+
+    /** Gyümölcsös: sorokban álló kis fák, közöttük virágok és méhkaptár. */
+    private void orchard(int x0, int z0, int x1, int z1) {
+        for (int x = x0; x <= x1; x += 4) {
+            for (int z = z0; z <= z1; z += 4) {
+                int tx = x + (int) (noise(x, z, 170) * 2);
+                int tz = z + (int) (noise(x, z, 171) * 2);
+                int top = h(tx, tz);
+                if (top < 0 || top > 5 || !free(tx, tz, 1)) {
+                    continue;
+                }
+                use(tx - 1, tz - 1, tx + 1, tz + 1);
+                oak(tx, top + 1, tz, 3 + (int) (noise(tx, tz, 172) * 2), noise(tx, tz, 173) < 0.3);
+            }
+        }
+    }
+
+    /** Lebegő kis sziget a nagy körül: füves tető, kő és jég alja, rajta fák, néhányon kis ház vagy rom. */
+    private void floating(int ix, int iy, int iz, int radius, int seed) {
+        int max = radius + 2;
+        for (int dx = -max; dx <= max; dx++) {
+            for (int dz = -max; dz <= max; dz++) {
+                double a = Math.atan2(dz, dx);
+                double edge = radius + 1.1 * Math.sin(a * 3 + seed) + 0.6 * Math.sin(a * 7 + seed * 2);
+                double d = dist(dx, dz);
+                if (d > edge) {
+                    continue;
+                }
+                int x = ix + dx;
+                int z = iz + dz;
+                put(x, iy, z, noise(x, z, 180 + seed) < 0.08 ? "moss_block" : "grass_block");
+                int deep = (int) ((1 - Math.pow(d / edge, 1.5)) * radius * 1.1) + 1 + (int) (noise(x, z, 181) * 2);
+                for (int l = 1; l <= deep; l++) {
+                    double n = noise(x, z + l * 3, 182 + seed);
+                    put(x, iy - l, z, l <= 1 ? "dirt" : (l >= deep - 1 ? (n < 0.5 ? "packed_ice" : "stone") : (n < 0.55 ? "stone" : (n < 0.8 ? "andesite" : "dirt"))));
+                }
+                if (noise(x, z, 183) < 0.05 && deep > 3) {
+                    int length = 2 + (int) (noise(x, z, 184) * 5);
+                    for (int l = 1; l <= length; l++) {
+                        put(x, iy - deep - l, z, l >= length - 1 ? "blue_ice" : "packed_ice");
+                    }
+                }
+                double n = noise(x, z, 185);
+                if (d < edge - 1) {
+                    put(x, iy + 1, z, n < 0.12 ? "short_grass" : (n < 0.14 ? "poppy" : (n < 0.16 ? "cornflower" : "air")));
+                }
+            }
+        }
+        switch (seed % 4) {
+            case 0:
+                spruce(ix - 2, iy, iz + 1, 7, 2.4, true);
+                spruce(ix + 3, iy, iz - 2, 5, 1.8, false);
+                break;
+            case 1:
+                oak(ix + 2, iy + 1, iz, 4, false);
+                ruin(ix - 3, iy, iz - 2);
+                break;
+            case 2:
+                hut(ix - 2, iy, iz - 2);
+                oak(ix + 4, iy + 1, iz + 3, 4, true);
+                break;
+            default:
+                spruce(ix, iy, iz, 8, 2.6, true);
+                put(ix + 3, iy + 1, iz + 2, "mossy_cobblestone");
+                put(ix + 3, iy + 2, iz + 2, "mossy_cobblestone_wall[up=true]");
+                break;
+        }
+    }
+
+    private void ruin(int x0, int y, int z0) {
+        for (int x = x0; x <= x0 + 4; x++) {
+            for (int z = z0; z <= z0 + 4; z++) {
+                boolean wall = x == x0 || x == x0 + 4 || z == z0 || z == z0 + 4;
+                if (!wall) {
+                    continue;
+                }
+                int top = 1 + (int) (noise(x, z, 190) * 4);
+                for (int yy = 1; yy <= top; yy++) {
+                    put(x, y + yy, z, noise(x, z + yy, 191) < 0.5 ? "mossy_stone_bricks" : "cracked_stone_bricks");
+                }
+            }
+        }
+    }
+
+    private void hut(int x0, int y, int z0) {
+        for (int x = x0; x <= x0 + 4; x++) {
+            for (int z = z0; z <= z0 + 4; z++) {
+                boolean wall = x == x0 || x == x0 + 4 || z == z0 || z == z0 + 4;
+                boolean corner = (x == x0 || x == x0 + 4) && (z == z0 || z == z0 + 4);
+                put(x, y, z, "spruce_planks");
+                for (int yy = 1; yy <= 3; yy++) {
+                    put(x, y + yy, z, !wall ? "air" : (corner ? "spruce_log[axis=y]" : (yy == 2 && (x == x0 + 2 || z == z0 + 2) ? "glass_pane" : "spruce_planks")));
+                }
+            }
+        }
+        for (int i = 0; i <= 2; i++) {
+            for (int x = x0 - 1 + i; x <= x0 + 5 - i; x++) {
+                put(x, y + 4 + i, z0 - 1 + i, stairs("spruce", "south", false));
+                put(x, y + 4 + i, z0 + 5 - i, stairs("spruce", "north", false));
+            }
+            for (int z = z0 + i; z <= z0 + 4 - i; z++) {
+                put(x0 - 1 + i, y + 4 + i, z, "spruce_planks");
+                put(x0 + 5 - i, y + 4 + i, z, "spruce_planks");
+            }
+        }
+        put(x0 + 2, y + 6, z0 + 2, "spruce_slab[type=bottom]");
+        put(x0 + 2, y + 1, z0 + 4, "spruce_door[facing=south,half=lower,hinge=left,open=false]");
+        put(x0 + 2, y + 2, z0 + 4, "spruce_door[facing=south,half=upper,hinge=left,open=false]");
+        put(x0 + 1, y + 1, z0 + 1, "lantern[hanging=false]");
+    }
+
+    /** Ami a végén még üres maradt a mezőn: bokrok, kövek, virágfoltok, nyírfák. */
+    private void meadow() {
+        for (int x = MIN_X; x <= MAX_X; x++) {
+            for (int z = MIN_Z; z <= MAX_Z; z++) {
+                int top = h(x, z);
+                if (top < 0 || top > 6 || used[x - MIN_X][z - MIN_Z] || (z > -24 && Math.abs(x) < 26)) {
+                    continue;
+                }
+                int steep = Math.max(Math.abs(h(x + 1, z) - top), Math.abs(h(x, z + 1) - top));
+                if (steep > 1) {
+                    continue;
+                }
+                double patch = smooth(x, z, 9.0, 200);
+                double n = noise(x, z, 201);
+                if (patch > 0.68 && n < 0.35) {
+                    String[] flowers = {"cornflower", "oxeye_daisy", "allium", "azure_bluet", "red_tulip", "white_tulip", "lily_of_the_valley"};
+                    put(x, top + 1, z, flowers[(int) (smooth(x, z, 14.0, 202) * flowers.length) % flowers.length]);
+                } else if (n < 0.012 && free(x, z, 1)) {
+                    use(x - 1, z - 1, x + 1, z + 1);
+                    put(x, top + 1, z, "oak_leaves[persistent=true]");
+                    put(x + 1, top + 1, z, "oak_leaves[persistent=true]");
+                    put(x, top + 1, z + 1, "azalea_leaves[persistent=true]");
+                    put(x, top + 2, z, noise(x, z, 203) < 0.5 ? "flowering_azalea_leaves[persistent=true]" : "oak_leaves[persistent=true]");
+                } else if (n < 0.02 && free(x, z, 1)) {
+                    use(x, z, x, z);
+                    put(x, top + 1, z, noise(x, z, 204) < 0.5 ? "mossy_cobblestone" : "andesite");
+                    if (noise(x, z, 205) < 0.4) {
+                        put(x + 1, top + 1, z, "cobblestone_slab[type=bottom]");
+                    }
+                } else if (n < 0.024 && free(x, z, 2)) {
+                    use(x - 1, z - 1, x + 1, z + 1);
+                    oak(x, top + 1, z, 5 + (int) (noise(x, z, 206) * 2), true);
+                } else if (n < 0.2) {
+                    put(x, top + 1, z, n < 0.17 ? "short_grass" : "fern");
+                } else if (n < 0.215) {
+                    put(x, top + 1, z, "tall_grass[half=lower]");
+                    put(x, top + 2, z, "tall_grass[half=upper]");
                 }
             }
         }

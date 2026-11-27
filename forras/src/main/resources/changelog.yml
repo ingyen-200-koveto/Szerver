@@ -60,3 +60,17 @@
     - "A látótáv nincs lezárva, annyit látsz, amennyit beállítasz."
     - "A lobbykban középen van az iránytű, és nem lehet szétpakolni az inventoryt."
     - "Mostantól minden nagyobb frissítés újdonságai ide kerülnek."
+
+"3.71.0":
+  cim: "Új Gens sziget automata farmmal"
+  pontok:
+    - "Trópusi sziget nagy pálmafával és sziklával."
+    - "Automata farm: a csatorna mellé rakott generátorok dropja a gyűjtőládába úszik, ott egyben begyűjtheted vagy eladhatod."
+    - "Javítva: a generátorok újra működnek, és restart után is mind megmarad."
+
+"3.72.0":
+  cim: "Kidolgozottabb főlobby"
+  pontok:
+    - "Új tanyanegyed szélmalommal, földekkel és pajtával."
+    - "Piactér színes standokkal, kovácsműhely, gyümölcsösök, több ház."
+    - "Lebegő kis szigetek a lobby körül."

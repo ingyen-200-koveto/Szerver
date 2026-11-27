@@ -231,6 +231,11 @@ Gens eligazodás (3.70.5-től): a központban tábla mondja meg, mi hol van, az 
 visz és hányas szinttől. Minden szigeten van portál vissza a közös farmra (a régi szigetekre is kerül, ha szabad a hely),
 és ugyanezt tudja a `/gens farm` és a `/spawn` is.
 
+Főlobby (3.72.0-tól, layout 15): a mező is be van építve. Nyugaton tanyanegyed (szélmalom, termőföldek madárijesztővel,
+pajta méhkaptárakkal, házak földúttal), keleten piactér színes standokkal és kúttal, kovácsműhely, gyümölcsösök, több ház,
+sűrűbb fenyves a hegyoldalon, virágfoltok, bokrok és kövek, a sziget körül 8 lebegő kis sziget. Ha a lobby.yml-ben
+keep-build: true, nem épül újra magától: /icemine rebuild lobby confirm (a kézi módosítások elvesznek).
+
 Gens sziget (3.71.0-tól): trópusi sziget homokos parttal, nagy pálmafával és sziklával. Keleten az automata farm: a
 csatornák melletti mintás kőre rakott generátorok dropja a vízbe esik és a gyűjtőládához úszik (ez csak látvány, a dropot
 a láda adja: jobb klikk -> mind begyűjtése / eladása), és kétszer annyit tárolnak. A régi szigetek a gazdájuk következő
