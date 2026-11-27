@@ -215,6 +215,9 @@ a prestige, az automatikus eladás és a nagy hátizsák is drágább. A saját 
 tó stéggel, óriásfák, lebegő hamburgerek), a közepén a közös farm. A téren lévő portál a saját szigetedre visz.
 Külön Gens módlobby már nincs (modelobbies.yml -> lobbies.gens.enabled: false).
 
+Látótáv (3.67.0-tól): nincs lezárva, mindenki annyit lát, amennyit a saját Videóbeállításaiban kér (max 32 chunk,
+config.yml -> view). A távoli chunkok csak látszanak, nem futnak bennük mobok és redstone.
+
 A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban), máshol `IceMine •` (a régi `[IceMine]` helyett), az AuthMe üzenetei is ezzel jönnek, belépéskor
 csak annyi jelenik meg, hogy "Sikeres bejelentkezés, jó játékot!" (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.
 A módlobbyk felirata magától feljebb kerül, ha belelógna egy épületbe. Minden lobbyban középen (5. hely) van az

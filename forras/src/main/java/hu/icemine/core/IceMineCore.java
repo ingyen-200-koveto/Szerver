@@ -160,12 +160,15 @@ public final class IceMineCore extends JavaPlugin {
         }
     }
 
+    private hu.icemine.core.world.ViewDistance viewDistance;
+
     @Override
     public void onEnable() {
         instance = this;
         getServer().getPluginManager().registerEvents(new org.bukkit.event.Listener() {
             @org.bukkit.event.EventHandler
             public void onLoaded(org.bukkit.event.server.ServerLoadEvent event) {
+                safely("látótáv", () -> viewDistance.applyAll());
                 safely("LibertyBans parancsok", hu.icemine.core.command.LibertyBansAliases::register);
                 safely("teljesítmény beállítások visszaállítása", () -> hu.icemine.core.config.Optimalizalas.visszavon(Bukkit.getWorldContainer().getAbsoluteFile(),
                         getDataFolder(), java.util.List.of("ice_bedwars", "ice_skywars", "duels"), getLogger()));
@@ -177,6 +180,8 @@ public final class IceMineCore extends JavaPlugin {
         safely("régi módok takarítása", () -> hu.icemine.core.config.OldModes.run(getDataFolder(), Bukkit.getWorldContainer(), getLogger()));
         configs = new ConfigFiles(this);
         List<String> problems = configs.loadAll();
+        viewDistance = new hu.icemine.core.world.ViewDistance(configs.get("config"), getLogger());
+        getServer().getPluginManager().registerEvents(viewDistance, this);
         safely("config frissítés", () -> {
             Upgrades upgrades = new Upgrades(getDataFolder(), this::getResource);
             for (String note : upgrades.apply(new java.util.LinkedHashSet<>(java.util.Arrays.asList(ConfigFiles.NAMES)), new Upgrades.Target() {

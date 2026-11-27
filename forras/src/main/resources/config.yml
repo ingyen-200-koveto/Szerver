@@ -15,6 +15,15 @@ database:
   ssl: false
 
 # IceCoin: a játékosok weboldalas egyenlege. A scoreboard ezt mutatja (%icecoin%), a szerver csak olvassa.
+# Látótáv: nincs lezárva, mindenki annyi chunkot lát, amennyit a saját beállításában (Videóbeállítások -> Látótávolság) kér,
+# legfeljebb send-distance-ig (max 32). A távoli chunkok csak látszanak, nem futnak bennük mobok és redstone, ezért a
+# szerver terhelése alig nő. view-distance / simulation-distance: 0 = marad a server.properties értéke.
+view:
+  enabled: true
+  send-distance: 32
+  view-distance: 0
+  simulation-distance: 0
+
 skins:
   # A SkinsRestorer csak ezen a szerveren van, a proxyn nincs. Induláskor kikapcsoljuk a proxy módját,
   # különben Velocity mögött nem tenné fel a weboldalas skineket. Ha a proxyra is felteszed, írd false-ra.
