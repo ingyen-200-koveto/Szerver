@@ -241,19 +241,28 @@ class FarmTest {
 
     @Test
     void sharedFarmLayout() {
-        for (int field = 0; field < 8; field++) {
+        int total = 0;
+        for (int field = 0; field < SharedFarm.FIELDS; field++) {
             List<int[]> cells = SharedFarm.cells(field);
-            assertEquals((SharedFarm.HALF * 2 + 1) * (SharedFarm.HALF * 2 + 1), cells.size());
+            assertTrue(cells.size() > 1000, "nagy földek: " + cells.size());
+            total += cells.size();
             for (int[] cell : cells) {
                 assertEquals(field, SharedFarm.fieldAt(cell[0], cell[1]));
                 assertTrue(Math.abs(cell[0]) <= SharedFarm.EXTENT && Math.abs(cell[1]) <= SharedFarm.EXTENT);
+                assertTrue(Math.sqrt(cell[0] * cell[0] + cell[1] * cell[1]) > GensBuild.PLAZA + 20, "a földek messze vannak a tértől");
             }
-            assertTrue(SharedFarm.around(field, SharedFarm.center(field)[0], SharedFarm.center(field)[1], 2).size() == 25, "5x5 a föld közepén");
+            int[] c = SharedFarm.center(field);
+            assertEquals(25, SharedFarm.around(field, c[0], c[1], 2).size(), "5x5 a föld közepén");
+            for (int other = 0; other < field; other++) {
+                int[] o = SharedFarm.center(other);
+                assertTrue(Math.hypot(c[0] - o[0], c[1] - o[1]) > 55, "a földek messze vannak egymástól");
+            }
         }
+        assertTrue(total > 10000, "összesen sok növény: " + total);
         assertEquals(-1, SharedFarm.fieldAt(0, 0));
         assertEquals(-1, SharedFarm.fieldAt(SharedFarm.SELL[0], SharedFarm.SELL[1]));
         assertEquals(-1, SharedFarm.fieldAt(SharedFarm.HOE[0], SharedFarm.HOE[1]));
         assertEquals(-1, SharedFarm.fieldAt(0, 5), "a spawn a téren van, nem földön");
-        assertTrue(SharedFarm.EXTENT < 48, "a közös farm a központ telkén belül marad (a telkek 48-tól kezdődnek)");
+        assertTrue(SharedFarm.EXTENT + 10 < GensBuild.TOWN, "a farm a központ szigetén belül marad");
     }
 }

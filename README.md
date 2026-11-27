@@ -201,7 +201,8 @@ Beállítás: `creative.yml` -> `worldedit`.
 
 ### Gens
 
-Gens Tycoon: a földek (3.60.0-tól) a Gens központjában vannak, egy közös farmon: 8 nagy föld (3.63.0-tól 23x23, összesen kb. 4200 növény) a tér körül,
+Gens Tycoon: a földek (3.60.0-tól) a Gens központjában vannak, egy közös farmon: 8 nagy föld (3.68.0-tól szabálytalan, hullámos szélű földek kerítéssel, egyenként 1300-1800 növény, összesen
+kb. 12 000) egy nagy körben a tér körül, köztük utak lámpákkal, rét, liget, tó, szénaboglyák,
 mindenki ott arat, de csak azokon a földeken, amelyeket már megvett. A növényeket a Gens kapával kell learatni (bal klikk), pár másodperc alatt visszanőnek.
 A földek (3.65.0-tól) a Gens szinttel nyílnak sorban: búza 1., sárgarépa 3., krumpli 6., cékla 10., dinnye 15., tök 22.,
 bogyó 30., netherbibircsók 40. szinten (gens.yml -> fields.<n>.level), venni már nem kell őket; aki már megvett

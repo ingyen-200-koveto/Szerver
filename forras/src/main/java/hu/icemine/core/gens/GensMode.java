@@ -83,7 +83,7 @@ public final class GensMode implements ModeHandler, Listener {
     /** A profilban ("gens.farm") jegyezzük, hogy a sziget már a földes változat. */
     static final String FARM_VERSION = "2";
     /** A központ (közös farm) változata a gens.yml-ben: ha régebbi, újraépül. */
-    static final int HUB_VERSION = 5;
+    static final int HUB_VERSION = 6;
     /** A központ (közös farm + város) helye: messze a telkektől, hogy elférjen. */
     public static final int HUB_X = 0;
     public static final int HUB_Z = -12000;
@@ -342,7 +342,7 @@ public final class GensMode implements ModeHandler, Listener {
                 HUB_Z + GensBuild.HUB_CLEAR);
         GensBuild build = new GensBuild(placer, HUB_X, height, HUB_Z, true, 0);
         build.build();
-        for (int i = 0; i < Math.min(SharedFarm.CENTERS.length, fields.size()); i++) {
+        for (int i = 0; i < Math.min(SharedFarm.FIELDS, fields.size()); i++) {
             new FieldBuild(placer, HUB_X, height, HUB_Z, i, fields.get(i).crop, true, true).build();
         }
         regrowing.values().removeIf(r -> Math.abs(r.x - HUB_X) <= SharedFarm.EXTENT && Math.abs(r.z - HUB_Z) <= SharedFarm.EXTENT);
@@ -911,7 +911,7 @@ public final class GensMode implements ModeHandler, Listener {
         if (world == null || !world.isChunkLoaded(HUB_X >> 4, HUB_Z >> 4)) {
             return;
         }
-        for (int i = 0; i < Math.min(SharedFarm.CENTERS.length, fields.size()); i++) {
+        for (int i = 0; i < Math.min(SharedFarm.FIELDS, fields.size()); i++) {
             Crop crop = fields.get(i).crop;
             BlockData soil = block(crop.soil);
             BlockData ripe = block(crop.mature());
@@ -1257,12 +1257,12 @@ public final class GensMode implements ModeHandler, Listener {
             }
         }
         shared.clear();
-        for (int i = 0; i < Math.min(SharedFarm.CENTERS.length, fields.size()); i++) {
+        for (int i = 0; i < Math.min(SharedFarm.FIELDS, fields.size()); i++) {
             GensData.Field field = fields.get(i);
             int[] middle = SharedFarm.center(i);
-            int[] toward = {Integer.signum(-middle[0]), Integer.signum(-middle[1])};
-            double lx = HUB_X + middle[0] + toward[0] * (SharedFarm.HALF + 1.5) + 0.5;
-            double lz = HUB_Z + middle[1] + toward[1] * (SharedFarm.HALF + 1.5) + 0.5;
+            double[] gate = SharedFarm.gate(i, 3.0);
+            double lx = HUB_X + gate[0] + 0.5;
+            double lz = HUB_Z + gate[1] + 0.5;
             List<String> lines = core.messages().list("gens.labels.shared", "%number%", String.valueOf(i + 1), "%field%", field.name,
                     "%level%", String.valueOf(field.level), "%value%", core.economy().format(currency, field.value));
             shared.add(label(new Location(world, lx, height + 2.6, lz), String.join("\n", lines)));

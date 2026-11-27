@@ -5,7 +5,7 @@ import hu.icemine.core.build.Layout;
 
 public final class GensBuild extends Build {
 
-    public static final int HUB_CLEAR = 96;
+    public static final int HUB_CLEAR = 214;
     public static final int PLOT_CLEAR = 26;
     static final int HUB_RADIUS = 34;
     static final int PLOT_RADIUS = 22;
@@ -174,7 +174,7 @@ public final class GensBuild extends Build {
     }
 
     /** A központ nagy szigete (a farm és körülötte a város), füves tetővel. */
-    static final double TOWN = 86;
+    static final double TOWN = 200;
 
     static boolean onIsland(int dx, int dz) {
         double p = 3;
@@ -210,78 +210,220 @@ public final class GensBuild extends Build {
         }
     }
 
+    /** A tér sugara a központ közepén. */
+    static final int PLAZA = 13;
+
     private void hub() {
-        bigIsland(TOWN, 26, 300);
-        int e = SharedFarm.EXTENT;
+        bigIsland(TOWN, 20, 300);
+        int e = SharedFarm.EXTENT + 2;
+        boolean[][] road = new boolean[e * 2 + 1][e * 2 + 1];
+        for (int i = 0; i < SharedFarm.FIELDS; i++) {
+            double[] gate = SharedFarm.gate(i, 0.5);
+            double len = dist(gate[0], gate[1]);
+            for (double t = PLAZA - 1; t <= len + 1; t += 0.5) {
+                for (double w = -1.5; w <= 1.5; w += 0.5) {
+                    int x = (int) Math.round(gate[0] / len * t - gate[1] / len * w);
+                    int z = (int) Math.round(gate[1] / len * t + gate[0] / len * w);
+                    if (Math.abs(x) <= e && Math.abs(z) <= e && SharedFarm.fieldAt(x, z) < 0) {
+                        road[x + e][z + e] = true;
+                    }
+                }
+            }
+        }
         for (int dx = -e; dx <= e; dx++) {
             for (int dz = -e; dz <= e; dz++) {
-                for (int y = 1; y <= 12; y++) {
-                    put(dx, y, dz, "air");
+                double d = dist(dx, dz);
+                if (Math.abs(d - 50) < 1.6 && SharedFarm.fieldAt(dx, dz) < 0) {
+                    road[dx + e][dz + e] = true;
                 }
-                put(dx, -1, dz, "dirt");
-                if (SharedFarm.fieldAt(dx, dz) >= 0) {
+            }
+        }
+        for (int dx = -e; dx <= e; dx++) {
+            for (int dz = -e; dz <= e; dz++) {
+                double d = dist(dx, dz);
+                if (d > e) {
                     continue;
                 }
-                boolean plaza = Math.abs(dx) <= 8 && Math.abs(dz) <= 8;
-                String block;
-                if (plaza) {
-                    double d = dist(dx, dz);
-                    boolean edge = Math.abs(dx) == 8 || Math.abs(dz) == 8;
-                    block = edge ? "prismarine_bricks" : (Math.abs(d - 4) < 0.55 ? "cyan_concrete" : (Math.floorMod(dx + dz, 2) == 0 ? "calcite" : "smooth_quartz"));
-                } else {
-                    boolean border = SharedFarm.fieldAt(dx + 1, dz) >= 0 || SharedFarm.fieldAt(dx - 1, dz) >= 0
-                            || SharedFarm.fieldAt(dx, dz + 1) >= 0 || SharedFarm.fieldAt(dx, dz - 1) >= 0
-                            || SharedFarm.fieldAt(dx + 1, dz + 1) >= 0 || SharedFarm.fieldAt(dx - 1, dz - 1) >= 0
-                            || SharedFarm.fieldAt(dx + 1, dz - 1) >= 0 || SharedFarm.fieldAt(dx - 1, dz + 1) >= 0;
-                    double n = noise(dx, dz, 721);
-                    block = border ? "stripped_spruce_wood[axis=y]" : (n < 0.1 ? "coarse_dirt" : (n < 0.18 ? "gravel" : "dirt_path"));
+                for (int y = 1; y <= 14; y++) {
+                    put(dx, y, dz, "air");
                 }
-                put(dx, 0, dz, block);
+                int field = SharedFarm.fieldAt(dx, dz);
+                if (field >= 0) {
+                    put(dx, -1, dz, "dirt");
+                    continue;
+                }
+                int rim = rimOf(dx, dz);
+                if (d <= PLAZA) {
+                    boolean edge = d > PLAZA - 1;
+                    put(dx, 0, dz, edge ? "prismarine_bricks" : (Math.abs(d - 7) < 0.55 ? "cyan_concrete"
+                            : (Math.floorMod(dx + dz, 2) == 0 ? "calcite" : "smooth_quartz")));
+                } else if (road[dx + e][dz + e]) {
+                    double n = noise(dx, dz, 721);
+                    put(dx, 0, dz, n < 0.12 ? "coarse_dirt" : (n < 0.2 ? "gravel" : "dirt_path"));
+                } else if (rim >= 0) {
+                    double[] gate = SharedFarm.gate(rim, 0.5);
+                    boolean opening = dist(dx - gate[0], dz - gate[1]) < 2.6;
+                    put(dx, 0, dz, "coarse_dirt");
+                    if (!opening) {
+                        put(dx, 1, dz, "oak_fence");
+                    }
+                } else {
+                    double n = noise(dx, dz, 722);
+                    double patch = smooth(dx, dz, 6.0, 723);
+                    put(dx, 0, dz, n < 0.05 ? "moss_block" : "grass_block");
+                    if (n < 0.02 + 0.05 * patch) {
+                        String[] flowers = {"poppy", "dandelion", "cornflower", "oxeye_daisy", "azure_bluet"};
+                        put(dx, 1, dz, flowers[(int) (noise(dx, dz, 724) * flowers.length)]);
+                    } else if (n < 0.22 + 0.2 * patch) {
+                        put(dx, 1, dz, "short_grass");
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < SharedFarm.FIELDS; i++) {
+            double[] gate = SharedFarm.gate(i, 0.5);
+            double len = dist(gate[0], gate[1]);
+            for (double t = PLAZA + 6; t < len - 3; t += 13) {
+                int side = ((int) (t / 13)) % 2 == 0 ? 1 : -1;
+                int x = (int) Math.round(gate[0] / len * t - gate[1] / len * 2.6 * side);
+                int z = (int) Math.round(gate[1] / len * t + gate[0] / len * 2.6 * side);
+                lamp(x, z);
+            }
+            double between = Math.atan2(SharedFarm.center(i)[1], SharedFarm.center(i)[0]) + Math.PI / SharedFarm.FIELDS;
+            int mx = (int) Math.round(Math.cos(between) * 92);
+            int mz = (int) Math.round(Math.sin(between) * 92);
+            switch (i % 4) {
+                case 0 -> grove(mx, mz);
+                case 1 -> hayYard(mx, mz);
+                case 2 -> pond(mx, mz);
+                default -> scarecrowYard(mx, mz);
             }
         }
         windmill();
         put(SharedFarm.SELL[0], 1, SharedFarm.SELL[1], "barrel[facing=up]");
         put(SharedFarm.SELL[0], 2, SharedFarm.SELL[1], "lantern[hanging=false]");
         put(SharedFarm.HOE[0], 1, SharedFarm.HOE[1], "anvil[facing=east]");
-        for (int sx = -1; sx <= 1; sx += 2) {
-            for (int sz = -1; sz <= 1; sz += 2) {
-                lamp(14 * sx, 14 * sz);
-                lamp(14 * sx, 28 * sz);
-                lamp(28 * sx, 14 * sz);
-                lamp(14 * sx, 40 * sz);
-                lamp(40 * sx, 14 * sz);
-                put(8 * sx, 1, 8 * sz, "prismarine_wall[up=true]");
-                put(8 * sx, 2, 8 * sz, "sea_lantern");
+        for (int k = 0; k < 8; k++) {
+            double a = Math.PI * 2 * k / 8;
+            int x = (int) Math.round(Math.cos(a) * (PLAZA - 1));
+            int z = (int) Math.round(Math.sin(a) * (PLAZA - 1));
+            if (Math.abs(z) <= 1 && x < 0) {
+                continue;
             }
+            put(x, 1, z, "prismarine_wall[up=true]");
+            put(x, 2, z, "sea_lantern");
         }
-        stall(-11, 3, "lime_wool", "white_wool");
-        stall(11, 3, "cyan_wool", "white_wool");
-        int[][] trees = {{-43, -14}, {43, 14}, {14, -43}, {-14, 43}};
-        for (int[] tree : trees) {
-            spruce(tree[0], tree[1], 6, 1.8);
-        }
-        portal(0, 12);
-        hu.icemine.core.modelobby.GensFarmTown.hubTown((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, GensBuild::onIsland, 44).build();
-        new hu.icemine.core.build.Title((x, y, z, data) -> put(x, y, z, data), 0, 22, -50, 2, "south", "GENS", "lime_concrete", "white_concrete",
+        stall(7, 7, "lime_wool", "white_wool");
+        stall(7, -8, "cyan_wool", "white_wool");
+        portal(PORTAL[0], PORTAL[1]);
+        hu.icemine.core.modelobby.GensFarmTown.hubTown((x, y, z, data) -> put(x, y, z, data), 0, 0, 0, GensBuild::onIsland,
+                SharedFarm.EXTENT + 4).build();
+        new hu.icemine.core.build.Title((x, y, z, data) -> put(x, y, z, data), 0, 30, -48, 2, "south", "GENS", "lime_concrete", "white_concrete",
                 4, "green_terracotta", "green_terracotta").build();
         layout.point("spawn", 0.5, 1, 4.5, 180);
     }
 
-    /** Portál a téren: aki belelép, a saját szigetére kerül. */
-    static final int[] PORTAL = {0, 12};
-
-    private void portal(int px, int pz) {
-        for (int dx = -3; dx <= 3; dx++) {
-            for (int y = 0; y <= 6; y++) {
-                boolean outer = Math.abs(dx) == 3 || y == 6;
-                boolean frame = Math.abs(dx) == 2 || y == 0 || y == 5;
-                String block = outer ? (noise(px + dx, y, 650) < 0.4 ? "mossy_stone_bricks" : "stone_bricks")
-                        : (frame ? "obsidian" : "nether_portal[axis=x]");
-                put(px + dx, y, pz, block);
+    /** Melyik föld mellett van közvetlenül (a föld szegélye, ide kerül a kerítés), vagy -1. */
+    private static int rimOf(int x, int z) {
+        for (int[] n : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}}) {
+            int field = SharedFarm.fieldAt(x + n[0], z + n[1]);
+            if (field >= 0) {
+                return field;
             }
         }
-        put(px - 3, 7, pz, "lantern[hanging=false]");
-        put(px + 3, 7, pz, "lantern[hanging=false]");
+        return -1;
+    }
+
+    private void oak(int x, int z, int height) {
+        for (int y = 1; y <= height; y++) {
+            put(x, y, z, "oak_log[axis=y]");
+        }
+        for (int dx = -3; dx <= 3; dx++) {
+            for (int dy = -2; dy <= 2; dy++) {
+                for (int dz = -3; dz <= 3; dz++) {
+                    if (Math.sqrt(dx * dx + dy * dy * 1.8 + dz * dz) <= 3.1 - noise(x + dx, z + dz + dy, 730) * 0.8) {
+                        put(x + dx, height + dy, z + dz, noise(x + dx, dy + z + dz, 731) < 0.25 ? "birch_leaves[persistent=true]" : "oak_leaves[persistent=true]");
+                    }
+                }
+            }
+        }
+    }
+
+    private void grove(int x, int z) {
+        oak(x, z, 6);
+        oak(x + 5, z + 3, 5);
+        oak(x - 4, z + 4, 7);
+        put(x + 2, 1, z - 3, "oak_log[axis=x]");
+        put(x + 3, 1, z - 3, "oak_log[axis=x]");
+    }
+
+    private void hayYard(int x, int z) {
+        int[][] bales = {{0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 2}, {-1, 0, 1}, {0, -1, 1}, {2, 1, 1}};
+        for (int[] b : bales) {
+            for (int y = 1; y <= b[2]; y++) {
+                put(x + b[0], y, z + b[1], "hay_block[axis=y]");
+            }
+        }
+        for (int dx = -2; dx <= 2; dx++) {
+            put(x + dx + 4, 2, z - 3, "spruce_slab[type=top]");
+            put(x + dx + 4, 3, z - 3, dx == 0 ? "hay_block[axis=x]" : "air");
+        }
+        put(x + 2, 1, z - 4, "dark_oak_trapdoor[facing=north,half=bottom,open=true]");
+        put(x + 6, 1, z - 4, "dark_oak_trapdoor[facing=north,half=bottom,open=true]");
+        put(x - 2, 1, z + 2, "composter[level=8]");
+        put(x - 3, 1, z + 2, "barrel[facing=up]");
+    }
+
+    private void pond(int x, int z) {
+        for (int dx = -5; dx <= 5; dx++) {
+            for (int dz = -5; dz <= 5; dz++) {
+                double d = dist(dx, dz * 1.2);
+                if (d <= 4.2) {
+                    put(x + dx, 0, z + dz, "water");
+                    put(x + dx, -1, z + dz, d < 2.5 ? "water" : "clay");
+                    put(x + dx, d < 2.5 ? -2 : -2, z + dz, "clay");
+                    if (noise(x + dx, z + dz, 732) < 0.08) {
+                        put(x + dx, 1, z + dz, "lily_pad");
+                    }
+                } else if (d <= 5.2) {
+                    put(x + dx, 0, z + dz, noise(x + dx, z + dz, 733) < 0.5 ? "mud" : "grass_block");
+                    if (noise(x + dx, z + dz, 734) < 0.2) {
+                        put(x + dx, 1, z + dz, "sugar_cane");
+                    }
+                }
+            }
+        }
+    }
+
+    private void scarecrowYard(int x, int z) {
+        put(x, 1, z, "spruce_fence");
+        put(x, 2, z, "hay_block[axis=y]");
+        put(x, 3, z, "carved_pumpkin[facing=south]");
+        put(x - 1, 2, z, "spruce_fence");
+        put(x + 1, 2, z, "spruce_fence");
+        int[][] pumpkins = {{3, 2}, {4, 1}, {-3, 2}, {2, -3}, {-2, -3}};
+        for (int[] p : pumpkins) {
+            put(x + p[0], 1, z + p[1], noise(p[0], p[1], 735) < 0.3 ? "melon" : "pumpkin");
+        }
+        put(x - 4, 1, z - 1, "barrel[facing=up]");
+        put(x - 4, 2, z - 1, "lantern[hanging=false]");
+    }
+
+    /** Portál a téren: aki belelép, a saját szigetére kerül. */
+    static final int[] PORTAL = {-PLAZA + 1, 0};
+
+    private void portal(int px, int pz) {
+        for (int dz = -3; dz <= 3; dz++) {
+            for (int y = 0; y <= 6; y++) {
+                boolean outer = Math.abs(dz) == 3 || y == 6;
+                boolean frame = Math.abs(dz) == 2 || y == 0 || y == 5;
+                String block = outer ? (noise(px, y + dz, 650) < 0.4 ? "mossy_stone_bricks" : "stone_bricks")
+                        : (frame ? "obsidian" : "nether_portal[axis=z]");
+                put(px, y, pz + dz, block);
+            }
+        }
+        put(px, 7, pz - 3, "lantern[hanging=false]");
+        put(px, 7, pz + 3, "lantern[hanging=false]");
     }
 
     /** A központ közepén egy szélmalom, a vitorlák a spawn felé (délre) néznek. */

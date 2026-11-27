@@ -29,9 +29,9 @@ public final class FieldBuild extends Build {
     @Override
     public void build() {
         int[] c = shared ? SharedFarm.center(field) : FarmLayout.center(field);
-        int half = shared ? SharedFarm.HALF : FarmLayout.HALF;
+        int half = FarmLayout.HALF;
         for (int[] cell : shared ? SharedFarm.cells(field) : FarmLayout.cells(field)) {
-            boolean corner = Math.abs(cell[0] - c[0]) == half && Math.abs(cell[1] - c[1]) == half;
+            boolean corner = !shared && Math.abs(cell[0] - c[0]) == half && Math.abs(cell[1] - c[1]) == half;
             if (unlocked) {
                 put(cell[0], -1, cell[1], crop == Crop.NETHER_WART ? "soul_soil" : "dirt");
                 put(cell[0], 0, cell[1], crop.soil);

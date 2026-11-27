@@ -17,6 +17,7 @@ public final class GensFarmTown extends ThemeBase {
     private int[] lakeAt = LAKE;
     private int[] hillAt = HILL;
     private final boolean hub;
+    private int farm;
 
     GensFarmTown(Sink sink, int cx, int cy, int cz, Free free) {
         this(sink, cx, cy, cz, free, false);
@@ -33,8 +34,15 @@ public final class GensFarmTown extends ThemeBase {
      */
     public static Build hubTown(Sink sink, int x, int y, int z, java.util.function.BiPredicate<Integer, Integer> free, int farm) {
         GensFarmTown town = new GensFarmTown(sink, x, y, z, (fx, fz) -> free.test(fx, fz), true);
-        town.take(-farm, -farm, farm, farm);
-        town.span = 92;
+        for (int fx = -farm; fx <= farm; fx++) {
+            for (int fz = -farm; fz <= farm; fz++) {
+                if (dist(fx, fz) <= farm) {
+                    town.take(fx, fz, fx, fz);
+                }
+            }
+        }
+        town.farm = farm;
+        town.span = 205;
         return town;
     }
 
@@ -98,41 +106,66 @@ public final class GensFarmTown extends ThemeBase {
 
     /** A központ városa: a farm körüli gyűrűben pajták, domb bányával, tó, mező, kellékek, fák, dombok, lebegő burgerek. */
     private void buildHub() {
-        barn(-62, -12, 1, 6, 8, "deepslate_tile", "deepslate_tiles");
-        barn(62, 12, 3, 6, 8, "smooth_sandstone", "yellow_terracotta");
-        barn(-22, -64, 0, 5, 6, "deepslate_tile", "deepslate_tiles");
-        barn(22, -64, 0, 5, 6, "dark_oak", "dark_oak_planks");
-        barn(16, 64, 2, 6, 7, "deepslate_tile", "deepslate_tiles");
-        hillAt = new int[]{60, -58};
+        // a régi, kisebb város elrendezése, felnagyítva és kétszer körbe forgatva, hogy az egész nagy farmot körbeérje
+        double scale = 2.3;
+        for (int turn = 0; turn < 2; turn++) {
+            double a = turn * Math.PI / 4;
+            java.util.function.IntBinaryOperator rx = (x, z) -> (int) Math.round((x * Math.cos(a) - z * Math.sin(a)) * scale);
+            java.util.function.IntBinaryOperator rz = (x, z) -> (int) Math.round((x * Math.sin(a) + z * Math.cos(a)) * scale);
+            int[][] barns = turn == 0 ? new int[][]{{-62, -12, 1}, {62, 12, 3}, {-22, -64, 0}, {22, -64, 0}, {16, 64, 2}}
+                    : new int[][]{{-62, 10, 1}, {62, -10, 3}, {-18, 64, 2}};
+            String[][] roofs = {{"deepslate_tile", "deepslate_tiles"}, {"smooth_sandstone", "yellow_terracotta"}, {"dark_oak", "dark_oak_planks"}};
+            for (int i = 0; i < barns.length; i++) {
+                int[] b = barns[i];
+                int rot = Math.floorMod(b[2] + (turn == 1 ? 0 : 0), 4);
+                String[] roof = roofs[(i + turn) % roofs.length];
+                barn(rx.applyAsInt(b[0], b[1]), rz.applyAsInt(b[0], b[1]), rot, 6, 8, roof[0], roof[1]);
+            }
+            int[][] ruinsAt = {{-50, 22}, {-52, -30}, {50, -26}, {48, 26}, {26, -50}, {-30, 50}, {0, -55}, {0, 55}};
+            int[][] ruinsWorld = new int[ruinsAt.length][];
+            for (int i = 0; i < ruinsAt.length; i++) {
+                ruinsWorld[i] = new int[]{rx.applyAsInt(ruinsAt[i][0], ruinsAt[i][1]), rz.applyAsInt(ruinsAt[i][0], ruinsAt[i][1])};
+            }
+            ruins(ruinsWorld);
+            int[][] propsAt = {{-58, 8}, {58, -8}, {8, 58}, {-8, -58}, {-48, -48}, {48, 48}};
+            int[][] propsWorld = new int[propsAt.length][];
+            for (int i = 0; i < propsAt.length; i++) {
+                propsWorld[i] = new int[]{rx.applyAsInt(propsAt[i][0], propsAt[i][1]), rz.applyAsInt(propsAt[i][0], propsAt[i][1])};
+            }
+            props(propsWorld);
+        }
+        hillAt = new int[]{140, -134};
         hill();
-        lakeAt = new int[]{-58, 58};
+        hillAt = new int[]{-150, -120};
+        hill();
+        lakeAt = new int[]{-134, 134};
         lake();
-        wheat(-60, -56, 9, 7);
-        rows(60, 58);
-        market(-14, 56);
-        tractor(-28, 60);
-        wagon(36, -52);
-        waterTower(68, 34);
-        ruins(new int[][]{{-50, 22}, {-52, -30}, {50, -26}, {48, 26}, {26, -50}, {-30, 50}, {0, -52}, {0, 52}});
-        props(new int[][]{{-48, 8}, {48, -8}, {8, 48}, {-8, -48}, {-48, -48}, {48, 48}});
-        ridges(70, 92);
+        lakeAt = new int[]{150, 112};
+        lake();
+        wheat(-140, -128 + 40, 9, 7);
+        rows(138, 134 - 40);
+        market(-32, 140);
+        tractor(-60, 144);
+        wagon(84, -128);
+        waterTower(156, 60);
+        waterTower(-60, -150);
+        ridges(156, 205);
+        for (int i = 0; i < 36; i++) {
+            double a = Math.PI * 2 * i / 36 + 0.17;
+            int r = 140 + (int) (noise(i, 9, 640) * 30);
+            bigTree((int) Math.round(Math.cos(a) * r), (int) Math.round(Math.sin(a) * r), 11 + (int) (noise(i, 1, 602) * 5), i);
+        }
         for (int i = 0; i < 18; i++) {
-            double a = Math.PI * 2 * i / 18 + 0.17;
-            int x = (int) Math.round(Math.cos(a) * (64 + noise(i, 9, 640) * 12));
-            int z = (int) Math.round(Math.sin(a) * (64 + noise(i, 9, 640) * 12));
-            bigTree(x, z, 11 + (int) (noise(i, 1, 602) * 5), i);
+            double a = Math.PI * 2 * i / 18 + 0.4;
+            int r = 70 + (int) (noise(i, 4, 641) * 110);
+            burger((int) Math.round(Math.cos(a) * r), 42 + (int) (noise(i, 5, 642) * 24), (int) Math.round(Math.sin(a) * r));
         }
-        for (int i = 0; i < 9; i++) {
-            double a = Math.PI * 2 * i / 9 + 0.4;
-            int r = 62 + (int) (noise(i, 4, 641) * 22);
-            burger((int) Math.round(Math.cos(a) * r), 34 + (int) (noise(i, 5, 642) * 18), (int) Math.round(Math.sin(a) * r));
+        for (int i = 0; i < 18; i++) {
+            double a = Math.PI * 2 * i / 18 + 0.05;
+            int r = 60 + (int) (noise(i, 6, 643) * 120);
+            spiky((int) Math.round(Math.cos(a) * r), 46 + (int) (noise(i, 7, 644) * 26), (int) Math.round(Math.sin(a) * r));
         }
-        for (int i = 0; i < 10; i++) {
-            double a = Math.PI * 2 * i / 10 + 0.05;
-            int r = 60 + (int) (noise(i, 6, 643) * 24);
-            spiky((int) Math.round(Math.cos(a) * r), 38 + (int) (noise(i, 7, 644) * 20), (int) Math.round(Math.sin(a) * r));
-        }
-        scatter((x, z) -> Math.abs(x) <= 44 && Math.abs(z) <= 44, new String[]{"poppy", "dandelion", "cornflower", "oxeye_daisy"}, 0.35);
+        scatter((x, z) -> dist(x, z) <= farm, new String[]{"poppy", "dandelion", "cornflower", "oxeye_daisy"}, 0.35);
     }
 
     // ---- elforgatható helyi koordináták (0 = dél felé néz, 1 = kelet, 2 = észak, 3 = nyugat) ----
