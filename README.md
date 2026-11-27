@@ -216,6 +216,10 @@ a prestige, az automatikus eladás és a nagy hátizsák is drágább. A saját 
 tó stéggel, óriásfák, lebegő hamburgerek), a közepén a közös farm. A téren lévő portál a saját szigetedre visz.
 Külön Gens módlobby már nincs (modelobbies.yml -> lobbies.gens.enabled: false).
 
+Changelog (3.70.0-tól): a nagyobb frissítések (x.y.0) újdonságai a szerver első indulásakor a Discord hírek
+csatornájába kerülnek (vagy ahová a botnál beállítod: `/beallitas frissitesek`). A szövegek a forras/src/main/resources/
+changelog.yml-ben vannak; kikapcsolás: config.yml -> changelog.discord: false.
+
 Látótáv (3.67.0-tól): nincs lezárva, mindenki annyit lát, amennyit a saját Videóbeállításaiban kér (max 32 chunk,
 config.yml -> view). A távoli chunkok csak látszanak, nem futnak bennük mobok és redstone.
 

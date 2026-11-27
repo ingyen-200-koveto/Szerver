@@ -345,6 +345,13 @@ public final class IceMineCore extends JavaPlugin {
                 }
             }, 20L * 30, 20L * 30);
         });
+        safely("changelog", () -> {
+            if (getConfig().getBoolean("changelog.discord", true)) {
+                Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> hu.icemine.core.config.Changelog.run(getResource("changelog.yml"),
+                        getDataFolder().toPath().resolve("changelog.txt"), getDescription().getVersion(), getLogger(),
+                        (path, json, done) -> iceCoins().post(path, json, done)), 20L * 60);
+            }
+        });
         safely("LibertyBans összekötés", () -> {
             buntetesek = new hu.icemine.core.rank.Buntetesek(this);
             buntetesek.start();

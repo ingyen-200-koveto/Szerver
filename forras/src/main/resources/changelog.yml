@@ -1,0 +1,62 @@
+# IceMine changelog. A nagyobb frissítések (x.y.0) a szerver első indulásakor a Discordra kerülnek.
+# Kisebb javításnál (x.y.1, x.y.2...) nem megy üzenet, csak ha "nagy: true".
+# cim: rövid cím, pontok: az újdonságok, úgy, ahogy egy játékos megérti.
+
+"3.60.0":
+  cim: "Közös farm a Gensben"
+  pontok:
+    - "A földek a Gens központjába kerültek, mindenki ott arat."
+    - "A legjobb kapa is legfeljebb 5x5-öt arat egyszerre."
+    - "A lobbyban az üzenetek előtt Lobby • áll."
+
+"3.62.0":
+  cim: "Farm város"
+  pontok:
+    - "Új Gens környék: piros pajták, tó stéggel, bánya, óriásfák és lebegő hamburgerek."
+
+"3.64.0":
+  cim: "Gens központ és új belépési üzenet"
+  pontok:
+    - "A Gensbe lépve rögtön a központban kezdesz, a portál visz a saját szigetedre."
+    - "Belépéskor csak annyi jön, hogy Sikeres bejelentkezés, jó játékot!"
+
+"3.65.0":
+  cim: "Szebb rangok, földek szintenként"
+  pontok:
+    - "Minden rang kapott egy ikont és színátmenetes nevet."
+    - "A chatben a név után » jön."
+    - "A Gens földeket már nem kell megvenni, a Gens szinteddel nyílnak meg."
+
+"3.66.0":
+  cim: "Nehezebb Gens, távoli szigetek"
+  pontok:
+    - "Lassabb a fejlődés: több XP kell egy szinthez, drágább a kapa és a generátor."
+    - "Minden sziget 1000 blokkra van a másiktól, a régiek maguktól átköltöznek."
+
+"3.67.0":
+  cim: "Szabad látótáv"
+  pontok:
+    - "Annyit látsz, amennyit a Videóbeállításokban beállítasz (max 32 chunk)."
+
+"3.68.0":
+  cim: "Óriás közös farm"
+  pontok:
+    - "8 nagy, szabálytalan alakú föld egy nagy körben, utakkal, lámpákkal, réttel."
+
+"3.69.0":
+  cim: "Szélmalom a Gens közepén"
+  pontok:
+    - "Még nagyobb földek, kerítés nélkül."
+    - "Középen egy nagy szélmalom, benne a portál a saját szigetedre."
+    - "Több pajta és víztorony a sziget szélén."
+
+"3.70.0":
+  cim: "Újdonságok az elmúlt napokból"
+  pontok:
+    - "Gens: óriás közös farm 8 nagy földdel, középen szélmalom, benne a portál a saját szigetedre."
+    - "Gens: a földek a szinteddel nyílnak, a fejlődés lassabb, a szigetek messze vannak egymástól."
+    - "Új kinézet az összes játékmód lobbyjának (vár, kolosszeum, BedWars szigetek, End város és a többi)."
+    - "Szebb rangok ikonnal, IceMine • és Lobby • előtag az üzenetekben."
+    - "A látótáv nincs lezárva, annyit látsz, amennyit beállítasz."
+    - "A lobbykban középen van az iránytű, és nem lehet szétpakolni az inventoryt."
+    - "Mostantól minden nagyobb frissítés újdonságai ide kerülnek."
