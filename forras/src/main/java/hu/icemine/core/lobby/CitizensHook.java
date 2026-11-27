@@ -132,14 +132,12 @@ public final class CitizensHook {
         }
     }
 
-    public int create(String name, Location location, String skin, ItemStack hand) {
+    public int create(String name, Location location, String skin, String value, String signature, ItemStack hand) {
         try {
             Class<?> registryType = Class.forName("net.citizensnpcs.api.npc.NPCRegistry", true, loader);
             Object npc = method(registryType, "createNPC", EntityType.class, String.class).invoke(registry, EntityType.PLAYER, name);
             hideNameplate(npc);
-            if (skin != null && !skin.isBlank()) {
-                skin(npc, skin);
-            }
+            skin(npc, skin, value, signature);
             lookClose(npc);
             if (hand != null) {
                 hand(npc, hand);
@@ -206,11 +204,19 @@ public final class CitizensHook {
         return method(npcType, "getOrAddTrait", Class.class).invoke(npc, traitType);
     }
 
-    private void skin(Object npc, String skin) {
+    /** Játékosnév alapján (skin), vagy aláírt textúrával (value + signature, pl. MineSkinről). */
+    private void skin(Object npc, String skin, String value, String signature) {
         try {
-            Object trait = trait(npc, "net.citizensnpcs.trait.SkinTrait");
-            method(trait.getClass(), "setSkinName", String.class).invoke(trait, skin);
-        } catch (Throwable ignored) {
+            if (value != null && !value.isBlank() && signature != null && !signature.isBlank()) {
+                Object trait = trait(npc, "net.citizensnpcs.trait.SkinTrait");
+                String name = skin != null && !skin.isBlank() ? skin : "icemine_" + Integer.toHexString(value.hashCode());
+                method(trait.getClass(), "setSkinPersistent", String.class, String.class, String.class).invoke(trait, name, signature, value);
+            } else if (skin != null && !skin.isBlank()) {
+                Object trait = trait(npc, "net.citizensnpcs.trait.SkinTrait");
+                method(trait.getClass(), "setSkinName", String.class).invoke(trait, skin);
+            }
+        } catch (Throwable error) {
+            logger.fine("Citizens skin hiba: " + error);
         }
     }
 
@@ -231,10 +237,10 @@ public final class CitizensHook {
         }
     }
 
-    public void skin(int id, String skin) {
+    public void skin(int id, String skin, String value, String signature) {
         Object npc = byId(id);
-        if (npc != null && skin != null && !skin.isBlank()) {
-            skin(npc, skin);
+        if (npc != null) {
+            skin(npc, skin, value, signature);
         }
     }
 }

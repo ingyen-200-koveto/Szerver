@@ -195,21 +195,21 @@ final class ComboSpawn {
     }
 
     private void citizen() {
+        String[] preset = skin != null && !skin.isBlank() ? new String[]{"", ""} : core.npcs().preset("mode_combofly");
         if (citizenId >= 0 && citizens.ensure(citizenId, npcLocation)) {
+            citizens.skin(citizenId, skin, preset[0], preset[1]);
             return;
         }
         int id = citizens.find(CITIZEN_NAME);
         if (id < 0 || !citizens.ensure(id, npcLocation)) {
-            id = citizens.create(CITIZEN_NAME, npcLocation, skin, new ItemStack(Material.DIAMOND_SWORD));
+            id = citizens.create(CITIZEN_NAME, npcLocation, skin, preset[0], preset[1], new ItemStack(Material.DIAMOND_SWORD));
         }
         if (id >= 0) {
             citizenId = id;
             YamlConfiguration config = core.configs().get(ComboArenaMode.FILE);
             config.set("kit-npc.citizens", id);
             core.configs().save(ComboArenaMode.FILE);
-            if (skin != null && !skin.isBlank()) {
-                citizens.skin(id, skin);
-            }
+            citizens.skin(id, skin, preset[0], preset[1]);
         }
     }
 

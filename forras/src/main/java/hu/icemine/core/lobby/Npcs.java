@@ -61,6 +61,9 @@ public final class Npcs implements Listener {
         String shown;
         boolean failed;
         String skin = "";
+        /** Aláírt skin textúra (MineSkin): a Citizens NPC teste és a szobrok feje is ezt kapja. */
+        String skinValue = "";
+        String skinSignature = "";
         int citizenId = -1;
         boolean external;
         /** Melyik csoporté (lobby, vagy egy mód lobbyja), melyik config fájlban és hol van leírva. */
@@ -81,6 +84,8 @@ public final class Npcs implements Listener {
         Npc moved(Location to) {
             Npc copy = new Npc(id, to, name, type, profession, equipment, action);
             copy.skin = skin;
+            copy.skinValue = skinValue;
+            copy.skinSignature = skinSignature;
             copy.citizenId = citizenId;
             copy.group = group;
             copy.file = file;
@@ -189,9 +194,55 @@ public final class Npcs implements Listener {
         Npc npc = new Npc(id, location, new ArrayList<>(section.getStringList(key + ".name")), type,
                 section.getString(key + ".profession", "librarian").toLowerCase(Locale.ROOT), equipment, action);
         npc.skin = section.getString(key + ".skin", "");
+        npc.skinValue = section.getString(key + ".skin-value", "");
+        npc.skinSignature = section.getString(key + ".skin-signature", "");
+        if (npc.skin.isBlank() && npc.skinValue.isBlank()) {
+            org.bukkit.configuration.ConfigurationSection preset = skins().getConfigurationSection(skinKey(id));
+            if (preset != null) {
+                npc.skinValue = preset.getString("value", "");
+                npc.skinSignature = preset.getString("signature", "");
+            }
+        }
         npc.citizenId = section.getInt(key + ".citizens", -1);
         npc.path = basePath + "." + key;
         return npc;
+    }
+
+    private YamlConfiguration skins;
+
+    /** A beépített NPC skinek (npc-skins.yml a pluginban). */
+    private YamlConfiguration skins() {
+        if (skins == null) {
+            skins = new YamlConfiguration();
+            try (java.io.InputStream in = core.getResource("npc-skins.yml")) {
+                if (in != null) {
+                    skins.load(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8));
+                }
+            } catch (Exception error) {
+                core.getLogger().warning("Nem sikerült betölteni az NPC skineket: " + error.getMessage());
+            }
+        }
+        return skins;
+    }
+
+    /** Beépített skin: {value, signature}, vagy két üres szöveg. */
+    public String[] preset(String key) {
+        org.bukkit.configuration.ConfigurationSection preset = skins().getConfigurationSection(key);
+        return preset == null ? new String[]{"", ""} : new String[]{preset.getString("value", ""), preset.getString("signature", "")};
+    }
+
+    /** "mode_gens" -> mode_gens, "soon2" -> soon, "modelobby_bedwars/solo" -> bedwars_solo. */
+    static String skinKey(String id) {
+        if (id.startsWith("soon")) {
+            return "soon";
+        }
+        int slash = id.indexOf('/');
+        if (slash > 0) {
+            String group = id.substring(0, slash);
+            int under = group.indexOf('_');
+            return (under >= 0 ? group.substring(under + 1) : group) + "_" + id.substring(slash + 1);
+        }
+        return id;
     }
 
     static ItemStack gear(String spec) {
@@ -359,6 +410,7 @@ public final class Npcs implements Listener {
 
     private void citizen(Npc npc) {
         if (npc.citizenId >= 0 && citizens.ensure(npc.citizenId, npc.location)) {
+            citizens.skin(npc.citizenId, npc.skin, npc.skinValue, npc.skinSignature);
             return;
         }
         String name = "icemine_" + npc.id;
@@ -368,7 +420,7 @@ public final class Npcs implements Listener {
             return;
         }
         String hand = npc.equipment.get("hand");
-        id = citizens.create(name, npc.location, npc.skin, hand == null ? null : gear(hand));
+        id = citizens.create(name, npc.location, npc.skin, npc.skinValue, npc.skinSignature, hand == null ? null : gear(hand));
         if (id >= 0) {
             remember(npc, id);
         }
@@ -379,9 +431,7 @@ public final class Npcs implements Listener {
         YamlConfiguration config = core.configs().get(npc.file);
         config.set((npc.path == null ? "npcs." + npc.id : npc.path) + ".citizens", id);
         core.configs().save(npc.file);
-        if (!npc.skin.isBlank()) {
-            citizens.skin(id, npc.skin);
-        }
+        citizens.skin(id, npc.skin, npc.skinValue, npc.skinSignature);
     }
 
     private Npc near(Entity entity) {
@@ -452,7 +502,20 @@ public final class Npcs implements Listener {
         EntityEquipment equipment = stand.getEquipment();
         if (equipment != null) {
             String head = npc.equipment.getOrDefault("helmet", "PLAYER_HEAD");
-            equipment.setHelmet(gear(head));
+            ItemStack helmet = gear(head);
+            if (helmet != null && helmet.getType() == Material.PLAYER_HEAD && !npc.skinValue.isBlank()
+                    && helmet.getItemMeta() instanceof org.bukkit.inventory.meta.SkullMeta skull) {
+                try {
+                    com.destroystokyo.paper.profile.PlayerProfile profile = org.bukkit.Bukkit.createProfile(UUID.nameUUIDFromBytes(npc.id.getBytes()), "icemine_npc");
+                    profile.setProperty(new com.destroystokyo.paper.profile.ProfileProperty("textures", npc.skinValue,
+                            npc.skinSignature.isBlank() ? null : npc.skinSignature));
+                    skull.setPlayerProfile(profile);
+                    helmet.setItemMeta(skull);
+                } catch (RuntimeException ignored) {
+                    // régebbi szerveren marad a sima fej
+                }
+            }
+            equipment.setHelmet(helmet);
             if (npc.equipment.containsKey("chestplate")) {
                 equipment.setChestplate(gear(npc.equipment.get("chestplate")));
             }

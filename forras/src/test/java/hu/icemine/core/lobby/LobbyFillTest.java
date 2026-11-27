@@ -16,6 +16,10 @@ class LobbyFillTest {
         long crops = blocks.values().stream().filter(v -> v.startsWith("wheat") || v.startsWith("carrots") || v.startsWith("potatoes")).count();
         long stalls = blocks.values().stream().filter(v -> v.equals("yellow_wool") || v.equals("lime_wool")).count();
         long anvils = blocks.values().stream().filter(v -> v.startsWith("blast_furnace")).count();
+        long rink = blocks.values().stream().filter(v -> v.equals("ice")).count();
+        long spires = blocks.values().stream().filter(v -> v.equals("blue_ice")).count();
+        System.out.println("rink=" + rink + " blueice=" + spires);
+        assertTrue(rink > 100, "korcsolyapálya");
         long beehive = blocks.values().stream().filter(v -> v.startsWith("beehive")).count();
         System.out.println("wool=" + wool + " crops=" + crops + " stalls=" + stalls + " forge=" + anvils + " beehive=" + beehive);
         assertTrue(wool > 0, "szélmalom");

@@ -231,6 +231,14 @@ Gens eligazodás (3.70.5-től): a központban tábla mondja meg, mi hol van, az 
 visz és hányas szinttől. Minden szigeten van portál vissza a közös farmra (a régi szigetekre is kerül, ha szabad a hely),
 és ugyanezt tudja a `/gens farm` és a `/spawn` is.
 
+Főlobby (3.73.0-tól, layout 16): a sziget 240 helyett 350 blokk széles és hátrafelé is hosszabb. Nyugaton jégfalu
+(korcsolyapálya, 4 iglu, feldíszített fenyő), keleten kristálykert jégtornyokkal, a maradék sík részeken házak kerttel.
+A házakon zsalugáterek, virágok, lámpa az ajtónál, bent bútorok (ágy, asztal, könyvespolc). Az égen 8 csillag és 10 hópehely
+a spawn felé fordítva, az IceMine felirat árnyékkal térhatású, a spawnon jégkapu és jégszobrok.
+NPC skinek (3.73.0-tól): a forras/src/main/resources/npc-skins.yml-ben vannak (MineSkin, aláírt textúra), Citizensszel a
+lobby NPC-k ezt kapják; Citizens nélkül a szobrok feje. Saját skin: lobby.yml npcs.<id>.skin (játékosnév) vagy
+skin-value + skin-signature.
+
 Főlobby (3.72.0-tól, layout 15): a mező is be van építve. Nyugaton tanyanegyed (szélmalom, termőföldek madárijesztővel,
 pajta méhkaptárakkal, házak földúttal), keleten piactér színes standokkal és kúttal, kovácsműhely, gyümölcsösök, több ház,
 sűrűbb fenyves a hegyoldalon, virágfoltok, bokrok és kövek, a sziget körül 8 lebegő kis sziget. Ha a lobby.yml-ben
