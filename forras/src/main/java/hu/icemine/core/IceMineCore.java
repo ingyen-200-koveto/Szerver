@@ -345,6 +345,16 @@ public final class IceMineCore extends JavaPlugin {
                 }
             }, 20L * 30, 20L * 30);
         });
+        safely("rang frissítés", () -> Bukkit.getScheduler().runTaskTimer(this, () -> {
+            // ha valakinek menet közben változik a rangja (pl. lp user ... parent set), pár másodpercen belül mindenhol átáll
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                hu.icemine.core.rank.Ranks.Rank before = ranks.of(online);
+                ranks.apply(online);
+                if (ranks.of(online) != before) {
+                    boards.updateTab(online);
+                }
+            }
+        }, 20L * 10, 20L * 5));
         safely("changelog", () -> {
             if (getConfig().getBoolean("changelog.discord", false)) {
                 Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> hu.icemine.core.config.Changelog.run(getResource("changelog.yml"),

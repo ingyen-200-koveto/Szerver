@@ -31,6 +31,8 @@ public final class ForeignMessages {
     static final String ESSENTIALS_CONFIG = "essentials-config:1";
     static final String AUTHME_WELCOME = "authme-welcome:1";
     static final String ESSENTIALS_MAIL = "essentials-mail:1";
+    static final String TAB_SORT = "tab-sort:1";
+    static final String TAB_GROUPS = "tulajdonos,manager,fejleszto,sradmin,admin,srmoderator,moderator,jnmoderator,epitesz,media,yeti,iceking,wizard,bronz,jatekos,default";
     private static final String DONE_FILE = ".kulso-uzenetek";
 
     private ForeignMessages() {
@@ -92,6 +94,23 @@ public final class ForeignMessages {
                     changed = true;
                 } catch (IOException exception) {
                     logger.warning("Nem sikerült átírni: plugins/Essentials/config.yml (" + exception.getMessage() + ")");
+                }
+            }
+        }
+        if (!done.contains(TAB_SORT)) {
+            Path config = plugins.resolve("TAB").resolve("config.yml");
+            if (Files.isRegularFile(config)) {
+                try {
+                    String text = Files.readString(config, StandardCharsets.UTF_8);
+                    String patched = patchTab(text);
+                    if (!patched.equals(text)) {
+                        Files.writeString(config, patched, StandardCharsets.UTF_8);
+                        notes.add("TAB/config.yml (a rangok sorrendje az IceMine rangjai szerint)");
+                    }
+                    done.add(TAB_SORT);
+                    changed = true;
+                } catch (IOException exception) {
+                    logger.warning("Nem sikerült átírni: plugins/TAB/config.yml (" + exception.getMessage() + ")");
                 }
             }
         }
@@ -228,5 +247,19 @@ public final class ForeignMessages {
         } catch (IOException ignored) {
             // következő indításkor újra próbáljuk
         }
+    }
+
+    /** A TAB alap rangsorrendje (owner, admin, mod...) helyett az IceMine rangjai, legerősebb elöl. */
+    static String patchTab(String text) {
+        String out = text.replace("\"GROUPS:owner,admin,mod,helper,builder,vip,default\"", "\"GROUPS:" + TAB_GROUPS + "\"");
+        String oldList = "primary-group-finding-list:\n  - Owner\n  - Admin\n  - Mod\n  - Helper\n  - default\n";
+        if (out.contains(oldList)) {
+            StringBuilder list = new StringBuilder("primary-group-finding-list:\n");
+            for (String group : TAB_GROUPS.split(",")) {
+                list.append("  - ").append(group).append('\n');
+            }
+            out = out.replace(oldList, list.toString());
+        }
+        return out;
     }
 }

@@ -102,6 +102,8 @@ Minden a `plugins/IceMine/ranks.yml`-ben van: mit kap a rang az IceMine-ban (pé
 milyen a LuckPermsben (`luckperms` rész). Mindegyik rang megkapja a gyengébbek IceMine jutalmait is.
 3.65.0-tól a rangok előtagja ikon + színátmenetes név (pl. ☆ JÁTÉKOS, ⚙ FEJLESZTŐ, ♛ TULAJDONOS, ❄ ICEKING); a LuckPermsben is
 egyszer lecserélődnek (a kézzel beállított régi előtagok helyett). A chatben a név után `»` jön.
+3.70.3-tól a menet közbeni rangváltás (lp user ... parent set) 5 mp-en belül mindenhol átáll (sorrend, jutalmak),
+a TAB rangsorrendje pedig az IceMine rangjai szerint megy (TAB/config.yml, egyszer átírja).
 
 | Rang | LuckPerms csoport | Súly | Szülő |
 |---|---|---|---|
