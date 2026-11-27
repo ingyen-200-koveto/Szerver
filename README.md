@@ -223,8 +223,8 @@ csatornájába kerülnek (vagy ahová a botnál beállítod: `/beallitas frissit
 changelog.yml-ben vannak; 3.70.1-től egyelőre ki van kapcsolva (config.yml -> changelog.discord: true kapcsolja vissza).
 
 Látótáv (3.67.0-tól): nincs lezárva, mindenki annyit lát, amennyit a saját Videóbeállításaiban kér (max 32 chunk,
-config.yml -> view). A távoli chunkok csak látszanak, nem futnak bennük mobok és redstone. A Gensben (ice_gens) 3.70.2-től
-legfeljebb 12 chunk, mert ott a sok épület és növény egyszerre megakasztotta a játékot (view.worlds).
+config.yml -> view). A távoli chunkok csak látszanak, nem futnak bennük mobok és redstone. A Gensben (ice_gens) 3.70.2-ben
+12 chunk volt a határ, 3.70.4-től ott is 32 (view.worlds: világonként külön határ adható).
 
 A főlobbyban az üzenetek előtagja `Lobby •` (mint a játékmódokban), máshol `IceMine •` (a régi `[IceMine]` helyett), az AuthMe üzenetei is ezzel jönnek, belépéskor
 csak annyi jelenik meg, hogy "Sikeres bejelentkezés, jó játékot!" (messages_hu.yml -> lobby-prefix), a játékmódokban a mód neve.

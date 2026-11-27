@@ -769,6 +769,14 @@ public final class Migrations {
             viewConfig.set("migrated.view-gens-v1", true);
             files.save("config");
         }
+        if (viewConfig != null && !viewConfig.getBoolean("migrated.view-gens-v2", false)) {
+            // a Gensben is az egész pálya látszódjon
+            if (viewConfig.getInt("view.worlds.ice_gens", 0) == 12) {
+                viewConfig.set("view.worlds.ice_gens", null);
+            }
+            viewConfig.set("migrated.view-gens-v2", true);
+            files.save("config");
+        }
         YamlConfiguration logConfig = files.get("config");
         if (logConfig != null && !logConfig.getBoolean("migrated.changelog-off-v1", false)) {
             // a changelog egyelőre ki van kapcsolva
